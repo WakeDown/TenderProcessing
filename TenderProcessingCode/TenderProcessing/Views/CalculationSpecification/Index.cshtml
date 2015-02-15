@@ -1,0 +1,282 @@
+﻿@using System.Web.Script.Serialization
+@using DocumentFormat.OpenXml.Wordprocessing
+@using TenderProcessingDataAccessLayer.Models
+
+@{
+    Layout = null;
+    var serializer = new JavaScriptSerializer();
+    var claim = (TenderClaim) ViewBag.Claim;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/Content/message.css" rel="stylesheet" />
+    <style type="text/css">
+        .claimInfoLabel {
+            font-weight: bold;
+            color: blue;
+        }
+        .claimInfoValueLabel {
+            font-weight: bold;
+        }
+        .cell {
+            border: 1px solid gray;
+        }
+    </style>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/jquery-ui.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/message.js"></script>
+    <script type="text/javascript">
+        var claim = @Html.Raw(serializer.Serialize(claim));
+        var status = "@ViewBag.Status";
+        var dealType = "@ViewBag.DealType";
+
+        $(init);
+
+        function init() {
+            messageUi.initProgressImage();
+            if (claim == null) {
+                messageUi.show("Заявка не найдена<br/>или у Вас нет доступа к ней");
+            } else {
+                showClaimInfo(claim);
+                initPositions(claim.Positions);
+            }
+        }
+
+        function initPositions(positions) {
+            if (positions == null) return;
+            var container = $("#positionsTable");
+            var positionsLength = positions.length;
+            for (var i = 0; i < positionsLength; i++) {
+                var position = positions[i];
+                var element = getPositionElement(position);
+                container.append(element);
+            }
+        }
+
+        function showClaimInfo(model) {
+            var container = $("#claimInfoPanel");
+            container.empty();
+            container.append("<span class='claimInfoLabel'>Номер заявки: </span>");
+            container.append("<span class='claimInfoValueLabel'>" + model.Id + "</span>");
+            container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+            container.append("<span class='claimInfoLabel'>Номер конкурса: </span>");
+            container.append("<span class='claimInfoValueLabel'>" + model.TenderNumber + "</span>");
+            container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+            container.append("<span class='claimInfoLabel'>Дата начала: </span>");
+            container.append("<span class='claimInfoValueLabel'>" + model.TenderStartString + "</span>");
+            container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+            container.append("<span class='claimInfoLabel'>Срок сдачи: </span>");
+            container.append("<span class='claimInfoValueLabel'>" + model.ClaimDeadlineString + "</span>");
+            container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+            container.append("<span class='claimInfoLabel'>Срок подачи КП: </span>");
+            container.append("<span class='claimInfoValueLabel'>" + model.KPDeadlineString + "</span>");
+            container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+            container.append("<br/>");
+            container.append("<span class='claimInfoLabel'>Заказчик: </span>");
+            container.append("<span class='claimInfoValueLabel'>" + model.Customer + "</span>");
+            container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+            container.append("<span class='claimInfoLabel'>ИНН заказчика: </span>");
+            container.append("<span class='claimInfoValueLabel'>" + model.CustomerInn + "</span>");
+            container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+            container.append("<span class='claimInfoLabel'>Сумма (с НДС): </span>");
+            var sum = "";
+            if (model.Sum > 0) {
+                sum = model.Sum.toFixed(2);
+            }
+            container.append("<span class='claimInfoValueLabel'>" + sum + "</span>");
+            container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+            container.append("<span class='claimInfoLabel'>Тип сделки: </span>");
+            container.append("<span class='claimInfoValueLabel'>" + dealType + "</span>");
+            container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+            container.append("<span class='claimInfoLabel'>Статус заявки: </span>");
+            container.append("<span class='claimInfoValueLabel'>" + status + "</span>");
+            container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+            container.append("<br/>");
+            container.append("<span class='claimInfoLabel'>Ссылка на закупки: </span>");
+            container.append("<span class='claimInfoValueLabel'>" + model.TenderUrl + "</span>");
+            container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+            container.append("<span class='claimInfoLabel'>Менеджер: </span>");
+            container.append("<span class='claimInfoValueLabel'>" + model.Manager.Name + "</span>");
+            container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+            container.append("<span class='claimInfoLabel'>Подразделение менеджера: </span>");
+            container.append("<span class='claimInfoValueLabel'>" + model.Manager.SubDivision + "</span>");
+            container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+            container.append("<br/>");
+            container.append("<span class='claimInfoLabel'>Комментарий: </span>");
+            container.append("<span class='claimInfoValueLabel'>" + model.Comment + "</span>");
+        }
+
+        function getPositionElement(position) {
+            var element = $("<tr style='border: 1px solid gray;' positionId='" + position.Id + "'></tr>");
+            element.append("<td><span>"+ position.CatalogNumber + "</span></td>");
+            element.append("<td><span>"+ position.Name + "</span></td>");
+            element.append("<td><span>"+ position.Replace + "</span></td>");
+            element.append("<td><span>"+ getUnitString(position.Unit) + "</span></td>");
+            element.append("<td><span>"+ position.Value + "</span></td>");
+            element.append("<td><div style='max-width: 260px;'>"+ position.Comment + "</div></td>");
+            var sum = "";
+            if (position.Sum > 0) {
+                sum = position.Sum.toFixed(2);
+            }
+            element.append("<td><span>"+ sum + "</span></td>");
+            var addCalculateButton = $("<button type='button' modetype='addCalcButton' class='btn btn-primary'>Добавить расчет</button>");
+            addCalculateButton.click(addCalculateButtonClick);
+            var saveCalculateButton = $("<button type='button' modetype='saveCalcButton' class='btn btn-primary'>Сохранить расчет</button>");
+            saveCalculateButton.click(saveCalculate);
+            var cancelCalculateButton = $("<button type='button' modetype='cancelCalcButton' class='btn btn-danger' style='margin-right: 4px;'>Отмена</button>");
+            cancelCalculateButton.click(cancelCalculate);
+            var actionCell = $("<td></td>");
+            actionCell.append(addCalculateButton);
+            actionCell.append(cancelCalculateButton);
+            actionCell.append(saveCalculateButton);
+            saveCalculateButton.hide();
+            cancelCalculateButton.hide();
+            element.append(actionCell);
+            return element;
+        }
+
+        function addCalculateButtonClick(e) {
+            var button = $(e.currentTarget);
+            var row = button.parent().parent();
+            var calcRow = getCalculatePositionElement();
+            calcRow.hide();
+            calcRow.attr("calcPositionId", row.attr("positionId"));
+            row.after(calcRow);
+            calcRow.show(250);
+            button.hide();
+            $("[modetype='saveCalcButton']", button.parent()).show();
+            $("[modetype='cancelCalcButton']", button.parent()).show();
+        }
+
+        function saveCalculate(e) {
+            
+        }
+
+        function cancelCalculate(e) {
+            var button = $(e.currentTarget);
+            var row = button.parent().parent();
+            var calcRow = $("[calcPositionId='" + row.attr("positionId") + "']", row.parent());
+            calcRow.remove();
+            button.hide();
+            $("[modetype='saveCalcButton']", button.parent()).hide();
+            $("[modetype='addCalcButton']", button.parent()).show();
+        }
+
+        function getCalculatePositionElement() {
+            var row = $("<tr></tr>");
+            var cell = $("<td colspan='8'></td>");
+            row.append(cell);
+            var calcTable = $("#calculatePositionTable").clone();
+            calcTable.removeAttr("id");
+            calcTable.show();
+            cell.append(calcTable);
+            return row;
+        }
+
+        function getUnitString(unit) {
+            var result = "";
+            switch (unit) {
+                case 1:
+                    result = "Шт";
+                    break;
+                case 2:
+                    result = "Упак";
+                    break;
+            }
+            return result;
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <div style="width: 100%; text-align: center;">
+            <h4 style="color: blue;">Заявка</h4>
+            <div id="claimInfoPanel"></div>
+        </div> 
+        <div style="width: 100%; text-align: center;">
+            <h4 style="color: blue;">Позиции спецификаций</h4>
+            <div style="display: inline-block; margin: 0 4px 0 4px;">
+                <table style="border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: rgb(180, 210, 240);">
+                            <th class="cell">Каталожный<br />номер</th>
+                            <th class="cell">Наименование</th>
+                            <th class="cell">Замена</th>
+                            <th class="cell">Ед.</th>
+                            <th class="cell">Колич.</th>
+                            <th class="cell">Комментарий</th>
+                            <th class="cell">Сумма<br />максимум</th>
+                            <th class="cell">Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody id="positionsTable"></tbody>
+                </table>
+            </div>
+        </div>
+        <table id="calculatePositionTable" style="display: none; text-align: center; background-color: rgb(200, 230, 255);">
+            <tr>
+                <td class="claimInfoLabel">Каталожный<br />номер</td>
+                <td>
+                    <input type="text" modetype="calculateCatalogNumber" style="width: 140px;"/>
+                </td>
+                <td class="claimInfoLabel">Наименование</td>
+                <td>
+                    <input type="text" modetype="calculateName" style="width: 140px;" />
+                </td>
+                <td class="claimInfoLabel">Замена</td>
+                <td>
+                    <input type="text" modetype="calculateReplace" style="width: 140px;" />
+                </td>
+                <td class="claimInfoLabel">Цена за ед.<br />USD</td>
+                <td>
+                    <input type="text" modetype="calculatePriceUsd" style="width: 140px;" />
+                </td>
+            </tr>
+            <tr>
+                <td class="claimInfoLabel">Сумма вход<br />USD</td>
+                <td>
+                    <input type="text" modetype="calculateSumUsd" style="width: 140px;" />
+                </td>
+                <td class="claimInfoLabel">Цена за ед.<br />руб</td>
+                <td>
+                    <input type="text" modetype="calculatePriceRub" style="width: 140px;" />
+                </td>
+                <td class="claimInfoLabel">Сумма вход<br />руб</td>
+                <td>
+                    <input type="text" modetype="calculateSumRub" style="width: 140px;" />
+                </td>
+                <td class="claimInfoLabel">Поставщик</td>
+                <td>
+                    <input type="text" modetype="calculateProvider" style="width: 140px;" />
+                </td>
+            </tr>
+            <tr>
+                <td class="claimInfoLabel">Факт получ.<br/>защиты</td>
+                <td>
+                    <select size="1" modetype="calculateProtectFact" style="width: 170px;">
+                        <option value="Получена нами">Получена нами</option>
+                        <option value="Получена конкурентом">Получена конкурентом</option>
+                        <option value="Не предоставляется">Не предоставляется</option>
+                    </select>
+                </td>
+                <td class="claimInfoLabel">Условия<br/>защиты</td>
+                <td>
+                    <input type="text" modetype="calculateProtectCondition" style="width: 140px;" />
+                </td>
+                <td class="claimInfoLabel">Комментарий</td>
+                <td colspan="3">
+                    <textarea rows="3" style="width: 240px" modetype="calculateComment"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

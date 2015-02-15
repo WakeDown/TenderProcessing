@@ -1,0 +1,459 @@
+﻿@using System.Web.Script.Serialization
+@using TenderProcessingDataAccessLayer.Models
+
+@{
+    Layout = null;
+    var serializer = new JavaScriptSerializer();
+    var dealTypes = (List<DealType>)ViewBag.DealTypes;
+    var claimStatus = (List<ClaimStatus>)ViewBag.ClaimStatus;
+    var claims = (List<TenderClaim>) ViewBag.Claims;
+    var managers = (List<Manager>) ViewBag.Managers;
+    var productManagers = (List<ProductManager>)ViewBag.ProductManagers;
+    var claimCount = (int) ViewBag.ClaimCount;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>List</title>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/Content/message.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/jquery-ui.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/message.js"></script>
+    <script type="text/javascript">
+        var dealTypes = @Html.Raw(serializer.Serialize(dealTypes));
+        var claimStatus = @Html.Raw(serializer.Serialize(claimStatus));
+        var claims = @Html.Raw(serializer.Serialize(claims));
+        var managers = @Html.Raw(serializer.Serialize(managers));
+        var productManagers = @Html.Raw(serializer.Serialize(productManagers));
+
+        $(init);
+
+        function init() {
+            messageUi.initProgressImage();
+            initClaimsElements(claims);
+            initFilterClaimStatusList();
+            initFilterManagersList();
+            initFilterProductManagersList();
+            initFilterManagerSubDivisionsList();
+            $("#filterTenderStartFrom").datepicker({
+                dateFormat: "dd.mm.yy"
+            });
+            $("#filterTenderStartTo").datepicker({
+                dateFormat: "dd.mm.yy"
+            });
+            $("#clearDates").click(function() {
+                $("#filterTenderStartFrom").val("");
+                $("#filterTenderStartTo").val("");
+            });
+            $("#acceptFilter").click(filter);
+            $("#clearFilter").click(clearFilter);
+        }
+
+        function filter(e) {
+            var obj = getFilterObj();
+            if (!obj.isValid) {
+                messageUi.show(obj.message);
+                return;
+            }
+            $.ajax({
+                url: "/Claim/FilterClaim",
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify(obj.model),
+                processData: false,
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    if (data.IsComplete) {
+                        claims = data.Claims;
+                        initClaimsElements(claims);
+                        $("#claimCountLabel").text("Всего записей: " + data.Count);
+                    } else {
+                        messageUi.show("Ошибка при фильтрации заявок", true, null, 1700);
+                    }
+                }
+            });
+        }
+
+        function clearFilter(e) {
+            $("#filterRowCount").val("");
+            $("#filterIdClaim").val("");
+            $("#filterTenderNumber").val("");
+            $("#filterTenderStartFrom").val("");
+            $("#filterTenderStartTo").val("");
+            $("#filterClaimOverdueNot").get(0).checked = true;
+            $(":first", $("#filterManagers")).attr("selected", "selected");
+            $(":first", $("#filterClaimStatus")).attr("selected", "selected");
+            $(":first", $("#filterManagerSubDivisions")).attr("selected", "selected");
+            $(":first", $("#filterProductManagers")).attr("selected", "selected");
+            $.ajax({
+                url: "/Claim/FilterClaim",
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify({}),
+                processData: false,
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    if (data.IsComplete) {
+                        claims = data.Claims;
+                        initClaimsElements(claims);
+                    } else {
+                        messageUi.show("Ошибка при фильтрации заявок", true, null, 1700);
+                    }
+                }
+            });
+        }
+
+        function getFilterObj() {
+            var obj = { isValid: true, message: "", model: null };
+            var model = {};
+            var message = "";
+            var rowCount = $("#filterRowCount").val().trim();
+            if (rowCount != "") {
+                if (!isNaN(rowCount)) {
+                    if (rowCount.indexOf(".") == -1) {
+                        rowCount = Number(rowCount);
+                        if (rowCount < 0) {
+                            obj.isValid = false;
+                            obj.message = "Количество строк не может быть отрицательным";
+                        }
+                        if (rowCount > 0) {
+                            model.RowCount = rowCount;
+                        }
+                    } else {
+                        obj.isValid = false;
+                        obj.message = "Значение '" + rowCount + "' в поле Количество строк не является целым числом";
+                    }
+                } else {
+                    obj.isValid = false;
+                    obj.message = "Значение '" + rowCount + "' в поле Количество строк не является целым числом";   
+                }
+            }
+            var claimId = $("#filterIdClaim").val().trim();
+            if (claimId != "") {
+                if (!isNaN(claimId)) {
+                    if (claimId.indexOf(".") == -1) {
+                        claimId = Number(claimId);
+                        if (claimId < 0) {
+                            message = "№ Заявки не может быть отрицательным";
+                            if (obj.message.trim() != "") {
+                                message = "<br/>" + message;
+                            }
+                            obj.isValid = false;
+                            obj.message = message;
+                        }
+                        if (claimId > 0) {
+                            model.IdClaim = claimId;
+                        }
+                    } else {
+                        message = "Значение '" + claimId + "' в поле № Заявки не является целым числом";
+                        if (obj.message.trim() != "") {
+                            message = "<br/>" + message;
+                        }
+                        obj.isValid = false;
+                        obj.message = message;
+                    }
+                } else {
+                    message = "Значение '" + claimId + "' в поле № Заявки не является целым числом";
+                    if (obj.message.trim() != "") {
+                        message = "<br/>" + message;
+                    }
+                    obj.isValid = false;
+                    obj.message = message;   
+                }
+            }
+            var tenderNumber = $("#filterTenderNumber").val().trim();
+            if (tenderNumber != "") {
+                model.TenderNumber = tenderNumber;
+            }
+            var status = Number($(":selected", $("#filterClaimStatus")).val());
+            if (status != -1) {
+                model.ClaimStatus = status;
+            }
+            var manager = $(":selected", $("#filterManagers")).val().trim();
+            if (manager != "-1") {
+                model.IdManager = manager;
+            }
+            var productManager = $(":selected", $("#filterProductManagers")).val().trim();
+            if (productManager != -1) {
+                model.IdProductManager = productManager;
+            }
+            var managerSubDivision = $(":selected", $("#filterManagerSubDivisions")).val().trim();
+            if (managerSubDivision != -1) {
+                model.ManagerSubDivision = managerSubDivision;
+            }
+            var tenderStartFrom = $("#filterTenderStartFrom").val().trim();
+            if (tenderStartFrom != "") {
+                model.TenderStartFrom = tenderStartFrom;
+            }
+            var tenderStartTo = $("#filterTenderStartTo").val().trim();
+            if (tenderStartTo != "") {
+                model.TenderStartTo = tenderStartTo;
+            }
+            if (tenderStartFrom != "" && tenderStartTo != "") {
+                var dateFrom = $("#filterTenderStartFrom").datepicker("getDate").getTime();
+                var dateTo = $("#filterTenderStartTo").datepicker("getDate").getTime();
+                if (dateTo < dateFrom) {
+                    message = "Дата 'срок сдачи с' должна быть не позже даты 'срок сдачи по'";
+                    if (obj.message.trim() != "") {
+                        message = "<br/>" + message;
+                    }
+                    obj.isValid = false;
+                    obj.message = message;
+                }
+            }
+            var overdie = null;
+            if ($("#filterClaimOverdueYes").get(0).checked) {
+                overdie = true;
+            }
+            if ($("#filterClaimOverdueNo").get(0).checked) {
+                overdie = false;
+            }
+            if (overdie != null) {
+                model.Overdie = overdie;
+            }
+            if (obj.isValid) {
+                obj.model = model;
+            }
+            return obj;
+        }
+
+        function initFilterClaimStatusList() {
+            var statusLength = claimStatus.length;
+            var list = $("#filterClaimStatus");
+            var option = $("<option value='-1'>Без фильтра</option>");
+            list.append(option);
+            for (var i = 0; i < statusLength; i++) {
+                var status = claimStatus[i];
+                option = $("<option value='" + status.Id + "'>" + status.Value + "</option>");
+                list.append(option);
+            }
+        }
+
+        function initFilterManagersList() {
+            var managersLength = managers.length;
+            var list = $("#filterManagers");
+            var option = $("<option value='-1'>Без фильтра</option>");
+            list.append(option);
+            for (var i = 0; i < managersLength; i++) {
+                var manager = managers[i];
+                option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
+                list.append(option);
+            }
+        }
+
+        function initFilterProductManagersList() {
+            var managersLength = productManagers.length;
+            var list = $("#filterProductManagers");
+            option = $("<option value='-1'>Без фильтра</option>");
+            list.append(option);
+            for (var i = 0; i < managersLength; i++) {
+                var manager = productManagers[i];
+                var option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
+                list.append(option);
+            }
+        }
+
+        function initFilterManagerSubDivisionsList() {
+            var managersLength = managers.length;
+            var list = $("#filterManagerSubDivisions");
+            var option = $("<option value='-1'>Без фильтра</option>");
+            list.append(option);
+            for (var i = 0; i < managersLength; i++) {
+                var manager = managers[i];
+                option = $("<option value='" + manager.SubDivision + "'>" + manager.SubDivision + "</option>");
+                list.append(option);
+            }
+        }
+
+        function initClaimsElements(list) {
+            var container = $("#claimTable"); 
+            container.empty();
+            if (list == null) return;
+            var listLength = list.length;
+            for (var i = 0; i < listLength; i++) {
+                var claim = list[i];
+                var element = getClaimElement(claim);
+                container.append(element);
+            }
+        }
+
+        function getClaimElement(claim) {
+            var element = $("<tr style='border: 1px solid black;' claimId='" + claim.Id + "'></tr>");
+            element.append("<td><span>" + claim.Id + "</span></td>");
+            element.append("<td><span>" + claim.TenderNumber + "</span></td>");
+            element.append("<td><span>" + claim.Customer + "</span></td>");
+            var sum = "";
+            if (claim.Sum > 0) {
+                sum = claim.Sum.toFixed(0);
+            }
+            element.append("<td><span>" + sum + "</span></td>");
+            element.append("<td><span>" + claim.Manager.Name + "</span></td>");
+            element.append("<td><span>" + getProductManagersString(claim.ProductManagers) + "</span></td>");
+            element.append("<td><span>" + getDealTypeById(claim.DealType).Value + "</span></td>");
+            element.append("<td><span>" + getClaimStatusById(claim.ClaimStatus).Value + "</span></td>");
+            var actionCell = $("<td></td>");
+            element.append(actionCell);
+            var editButton = $("<a href='/Claim/Index?claimId=" + claim.Id  + "' class='btn btn-info'>Изменить</a>");
+            var deleteButton = $("<button type='button' class='btn btn-danger' style='margin-top: 4px;'>Удалить</button>");
+            deleteButton.click(deleteButtonClick);
+            actionCell.append(editButton);
+            actionCell.append("<br/>");
+            actionCell.append("<a href='/CalculationSpecification/Index?claimId=" + claim.Id  + "' class='btn btn-info'>Расчитать</a>");
+            actionCell.append("<br/>");
+            actionCell.append(deleteButton);
+            return element;
+        }
+
+        function deleteButtonClick(e) {
+            var button = $(e.currentTarget);
+            var row = button.parent().parent();
+            row.css("backgroundColor", "aqua");
+            var deleteFunc = function() {
+                row.css("backgroundColor", "transparent");
+                var id = row.attr("claimId");
+                $.ajax({
+                    url: "/Claim/DeleteClaim?id=" + id,
+                    type: 'GET',
+                    contentType: 'application/json; charset = utf-8 ',
+                    success: function(data) {
+                        if (data.IsComplete) {
+                            row.remove();
+                        } else {
+                            messageUi.show("Запись не удалена", true, null, 1700);
+                        }
+                    }
+                });
+            };
+            var cancelFunc = function() {
+                row.css("backgroundColor", "transparent");
+            };
+            messageUi.confirm("Удалить выделенную заявку?", deleteFunc, cancelFunc);
+        }
+
+        function getProductManagersString(managers) {
+            var result = "";
+            if (managers == null) return result;
+            var managersLength = managers.length;
+            for (var i = 0; i < managersLength; i++) {
+                var manager = managers[i];
+                result += manager.Name + "<br/>";
+            }
+            if (result.length > 4) {
+                result = result.substr(0, result.length - 5);
+            }
+            return result;
+        }
+
+        function getDealTypeById(id) {
+            id = Number(id);
+            var dealType = null;
+            var dealTypesLength = dealTypes.length;
+            for (var i = 0; i < dealTypesLength; i++) {
+                var model = dealTypes[i];
+                if (model.Id == id) {
+                    dealType = model;
+                    break;
+                }
+            }
+            return dealType;
+        }
+
+        function getClaimStatusById(id) {
+            id = Number(id);
+            var status = null;
+            var statusLength = claimStatus.length;
+            for (var i = 0; i < statusLength; i++) {
+                var model = claimStatus[i];
+                if (model.Id == id) {
+                    status = model;
+                    break;
+                }
+            }
+            return status;
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <div id="claimPanel" style="width: 100%; text-align: center;">
+            <h4 style="text-align: center;">Заявки</h4>
+            <div style="display: inline-block; margin: 0 4px 0 4px;">
+                <h4 style="text-align: center;">Фильтр</h4>
+                <table style="border-collapse: collapse; border: 1px solid black;">
+                    <tbody>
+                        <tr>
+                            <td><span style="font-weight: bold; color: blue;">Количество<br />записей</span></td>
+                            <td>
+                                <input type="text" id="filterRowCount" style="width: 60px;"/>
+                            </td>
+                            <td><span style="font-weight: bold; color: blue;">№ Заявки</span></td>
+                            <td>
+                                <input type="text" id="filterIdClaim" style="width: 60px;" />
+                            </td>
+                            <td><span style="font-weight: bold; color: blue;">№ Конкурса</span></td>
+                            <td>
+                                <input type="text" id="filterTenderNumber" style="width: 60px;" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span style="font-weight: bold; color: blue;">Статус</span></td>
+                            <td><select size="1" id="filterClaimStatus" style="width: 190px;"></select></td>
+                            <td><span style="font-weight: bold; color: blue;">Менеджер</span></td>
+                            <td><select size="1" id="filterManagers" style="width: 190px;"></select></td>
+                            <td><span style="font-weight: bold; color: blue;">Снабженец</span></td>
+                            <td><select size="1" id="filterProductManagers" style="width: 190px;"></select></td>
+                        </tr>
+                        <tr>
+                            <td><span style="font-weight: bold; color: blue;">Подразделение</span></td>
+                            <td><select size="1" id="filterManagerSubDivisions" style="width: 190px;"></select></td>
+                            <td><span style="font-weight: bold; color: blue;">Срок сдачи</span></td>
+                            <td>
+                                <b>С:</b><input type="text" id="filterTenderStartFrom" readonly="readonly" style="background-color: transparent; cursor: pointer; width: 80px;" />
+                                <b>По:</b><input type="text" id="filterTenderStartTo" readonly="readonly" style="background-color: transparent; cursor: pointer; width: 80px;" />
+                                <img src="~/Content/deleteImg.png" id="clearDates" style="cursor: pointer; height: 20px; vertical-align: baseline;"/>
+                            </td>
+                            <td><span style="font-weight: bold; color: blue;">Просроченные</span></td>
+                            <td>
+                                <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueYes" value="yes"><b>Да</b>
+                                <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNo" value="no"><b>Нет</b>
+                                <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNot" value="not" checked><b>Без фильтра</b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" style="text-align: center">
+                                <button type="button" id="clearFilter" class="btn btn-danger" style="margin: 4px;">Очистить фильтр</button>
+                                <button type="button" id="acceptFilter" class="btn btn-primary" style="margin: 4px;">Применить</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="display: inline-block; margin: 0 4px 0 4px;">
+                <h5 id="claimCountLabel" style="text-align: center;">Всего записей: @claimCount</h5>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>№ Заявки</th>
+                            <th>№ Конкурса</th>
+                            <th>Контрагент</th>
+                            <th>Сумма</th>
+                            <th>Менеджер</th>
+                            <th>Снабженцы</th>
+                            <th>Тип сделки</th>
+                            <th>Статус-дата изменения</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="claimTable"></tbody>
+                </table>
+            </div>
+        </div> 
+    </div>
+</body>
+</html>

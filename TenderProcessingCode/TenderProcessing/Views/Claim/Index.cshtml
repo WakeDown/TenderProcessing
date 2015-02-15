@@ -8,7 +8,8 @@
     var managers = (List<Manager>) ViewBag.Managers;
     var dealTypes = (List<DealType>) ViewBag.DealTypes;
     var claimStatus = (List<ClaimStatus>) ViewBag.ClaimStatus;
-    var productManagers = (List<string>) ViewBag.ProductManagers;
+    var productManagers = (List<ProductManager>) ViewBag.ProductManagers;
+    var claim = (TenderClaim) ViewBag.Claim;
 }
 
 <!DOCTYPE html>
@@ -30,14 +31,19 @@
         var claimStatus = @Html.Raw(serializer.Serialize(claimStatus));
         var productManagers = @Html.Raw(serializer.Serialize(productManagers));
         var dateStart = "@ViewBag.DateStart.ToString()";
-        var claim = null;
+        var claim = @Html.Raw(serializer.Serialize(claim));
+        var initClaimIdNedded = false;
 
         $(init);
 
         function init() {
             messageUi.initProgressImage();
             window.addEventListener("message", messageHandler, true);
-            $("#excelPanel").hide();
+            if (claim != null && claim.ClaimStatus == 1) {
+                $("#excelPanel").show();
+            } else {
+                $("#excelPanel").hide();
+            }
             initManagersList();
             initDealTypesList();
             $("#tenderStart").datepicker({
@@ -61,6 +67,49 @@
             managersList.css("width", 160);
             $("#managersCell").append(managersList);
             $("#butAddPosition").click(addPositionButtonClick);
+            if (claim != null) {
+                if (claim.Positions != null) {
+                    var container = $("#positionTable");
+                    var positionsLength = claim.Positions.length;
+                    for (var i = 0; i < positionsLength; i++) {
+                        var position = claim.Positions[i];
+                        var element = getPositionElement(position);
+                        container.append(element);
+                    }
+                }
+                showClaimReadOnly(claim);
+                $("#butSaveClaim").hide();
+                $("#butSetClaimOnWork").show();
+                $("#excelPanel").show(250);
+                $("#positionPanel").show(250);
+                initClaimIdNedded = true;
+                if (claim.ClaimStatus > 1) {
+                    var status = getClaimStatusById(claim.ClaimStatus);
+                    if (status == null) {
+                        status = { Value: "Неопределен" };
+                    }
+                    $("#claimStatus").text(status.Value);
+                    $("#butSetClaimOnWork").hide();
+                    $("#addPositionRow").remove();
+                    var cancelEditButtons = $("[modeType='editButtonCancel']", $("#positionTable"));
+                    $.each(cancelEditButtons, function(index, elem) {
+                        $(elem).click();
+                    });
+                    var editButtons = $("[modeType='editButton']", $("#positionTable"));
+                    $.each(editButtons, function(index, elem) {
+                        $(elem).remove();
+                    });
+                    var editPanels = $("[type='editActionPanel']", $("#positionTable"));
+                    $.each(editPanels, function(index, elem) {
+                        $(elem).remove();
+                    });
+                    var deleteButtons = $("[modeType='deleteButton']", $("#positionTable"));
+                    $.each(deleteButtons, function(index, elem) {
+                        $(elem).remove();
+                    });
+                    $("#excelPanel").hide();
+                }
+            }
         }
 
         function showMessage(message) {
@@ -127,7 +176,7 @@
             var comment = $("#comment").val();
             var dealType = Number($(":selected", $("#listDealTypes")).val());
             var tenderUrl = $("#tenderUrl").val();
-            var manager = $(":selected", $("#listManagers")).text();
+            var managerId = $(":selected", $("#listManagers")).val();
             var managerSubDivision = $("#managerSubDivision").text();
             var model = {
                 TenderNumber: tenderNumber,
@@ -140,7 +189,7 @@
                 Sum: sum,
                 DealType: dealType,
                 TenderUrl: tenderUrl,
-                Manager: { Name: manager, SubDivision: managerSubDivision }
+                Manager: { Id: managerId, SubDivision: managerSubDivision }
             };
             $.ajax({
                 url: "/Claim/SaveClaim",
@@ -290,6 +339,17 @@
         function messageHandler(e) {
             var data = e.data;
             var obj = $.parseJSON(data);
+            if (obj.type.trim() == "UploadFrameLoaded") {
+                if (initClaimIdNedded) {
+                    var objM = {
+                        type: "setClaimId",
+                        error: false,
+                        message: claim.Id
+                    }
+                    var message = JSON.stringify(objM);
+                    sendMessage(message);
+                }
+            }
             if (obj.type.trim() == "DownloadExcel") {
                 if (obj.error == true) {
                     showMessage("Ошибка при скачивании файла!");
@@ -336,13 +396,13 @@
             unitsList.hide();
             element.append(unitElement);
             element.append("<td><span type='valueLabel'>" + position.Value + "</span><input type='text' modelType='valueValue' value='" + position.Value + "' style='display:none; width: 60px;' /></td>");
-            var productManagerElement = $("<td><span type='productManagerLabel'>" + position.ProductManager + "</span></td>");
-            var productManagersList = getProductManagersList(position.ProductManager);
+            var productManagerElement = $("<td><span type='productManagerLabel' val='" + position.ProductManager.Id + "'>" + position.ProductManager.Name + "</span></td>");
+            var productManagersList = getProductManagersList(position.ProductManager.Id);
             productManagersList.css("width", 160);
             productManagerElement.append(productManagersList);
             productManagersList.hide();
             element.append(productManagerElement);
-            element.append("<td><span type='commentLabel'>" + position.Comment + "</span><textarea rows='3' modelType='commentValue' value='" + position.Value + "' style='display:none;' ></textarea></td>");
+            element.append("<td><div type='commentLabel'  style='max-width: 260px;'>" + position.Comment + "</div><textarea rows='3' modelType='commentValue' value='" + position.Value + "' style='display:none;' ></textarea></td>");
             var price = "";
             if (position.Price != 0) price = position.Price.toFixed(2);
             element.append("<td><span type='priceLabel'>" + price + "</span><input type='text' modelType='priceValue' value='" + price + "' style='display:none; width: 90px;' /></td>");
@@ -440,7 +500,7 @@
             selectListElement($("[type='unitsList']", row), $("[type='unitLabel']", row).attr("val"));
             $("[type='productManagerLabel']", row).hide();
             $("[type='productManagersList']", row).show();
-            selectListElement($("[type='productManagersList']", row), $("[type='productManagerLabel']", row).text());
+            selectListElement($("[type='productManagersList']", row), $("[type='productManagerLabel']", row).attr("val"));
         }
 
         function editButtonCancelClick(e) {
@@ -487,7 +547,8 @@
                             $("[type='unitLabel']", row).text(getUnitString(model.Unit));
                             $("[type='unitLabel']", row).attr("val", model.Unit);
                             $("[type='valueLabel']", row).text(model.Value);
-                            $("[type='productManagerLabel']", row).text(model.ProductManager);
+                            $("[type='productManagerLabel']", row).text(model.ProductManager.Name);
+                            $("[type='productManagerLabel']", row).attr("val", model.ProductManager.Id);
                             $("[type='commentLabel']", row).text(model.Comment);
                             $("[type='priceLabel']", row).text(model.Price != 0 ? model.Price.toFixed(2) : "");
                             $("[type='sumLabel']", row).text(model.Sum != 0 ? model.Sum.toFixed(2) : "");
@@ -595,7 +656,7 @@
                 var catalogNumber = $("[modelType='catalogNumberValue']", row).val().trim();
                 var replace = $("[modelType='replaceValue']", row).val().trim();
                 var unit = Number($(":selected", $("[type='unitsList']", row)).val());
-                var productManager = $(":selected", $("[type='productManagersList']", row)).val().trim();
+                var productManager = getProductManagerById($(":selected", $("[type='productManagersList']", row)).val().trim());
                 var comment = $("[modelType='commentValue']", row).val().trim();
                 var model = {
                     RowNumber: rowNumber,
@@ -677,6 +738,19 @@
             return manager;
         }
 
+        function getProductManagerById(id) {
+            var manager = null;
+            var managersLength = productManagers.length;
+            for (var i = 0; i < managersLength; i++) {
+                var model = productManagers[i];
+                if (model.Id.trim().toLowerCase() == id.trim().toLowerCase()) {
+                    manager = model;
+                    break;
+                }
+            }
+            return manager;
+        }
+
         function getDealTypeById(id) {
             id = Number(id);
             var dealType = null;
@@ -705,13 +779,13 @@
             return status;
         }
 
-        function getProductManagersList(productManager) {
+        function getProductManagersList(productManagerId) {
             var list = $("<select size='1' type='productManagersList'></select>");
             var productManagersLength = productManagers.length;
             for (var i = 0; i < productManagersLength; i++) {
                 var model = productManagers[i];
-                var option = $("<option value='" + model + "'>" + model + "</option>");
-                if (productManager != null && model == productManager) {
+                var option = $("<option value='" + model.Id + "'>" + model.Name + "</option>");
+                if (productManagerId != null && model.Id == productManagerId) {
                     option.attr("selected", "selected");
                 }
                 list.append(option);

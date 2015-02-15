@@ -44,6 +44,8 @@
 --	Manager nvarchar(500) not null,
 --	ManagerSubDivision nvarchar(500) not null,
 --	ClaimStatus int not null,
+--	RecordDate datetime not null,
+--	Deleted bit not null,
 --	primary key(Id),
 --	CONSTRAINT FK_TenderClaim_DealType FOREIGN KEY(DealType)
 --		REFERENCES DealType(Id)
@@ -98,14 +100,60 @@
 --	@tenderStatus int,
 --	@manager nvarchar(500),
 --	@managerSubDivision nvarchar(500),
---	@claimStatus int
+--	@claimStatus int,
+--	@recordDate datetime,
+--	@deleted bit
 --)
 --as
 --declare @id int;
 --insert into TenderClaim values(@tenderNumber, @tenderStart, @claimDeadline, @kPDeadline, @comment, @customer, 
---	@customerInn, @totalSum, @dealType, @tenderUrl, @tenderStatus, @manager, @managerSubDivision, @claimStatus)
+--	@customerInn, @totalSum, @dealType, @tenderUrl, @tenderStatus, @manager, @managerSubDivision, @claimStatus, @recordDate, @deleted)
 --set @id = @@IDENTITY;
 --select @id;
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadTenderClaims
+--(
+--	@pageSize int
+--)
+--as
+--select top (@pageSize) * from TenderClaim where deleted = 0
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadTenderClaimById
+--(
+--	@id int
+--)
+--as
+--select * from TenderClaim where deleted = 0 and Id = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadClaimPositionForTenderClaim
+--(
+--	@id int
+--)
+--as
+--select * from ClaimPosition where IdClaim = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure DeleteTenderClaims
+--(
+--	@id int
+--)
+--as
+--update TenderClaim set Deleted = 1 where Id = @id
 --go
 
 --use tenderProcessing
@@ -118,6 +166,14 @@
 --)
 --as
 --update TenderClaim set ClaimStatus = @claimStatus where Id = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure GetTenderClaimCount
+--as
+--select count(*) from TenderClaim
 --go
 
 --use tenderProcessing

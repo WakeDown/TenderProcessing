@@ -25,7 +25,7 @@ namespace TenderProcessingDataAccessLayer.Models
 
         public int Value { get; set; }
 
-        public string ProductManager { get; set; }
+        public ProductManager ProductManager { get; set; }
 
         public string Comment { get; set; }
 

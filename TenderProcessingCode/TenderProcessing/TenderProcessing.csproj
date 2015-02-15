@@ -113,22 +113,23 @@
       <HintPath>..\packages\Antlr.3.4.1.9004\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\CalculationSpecificationController.cs" />
     <Compile Include="Controllers\ClaimController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\UserHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\deleteImg.png" />
     <Content Include="Content\images\ui-bg_diagonals-thick_18_b81900_40x40.png" />
     <Content Include="Content\images\ui-bg_diagonals-thick_20_666666_40x40.png" />
     <Content Include="Content\images\ui-bg_flat_10_000000_40x100.png" />
@@ -187,6 +188,8 @@
     <Content Include="Views\Claim\Index.cshtml" />
     <Content Include="Views\Claim\UploadFileForm.cshtml" />
     <Content Include="Views\Claim\GetSpecificationFile.cshtml" />
+    <Content Include="Views\Claim\List.cshtml" />
+    <Content Include="Views\CalculationSpecification\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TenderProcessingDataAccessLayer\TenderProcessingDataAccessLayer.csproj">
