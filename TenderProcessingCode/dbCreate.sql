@@ -82,6 +82,33 @@
 --    ON UPDATE CASCADE
 --)
 
+--create table CalculateClaimPosition
+--(
+--	Id int identity not null,
+--	IdPosition int not null,
+--	IdClaim int not null,
+--	CatalogNumber nvarchar(500) not null,
+--	Name nvarchar(1000) not null,
+--	ReplaceValue nvarchar(1000),
+--	PriceUsd decimal(18,2),
+--	SumUsd decimal(18,2),
+--	PriceRub decimal(18,2),
+--	SumRub decimal(18,2) not null,
+--	Provider nvarchar(150),
+--	ProtectFact nvarchar(100) not null,
+--	ProtectCondition nvarchar(500),
+--	Comment nvarchar(1000),
+--	primary key(Id),
+--	CONSTRAINT FK_CalculateClaimPosition_ClaimPosition FOREIGN KEY(IdPosition)
+--		REFERENCES ClaimPosition(Id)
+--    ON DELETE CASCADE
+--    ON UPDATE CASCADE,
+--	CONSTRAINT FK_CalculateClaimPosition_TenderClaim FOREIGN KEY(IdClaim)
+--		REFERENCES TenderClaim(Id)
+--     ON DELETE NO ACTION
+--     ON UPDATE NO ACTION
+--)
+
 --use tenderProcessing
 --go
 
@@ -110,6 +137,80 @@
 --	@customerInn, @totalSum, @dealType, @tenderUrl, @tenderStatus, @manager, @managerSubDivision, @claimStatus, @recordDate, @deleted)
 --set @id = @@IDENTITY;
 --select @id;
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure SaveCalculateClaimPosition
+--(
+--	@idPosition int,
+--	@idClaim int,
+--	@catalogNumber nvarchar(500),
+--	@name nvarchar(1000),
+--	@replaceValue nvarchar(1000) = '',
+--	@priceUsd decimal(18,2) = -1,
+--	@sumUsd decimal(18,2) = -1,
+--	@priceRub decimal(18,2) = -1,
+--	@sumRub decimal(18,2),
+--	@provider nvarchar(150) = '',
+--	@protectFact nvarchar(100),
+--	@protectCondition nvarchar(500) = '',
+--	@comment nvarchar(1500) = ''
+--)
+--as
+--declare @id int;
+--insert into CalculateClaimPosition values(@idPosition, @idClaim, @catalogNumber, @name, @replaceValue, @priceUsd, @sumUsd,
+--		@priceRub, @sumRub, @provider, @protectFact, @protectCondition, @comment)
+--set @id = @@IDENTITY;
+--select @id;
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure UpdateCalculateClaimPosition
+--(
+--	@id int,
+--	@catalogNumber nvarchar(500),
+--	@name nvarchar(1000),
+--	@replaceValue nvarchar(1000) = '',
+--	@priceUsd decimal(18,2) = -1,
+--	@sumUsd decimal(18,2) = -1,
+--	@priceRub decimal(18,2) = -1,
+--	@sumRub decimal(18,2),
+--	@provider nvarchar(150) = '',
+--	@protectFact nvarchar(100),
+--	@protectCondition nvarchar(500) = '',
+--	@comment nvarchar(1500) = ''
+--)
+--as
+--Update CalculateClaimPosition set CatalogNumber = @catalogNumber, Name = @name, ReplaceValue = @replaceValue, 
+--	PriceUsd = @priceUsd, SumUsd = @sumUsd, PriceRub = @priceRub, SumRub = @sumRub, Provider = @provider, 
+--	ProtectFact = @protectFact, ProtectCondition = @protectCondition, Comment = @comment
+--	where Id = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure DeleteCalculateClaimPosition
+--(
+--	@id int
+--)
+--as
+--delete from CalculateClaimPosition where Id = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadCalculateClaimPositionForClaim
+--(
+--	@id int
+--)
+--as
+--select * from CalculateClaimPosition where IdClaim = @id
 --go
 
 --use tenderProcessing

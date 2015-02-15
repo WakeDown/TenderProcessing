@@ -560,6 +560,140 @@ namespace TenderProcessingDataAccessLayer
 
         #endregion
 
+        #region CalculateSpecificationPosition
+
+        public bool SaveCalculateSpecificationPosition(CalculateSpecificationPosition model)
+        {
+            var result = false;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "SaveCalculateClaimPosition";
+                if (!string.IsNullOrEmpty(model.Replace))
+                    cmd.Parameters.AddWithValue("@replaceValue", model.Replace);
+                if (!string.IsNullOrEmpty(model.Comment))
+                    cmd.Parameters.AddWithValue("@comment", model.CatalogNumber);
+                if (!string.IsNullOrEmpty(model.ProtectCondition))
+                    cmd.Parameters.AddWithValue("@protectCondition", model.ProtectCondition);
+                if (!string.IsNullOrEmpty(model.Provider))
+                    cmd.Parameters.AddWithValue("@provider", model.Provider);
+                if (!model.PriceUsd.Equals(0)) cmd.Parameters.AddWithValue("@priceUsd", model.PriceUsd);
+                if (!model.PriceRub.Equals(0)) cmd.Parameters.AddWithValue("@priceRub", model.PriceRub);
+                if (!model.SumUsd.Equals(0)) cmd.Parameters.AddWithValue("@sumUsd", model.SumUsd);
+                cmd.Parameters.AddWithValue("@idClaim", model.IdTenderClaim);
+                cmd.Parameters.AddWithValue("@idPosition", model.IdSpecificationPosition);
+                cmd.Parameters.AddWithValue("@name", model.Name);
+                cmd.Parameters.AddWithValue("@catalogNumber", model.CatalogNumber);
+                cmd.Parameters.AddWithValue("@protectFact", model.ProtectFact);
+                cmd.Parameters.AddWithValue("@sumRub", model.SumRub);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    rd.Read();
+                    var id = rd.GetInt32(0);
+                    if (id > 0)
+                    {
+                        result = true;
+                        model.Id = id;
+                    }
+                }
+                rd.Dispose();
+            }
+            return result;
+        }
+
+        public bool UpdateCalculateSpecificationPosition(CalculateSpecificationPosition model)
+        {
+            var result = false;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "UpdateCalculateClaimPosition";
+                if (!string.IsNullOrEmpty(model.Replace))
+                    cmd.Parameters.AddWithValue("@replaceValue", model.Replace);
+                if (!string.IsNullOrEmpty(model.Comment))
+                    cmd.Parameters.AddWithValue("@comment", model.CatalogNumber);
+                if (!string.IsNullOrEmpty(model.ProtectCondition))
+                    cmd.Parameters.AddWithValue("@protectCondition", model.ProtectCondition);
+                if (!string.IsNullOrEmpty(model.Provider))
+                    cmd.Parameters.AddWithValue("@provider", model.Provider);
+                if (!model.PriceUsd.Equals(0)) cmd.Parameters.AddWithValue("@priceUsd", model.PriceUsd);
+                if (!model.PriceRub.Equals(0)) cmd.Parameters.AddWithValue("@priceRub", model.PriceRub);
+                if (!model.SumUsd.Equals(0)) cmd.Parameters.AddWithValue("@sumUsd", model.SumUsd);
+                cmd.Parameters.AddWithValue("@id", model.Id);
+                cmd.Parameters.AddWithValue("@name", model.Name);
+                cmd.Parameters.AddWithValue("@catalogNumber", model.CatalogNumber);
+                cmd.Parameters.AddWithValue("@protectFact", model.ProtectFact);
+                cmd.Parameters.AddWithValue("@sumRub", model.SumRub);
+                conn.Open();
+                result = cmd.ExecuteNonQuery() > 0;
+            }
+            return result;
+        }
+
+        public bool DeleteCalculateSpecificationPosition(int id)
+        {
+            var result = false;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "DeleteCalculateClaimPosition";
+                cmd.Parameters.AddWithValue("@id", id);
+                conn.Open();
+                result = cmd.ExecuteNonQuery() > 0;
+            }
+            return result;
+        }
+
+        public List<CalculateSpecificationPosition> LoadCalculateSpecificationPositionsForTenderClaim(int claimId)
+        {
+            var list = new List<CalculateSpecificationPosition>();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "LoadCalculateClaimPositionForClaim";
+                cmd.Parameters.AddWithValue("@id", claimId);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        var model = new CalculateSpecificationPosition()
+                        {
+                            Id = rd.GetInt32(0),
+                            IdSpecificationPosition = rd.GetInt32(1),
+                            IdTenderClaim = rd.GetInt32(2),
+                            CatalogNumber = rd.GetString(3),
+                            Name = rd.GetString(4),
+                            Replace = rd.GetString(5),
+                            PriceUsd = (double)rd.GetDecimal(6),
+                            SumUsd = (double)rd.GetDecimal(7),
+                            PriceRub = (double)rd.GetDecimal(8),
+                            SumRub = (double)rd.GetDecimal(9),
+                            Provider = rd.GetString(10),
+                            ProtectFact = rd.GetString(11),
+                            ProtectCondition = rd.GetString(12),
+                            Comment = rd.GetString(13)
+                        };
+                        if (model.PriceUsd.Equals(-1)) model.PriceUsd = 0;
+                        if (model.SumUsd.Equals(-1)) model.SumUsd = 0;
+                        if (model.PriceRub.Equals(-1)) model.PriceRub = 0;
+                        list.Add(model);
+                    }
+                }
+                rd.Dispose();
+            }
+            return list;
+        }
+
+        #endregion
+
         #region Справочники
 
         public List<DealType> LoadDealTypes()
@@ -617,6 +751,5 @@ namespace TenderProcessingDataAccessLayer
         }
 
         #endregion
-
     }
 }

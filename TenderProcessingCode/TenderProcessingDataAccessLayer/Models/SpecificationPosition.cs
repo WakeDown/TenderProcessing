@@ -32,5 +32,7 @@ namespace TenderProcessingDataAccessLayer.Models
         public double Price { get; set; }
 
         public double Sum { get; set; }
+
+        public List<CalculateSpecificationPosition> Calculations { get; set; } 
     }
 }

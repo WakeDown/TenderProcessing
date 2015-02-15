@@ -40,6 +40,15 @@ namespace TenderProcessing.Controllers
                                 productManager.Name = productManagerFromAd.Name;
                             }
                         }
+                        var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value);
+                        if (calculations != null && calculations.Any())
+                        {
+                            foreach (var position in claim.Positions)
+                            {
+                                position.Calculations =
+                                    calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
+                            }
+                        }
                     }
                     var dealTypes = db.LoadDealTypes();
                     var dealType = dealTypes.FirstOrDefault(x => x.Id == claim.DealType);
@@ -59,6 +68,55 @@ namespace TenderProcessing.Controllers
             ViewBag.Status = claimStatusString;
             ViewBag.DealType = dealTypeString;
             return View();
+        }
+
+        [HttpPost]
+        public JsonResult Save(CalculateSpecificationPosition model)
+        {
+            var isComplete = false;
+            var id = -1;
+            try
+            {
+                var db = new DbEngine();
+                isComplete = db.SaveCalculateSpecificationPosition(model);
+                id = model.Id;
+            }
+            catch (Exception)
+            {
+                isComplete = false;
+            }
+            return Json(new {IsComplete = isComplete, Id = id});
+        }
+
+        [HttpPost]
+        public JsonResult Edit(CalculateSpecificationPosition model)
+        {
+            var isComplete = false;
+            try
+            {
+                var db = new DbEngine();
+                isComplete = db.UpdateCalculateSpecificationPosition(model);
+            }
+            catch (Exception)
+            {
+                isComplete = false;
+            }
+            return Json(new { IsComplete = isComplete });
+        }
+
+        public JsonResult Delete(int id)
+        {
+            var isComplete = false;
+            try
+            {
+                var db = new DbEngine();
+                isComplete = db.DeleteCalculateSpecificationPosition(id);
+            }
+            catch (Exception)
+            {
+                isComplete = false;
+            }
+            return Json(new { IsComplete = isComplete }, JsonRequestBehavior.AllowGet);
         }
 	}
 }
