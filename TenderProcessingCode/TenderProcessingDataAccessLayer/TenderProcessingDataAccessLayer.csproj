@@ -47,7 +47,9 @@
     <Compile Include="Models\DealType.cs" />
     <Compile Include="Models\FilterTenderClaim.cs" />
     <Compile Include="Models\Manager.cs" />
+    <Compile Include="Models\PositionState.cs" />
     <Compile Include="Models\ProductManager.cs" />
+    <Compile Include="Models\ServerDirectBase.cs" />
     <Compile Include="Models\SpecificationPosition.cs" />
     <Compile Include="Models\TenderClaim.cs" />
     <Compile Include="Models\UserBase.cs" />

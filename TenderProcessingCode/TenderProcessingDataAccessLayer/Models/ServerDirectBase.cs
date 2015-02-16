@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
-    public class DealType : ServerDirectBase
+    public class ServerDirectBase
     {
+        public int Id { get; set; }
+
+        public string Value { get; set; }
     }
 }

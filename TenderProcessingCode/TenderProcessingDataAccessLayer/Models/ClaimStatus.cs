@@ -6,10 +6,7 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
-    public class ClaimStatus
+    public class ClaimStatus : ServerDirectBase
     {
-        public int Id { get; set; }
-
-        public string Value { get; set; }
     }
 }
