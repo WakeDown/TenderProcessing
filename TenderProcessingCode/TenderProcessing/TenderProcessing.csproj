@@ -40,12 +40,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ClosedXML">
-      <HintPath>..\..\..\..\..\..\Downloads\ClosedXML_v0.76.0.0\ClosedXML.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Work\Components\Office\ClosedXML.dll</HintPath>
     </Reference>
     <Reference Include="DocumentFormat.OpenXml, Version=2.5.5631.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
@@ -123,9 +124,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\deleteImg.png" />
+    <Content Include="Content\font-awesome.css" />
+    <Content Include="Content\font-awesome.min.css" />
+    <Content Include="Content\images\bg.png" />
+    <Content Include="Content\images\bg1.png" />
+    <Content Include="Content\images\bg3.png" />
+    <Content Include="Content\images\body_bg.gif" />
     <Content Include="Content\images\ui-bg_diagonals-thick_18_b81900_40x40.png" />
     <Content Include="Content\images\ui-bg_diagonals-thick_20_666666_40x40.png" />
     <Content Include="Content\images\ui-bg_flat_10_000000_40x100.png" />
@@ -140,6 +149,7 @@
     <Content Include="Content\images\ui-icons_ef8c08_256x240.png" />
     <Content Include="Content\images\ui-icons_ffd27a_256x240.png" />
     <Content Include="Content\images\ui-icons_ffffff_256x240.png" />
+    <Content Include="Content\images\Unit-Logo.png" />
     <Content Include="Content\jquery-ui.css" />
     <Content Include="Content\jquery-ui.min.css" />
     <Content Include="Content\jquery-ui.structure.css" />
@@ -150,10 +160,22 @@
     <Content Include="Content\message.css" />
     <Content Include="Content\progress.gif" />
     <Content Include="favicon.ico" />
+    <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="App_Data\Спецификация конкурса.xlsx" />
+    <Fakes Include="Fakes\ClosedXML.fakes" />
+    <Content Include="fonts\fontawesome-webfont.woff" />
+    <Content Include="fonts\fontawesome-webfont.ttf" />
+    <Content Include="fonts\fontawesome-webfont.eot" />
+    <Content Include="fonts\FontAwesome.otf" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Content\bootstrap-theme.css.map" />
+    <Content Include="Content\bootstrap.css.map" />
     <None Include="Properties\PublishProfiles\Release.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
@@ -164,6 +186,7 @@
     <Content Include="Scripts\jquery-ui.min.js" />
     <Content Include="Scripts\message.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\npm.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
@@ -195,9 +218,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="fonts\glyphicons-halflings-regular.woff" />
-    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
-    <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />
   </ItemGroup>
