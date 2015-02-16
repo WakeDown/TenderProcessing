@@ -82,11 +82,16 @@
 --	Comment nvarchar(1500) not null,
 --	Price decimal(18,2),
 --	SumMax decimal(18,2),
+--	PositionState int not null,
 --	primary key(Id),
 --	CONSTRAINT FK_ClaimPosition_TenderClaim FOREIGN KEY(IdClaim)
 --		REFERENCES TenderClaim(Id)
 --    ON DELETE CASCADE
---    ON UPDATE CASCADE
+--    ON UPDATE CASCADE,
+--	CONSTRAINT FK_ClaimPosition_PositionState FOREIGN KEY(PositionState)
+--		REFERENCES PositionState(Id)
+--    ON DELETE CASCADE
+--    ON UPDATE CASCADE,
 --)
 
 --create table CalculateClaimPosition
@@ -299,12 +304,13 @@
 --	@productManager nvarchar(500),
 --	@comment nvarchar(1500) = '',
 --	@price decimal(18,2) = -1,
---	@sumMax decimal(18,2) = -1
+--	@sumMax decimal(18,2) = -1,
+--	@positionState int
 --)
 --as
 --declare @id int;
 --insert into ClaimPosition values(@idClaim, @rowNumber, @catalogNumber, @name, @replaceValue, @unit,
---	@value, @productManager, @comment, @price, @sumMax)
+--	@value, @productManager, @comment, @price, @sumMax, @positionState)
 --set @id = @@IDENTITY;
 --select @id;
 --go
@@ -324,12 +330,13 @@
 --	@productManager nvarchar(500),
 --	@comment nvarchar(1500) = '',
 --	@price decimal(18,2) = -1,
---	@sumMax decimal(18,2) = -1
+--	@sumMax decimal(18,2) = -1,
+--	@positionState int
 --)
 --as
 --update ClaimPosition set RowNumber = @rowNumber, CatalogNumber = @catalogNumber, Name = @name, 
 --	ReplaceValue = @replaceValue, Unit = @unit, Value = @value, ProductManager = @productManager, 
---	Comment = @comment, Price = @price, SumMax = @sumMax where Id = @id
+--	Comment = @comment, Price = @price, SumMax = @sumMax, PositionState = @positionState where Id = @id
 --go
 
 --use tenderProcessing
@@ -358,7 +365,8 @@
 --	@productManager nvarchar(500),
 --	@comment nvarchar(1500),
 --	@price decimal(18,2) = -1,
---	@sumMax decimal(18,2) = -1
+--	@sumMax decimal(18,2) = -1,
+--	@positionState int
 --)
 --as
 --declare @result int;
@@ -366,12 +374,24 @@
 --set @result = 0;
 --set @count = (select count(*) from ClaimPosition where IdClaim = @idClaim and RowNumber = @rowNumber and CatalogNumber = @catalogNumber
 --	and Name = @name and ReplaceValue = @replaceValue and Unit = @unit and Value = @value and ProductManager = @productManager and
---	Comment = @comment and Price = @price and SumMax = @sumMax);
+--	Comment = @comment and Price = @price and SumMax = @sumMax and PositionState = @positionState);
 --if @count > 0
 --begin
 --	set @result = 1;
 --end
 --select @result;
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure ChangeClaimPositionState
+--(
+--	@id int,
+--	@positionState int
+--)
+--as
+--update ClaimPosition set PositionState = @positionState where Id = @id
 --go
 
 --use tenderProcessing
@@ -393,6 +413,14 @@
 --use tenderProcessing
 --go
 
+--create procedure LoadPositionStates
+--as
+--select * from PositionState
+--go
+
+--use tenderProcessing
+--go
+
 --create procedure HasClaimPosition
 --(
 --	@id int
@@ -404,24 +432,32 @@
 --use tenderProcessing
 --go
 
---insert into DealType values(1, 'Аукцион');
---insert into DealType values(2, 'Котировка');
---insert into DealType values(3, 'Открытый запрос цен');
---insert into DealType values(4, 'Открытый запрос предложений');
---insert into DealType values(5, 'Закрытый запрос цен');
---insert into DealType values(6, 'Закрытый запрос предложений');
---insert into DealType values(7, 'Открытый конкурс');
---insert into DealType values(8, 'Закрытый конкурс');
+--insert into DealType values(1, N'Аукцион');
+--insert into DealType values(2, N'Котировка');
+--insert into DealType values(3, N'Открытый запрос цен');
+--insert into DealType values(4, N'Открытый запрос предложений');
+--insert into DealType values(5, N'Закрытый запрос цен');
+--insert into DealType values(6, N'Закрытый запрос предложений');
+--insert into DealType values(7, N'Открытый конкурс');
+--insert into DealType values(8, N'Закрытый конкурс');
 
---insert into ClaimStatus values(1, 'Создано');
---insert into ClaimStatus values(2, 'Передано');
---insert into ClaimStatus values(3, 'В работе');
---insert into ClaimStatus values(4, 'Приостановлено');
---insert into ClaimStatus values(5, 'Отменено');
---insert into ClaimStatus values(6, 'Частично расчитано');
---insert into ClaimStatus values(7, 'Расчитано');
---insert into ClaimStatus values(8, 'Подтверждено');
+--insert into ClaimStatus values(1, N'Создано');
+--insert into ClaimStatus values(2, N'Передано');
+--insert into ClaimStatus values(3, N'В работе');
+--insert into ClaimStatus values(4, N'Приостановлено');
+--insert into ClaimStatus values(5, N'Отменено');
+--insert into ClaimStatus values(6, N'Частично расчитано');
+--insert into ClaimStatus values(7, N'Расчитано');
+--insert into ClaimStatus values(8, N'Подтверждено');
 
---insert into TenderStatus values(1, 'Test');
+--insert into PositionState values(1, N'Создана');
+--insert into PositionState values(2, N'Отправлена');
+--insert into PositionState values(3, N'Отклонена');
+--insert into PositionState values(4, N'Подтверждена');
+
+--insert into TenderStatus values(1, N'В процессе');
+--insert into TenderStatus values(2, N'Выигран');
+--insert into TenderStatus values(3, N'Проигран');
+--insert into TenderStatus values(4, N'Отказ');
 
 --go
