@@ -25,12 +25,14 @@ namespace TenderProcessingDataAccessLayer.Models
 
         public int Value { get; set; }
 
-        public string ProductManager { get; set; }
+        public ProductManager ProductManager { get; set; }
 
         public string Comment { get; set; }
 
         public double Price { get; set; }
 
         public double Sum { get; set; }
+
+        public List<CalculateSpecificationPosition> Calculations { get; set; } 
     }
 }

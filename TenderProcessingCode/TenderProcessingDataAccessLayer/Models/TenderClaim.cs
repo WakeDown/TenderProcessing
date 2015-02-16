@@ -42,5 +42,13 @@ namespace TenderProcessingDataAccessLayer.Models
         public Manager Manager { get; set; }
 
         public int TenderStatus { get; set; }
+
+        public DateTime RecordDate { get; set; }
+
+        public bool Deleted { get; set; }
+
+        public List<ProductManager> ProductManagers { get; set; }
+
+        public List<SpecificationPosition> Positions { get; set; } 
     }
 }

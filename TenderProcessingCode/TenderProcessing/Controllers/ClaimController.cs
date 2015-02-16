@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using System.Web.UI.WebControls;
 using ClosedXML.Excel;
+using TenderProcessing.Models;
 using TenderProcessingDataAccessLayer;
 using TenderProcessingDataAccessLayer.Enums;
 using TenderProcessingDataAccessLayer.Models;
@@ -17,19 +18,72 @@ namespace TenderProcessing.Controllers
 {
     public class ClaimController : Controller
     {
-        public ActionResult Index()
+        public ActionResult Index(int? claimId)
         {
-            ViewBag.Managers = new List<Manager>
-            {
-                new Manager() {Id = "asd", Name = "Олег Иванов", SubDivision = "Barcelona"},
-                new Manager() {Id = "rtre", Name = "Андрей Петров", SubDivision = "Borussia"},
-                new Manager() {Id = "fgdsf", Name = "Дмитрий Степанов", SubDivision = "Zenit"}
-            };
+            ViewBag.Managers = UserHelper.GetManagers();
             ViewBag.DateStart = DateTime.Now.ToString("dd.MM.yyyy");
             var db = new DbEngine();
             ViewBag.DealTypes = db.LoadDealTypes();
             ViewBag.ClaimStatus = db.LoadClaimStatus();
-            ViewBag.ProductManagers = GetProductManagers();
+            ViewBag.ProductManagers = UserHelper.GetProductManagers();
+            TenderClaim claim = null;
+            if (claimId.HasValue)
+            {
+                claim = db.LoadTenderClaimById(claimId.Value);
+                if (claim != null)
+                {
+                    var managerFromAd = UserHelper.GetManagerFromActiveDirectoryById(claim.Manager.Id);
+                    if (managerFromAd != null)
+                    {
+                        claim.Manager.Name = managerFromAd.Name;
+                    }
+                    claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value);
+                    if (claim.Positions != null && claim.Positions.Any())
+                    {
+                        var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
+                        foreach (var productManager in productManagers)
+                        {
+                            var productManagerFromAd = UserHelper.GetProductManagerFromActiveDirectoryById(productManager.Id);
+                            if (productManagerFromAd != null)
+                            {
+                                productManager.Name = productManagerFromAd.Name;
+                            }
+                        }
+                    }
+                }
+            }
+            ViewBag.Claim = claim;
+            return View();
+        }
+
+        public ActionResult List()
+        {
+            var db = new DbEngine();
+            var claims = db.LoadTenderClaims(50);
+            db.SetProductManagersForClaims(claims);
+            var claimProductManagers = claims.SelectMany(x => x.ProductManagers).ToList();
+            foreach (var claimProductManager in claimProductManagers)
+            {
+                var managerFromAD = UserHelper.GetProductManagerFromActiveDirectoryById(claimProductManager.Id.Trim());
+                if (managerFromAD != null)
+                {
+                    claimProductManager.Name = managerFromAD.Name;
+                }
+            }
+            foreach (var claim in claims)
+            {
+                var manager = UserHelper.GetManagerFromActiveDirectoryById(claim.Manager.Id);
+                if (manager != null)
+                {
+                    claim.Manager.Name = manager.Name;
+                }
+            }
+            ViewBag.Claims = claims;
+            ViewBag.DealTypes = db.LoadDealTypes();
+            ViewBag.ClaimStatus = db.LoadClaimStatus();
+            ViewBag.ProductManagers = UserHelper.GetProductManagers();
+            ViewBag.Managers = UserHelper.GetManagers();
+            ViewBag.ClaimCount = db.GetTenderClaimCount();
             return View();
         }
 
@@ -43,7 +97,7 @@ namespace TenderProcessing.Controllers
                 var filePath = Path.Combine(Server.MapPath("~"), "App_Data", "Спецификация конкурса.xlsx");
                 var newFilePath = Path.Combine(Server.MapPath("~"), "App_Data", Guid.NewGuid() + ".xlsx");
                 System.IO.File.Copy(filePath, newFilePath);
-                var productManagers = GetProductManagers();
+                var productManagers = UserHelper.GetProductManagers();
                 excBook = new XLWorkbook(newFilePath);
                 var workSheet = excBook.Worksheet("Спецификации");
                 var userRangeSheet = excBook.Worksheet(2);
@@ -55,7 +109,7 @@ namespace TenderProcessing.Controllers
                         var cell = userRangeSheet.Cell(i + 1, 2);
                         if (cell != null)
                         {
-                            cell.Value = manager;
+                            cell.Value = manager.Name;
                         }
                     }
                     var namedRange = userRangeSheet.Range(userRangeSheet.Cell(1, 2), userRangeSheet.Cell(productManagers.Count(), 2));
@@ -160,7 +214,7 @@ namespace TenderProcessing.Controllers
                                 CatalogNumber = string.Empty,
                                 Comment = string.Empty,
                                 Name = string.Empty,
-                                ProductManager = string.Empty,
+                                ProductManager = new ProductManager(){Id = string.Empty, Name = string.Empty},
                                 Replace = string.Empty,
                                 IdClaim = claimId
                             };
@@ -271,7 +325,9 @@ namespace TenderProcessing.Controllers
                             }
                             else
                             {
-                                model.ProductManager = managerRange.Value.ToString();
+                                var managerFromAd =
+                                    UserHelper.GetProductManagerFromActiveDirectoryByName(managerRange.Value.ToString());
+                                if (managerFromAd != null) model.ProductManager = managerFromAd;
                             }
                             if (commentRange != null && commentRange.Value != null)
                             {
@@ -400,6 +456,8 @@ namespace TenderProcessing.Controllers
                     var db = new DbEngine();
                     model.ClaimStatus = 1;
                     model.TenderStatus = 1;
+                    model.Deleted = false;
+                    model.RecordDate = DateTime.Now;
                     isComplete = db.SaveTenderClaim(model);
                     if (isComplete)
                     {
@@ -451,6 +509,62 @@ namespace TenderProcessing.Controllers
                 isComplete = false;
             }
             return Json(new { IsComplete = isComplete }, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult DeleteClaim(int id)
+        {
+            var isComplete = false;
+            try
+            {
+                var db = new DbEngine();
+                isComplete = db.DeleteTenderClaim(id);
+            }
+            catch (Exception)
+            {
+                isComplete = false;
+            }
+            return Json(new { IsComplete = isComplete }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult FilterClaim(FilterTenderClaim model)
+        {
+            var isComplete = false;
+            var list = new List<TenderClaim>();
+            var count = -1;
+            try
+            {
+                var db = new DbEngine();
+                list = db.FilterTenderClaims(model);
+                if (list.Any())
+                {
+                    db.SetProductManagersForClaims(list);
+                    var claimProductManagers = list.SelectMany(x => x.ProductManagers).ToList();
+                    foreach (var claimProductManager in claimProductManagers)
+                    {
+                        var managerFromAD = UserHelper.GetProductManagerFromActiveDirectoryById(claimProductManager.Id.Trim());
+                        if (managerFromAD != null)
+                        {
+                            claimProductManager.Name = managerFromAD.Name;
+                        }
+                    }
+                    foreach (var claim in list)
+                    {
+                        var manager = UserHelper.GetManagerFromActiveDirectoryById(claim.Manager.Id);
+                        if (manager != null)
+                        {
+                            claim.Manager.Name = manager.Name;
+                        }
+                    }
+                }
+                count = db.GetCountFilteredTenderClaims(model);
+                isComplete = true;
+            }
+            catch (Exception)
+            {
+                isComplete = false;
+            }
+            return Json(new { IsComplete = isComplete, Claims = list, Count = count });
         }
 
         [HttpPost]
@@ -523,11 +637,6 @@ namespace TenderProcessing.Controllers
                 }
             }
             return isUnique;
-        }
-
-        private List<string> GetProductManagers()
-        {
-            return new List<string>() { "Гена", "Вася", "Петр", "Олег", "Дима", "Alex", "Stan" };
         }
 
         private void Log(string message)

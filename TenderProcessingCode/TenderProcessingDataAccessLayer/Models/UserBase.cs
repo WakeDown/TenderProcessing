@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
-    public class Manager : UserBase
+    public class UserBase
     {
-        public string SubDivision { get; set; }
+        public string Id { get; set; }
+
+        public string Name { get; set; }
     }
 }

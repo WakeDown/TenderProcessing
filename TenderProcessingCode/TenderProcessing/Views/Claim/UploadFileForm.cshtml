@@ -56,6 +56,14 @@
                 };
                 var messageJson = JSON.stringify(obj);
                 sendMessage(messageJson);
+            } else {
+                var obj = {
+                    type: "UploadFrameLoaded",
+                    error: false,
+                    message: ""
+                };
+                var messageJson = JSON.stringify(obj);
+                sendMessage(messageJson);
             }
         }
 
