@@ -216,7 +216,8 @@ namespace TenderProcessing.Controllers
                                 Name = string.Empty,
                                 ProductManager = new ProductManager(){Id = string.Empty, Name = string.Empty},
                                 Replace = string.Empty,
-                                IdClaim = claimId
+                                IdClaim = claimId, 
+                                State = 1
                             };
                             var numberRange = workSheet.Cell(row, 1);
                             var catalogNumberRange = workSheet.Cell(row, 2);

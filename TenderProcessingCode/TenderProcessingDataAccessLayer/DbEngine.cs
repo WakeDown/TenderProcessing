@@ -411,6 +411,7 @@ namespace TenderProcessingDataAccessLayer
                 cmd.Parameters.AddWithValue("@value", model.Value);
                 cmd.Parameters.AddWithValue("@productManager", model.ProductManager.Id);
                 cmd.Parameters.AddWithValue("@comment", model.Comment);
+                cmd.Parameters.AddWithValue("@positionState", model.State);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -449,6 +450,7 @@ namespace TenderProcessingDataAccessLayer
                 cmd.Parameters.AddWithValue("@value", model.Value);
                 cmd.Parameters.AddWithValue("@productManager", model.ProductManager.Id);
                 cmd.Parameters.AddWithValue("@comment", model.Comment);
+                cmd.Parameters.AddWithValue("@positionState", model.State);
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;
             }
@@ -476,6 +478,7 @@ namespace TenderProcessingDataAccessLayer
                 cmd.Parameters.AddWithValue("@value", model.Value);
                 cmd.Parameters.AddWithValue("@productManager", model.ProductManager.Id);
                 cmd.Parameters.AddWithValue("@comment", model.Comment);
+                cmd.Parameters.AddWithValue("@positionState", model.State);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -530,7 +533,8 @@ namespace TenderProcessingDataAccessLayer
                             ProductManager = new ProductManager() {Id = rd.GetString(8)},
                             Comment = rd.GetString(9),
                             Price = (double)rd.GetDecimal(10),
-                            Sum = (double)rd.GetDecimal(11)
+                            Sum = (double)rd.GetDecimal(11),
+                            State = rd.GetInt32(12)
                         };
                         if (model.Sum.Equals(-1)) model.Sum = 0;
                         if (model.Price.Equals(-1)) model.Price = 0;
@@ -541,6 +545,22 @@ namespace TenderProcessingDataAccessLayer
                 rd.Dispose();
             }
             return list;
+        }
+
+        public bool ChangePositionState(int id, int state)
+        {
+            var result = false;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "ChangeClaimPositionState";
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@positionState", state);
+                conn.Open();
+                result = (int)cmd.ExecuteScalar() > 0;
+            }
+            return result;
         }
 
         public bool HasClaimPosition(int id)
