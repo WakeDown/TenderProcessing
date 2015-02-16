@@ -27,6 +27,13 @@
 --	primary key(Id)
 --)
 
+--create table PositionState
+--(
+--	Id int not null,
+--	Value nvarchar(100) not null,
+--	primary key(Id)
+--)
+
 --create table TenderClaim
 --(
 --	Id int identity not null,
