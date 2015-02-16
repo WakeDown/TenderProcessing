@@ -578,6 +578,64 @@ namespace TenderProcessingDataAccessLayer
             return result;
         }
 
+        public bool IsPositionsReadyToConfirm(List<SpecificationPosition> positions)
+        {
+            var result = false;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                var query = "select IdPosition, count(*) from CalculateClaimPosition where IdPosition in(" +
+                            string.Join(",", positions.Select(x => x.Id)) + ") group by IdPosition";
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = query;
+                conn.Open();
+                var list = new List<PositionCalculateCount>();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        var model = new PositionCalculateCount()
+                        {
+                            Id = rd.GetInt32(0),
+                            Count = rd.GetInt32(1)
+                        };
+                        if (model.Count == 0)
+                        {
+                            break;
+                        }
+                        list.Add(model);
+                    }
+                    if (list.Count() == positions.Count())
+                    {
+                        var isNullCount = list.Any(x => x.Count == 0);
+                        if (!isNullCount)
+                        {
+                            result = true;
+                        }
+                    }
+                }
+                rd.Dispose();
+            }
+            return result;
+        }
+
+        public bool SetPositionsToConfirm(List<SpecificationPosition> positions)
+        {
+            var result = false;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                var query = "update ClaimPosition set PositionState = 2 where Id in(" +
+                            string.Join(",", positions.Select(x => x.Id)) + ")";
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = query;
+                conn.Open();
+                result = cmd.ExecuteNonQuery() > 0;
+            }
+            return result;
+        }
+
         #endregion
 
         #region CalculateSpecificationPosition
@@ -712,6 +770,19 @@ namespace TenderProcessingDataAccessLayer
             return list;
         }
 
+        public void DeleteCalculateSpecificationPositionForClaim(int id)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "DeleteCalculatePositionForClaim";
+                cmd.Parameters.AddWithValue("@id", id);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
         #endregion
 
         #region Справочники
@@ -758,6 +829,33 @@ namespace TenderProcessingDataAccessLayer
                     while (rd.Read())
                     {
                         var model = new ClaimStatus()
+                        {
+                            Id = rd.GetInt32(0),
+                            Value = rd.GetString(1)
+                        };
+                        list.Add(model);
+                    }
+                }
+                rd.Dispose();
+            }
+            return list;
+        }
+
+        public List<TenderStatus> LoadTenderStatus()
+        {
+            var list = new List<TenderStatus>();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "LoadTenderStatus";
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        var model = new TenderStatus()
                         {
                             Id = rd.GetInt32(0),
                             Value = rd.GetString(1)

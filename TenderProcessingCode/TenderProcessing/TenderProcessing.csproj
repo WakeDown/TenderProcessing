@@ -187,6 +187,8 @@
     <Content Include="Views\Claim\List.cshtml" />
     <Content Include="Views\CalculationSpecification\Index.cshtml" />
     <Content Include="Views\Shared\_MasterPage.cshtml" />
+    <Content Include="Views\CalculationSpecification\GetSpecificationFile.cshtml" />
+    <Content Include="Views\CalculationSpecification\UploadFileForm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TenderProcessingDataAccessLayer\TenderProcessingDataAccessLayer.csproj">

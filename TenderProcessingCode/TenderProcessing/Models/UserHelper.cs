@@ -38,9 +38,9 @@ namespace TenderProcessing.Models
         {
             return new List<Manager>
             {
-                new Manager() {Id = "asd", Name = "Олег Иванов", SubDivision = "Barcelona"},
-                new Manager() {Id = "rtre", Name = "Андрей Петров", SubDivision = "Borussia"},
-                new Manager() {Id = "fgdsf", Name = "Дмитрий Степанов", SubDivision = "Zenit"}
+                new Manager() {Id = "asd", Name = "Олег Иванов", SubDivision = "Barcelona", Chief = "Александров А.А."},
+                new Manager() {Id = "rtre", Name = "Андрей Петров", SubDivision = "Borussia", Chief = "Широков Р.В."},
+                new Manager() {Id = "fgdsf", Name = "Дмитрий Степанов", SubDivision = "Zenit", Chief = "Файзулин В.Г."}
             };
         }
 

@@ -228,6 +228,17 @@
 --use tenderProcessing
 --go
 
+--create procedure DeleteCalculatePositionForClaim
+--(
+--	@id int
+--)
+--as
+--delete from CalculateClaimPosition where IdClaim = @id
+--go
+
+--use tenderProcessing
+--go
+
 --create procedure LoadTenderClaims
 --(
 --	@pageSize int
@@ -286,7 +297,7 @@
 
 --create procedure GetTenderClaimCount
 --as
---select count(*) from TenderClaim
+--select count(*) from TenderClaim where Deleted = 0
 --go
 
 --use tenderProcessing
@@ -408,6 +419,14 @@
 --create procedure LoadClaimStatus
 --as
 --select * from ClaimStatus
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadTenderStatus
+--as
+--select * from TenderStatus
 --go
 
 --use tenderProcessing

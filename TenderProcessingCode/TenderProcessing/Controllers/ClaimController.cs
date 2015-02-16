@@ -188,17 +188,9 @@ namespace TenderProcessing.Controllers
                 }
                 else
                 {
-                    var filePath = Path.Combine(Server.MapPath("~"), "App_Data", Guid.NewGuid() + ".xlsx");
                     inputStream = file.InputStream;
                     inputStream.Seek(0, SeekOrigin.Begin);
-                    var buffer = new byte[inputStream.Length];
-                    inputStream.Read(buffer, 0, buffer.Length);
-                    using (var fs = System.IO.File.Create(filePath))
-                    {
-                        fs.Write(buffer, 0, buffer.Length);
-                        fs.Flush();
-                    }
-                    excBook = new XLWorkbook(filePath);
+                    excBook = new XLWorkbook(inputStream);
                     var workSheet = excBook.Worksheet("Спецификации");
                     if (workSheet != null)
                     {
@@ -414,7 +406,6 @@ namespace TenderProcessing.Controllers
                     }
                     excBook.Dispose();
                     excBook = null;
-                    System.IO.File.Delete(filePath);
                 }
             }
             catch (Exception)
@@ -574,6 +565,7 @@ namespace TenderProcessing.Controllers
             var isComplete = false;
             try
             {
+                model.State = 1;
                 var modelValid = true;
                 if (string.IsNullOrEmpty(model.Name)) modelValid = false;
                 if (modelValid)
