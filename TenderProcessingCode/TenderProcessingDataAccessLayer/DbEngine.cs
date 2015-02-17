@@ -620,6 +620,8 @@ namespace TenderProcessingDataAccessLayer
             return result;
         }
 
+
+
         public bool SetPositionsToConfirm(List<SpecificationPosition> positions)
         {
             var result = false;
@@ -634,6 +636,33 @@ namespace TenderProcessingDataAccessLayer
                 result = cmd.ExecuteNonQuery() > 0;
             }
             return result;
+        }
+
+        public List<ProductManager> LoadProductManagersForClaim(int claimId)
+        {
+            var list = new List<ProductManager>();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "LoadProductManagersForClaim";
+                cmd.Parameters.AddWithValue("@idClaim", claimId);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        var model = new ProductManager()
+                        {
+                            Id = rd.GetString(0)
+                        };
+                        list.Add(model);
+                    }
+                }
+                rd.Dispose();
+            }
+            return list;
         }
 
         #endregion
@@ -781,6 +810,99 @@ namespace TenderProcessingDataAccessLayer
                 conn.Open();
                 cmd.ExecuteNonQuery();
             }
+        }
+
+        #endregion
+
+        #region ClaimStatusHistory
+
+        public bool SaveClaimStatusHistory(ClaimStatusHistory model)
+        {
+            var result = false;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "SaveClaimStatusHistory";
+                if (!string.IsNullOrEmpty(model.Comment))
+                    cmd.Parameters.AddWithValue("@comment", model.Comment);
+                cmd.Parameters.AddWithValue("@idClaim", model.IdClaim);
+                cmd.Parameters.AddWithValue("@recordDate", model.Date);
+                cmd.Parameters.AddWithValue("@idUser", model.IdUser);
+                cmd.Parameters.AddWithValue("@idStatus", model.Status.Id);
+                conn.Open();
+                result = cmd.ExecuteNonQuery() > 0;
+            }
+            return result;
+        }
+
+        public List<ClaimStatusHistory> LoadStatusHistoryForClaim(int claimId)
+        {
+            var list = new List<ClaimStatusHistory>();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "LoadStatusHistoryForClaim";
+                cmd.Parameters.AddWithValue("@idClaim", claimId);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        var model = new ClaimStatusHistory()
+                        {
+                            Id = rd.GetInt32(0),
+                            Date = rd.GetDateTime(1),
+                            IdClaim = rd.GetInt32(2),
+                            Comment = rd.GetString(4),
+                            IdUser = rd.GetString(5),
+                            Status = new ClaimStatus()
+                            {
+                                Id = rd.GetInt32(3),
+                                Value = rd.GetString(6)
+                            }
+                        };
+                        list.Add(model);
+                    }
+                }
+                rd.Dispose();
+            }
+            return list;
+        }
+
+        public ClaimStatusHistory LoadLastStatusHistoryForClaim(int claimId)
+        {
+            ClaimStatusHistory model = null;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "LoadLastStatusHistoryForClaim";
+                cmd.Parameters.AddWithValue("@idClaim", claimId);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    rd.Read();
+                    model = new ClaimStatusHistory()
+                    {
+                        Id = rd.GetInt32(0),
+                        Date = rd.GetDateTime(1),
+                        IdClaim = rd.GetInt32(2),
+                        Comment = rd.GetString(4),
+                        IdUser = rd.GetString(5),
+                        Status = new ClaimStatus()
+                        {
+                            Id = rd.GetInt32(3),
+                            Value = rd.GetString(6)
+                        }
+                    };
+                }
+                rd.Dispose();
+            }
+            return model;
         }
 
         #endregion

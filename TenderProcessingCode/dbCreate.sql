@@ -121,6 +121,25 @@
 --     ON UPDATE NO ACTION
 --)
 
+--create table ClaimStatusHistory
+--(
+--	Id int identity not null,
+--	RecordDate datetime not null,
+--	IdClaim int not null,
+--	IdStatus int not null,
+--	Comment nvarchar(1000),
+--	IdUser nvarchar(500) not null,
+--	primary key(Id),
+--	CONSTRAINT FK_ClaimStatusHistory_TenderClaim FOREIGN KEY(IdClaim)
+--		REFERENCES TenderClaim(Id)
+--		ON DELETE CASCADE
+--		ON UPDATE CASCADE,
+--	CONSTRAINT FK_ClaimStatusHistory_ClaimStatus FOREIGN KEY(IdStatus)
+--		REFERENCES ClaimStatus(Id)
+--		ON DELETE No action
+--		ON UPDATE no action
+--)
+
 --use tenderProcessing
 --go
 
@@ -149,6 +168,54 @@
 --	@customerInn, @totalSum, @dealType, @tenderUrl, @tenderStatus, @manager, @managerSubDivision, @claimStatus, @recordDate, @deleted)
 --set @id = @@IDENTITY;
 --select @id;
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure SaveClaimStatusHistory
+--(
+--	@idClaim int,
+--	@idStatus int,
+--	@comment nvarchar(1000) = '',
+--	@idUser nvarchar(500),
+--	@recordDate datetime
+--)
+--as
+--insert into ClaimStatusHistory values(@recordDate, @idClaim, @idStatus, @comment, @idUser)
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadStatusHistoryForClaim
+--(
+--	@idClaim int
+--)
+--as
+--select [ClaimStatusHistory].*, Value from ClaimStatusHistory, ClaimStatus where IdClaim = @idClaim and IdStatus = [ClaimStatus].Id order by RecordDate
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadProductManagersForClaim
+--(
+--	@idClaim int
+--)
+--as
+--select distinct ProductManager from ClaimPosition where IdClaim = @idClaim
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadLastStatusHistoryForClaim
+--(
+--	@idClaim int
+--)
+--as
+--select top(1) [ClaimStatusHistory].*, Value from ClaimStatusHistory, ClaimStatus where IdClaim = @idClaim and IdStatus = [ClaimStatus].Id order by RecordDate desc
 --go
 
 --use tenderProcessing

@@ -456,6 +456,15 @@ namespace TenderProcessing.Controllers
                         model.ClaimDeadlineString = model.ClaimDeadline.ToString("dd.MM.yyyy");
                         model.TenderStartString = model.TenderStart.ToString("dd.MM.yyyy");
                         model.KPDeadlineString = model.KPDeadline.ToString("dd.MM.yyyy");
+                        var statusHistory = new ClaimStatusHistory()
+                        {
+                            Date = DateTime.Now,
+                            IdClaim = model.Id,
+                            IdUser = string.Empty,
+                            Status = new ClaimStatus() {Id = model.ClaimStatus},
+                            Comment = "Создание заявки"
+                        };
+                        db.SaveClaimStatusHistory(statusHistory);
                     }
                 }
             }
@@ -595,6 +604,30 @@ namespace TenderProcessing.Controllers
                 if (hasPosition)
                 {
                     isComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() {Id = id, ClaimStatus = 2});
+                    var productManagers = db.LoadProductManagersForClaim(id);
+                    if (productManagers != null && productManagers.Any())
+                    {
+                        var productManagersFromAd = UserHelper.GetProductManagers();
+                        foreach (var productManager in productManagers)
+                        {
+                            var productManagerFromAd =
+                                productManagersFromAd.FirstOrDefault(x => x.Id == productManager.Id);
+                            if (productManagerFromAd != null)
+                            {
+                                productManager.Name = productManagerFromAd.Name;
+                            }
+                        }
+                        var comment = string.Join(",", productManagers.Select(x => x.Name));
+                        var statusHistory = new ClaimStatusHistory()
+                        {
+                            Date = DateTime.Now,
+                            IdClaim = id,
+                            IdUser = string.Empty,
+                            Status = new ClaimStatus() { Id = 2 },
+                            Comment = comment
+                        };
+                        db.SaveClaimStatusHistory(statusHistory);
+                    }
                 }
                 else
                 {

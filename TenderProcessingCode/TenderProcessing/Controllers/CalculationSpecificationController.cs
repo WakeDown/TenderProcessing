@@ -28,6 +28,20 @@ namespace TenderProcessing.Controllers
                 claim = db.LoadTenderClaimById(claimId.Value);
                 if (claim != null)
                 {
+                    if (claim.ClaimStatus == 2)
+                    {
+                        claim.ClaimStatus = 3;
+                        db.ChangeTenderClaimClaimStatus(claim);
+                        var statusHistory = new ClaimStatusHistory()
+                        {
+                            IdClaim = claim.Id,
+                            Date = DateTime.Now,
+                            Comment = "Старт расчета спецификаций",
+                            Status = new ClaimStatus() {Id = claim.ClaimStatus},
+                            IdUser = string.Empty
+                        };
+                        db.SaveClaimStatusHistory(statusHistory);
+                    }
                     var managerFromAd = UserHelper.GetManagerFromActiveDirectoryById(claim.Manager.Id);
                     if (managerFromAd != null)
                     {
@@ -584,10 +598,12 @@ namespace TenderProcessing.Controllers
                                     {
                                         calculatePosition.IdSpecificationPosition = position.Id;
                                         calculatePosition.IdTenderClaim = claimId;
-                                        db.SaveCalculateSpecificationPosition(calculatePosition);
+                                        var isComplete = db.SaveCalculateSpecificationPosition(calculatePosition);
                                     }
                                 }
                             }
+                            var dbPositions = db.LoadSpecificationPositionsForTenderClaim(claimId);
+
                         }
                     }
                     else

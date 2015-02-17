@@ -1,0 +1,727 @@
+﻿@using System.Web.Script.Serialization
+@using DocumentFormat.OpenXml.Wordprocessing
+@using TenderProcessingDataAccessLayer.Models
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_MasterPage.cshtml";
+    var serializer = new JavaScriptSerializer();
+    var claim = (TenderClaim)ViewBag.Claim;
+}
+<style type="text/css">
+    .claimInfoLabel {
+        font-weight: bold;
+        color: blue;
+    }
+
+    .claimInfoValueLabel {
+        font-weight: bold;
+    }
+
+    .cell {
+        border: 1px solid gray;
+    }
+</style>
+<script type="text/javascript">
+    var claim = @Html.Raw(serializer.Serialize(claim));
+    var status = "@ViewBag.Status";
+    var dealType = "@ViewBag.DealType";
+
+    $(init);
+
+    function init() {
+        messageUi.initProgressImage();
+        window.addEventListener("message", messageHandler, true);
+        $("#butGetExcelFile").click(getExcelFileFromServer);
+        $("#butUploadExcelFile").click(openFile);
+        if (claim == null) {
+            messageUi.show("Заявка не найдена<br/>или у Вас нет доступа к ней");
+        } else {
+            showClaimInfo(claim);
+            initPositions(claim.Positions);
+            $("#butSendOnConfirm").click(sendOnConfirm);
+            var noAction = true;
+            var positionsLength = claim.Positions.length;
+            for (var i = 0; i < positionsLength; i++) {
+                var position = claim.Positions[i];
+                if (position.State == 1 || position.state == 3) {
+                    noAction = false;
+                    break;
+                }
+            }
+            if (noAction) {
+                setPositionsToNoAction();
+                $("#butSendOnConfirm").hide();
+                $("#butGetExcelFile").hide();
+                $("#butUploadExcelFile").hide();
+            }
+        }
+    }
+
+    function openFile() {
+        var obj = {
+            type: "mainWindow",
+            error: false,
+            message: "openFile"
+        }
+        var message = JSON.stringify(obj);
+        sendMessage(message);
+    } 
+
+    function sendMessage(message) {
+        var target = getTargetOrigin();
+        document.getElementById("uploadFile").contentWindow.postMessage(message, target);
+    }
+
+    function getTargetOrigin() {
+        var url = document.location.href;
+        url = url.replace("http://", "");
+        var index = url.indexOf("/");
+        url = url.substr(0, index);
+        url = "http://" + url;
+        return url;
+    }
+
+    function messageHandler(e) {
+        var data = e.data;
+        var obj = $.parseJSON(data);
+        if (obj.type.trim() == "UploadFrameLoaded") {
+            $("#butUploadExcelFile").show();
+        }
+        if (obj.type.trim() == "DownloadExcel") {
+            if (obj.error == true) {
+                messageUi.show("Ошибка при скачивании файла!", true, null, 1750);
+            }
+        }
+        if (obj.type.trim() == "UploadExcel") {
+            if (obj.error == true) {
+                messageUi.show(obj.message);
+            }
+        }
+        if (obj.type.trim() == "UploadExcelResult") {
+            if (obj.error == true) {
+                messageUi.show(obj.message);
+            } else {
+                $("#positionsTable").empty();
+                var positions = obj.message;
+                var positionLength = claim.Positions.length;
+                for (var i = 0; i < positionLength; i++) {
+                    var position = claim.Positions[i];
+                    position.Calculations = [];
+                    var serverPosition = getPosition(positions, position.Id);
+                    if (serverPosition != null) {
+                        position.Calculations = serverPosition.Calculations;
+                    }
+                }
+                initPositions(claim.Positions);
+            }
+        }
+    }
+
+    function getPosition(arr, id) {
+        var position = null;
+        var arrLength = arr.length;
+        for (var i = 0; i < arrLength; i++) {
+            var model = arr[i];
+            if (model.Id == id) {
+                position = model;
+                break;
+            }
+        }
+        return position;
+    }
+
+    function getExcelFileFromServer() {
+        $("body").append("<iframe src='/CalculationSpecification/GetSpecificationFile?claimId=" + claim.Id + "' width='0' height='0' style='display: none;' align='left'></iframe>");
+    }
+
+    function sendOnConfirm() {
+        $.ajax({
+            url: "/CalculationSpecification/SetPositionToConfirm?idClaim=" + claim.Id,
+            type: 'GET',
+            contentType: 'application/json; charset = utf-8 ',
+            success: function(data) {
+                if (data.IsComplete) {
+                    $("#butSendOnConfirm").hide();
+                    $("#butGetExcelFile").hide();
+                    $("#butUploadExcelFile").hide();
+                    setPositionsToNoAction();
+                } else {
+                    messageUi.show(data.Message, true, null, 1700);
+                }
+            }
+        });
+    }
+
+    function setPositionsToNoAction() {
+        var table = $("#positionsTable");
+        var addCalcButtons = $("[modetype='addCalcButton']", table);
+        addCalcButtons.hide();
+        var calcRows = $("[type='positionCalculate']", table);
+        $.each(calcRows, function(index, elem) {
+            if (elem.hasAttribute("calcId")) {
+                setCalculatePositionReadOnly($(elem));
+                $("[type='actionPanel']", $(elem)).remove();
+            } else {
+                $(elem).remove();
+            }
+        });
+    }
+
+    function initPositions(positions) {
+        if (positions == null) return;
+        var container = $("#positionsTable");
+        var positionsLength = positions.length;
+        for (var i = 0; i < positionsLength; i++) {
+            var position = positions[i];
+            var element = getPositionElement(position);
+            container.append(element);
+            var lastElement = element;
+            if (position.Calculations != null) {
+                var calculationsLength = position.Calculations.length;
+                for (var j = 0; j < calculationsLength; j++) {
+                    var calculation = position.Calculations[j];
+                    var calcRow = getCalculatePositionElement();
+                    calcRow.attr("calcPositionId", position.Id);
+                    calcRow.attr("calcId", calculation.Id);
+                    var saveCalculationButton = $("[modetype='saveCalcButton']", calcRow);
+                    saveCalculationButton.click(saveCalculate);
+                    var cancelCalculationButton = $("[modetype='cancelCalcButton']", calcRow);
+                    cancelCalculationButton.click(cancelCalculate);
+                    var deleteCalculationButton = $("[modetype='deleteCalcButton']", calcRow);
+                    deleteCalculationButton.click(deleteCalculate);
+                    var editCalculationButton = $("[modetype='editCalcButton']", calcRow);
+                    editCalculationButton.click(editCalculateButtonClick);
+                    var editCalculationButtonOk = $("[modetype='editCalcButtonOk']", calcRow);
+                    editCalculationButtonOk.click(editCalculate);
+                    var editCalculationButtonCancel = $("[modetype='editCalcButtonCancel']", calcRow);
+                    editCalculationButtonCancel.click(editCalculateCancel);
+                    deleteCalculationButton.hide();
+                    editCalculationButton.hide();
+                    editCalculationButtonOk.hide();
+                    editCalculationButtonCancel.hide();
+                    lastElement.after(calcRow);
+                    lastElement = calcRow;
+                    calcRow.show();
+                    $("[modetype='saveCalcButton']", calcRow).show();
+                    $("[modetype='cancelCalcButton']", calcRow).show();
+                    $("[modetype='calculateCatalogNumber']", calcRow).val(calculation.CatalogNumber);
+                    $("[modetype='calculateName']", calcRow).val(calculation.Name);
+                    $("[modetype='calculateReplace']", calcRow).val(calculation.Replace);
+                    $("[modetype='calculatePriceUsd']", calcRow).val(calculation.PriceUsd != 0 ? calculation.PriceUsd : "");
+                    $("[modetype='calculateSumUsd']", calcRow).val(calculation.SumUsd ? calculation.SumUsd : "");
+                    $("[modetype='calculatePriceRub']", calcRow).val(calculation.PriceRub ? calculation.PriceRub : "");
+                    $("[modetype='calculateSumRub']", calcRow).val(calculation.SumRub);
+                    $("[modetype='calculateProvider']", calcRow).val(calculation.Provider);
+                    $("[modetype='calculateProtectCondition']", calcRow).val(calculation.ProtectCondition);
+                    $("[modetype='calculateComment']", calcRow).val(calculation.Comment);
+                    var providerFact = $("[modetype='calculateProtectFact']", calcRow);
+                    $("[value='" + calculation.ProtectFact + "']", providerFact).attr("selected", "selected");
+                    $("[modetype='saveCalcButton']", calcRow).hide();
+                    $("[modetype='cancelCalcButton']", calcRow).hide();
+                    $("[modetype='deleteCalcButton']", calcRow).show();
+                    $("[modetype='editCalcButton']", calcRow).show();
+                    setCalculatePositionReadOnly(calcRow);
+                }
+            }
+        }
+    }
+
+    function showClaimInfo(model) {
+        var container = $("#claimInfoPanel");
+        container.empty();
+        container.append("<span class='claimInfoLabel'>Номер заявки: </span>");
+        container.append("<span class='claimInfoValueLabel'>" + model.Id + "</span>");
+        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+        container.append("<span class='claimInfoLabel'>Номер конкурса: </span>");
+        container.append("<span class='claimInfoValueLabel'>" + model.TenderNumber + "</span>");
+        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+        container.append("<span class='claimInfoLabel'>Дата начала: </span>");
+        container.append("<span class='claimInfoValueLabel'>" + model.TenderStartString + "</span>");
+        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+        container.append("<span class='claimInfoLabel'>Срок сдачи: </span>");
+        container.append("<span class='claimInfoValueLabel'>" + model.ClaimDeadlineString + "</span>");
+        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+        container.append("<span class='claimInfoLabel'>Срок подачи КП: </span>");
+        container.append("<span class='claimInfoValueLabel'>" + model.KPDeadlineString + "</span>");
+        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+        container.append("<br/>");
+        container.append("<span class='claimInfoLabel'>Заказчик: </span>");
+        container.append("<span class='claimInfoValueLabel'>" + model.Customer + "</span>");
+        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+        container.append("<span class='claimInfoLabel'>ИНН заказчика: </span>");
+        container.append("<span class='claimInfoValueLabel'>" + model.CustomerInn + "</span>");
+        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+        container.append("<span class='claimInfoLabel'>Сумма (с НДС): </span>");
+        var sum = "";
+        if (model.Sum > 0) {
+            sum = model.Sum.toFixed(2);
+        }
+        container.append("<span class='claimInfoValueLabel'>" + sum + "</span>");
+        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+        container.append("<span class='claimInfoLabel'>Тип сделки: </span>");
+        container.append("<span class='claimInfoValueLabel'>" + dealType + "</span>");
+        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+        container.append("<span class='claimInfoLabel'>Статус конкурса: </span>");
+        container.append("<span class='claimInfoValueLabel'>" + status + "</span>");
+        container.append("<span class='claimInfoValueLabel'>&nbsp;</span>");
+        container.append("<br/>");
+        container.append("<span class='claimInfoLabel'>Ссылка на закупки: </span>");
+        container.append("<span class='claimInfoValueLabel'>" + model.TenderUrl + "</span>");
+        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+        container.append("<span class='claimInfoLabel'>Менеджер: </span>");
+        container.append("<span class='claimInfoValueLabel'>" + model.Manager.Name + "</span>");
+        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+        container.append("<span class='claimInfoLabel'>Подразделение менеджера: </span>");
+        container.append("<span class='claimInfoValueLabel'>" + model.Manager.SubDivision + "</span>");
+        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
+        container.append("<span class='claimInfoLabel'>ФИО руководителя: </span>");
+        container.append("<span class='claimInfoValueLabel'>" + model.Manager.Chief + "</span>");
+        container.append("<span class='claimInfoValueLabel'>&nbsp;</span>");
+        container.append("<br/>");
+        container.append("<span class='claimInfoLabel'>Комментарий: </span>");
+        container.append("<span class='claimInfoValueLabel'>" + model.Comment + "</span>");
+    }
+
+    function getPositionElement(position) {
+        var element = $("<tr type='position' style='border: 1px solid gray;' positionId='" + position.Id + "'></tr>");
+        element.append("<td><span>"+ position.CatalogNumber + "</span></td>");
+        element.append("<td><span>"+ position.Name + "</span></td>");
+        element.append("<td><span>"+ position.Replace + "</span></td>");
+        element.append("<td><span>"+ getUnitString(position.Unit) + "</span></td>");
+        element.append("<td><span>"+ position.Value + "</span></td>");
+        element.append("<td><div style='max-width: 260px;'>"+ position.Comment + "</div></td>");
+        var sum = "";
+        if (position.Sum > 0) {
+            sum = position.Sum.toFixed(2);
+        }
+        element.append("<td><span>"+ sum + "</span></td>");
+        var addCalculateButton = $("<button type='button' modetype='addCalcButton' class='btn btn-primary'>Добавить расчет</button>");
+        addCalculateButton.click(addCalculateButtonClick);
+        var actionCell = $("<td></td>");
+        actionCell.append(addCalculateButton);
+        element.append(actionCell);
+        return element;
+    }
+
+    function deleteCalculate(e) {
+        var button = $(e.currentTarget);
+        var row = button.parent().parent().parent().parent().parent().parent().parent();
+        var calculateId = row.attr("calcId");
+        $.ajax({
+            url: "/CalculationSpecification/Delete?id=" + calculateId,
+            type: 'GET',
+            contentType: 'application/json; charset = utf-8 ',
+            success: function(data) {
+                if (data.IsComplete) {
+                    row.remove();
+                } else {
+                    messageUi.show("Запись не удалена", true, null, 1700);
+                }
+            }
+        });
+    }
+
+    function editCalculateButtonClick(e) {
+        var button = $(e.currentTarget);
+        var row = button.parent().parent().parent().parent().parent().parent().parent();
+        button.hide();
+        $("[modetype='deleteCalcButton']", row).hide();
+        $("[modetype='editCalcButtonOk']", row).show();
+        $("[modetype='editCalcButtonCancel']", row).show();
+        $("table", row).css("backgroundColor", "rgb(200, 230, 255)");
+        var controlTypeNames = ["calculateCatalogNumber", "calculateName", "calculateReplace", "calculatePriceUsd", "calculateSumUsd", "calculatePriceRub", "calculateSumRub", "calculateProvider", "calculateProtectCondition", "calculateComment"];
+        var controlTypeNamesLength = controlTypeNames.length;
+        for (var i = 0; i < controlTypeNamesLength; i++) {
+            var controlTypeName = controlTypeNames[i];
+            var control = $("[modetype='" + controlTypeName + "']", row);
+            var label = $("[modetype='" + controlTypeName + "ValueLabel']", row);
+            var value = label.text().trim();
+            control.val(value);
+            control.show();
+            label.hide();
+        }
+        var providerFact = $("[modetype='calculateProtectFact']", row);
+        var providerFactValue = $("[modetype='calculateProtectFactValueLabel']", row).text();
+        $("[value='" + providerFactValue + "']", providerFact).attr("selected", "selected");
+        providerFact.show();
+        $("[modetype='calculateProtectFactValueLabel']", row).hide();
+    }
+
+    function editCalculate(e) {
+        var button = $(e.currentTarget);
+        var row = button.parent().parent().parent().parent().parent().parent().parent();
+        var obj = getCalculatePositionModelForPosition(row);
+        if (!obj.isValid) {
+            messageUi.show(obj.message);
+        } else {
+            var model = obj.model;
+            model.Id = Number(row.attr("calcId"));
+            $.ajax({
+                url: "/CalculationSpecification/Edit",
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify(model),
+                processData: false,
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    if (data.IsComplete) {
+                        button.hide();
+                        $("[modetype='editCalcButtonCancel']", row).hide();
+                        $("[modetype='deleteCalcButton']", row).show();
+                        $("[modetype='editCalcButton']", row).show();
+                        setCalculatePositionReadOnly(row);
+                    } else {
+                        messageUi.show("Ошибка при изменении расчета", true, null, 1700);
+                    }
+                }
+            });
+        }
+    }
+
+    function editCalculateCancel(e) {
+        var button = $(e.currentTarget);
+        var row = button.parent().parent().parent().parent().parent().parent().parent();
+        button.hide();
+        $("[modetype='deleteCalcButton']", row).show();
+        $("[modetype='editCalcButtonOk']", row).hide();
+        $("[modetype='editCalcButton']", row).show();
+        $("table", row).css("backgroundColor", "rgb(230, 230, 255)");
+        var controlTypeNames = ["calculateCatalogNumber", "calculateName", "calculateReplace", "calculatePriceUsd", "calculateSumUsd", "calculatePriceRub", "calculateSumRub", "calculateProvider", "calculateProtectCondition", "calculateComment"];
+        var controlTypeNamesLength = controlTypeNames.length;
+        for (var i = 0; i < controlTypeNamesLength; i++) {
+            var controlTypeName = controlTypeNames[i];
+            $("[modetype='" + controlTypeName + "']", row).hide();
+            $("[modetype='" + controlTypeName + "ValueLabel']", row).show();
+        }
+        $("[modetype='calculateProtectFact']", row).hide();
+        $("[modetype='calculateProtectFactValueLabel']", row).show();
+    }
+
+    function addCalculateButtonClick(e) {
+        var button = $(e.currentTarget);
+        var row = button.parent().parent();
+        var calcRow = getCalculatePositionElement();
+        calcRow.attr("calcPositionId", row.attr("positionId"));
+        var saveCalculationButton = $("[modetype='saveCalcButton']", calcRow);
+        saveCalculationButton.click(saveCalculate);
+        var cancelCalculationButton = $("[modetype='cancelCalcButton']", calcRow);
+        cancelCalculationButton.click(cancelCalculate);
+        var deleteCalculationButton = $("[modetype='deleteCalcButton']", calcRow);
+        deleteCalculationButton.click(deleteCalculate);
+        var editCalculationButton = $("[modetype='editCalcButton']", calcRow);
+        editCalculationButton.click(editCalculateButtonClick);
+        var editCalculationButtonOk = $("[modetype='editCalcButtonOk']", calcRow);
+        editCalculationButtonOk.click(editCalculate);
+        var editCalculationButtonCancel = $("[modetype='editCalcButtonCancel']", calcRow);
+        editCalculationButtonCancel.click(editCalculateCancel);
+        deleteCalculationButton.hide();
+        editCalculationButton.hide();
+        editCalculationButtonOk.hide();
+        editCalculationButtonCancel.hide();
+        row.after(calcRow);
+        calcRow.show();
+        $("[modetype='saveCalcButton']", calcRow).show();
+        $("[modetype='cancelCalcButton']", calcRow).show();
+    }
+
+    function saveCalculate(e) {
+        var button = $(e.currentTarget);
+        var row = button.parent().parent().parent().parent().parent().parent().parent();
+        var obj = getCalculatePositionModelForPosition(row);
+        if (!obj.isValid) {
+            messageUi.show(obj.message);
+        } else {
+            var model = obj.model;
+            model.IdSpecificationPosition = Number(row.attr("calcPositionId"));
+            model.IdTenderClaim = claim.Id;
+            $.ajax({
+                url: "/CalculationSpecification/Save",
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify(model),
+                processData: false,
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    if (data.IsComplete) {
+                        row.attr("calcId", data.Id);
+                        button.hide();
+                        $("[modetype='cancelCalcButton']", row).hide();
+                        $("[modetype='deleteCalcButton']", row).show();
+                        $("[modetype='editCalcButton']", row).show();
+                        setCalculatePositionReadOnly(row);
+                    } else {
+                        messageUi.show("Ошибка при добавлении расчета", true, null, 1700);
+                    }
+                }
+            });
+        }
+    }
+
+    function setCalculatePositionReadOnly(row) {
+        var controlTypeNames = ["calculateCatalogNumber", "calculateName", "calculateReplace", "calculatePriceUsd", "calculateSumUsd", "calculatePriceRub", "calculateSumRub", "calculateProvider", "calculateProtectCondition", "calculateComment"];
+        var controlTypeNamesLength = controlTypeNames.length;
+        for (var i = 0; i < controlTypeNamesLength; i++) {
+            var controlTypeName = controlTypeNames[i];
+            var control = $("[modetype='" + controlTypeName + "']", row);
+            var value = control.val().trim();
+            var label = $("[modetype='" + controlTypeName + "ValueLabel']", row);
+            label.text(value);
+            label.show();
+            control.hide();
+        }
+        var providerFact = $("[modetype='calculateProtectFact']", row);
+        var providerFactValue = $(":selected", providerFact).val();
+        $("[modetype='calculateProtectFactValueLabel']", row).text(providerFactValue);
+        $("[modetype='calculateProtectFactValueLabel']", row).show();
+        providerFact.hide();
+        $("table", row).css("backgroundColor", "rgb(230, 230, 255)");
+    }
+
+    function getCalculatePositionModelForPosition(row) {
+        var obj = { isValid: true, message: "", model: null };
+        var message = "";
+        var calcRow = row;
+        var catalogNumber = $("[modetype='calculateCatalogNumber']", calcRow).val().trim();
+        if (catalogNumber == "") {
+            obj.isValid = false;
+            obj.message = "Заполните обязательное поле Каталожный номер";
+        }
+        var name = $("[modetype='calculateName']", calcRow).val().trim();
+        if (name == "") {
+            message = "Заполните обязательное поле Наименование";
+            if (obj.message.trim() != "") {
+                message = "<br/>" + message;
+            }
+            obj.isValid = false;
+            obj.message += message;
+        }
+        var priceUsd = $("[modetype='calculatePriceUsd']", calcRow).val().trim();
+        if (priceUsd != "") {
+            if (isNaN(priceUsd)) {
+                message = "Значение '" + priceUsd + "' в поле Цена за ед. USD не является числом";
+                if (obj.message.trim() != "") {
+                    message = "<br/>" + message;
+                }
+                obj.isValid = false;
+                obj.message += message;
+            }
+        }
+        var sumUsd = $("[modetype='calculateSumUsd']", calcRow).val().trim();
+        if (sumUsd != "") {
+            if (isNaN(sumUsd)) {
+                message = "Значение '" + sumUsd + "' в поле Сумма вход USD не является числом";
+                if (obj.message.trim() != "") {
+                    message = "<br/>" + message;
+                }
+                obj.isValid = false;
+                obj.message += message;
+            }
+        }
+        var priceRub = $("[modetype='calculatePriceRub']", calcRow).val().trim();
+        if (priceRub != "") {
+            if (isNaN(priceRub)) {
+                message = "Значение '" + priceRub + "' в поле Цена за ед. руб не является числом";
+                if (obj.message.trim() != "") {
+                    message = "<br/>" + message;
+                }
+                obj.isValid = false;
+                obj.message += message;
+            }
+        }
+        var sumRub = $("[modetype='calculateSumRub']", calcRow).val().trim();
+        if (sumRub != "") {
+            if (isNaN(sumRub)) {
+                message = "Значение '" + sumRub + "' в поле Сумма вход руб не является числом";
+                if (obj.message.trim() != "") {
+                    message = "<br/>" + message;
+                }
+                obj.isValid = false;
+                obj.message += message;
+            }
+        } else {
+            message = "Заполните обязательное поле Сумма вход руб";
+            if (obj.message.trim() != "") {
+                message = "<br/>" + message;
+            }
+            obj.isValid = false;
+            obj.message += message;
+        }
+        var protectFact = $(":selected", $("[modetype='calculateProtectFact']", calcRow)).val().trim();
+        var protectCondition = $("[modetype='calculateProtectCondition']", calcRow).val().trim();
+        if (protectCondition == "" && protectFact != "Не предоставляется") {
+            message = "Заполните поле Условия защиты";
+            if (obj.message.trim() != "") {
+                message = "<br/>" + message;
+            }
+            obj.isValid = false;
+            obj.message += message;
+        }
+        if (obj.isValid) {
+            var model = {
+                CatalogNumber: catalogNumber,
+                Name: name,
+                SumRub: Number(sumRub),
+                ProtectFact: protectFact,
+                ProtectCondition: protectCondition,
+                Comment: $("[modetype='calculateComment']", calcRow).val().trim(),
+                Provider: $("[modetype='calculateProvider']", calcRow).val().trim(),
+                Replace: $("[modetype='calculateReplace']", calcRow).val().trim()
+            };
+            if (priceUsd != "") {
+                model.PriceUsd = Number(priceUsd);
+            }
+            if (sumUsd != "") {
+                model.SumUsd = Number(sumUsd);
+            }
+            if (priceRub != "") {
+                model.PriceRub = Number(priceRub);
+            }
+            obj.model = model;
+        }
+        return obj;
+    }
+
+    function cancelCalculate(e) {
+        var button = $(e.currentTarget);
+        var row = button.parent().parent().parent().parent().parent().parent().parent();
+        row.remove();
+    }
+
+    function getCalculatePositionElement() {
+        var row = $("<tr></tr>");
+        var cell = $("<td colspan='8' style='text-align: center;'></td>");
+        row.append(cell);
+        var calcTable = $("#calculatePositionTable").clone();
+        calcTable.removeAttr("id");
+        calcTable.css("display", "inline-block");
+        cell.append(calcTable);
+        row.attr("type", "positionCalculate");
+        return row;
+    }
+
+    function getUnitString(unit) {
+        var result = "";
+        switch (unit) {
+        case 1:
+            result = "Шт";
+            break;
+        case 2:
+            result = "Упак";
+            break;
+        }
+        return result;
+    }
+</script>
+<div>
+    <div style="width: 100%; text-align: center;">
+        <h4 style="color: blue;">Заявка</h4>
+        <div id="claimInfoPanel"></div>
+        <button type='button' id="butSendOnConfirm" class='btn btn-info' style='margin: 4px;'>Отправить на подтверждение</button>
+        <br/>
+        <div id="excelPanel" style="display: inline-block">
+            <button id="butGetExcelFile" type='button' class='btn btn-success' style='margin: 4px;'>Скачать файл спецификаций</button>
+            <button id="butUploadExcelFile" type='button' class='btn btn-primary' style='margin: 4px; display: none;'>Загрузить файл спецификаций на сервер</button>
+            <iframe id="uploadFile" src="/CalculationSpecification/UploadFileForm?claimId=@claim.Id" style="display: none;"></iframe>
+        </div>
+    </div>
+    <div style="width: 100%; text-align: center;">
+        <h4 style="color: blue;">Позиции спецификаций</h4>
+        <div style="display: inline-block; margin: 0 4px 0 4px;">
+            <table style="border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: rgb(180, 210, 240);">
+                        <th class="cell">Каталожный<br />номер</th>
+                        <th class="cell">Наименование</th>
+                        <th class="cell">Замена</th>
+                        <th class="cell">Ед.</th>
+                        <th class="cell">Колич.</th>
+                        <th class="cell">Комментарий</th>
+                        <th class="cell">Сумма<br />максимум</th>
+                        <th class="cell">Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="positionsTable"></tbody>
+            </table>
+        </div>
+    </div>
+    <table id="calculatePositionTable" style="display: none; text-align: center; background-color: rgb(200, 230, 255);">
+        <tr>
+            <td class="claimInfoLabel">Каталожный<br />номер *</td>
+            <td>
+                <input type="text" modetype="calculateCatalogNumber" style="width: 140px;" />
+                <span modetype="calculateCatalogNumberValueLabel" style="font-weight: bold; display: none;"></span>
+            </td>
+            <td class="claimInfoLabel">Наименование *</td>
+            <td>
+                <input type="text" modetype="calculateName" style="width: 140px;" />
+                <span modetype="calculateNameValueLabel" style="font-weight: bold; display: none;"></span>
+            </td>
+            <td class="claimInfoLabel">Замена</td>
+            <td>
+                <input type="text" modetype="calculateReplace" style="width: 140px;" />
+                <span modetype="calculateReplaceValueLabel" style="font-weight: bold; display: none;"></span>
+            </td>
+            <td class="claimInfoLabel">Цена за ед.<br />USD</td>
+            <td>
+                <input type="text" modetype="calculatePriceUsd" style="width: 140px;" />
+                <span modetype="calculatePriceUsdValueLabel" style="font-weight: bold; display: none;"></span>
+            </td>
+        </tr>
+        <tr>
+            <td class="claimInfoLabel">Сумма вход<br />USD</td>
+            <td>
+                <input type="text" modetype="calculateSumUsd" style="width: 140px;" />
+                <span modetype="calculateSumUsdValueLabel" style="font-weight: bold; display: none;"></span>
+            </td>
+            <td class="claimInfoLabel">Цена за ед.<br />руб</td>
+            <td>
+                <input type="text" modetype="calculatePriceRub" style="width: 140px;" />
+                <span modetype="calculatePriceRubValueLabel" style="font-weight: bold; display: none;"></span>
+            </td>
+            <td class="claimInfoLabel">Сумма вход<br />руб *</td>
+            <td>
+                <input type="text" modetype="calculateSumRub" style="width: 140px;" />
+                <span modetype="calculateSumRubValueLabel" style="font-weight: bold; display: none;"></span>
+            </td>
+            <td class="claimInfoLabel">Поставщик</td>
+            <td>
+                <input type="text" modetype="calculateProvider" style="width: 140px;" />
+                <span modetype="calculateProviderValueLabel" style="font-weight: bold; display: none;"></span>
+            </td>
+        </tr>
+        <tr>
+            <td class="claimInfoLabel">Факт получ.<br />защиты</td>
+            <td>
+                <select size="1" modetype="calculateProtectFact" style="width: 170px;">
+                    <option value="Получена нами">Получена нами</option>
+                    <option value="Получена конкурентом">Получена конкурентом</option>
+                    <option value="Не предоставляется">Не предоставляется</option>
+                </select>
+                <span modetype="calculateProtectFactValueLabel" style="font-weight: bold; display: none;"></span>
+            </td>
+            <td class="claimInfoLabel">Условия<br />защиты</td>
+            <td>
+                <input type="text" modetype="calculateProtectCondition" style="width: 140px;" />
+                <span modetype="calculateProtectConditionValueLabel" style="font-weight: bold; display: none;"></span>
+            </td>
+            <td class="claimInfoLabel">Комментарий</td>
+            <td colspan="3">
+                <textarea rows="3" style="width: 240px" modetype="calculateComment"></textarea>
+                <div modetype="calculateCommentValueLabel" style="font-weight: bold; max-width: 300px; display: none;"></div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="8">
+                <div type="actionPanel" style="display: inline-block">
+                    <button type='button' modetype='cancelCalcButton' class='btn btn-danger' style='margin: 4px;'>Отмена</button>
+                    <button type='button' modetype='saveCalcButton' class='btn btn-primary' style='margin: 4px;'>Сохранить расчет</button>
+                    <button type='button' modetype='deleteCalcButton' class='btn btn-danger' style='margin: 4px;'>Удалить расчет</button>
+                    <button type='button' modetype='editCalcButton' class='btn btn-primary' style='margin: 4px;'>Изменить расчет</button>
+                    <button type='button' modetype='editCalcButtonCancel' class='btn btn-danger' style='margin: 4px;'>Отмена</button>
+                    <button type='button' modetype='editCalcButtonOk' class='btn btn-primary' style='margin: 4px;'>Изменить</button>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
