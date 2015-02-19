@@ -368,79 +368,107 @@
 </script>
 
 <div>
-    <div id="claimPanel" style="width: 100%; text-align: center;">
-        <h4 style="text-align: center;">Заявки</h4>
-        <div style="display: inline-block; margin: 0 4px 0 4px;">
-            <a href='/Claim/Index' class='btn btn-success'>Новая заявка</a>
-            <h4 style="text-align: center;">Фильтр</h4>
-            <table style="border-collapse: collapse; border: 1px solid black;">
-                <tbody>
-                    <tr>
-                        <td><span style="font-weight: bold; color: blue;">Количество<br />записей</span></td>
-                        <td>
-                            <input type="text" id="filterRowCount" style="width: 60px;" />
-                        </td>
-                        <td><span style="font-weight: bold; color: blue;">№ Заявки</span></td>
-                        <td>
-                            <input type="text" id="filterIdClaim" style="width: 60px;" />
-                        </td>
-                        <td><span style="font-weight: bold; color: blue;">№ Конкурса</span></td>
-                        <td>
-                            <input type="text" id="filterTenderNumber" style="width: 60px;" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><span style="font-weight: bold; color: blue;">Статус</span></td>
-                        <td><select size="1" id="filterClaimStatus" style="width: 190px;"></select></td>
-                        <td><span style="font-weight: bold; color: blue;">Менеджер</span></td>
-                        <td><select size="1" id="filterManagers" style="width: 190px;"></select></td>
-                        <td><span style="font-weight: bold; color: blue;">Снабженец</span></td>
-                        <td><select size="1" id="filterProductManagers" style="width: 190px;"></select></td>
-                    </tr>
-                    <tr>
-                        <td><span style="font-weight: bold; color: blue;">Подразделение</span></td>
-                        <td><select size="1" id="filterManagerSubDivisions" style="width: 190px;"></select></td>
-                        <td><span style="font-weight: bold; color: blue;">Срок сдачи</span></td>
-                        <td>
-                            <b>С:</b><input type="text" id="filterTenderStartFrom" readonly="readonly" style="background-color: transparent; cursor: pointer; width: 80px;" />
-                            <b>По:</b><input type="text" id="filterTenderStartTo" readonly="readonly" style="background-color: transparent; cursor: pointer; width: 80px;" />
-                            <img src="~/Content/deleteImg.png" id="clearDates" style="cursor: pointer; height: 20px; vertical-align: baseline;" />
-                        </td>
-                        <td><span style="font-weight: bold; color: blue;">Просроченные</span></td>
-                        <td>
-                            <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueYes" value="yes"><b>Да</b>
-                            <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNo" value="no"><b>Нет</b>
-                            <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNot" value="not" checked><b>Без фильтра</b>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="6" style="text-align: center">
-                            <button type="button" id="clearFilter" class="btn btn-danger" style="margin: 4px;">Очистить фильтр</button>
-                            <button type="button" id="acceptFilter" class="btn btn-primary" style="margin: 4px;">Применить</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="panel-group" id="accordion" runat="server">
+        <div class="panel panel-default" id="filter">
+            <div id="filterPanel" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="form-horizontal val-form" role="form">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">ID</label>
+                            <div class="col-sm-10">
+                                <input type="text" id="filterIdClaim" class="form-control"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">№ конкурса</label>
+                            <div class="col-sm-10">
+                                <input type="text" id="filterTenderNumber" class="form-control"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Статус заявки</label>
+                            <div class="col-sm-10">
+                                <select size="1" id="filterClaimStatus" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Просрочено</label>
+                            <div class="col-sm-10">
+                                <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNot" value="not" checked> все
+                                <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueYes" value="yes"> да
+                                <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNo" value="no"> нет
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Менеджер</label>
+                            <div class="col-sm-10">
+                                <select size="1" id="filterManagers" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Снабженец</label>
+                            <div class="col-sm-10">
+                                <select size="1" id="filterProductManagers" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Подразделение</label>
+                            <div class="col-sm-10">
+                                <select size="1" id="filterManagerSubDivisions" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Срок сдачи</label>
+                            <div class="col-sm-2">
+                                <input type="text" id="filterTenderStartFrom" readonly="readonly" style="cursor: pointer;" class="form-control datepicker-btn"/>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="text" id="filterTenderStartTo" readonly="readonly" style="cursor: pointer;" class="form-control datepicker-btn"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Показать записей</label>
+                            <div class="col-sm-10">
+                                <input type="text" id="filterRowCount" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="button" id="acceptFilter" class="btn btn-primary btn-sm"><i class="fa fa-search"></i>&nbsp;найти</button>
+                                <button type="button" id="clearFilter" class="btn btn-default btn-sm"><i class="fa fa-repeat"></i>&nbsp;очистить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="filterHead" class="panel-heading">
+                <div class="panel-title collapsed" data-toggle="collapse" data-target="#filterPanel">
+                    <a class="title"><i class="fa glyphicon-filter"></i></a>
+                </div>
+            </div>
         </div>
-        <div style="display: inline-block; margin: 0 4px 0 4px;">
-            <h5 id="claimCountLabel" style="text-align: center;">Всего записей: @claimCount</h5>
-            <table>
-                <thead>
-                    <tr>
-                        <th>№ Заявки</th>
-                        <th>№ Конкурса</th>
-                        <th>Контрагент</th>
-                        <th>Сумма</th>
-                        <th>Менеджер</th>
-                        <th>Снабженцы</th>
-                        <th>Тип сделки</th>
-                        <th>Статус-дата изменения</th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-                <tbody id="claimTable"></tbody>
-            </table>
-        </div>
+        <h5>
+            <span class="label label-default">
+                Всего записей:
+                <span id="claimCountLabel">@claimCount</span>
+            </span>
+        </h5>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>№ Конкурса</th>
+                    <th>Контрагент</th>
+                    <th>Сумма</th>
+                    <th>Менеджер</th>
+                    <th>Снабженцы</th>
+                    <th>Тип сделки</th>
+                    <th>Статус-дата изменения</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody id="claimTable"></tbody>
+        </table>
     </div>
 </div>
 

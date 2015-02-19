@@ -2,7 +2,7 @@
 @using TenderProcessingDataAccessLayer.Models
 
 @{
-    ViewBag.Title = "List";
+    ViewBag.Title = "Список заявок";
     Layout = "~/Views/Shared/_MasterPage.cshtml";
     var serializer = new JavaScriptSerializer();
     var dealTypes = (List<DealType>)ViewBag.DealTypes;
@@ -12,6 +12,8 @@
     var productManagers = (List<ProductManager>)ViewBag.ProductManagers;
     var claimCount = (int)ViewBag.ClaimCount;
 }
+<link href="~/Content/bootstrap-datepicker3.css" rel="stylesheet" />
+<script src="~/Scripts/bootstrap-datepicker.js"></script>
 <script type="text/javascript">
     var dealTypes = @Html.Raw(serializer.Serialize(dealTypes));
     var claimStatus = @Html.Raw(serializer.Serialize(claimStatus));
@@ -29,10 +31,18 @@
         initFilterProductManagersList();
         initFilterManagerSubDivisionsList();
         $("#filterTenderStartFrom").datepicker({
-            dateFormat: "dd.mm.yy"
+            format: "dd.mm.yyyy",
+            autoclose: true
         });
         $("#filterTenderStartTo").datepicker({
-            dateFormat: "dd.mm.yy"
+            format: "dd.mm.yyyy",
+            autoclose: true
+        });
+        $("#filterTenderStartFrom").add("#filterTenderStartTo").change(function(e) {
+            var datepicker = $(e.currentTarget);
+            var dt = datepicker.datepicker("getDate");
+            var dateString = getDateString(dt);
+            datepicker.val(dateString);
         });
         $("#clearDates").click(function() {
             $("#filterTenderStartFrom").val("");
@@ -40,7 +50,7 @@
         });
         $("#acceptFilter").click(filter);
         $("#clearFilter").click(clearFilter);
-        $("#claimCountLabel").text($("#claimCountLabel").text() + ", показано записей: " + claims.length);
+        $("#showCountLabel").text(claims.length);
     }
 
     function filter(e) {
@@ -60,7 +70,8 @@
                 if (data.IsComplete) {
                     claims = data.Claims;
                     initClaimsElements(claims);
-                    $("#claimCountLabel").text("Всего записей: " + data.Count + ", показано записей: " + claims.length);
+                    $("#claimCountLabel").text(data.Count);
+                    $("#showCountLabel").text(claims.length);
                 } else {
                     messageUi.show("Ошибка при фильтрации заявок", true, null, 1700);
                 }
@@ -90,6 +101,8 @@
                 if (data.IsComplete) {
                     claims = data.Claims;
                     initClaimsElements(claims);
+                    $("#claimCountLabel").text(data.Count);
+                    $("#showCountLabel").text(claims.length);
                 } else {
                     messageUi.show("Ошибка при фильтрации заявок", true, null, 1700);
                 }
@@ -214,7 +227,7 @@
     function initFilterClaimStatusList() {
         var statusLength = claimStatus.length;
         var list = $("#filterClaimStatus");
-        var option = $("<option value='-1'>Без фильтра</option>");
+        var option = $("<option value='-1'>---Все---</option>");
         list.append(option);
         for (var i = 0; i < statusLength; i++) {
             var status = claimStatus[i];
@@ -226,7 +239,7 @@
     function initFilterManagersList() {
         var managersLength = managers.length;
         var list = $("#filterManagers");
-        var option = $("<option value='-1'>Без фильтра</option>");
+        var option = $("<option value='-1'>---Все---</option>");
         list.append(option);
         for (var i = 0; i < managersLength; i++) {
             var manager = managers[i];
@@ -238,11 +251,11 @@
     function initFilterProductManagersList() {
         var managersLength = productManagers.length;
         var list = $("#filterProductManagers");
-        option = $("<option value='-1'>Без фильтра</option>");
+        var option = $("<option value='-1'>---Все---</option>");
         list.append(option);
         for (var i = 0; i < managersLength; i++) {
             var manager = productManagers[i];
-            var option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
+            option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
             list.append(option);
         }
     }
@@ -250,7 +263,7 @@
     function initFilterManagerSubDivisionsList() {
         var managersLength = managers.length;
         var list = $("#filterManagerSubDivisions");
-        var option = $("<option value='-1'>Без фильтра</option>");
+        var option = $("<option value='-1'>---Все---</option>");
         list.append(option);
         for (var i = 0; i < managersLength; i++) {
             var manager = managers[i];
@@ -272,8 +285,13 @@
     }
 
     function getClaimElement(claim) {
-        var element = $("<tr style='border: 1px solid black;' claimId='" + claim.Id + "'></tr>");
-        element.append("<td><span>" + claim.Id + "</span></td>");
+        var element = $("<tr claimId='" + claim.Id + "'></tr>");
+        var editCell = $("<td class='min-width text-nowrap'></td>");
+        element.append(editCell);
+        var editButton = $("<a href='/Claim/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></a>");
+        editCell.append(editButton);
+        editCell.append("<a href='/CalculationSpecification/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='рассчитать'><i class='fa fa-calculator'></i></a>");
+        element.append("<th><span>" + claim.Id + "</span></th>");
         element.append("<td><span>" + claim.TenderNumber + "</span></td>");
         element.append("<td><span>" + claim.Customer + "</span></td>");
         var sum = "";
@@ -285,15 +303,12 @@
         element.append("<td><span>" + getProductManagersString(claim.ProductManagers) + "</span></td>");
         element.append("<td><span>" + getDealTypeById(claim.DealType).Value + "</span></td>");
         element.append("<td><span>" + getClaimStatusById(claim.ClaimStatus).Value + "</span></td>");
-        var actionCell = $("<td></td>");
+        var actionCell = $("<td class='min-width'></td>");
         element.append(actionCell);
-        var editButton = $("<a href='/Claim/Index?claimId=" + claim.Id  + "' class='btn btn-info'>Изменить</a>");
-        var deleteButton = $("<button type='button' class='btn btn-danger' style='margin-top: 4px;'>Удалить</button>");
+        var deleteButton = $("<button type='button' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить'><i class='fa fa-trash'></i></button>");
         deleteButton.click(deleteButtonClick);
-        actionCell.append(editButton);
-        actionCell.append("<br/>");
-        actionCell.append("<a href='/CalculationSpecification/Index?claimId=" + claim.Id  + "' class='btn btn-info'>Расчитать</a>");
-        actionCell.append("<br/>");
+        
+        
         actionCell.append(deleteButton);
         return element;
     }
@@ -301,9 +316,11 @@
     function deleteButtonClick(e) {
         var button = $(e.currentTarget);
         var row = button.parent().parent();
-        row.css("backgroundColor", "aqua");
-        var deleteFunc = function() {
-            row.css("backgroundColor", "transparent");
+        var initalBackGround = row.css("background-color");
+        row.css("background-color", "#EAA4A4");
+        var deleteConfirm = confirm("Удалить выделенную заявку?");
+        row.css("backgroundColor", initalBackGround);
+        if (deleteConfirm) {
             var id = row.attr("claimId");
             $.ajax({
                 url: "/Claim/DeleteClaim?id=" + id,
@@ -317,11 +334,7 @@
                     }
                 }
             });
-        };
-        var cancelFunc = function() {
-            row.css("backgroundColor", "transparent");
-        };
-        messageUi.confirm("Удалить выделенную заявку?", deleteFunc, cancelFunc);
+        }
     }
 
     function getProductManagersString(managers) {
@@ -368,79 +381,117 @@
 </script>
 
 <div>
-    <div id="claimPanel" style="width: 100%; text-align: center;">
-        <h4 style="text-align: center;">Заявки</h4>
-        <div style="display: inline-block; margin: 0 4px 0 4px;">
-            <a href='/Claim/Index' class='btn btn-success'>Новая заявка</a>
-            <h4 style="text-align: center;">Фильтр</h4>
-            <table style="border-collapse: collapse; border: 1px solid black;">
-                <tbody>
-                    <tr>
-                        <td><span style="font-weight: bold; color: blue;">Количество<br />записей</span></td>
-                        <td>
-                            <input type="text" id="filterRowCount" style="width: 60px;" />
-                        </td>
-                        <td><span style="font-weight: bold; color: blue;">№ Заявки</span></td>
-                        <td>
-                            <input type="text" id="filterIdClaim" style="width: 60px;" />
-                        </td>
-                        <td><span style="font-weight: bold; color: blue;">№ Конкурса</span></td>
-                        <td>
-                            <input type="text" id="filterTenderNumber" style="width: 60px;" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><span style="font-weight: bold; color: blue;">Статус</span></td>
-                        <td><select size="1" id="filterClaimStatus" style="width: 190px;"></select></td>
-                        <td><span style="font-weight: bold; color: blue;">Менеджер</span></td>
-                        <td><select size="1" id="filterManagers" style="width: 190px;"></select></td>
-                        <td><span style="font-weight: bold; color: blue;">Снабженец</span></td>
-                        <td><select size="1" id="filterProductManagers" style="width: 190px;"></select></td>
-                    </tr>
-                    <tr>
-                        <td><span style="font-weight: bold; color: blue;">Подразделение</span></td>
-                        <td><select size="1" id="filterManagerSubDivisions" style="width: 190px;"></select></td>
-                        <td><span style="font-weight: bold; color: blue;">Срок сдачи</span></td>
-                        <td>
-                            <b>С:</b><input type="text" id="filterTenderStartFrom" readonly="readonly" style="background-color: transparent; cursor: pointer; width: 80px;" />
-                            <b>По:</b><input type="text" id="filterTenderStartTo" readonly="readonly" style="background-color: transparent; cursor: pointer; width: 80px;" />
-                            <img src="~/Content/deleteImg.png" id="clearDates" style="cursor: pointer; height: 20px; vertical-align: baseline;" />
-                        </td>
-                        <td><span style="font-weight: bold; color: blue;">Просроченные</span></td>
-                        <td>
-                            <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueYes" value="yes"><b>Да</b>
-                            <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNo" value="no"><b>Нет</b>
-                            <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNot" value="not" checked><b>Без фильтра</b>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="6" style="text-align: center">
-                            <button type="button" id="clearFilter" class="btn btn-danger" style="margin: 4px;">Очистить фильтр</button>
-                            <button type="button" id="acceptFilter" class="btn btn-primary" style="margin: 4px;">Применить</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="panel-group" id="accordion" runat="server">
+        <div class="panel panel-default" id="filter">
+            <div id="filterPanel" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="form-horizontal val-form" role="form">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">ID</label>
+                            <div class="col-sm-10">
+                                <input type="text" id="filterIdClaim" class="form-control input-sm" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">№ конкурса</label>
+                            <div class="col-sm-10">
+                                <input type="text" id="filterTenderNumber" class="form-control input-sm" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Статус заявки</label>
+                            <div class="col-sm-10">
+                                <select size="1" id="filterClaimStatus" class="form-control input-sm"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Просрочено</label>
+                            <div class="col-sm-10">
+                                <div class="input-sm">
+                                    <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNot" value="not" checked> все
+                                    <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueYes" value="yes"> да
+                                    <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNo" value="no"> нет
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Менеджер</label>
+                            <div class="col-sm-10">
+                                <select size="1" id="filterManagers" class="form-control input-sm"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Снабженец</label>
+                            <div class="col-sm-10">
+                                <select size="1" id="filterProductManagers" class="form-control input-sm"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Подразделение</label>
+                            <div class="col-sm-10">
+                                <select size="1" id="filterManagerSubDivisions" class="form-control input-sm"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Срок сдачи</label>
+                            <div class="col-sm-2">
+                                <input type="text" id="filterTenderStartFrom" style="cursor: pointer;" class="form-control datepicker-btn input-sm" />
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="text" id="filterTenderStartTo" style="cursor: pointer;" class="form-control datepicker-btn input-sm" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Показать записей</label>
+                            <div class="col-sm-10">
+                                <input type="text" id="filterRowCount" class="form-control input-sm" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="button" id="acceptFilter" class="btn btn-primary btn-lg"><i class="fa fa-search"></i>&nbsp;найти</button>
+                                <button type="button" id="clearFilter" class="btn btn-default btn-lg"><i class="fa fa-repeat"></i>&nbsp;очистить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="filterHead" class="panel-heading">
+                <div class="panel-title collapsed" data-toggle="collapse" data-target="#filterPanel">
+                    <a class="title"><i class="fa fa-filter"></i></a>
+                </div>
+            </div>
         </div>
-        <div style="display: inline-block; margin: 0 4px 0 4px;">
-            <h5 id="claimCountLabel" style="text-align: center;">Всего записей: @claimCount</h5>
-            <table>
-                <thead>
-                    <tr>
-                        <th>№ Заявки</th>
-                        <th>№ Конкурса</th>
-                        <th>Контрагент</th>
-                        <th>Сумма</th>
-                        <th>Менеджер</th>
-                        <th>Снабженцы</th>
-                        <th>Тип сделки</th>
-                        <th>Статус-дата изменения</th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-                <tbody id="claimTable"></tbody>
-            </table>
-        </div>
+        <h5>
+            <span class="label label-default">
+                Всего записей:
+                <span id="claimCountLabel">@claimCount</span>
+            </span>
+            &nbsp;
+            <span class="label label-success">
+                из них показано:
+                <span id="showCountLabel"></span>
+            </span>
+        </h5>
+        <table class="table table-striped small">
+            <thead>
+            <tr>
+                <th class="min-width text-nowrap"></th>
+                <th>ID</th>
+                <th>№ Конкурса</th>
+                <th>Контрагент</th>
+                <th>Сумма</th>
+                <th>Менеджер</th>
+                <th>Снабженцы</th>
+                <th>Тип сделки</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody id="claimTable">
+            
+            </tbody>
+        </table>
     </div>
 </div>
 

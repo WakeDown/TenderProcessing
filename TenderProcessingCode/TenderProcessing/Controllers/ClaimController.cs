@@ -482,6 +482,7 @@ namespace TenderProcessing.Controllers
             var isComplete = false;
             try
             {
+                model.State = 1;
                 var modelValid = true;
                 if (string.IsNullOrEmpty(model.Name)) modelValid = false;
                 if (modelValid)

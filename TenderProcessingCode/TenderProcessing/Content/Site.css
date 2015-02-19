@@ -7,11 +7,11 @@
 }
 
 /* Set width on the form input elements since they're 100% wide by default */
-input,
+/*input,
 select,
 textarea {
     max-width: 280px;
-}
+}*/
 
 /* styles for validation helpers */
 .field-validation-error {
@@ -38,7 +38,7 @@ input[type="checkbox"].input-validation-error {
     display: none;
 }
 
-/* < WakeDown update*/
+
 
 body {
    background: #B4B4B4 url(../Content/images/bg3.png) repeat left top;
@@ -78,4 +78,55 @@ body {
     height: 25px;
     padding-left: 10px;
 }
-/* /> WakeDown update*/
+
+.val-form .required-mark:before {
+    content: '* ';
+    color:  red;
+    font-size: 1.2em;
+}
+
+.datepicker-btn {
+    cursor: pointer !important; 
+}
+
+#filter .panel-heading {
+    cursor: pointer;
+}
+
+#filter .panel-title .title:after {
+    font-family: 'Glyphicons Halflings';
+    content: "\e113";
+    float: right;
+    color: #999;   
+}
+#filter .collapsed .title:after {
+    content: "\e114";
+}
+
+#filter .panel-title:after {
+    content: "скрыть фильтр";
+}
+
+#filter .collapsed:after {
+    content: "показать фильтр";
+}
+
+#filterPanel {
+    background: #eee;
+}
+
+
+.min-width {
+    min-width: 1px !important;
+    width: 1px !important;
+}
+
+.min-width .btn {
+    padding: 5px !important;
+    margin: 0 !important;
+}
+
+.center {
+    vertical-align: middle;
+    text-align: center;
+}

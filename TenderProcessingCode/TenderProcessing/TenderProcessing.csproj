@@ -123,6 +123,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\bootstrap-datepicker3.css" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
@@ -174,8 +175,10 @@
     <Content Include="fonts\FontAwesome.otf" />
     <None Include="Properties\PublishProfiles\Release.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\bootstrap-datepicker.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\helper.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <Content Include="Scripts\jquery-ui.js" />
@@ -200,14 +203,14 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
-    <Content Include="Views\Claim\Index.cshtml" />
     <Content Include="Views\Claim\UploadFileForm.cshtml" />
     <Content Include="Views\Claim\GetSpecificationFile.cshtml" />
-    <Content Include="Views\Claim\List.cshtml" />
-    <Content Include="Views\CalculationSpecification\Index.cshtml" />
     <Content Include="Views\CalculationSpecification\GetSpecificationFile.cshtml" />
     <Content Include="Views\CalculationSpecification\UploadFileForm.cshtml" />
     <Content Include="Views\Shared\_MasterPage.cshtml" />
+    <Content Include="Views\Claim\List.cshtml" />
+    <Content Include="Views\Claim\Index.cshtml" />
+    <Content Include="Views\CalculationSpecification\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TenderProcessingDataAccessLayer\TenderProcessingDataAccessLayer.csproj">
