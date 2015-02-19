@@ -620,8 +620,6 @@ namespace TenderProcessingDataAccessLayer
             return result;
         }
 
-
-
         public bool SetPositionsToConfirm(List<SpecificationPosition> positions)
         {
             var result = false;
@@ -864,6 +862,7 @@ namespace TenderProcessingDataAccessLayer
                                 Value = rd.GetString(6)
                             }
                         };
+                        model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
                         list.Add(model);
                     }
                 }

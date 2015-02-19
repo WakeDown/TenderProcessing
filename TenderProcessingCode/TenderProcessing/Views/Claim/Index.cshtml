@@ -10,6 +10,7 @@
     var claimStatus = (List<ClaimStatus>)ViewBag.ClaimStatus;
     var productManagers = (List<ProductManager>)ViewBag.ProductManagers;
     var claim = (TenderClaim)ViewBag.Claim;
+    var history = (List<ClaimStatusHistory>) ViewBag.StatusHistory;
 }
 <link href="~/Content/bootstrap-datepicker3.css" rel="stylesheet" />
 <script src="~/Scripts/bootstrap-datepicker.js"></script>
@@ -20,6 +21,7 @@
     var productManagers = @Html.Raw(serializer.Serialize(productManagers));
     var dateStart = "@ViewBag.DateStart.ToString()";
     var claim = @Html.Raw(serializer.Serialize(claim));
+    var histories = @Html.Raw(serializer.Serialize(history));
     var initClaimIdNedded = false;
 
     $(init);
@@ -52,6 +54,8 @@
             var dateString = getDateString(dt);
             datepicker.val(dateString);
         });
+        $("#butСlaimStatusCanceled").click(setClaimCancelled);
+        $("#butСlaimStatusStopped").click(setClaimStopped);
         $("#tenderStart").val(dateStart);
         $("#butGetFile").click(getExcelFileFromServer);
         $("#butUploadFile").click(openFile);
@@ -89,6 +93,7 @@
                 $("#claimStatus").text(status.Value);
                 $("#butSetClaimOnWork").hide();
                 $("#addPositionRow").remove();
+                $("#butAddPosition").remove();
                 var cancelEditButtons = $("[modeType='editButtonCancel']", $("#positionTable"));
                 $.each(cancelEditButtons, function(index, elem) {
                     $(elem).click();
@@ -106,8 +111,98 @@
                     $(elem).remove();
                 });
                 $("#excelPanel").hide();
+                if (claim.ClaimStatus == 2 || claim.ClaimStatus == 3 || claim.ClaimStatus == 4 || claim.ClaimStatus == 6 || claim.ClaimStatus == 7) {
+                    $("#claimStatusPanel").show();
+                    if (claim.ClaimStatus == 4) {
+                        $("#butСlaimStatusStopped").remove();
+                    }
+                }
             }
+            initStatusHistory();
         }
+    }
+
+    function initStatusHistory() {
+        if (histories == null) return;
+        var historyLength = histories.length;
+        for (var i = 0; i < historyLength; i++) {
+            var statusHistory = histories[i];
+            addClaimStatusHistoryElement(statusHistory);
+        }
+    }
+
+    function addClaimStatusHistoryElement(model) {
+        var container = $("#claimStatusHistoryContainer");
+        var element = $("<li></li>");
+        element.append(model.DateString + "&nbsp;");
+        var status = getClaimStatusById(model.Status.Id);
+        if (status == null) {
+            status = { Value: "Неопределен" };
+        }
+        element.append(status.Value + "&nbsp;");
+        element.append(model.Comment);
+        container.append(element);
+    }
+
+    function setClaimCancelled(e) {
+        var comment = $("#claimStatusComment").val().trim();
+        var model = {
+            Comment: comment,
+            IdClaim: claim.Id
+        }
+        $.ajax({
+            url: "/Claim/SetClaimCancelled",
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(model),
+            processData: false,
+            contentType: 'application/json; charset = utf-8 ',
+            success: function(data) {
+                if (data.IsComplete) {
+                    claim.ClaimStatus = data.Model.Status.Id;
+                    var status = getClaimStatusById(claim.ClaimStatus);
+                    if (status == null) {
+                        status = { Value: "Неопределен" };
+                    }
+                    $("#claimStatus").text(status.Value);
+                    $("#claimStatusPanel").remove();
+                    addClaimStatusHistoryElement(data.Model);
+                } else {
+                    showMessage("Ошибка");
+                }
+            }
+        });
+    }
+
+    function setClaimStopped(e) {
+        var comment = $("#claimStatusComment").val().trim();
+        var model = {
+            Comment: comment,
+            IdClaim: claim.Id
+        }
+        $.ajax({
+            url: "/Claim/SetClaimStopped",
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(model),
+            processData: false,
+            contentType: 'application/json; charset = utf-8 ',
+            success: function(data) {
+                if (data.IsComplete) {
+                    claim.ClaimStatus = data.Model.Status.Id;
+                    var status = getClaimStatusById(claim.ClaimStatus);
+                    if (status == null) {
+                        status = { Value: "Неопределен" };
+                    }
+                    $("#claimStatus").text(status.Value);
+                    $("#butСlaimStatusStopped").remove();
+                    $("#claimStatusComment").val("");
+                    addClaimStatusHistoryElement(data.Model);
+                } else {
+                    showMessage("Ошибка");
+                }
+            }
+        });
     }
 
     function showMessage(message) {
@@ -121,7 +216,7 @@
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 if (data.IsComplete) {
-                    claim.ClaimStatus = 2;
+                    claim.ClaimStatus = data.Model.Status.Id;
                     var status = getClaimStatusById(claim.ClaimStatus);
                     if (status == null) {
                         status = { Value: "Неопределен" };
@@ -129,6 +224,7 @@
                     $("#claimStatus").text(status.Value);
                     $("#butSetClaimOnWork").hide();
                     $("#addPositionRow").remove();
+                    $("#butAddPosition").remove();
                     var cancelEditButtons = $("[modeType='editButtonCancel']", $("#positionTable"));
                     $.each(cancelEditButtons, function(index, elem) {
                         $(elem).click();
@@ -137,7 +233,7 @@
                     $.each(editButtons, function(index, elem) {
                         $(elem).remove();
                     });
-                    var editPanels = $("[type='editActionPanel']", $("#positionTable"));
+                    var editPanels = $("[type='editPositionPanel']", $("#positionTable"));
                     $.each(editPanels, function(index, elem) {
                         $(elem).remove();
                     });
@@ -146,6 +242,7 @@
                         $(elem).remove();
                     });
                     $("#excelPanel").hide();
+                    addClaimStatusHistoryElement(data.Model);
                 } else {
                     if (data.Message == null || data.Message.trim() == "") {
                         showMessage("Ошибка при передачи заявки в работу");
@@ -208,6 +305,7 @@
             $("#butSetClaimOnWork").show();
             $("#excelPanel").show(250);
             $("#positionPanel").show(250);
+            addClaimStatusHistoryElement(data.StatusHistory);
             var obj = {
                 type: "setClaimId",
                 error: false,
@@ -903,98 +1001,115 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="col-sm-2 control-label">Статус заявки</label>
+                    <div class="col-sm-10">
+                        <span id="claimStatus"></span>
+                    </div>
+                </div>
+                <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
                         <button type="button" id="butSaveClaim" class="btn btn-primary"><i class="fa fa-save"></i> сохранить</button>
-
                         <span id="excelPanel">
                             <button id="butGetFile" type="button" class="btn btn-default"><i class="fa fa-download"></i> скачать шаблон спецификации</button>
                             <button id="butUploadFile" type="button" class="btn btn-default" style="margin-left: 8px;"><i class="fa fa-upload"></i> загрузить спецификацию</button>
                             <iframe id="uploadFile" src="/Claim/UploadFileForm" style="display: none;"></iframe>
                         </span>
                         <button type="button" id="butSetClaimOnWork" style="display: none;" class="btn btn-success"><i class="fa fa-mail-forward"></i> в работу</button>
+                        <div id="claimStatusPanel" style="display: none;">
+                            <h5>Изменить статус</h5>
+                            <label class="col-sm-2 control-label">Комментарий</label>
+                            <div class="col-sm-10">
+                                <textarea rows="7" id="claimStatusComment" class="form-control"></textarea>
+                            </div>
+                            <button id="butСlaimStatusCanceled" type="button" class="btn btn-default">Отменить</button>
+                            <button id="butСlaimStatusStopped" type="button" class="btn btn-default">Приостановить</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    <div id="positionPanel" style="display: none; margin-left: 4px; margin-right: 4px;">
+        <h5>Список позиций</h5>
+        <div>
+            <button type="button" id="butAddPosition" class="btn btn-default"><i class="fa fa-plus-circle"></i> добавить позицию</button>
         </div>
-            <div id="positionPanel" style="display: none; margin-left: 4px; margin-right: 4px;">
-                <h5>Список позиций</h5>
-                <div>
-                    <button type="button" id="butAddPosition" class="btn btn-default"><i class="fa fa-plus-circle"></i> добавить позицию</button>
-                </div>
-                <h5><span class="label label-default">Всего: 5</span> <span class="label label-info">из них рассчитано: 3</span></h5>
-                <table class="table table-striped small">
-                    <tbody id="positionTable">
-                        <tr id="addPositionRow" style="display: none;">
-                            <td class="min-width text-nowrap">
-                                <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
-                                <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
-                                <div type="editPositionPanel" style="display: none;">
-                                    <button type='button' modetype='editButton' class='btn btn-primary btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></button>
-                                    <div type="editPositionActionPanel" style="display: none;">
-                                        <button type='button' modetype='editPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-save'></i></button><br />
-                                        <button type='button' modetype='editPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div type="editModeView" class="col-sm-3">
-                                    <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" />
-                                    <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество" />
-                                    <div id="unitCell"></div>
-                                    <input type='text' modeltype='priceValue' class="form-control input-sm" placeholder="Цена за ед., макс." />
-                                    <input type='text' modeltype='sumValue' class="form-control input-sm" placeholder="Сумма, макс." />
-                                </div>
-                                <div type="readOnlyModeView" style="display: none;" class="col-sm-3">
-                                    <div>
-                                        <strong>[Каталожный номер]</strong>&nbsp;<span type='catalogNumberLabel'></span>
-                                    </div>
-                                    <div>
-                                        <strong>[Количество]</strong>&nbsp;<span type='valueLabel'></span>&nbsp;<span type='unitLabel'></span>
-                                    </div>
-                                    <div>
-                                        <strong>[Цена]</strong>&nbsp;<span type='priceLabel'></span>&nbsp; руб. за ед. макс.
-                                    </div>
-                                    <div>
-                                        <strong>[Сумма]</strong>&nbsp;<span type='sumLabel'></span>&nbsp;руб. всего макс.
-                                    </div>
-                                </div>
-                                <div type="editModeView" class="col-sm-5">
-                                    <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование"></textarea>
-                                    <textarea rows="3" class="form-control input-sm" modeltype='replaceValue' placeholder="Замена"></textarea>
-                                </div>
-                                <div type="readOnlyModeView" style="display: none;" class="col-sm-5">
-                                    <div>
-                                        <strong>Наименование</strong>
-                                        <div type='nameLabel'></div>
-                                    </div>
-                                    <div>
-                                        <strong>Замена</strong>
-                                        <div type='replaceLabel'></div>
-                                    </div>
-                                </div>
-                                <div type="editModeView" class="col-sm-4">
-                                    <strong>Продакт/Снабженец</strong><br />
-                                    <div id="managersCell"></div>
-                                    <textarea rows='4' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
-                                </div>
-                                <div type="readOnlyModeView" style="display: none;" class="col-sm-4">
-                                    <div>
-                                        <strong>[Снабженец]</strong>&nbsp;<span type='productManagerLabel'></span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Комментарий</label>
-                                        <div type="commentLabel"></div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
-                                <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
-                                <button type='button' modetype='deleteButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>                
-            </div>
-        </div>
+        <h5><span class="label label-default">Всего: 5</span> <span class="label label-info">из них рассчитано: 3</span></h5>
+        <table class="table table-striped small">
+            <tbody id="positionTable">
+                <tr id="addPositionRow" style="display: none;">
+                    <td class="min-width text-nowrap">
+                        <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+                        <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                        <div type="editPositionPanel" style="display: none;">
+                            <button type='button' modetype='editButton' class='btn btn-primary btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></button>
+                            <div type="editPositionActionPanel" style="display: none;">
+                                <button type='button' modetype='editPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-save'></i></button><br />
+                                <button type='button' modetype='editPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div type="editModeView" class="col-sm-3">
+                            <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" />
+                            <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество" />
+                            <div id="unitCell"></div>
+                            <input type='text' modeltype='priceValue' class="form-control input-sm" placeholder="Цена за ед., макс." />
+                            <input type='text' modeltype='sumValue' class="form-control input-sm" placeholder="Сумма, макс." />
+                        </div>
+                        <div type="readOnlyModeView" style="display: none;" class="col-sm-3">
+                            <div>
+                                <strong type='catalogNumberLabel'></strong>
+                            </div>
+                            <div>
+                                <strong type='valueLabel'></strong>&nbsp;<span type='unitLabel'></span>
+                            </div>
+                            <div>
+                                <strong type='priceLabel'></strong>&nbsp;руб. за ед. макс.
+                            </div>
+                            <div>
+                                <strong type='sumLabel'></strong>&nbsp;руб. всего макс.
+                            </div>
+                        </div>
+                        <div type="editModeView" class="col-sm-5">
+                            <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование"></textarea>
+                            <textarea rows="3" class="form-control input-sm" modeltype='replaceValue' placeholder="Замена"></textarea>
+                        </div>
+                        <div type="readOnlyModeView" style="display: none;" class="col-sm-5">
+                            <div>
+                                <strong>Наименование</strong>
+                                <div type='nameLabel'></div>
+                            </div>
+                            <div>
+                                <strong>Замена</strong>
+                                <div type='replaceLabel'></div>
+                            </div>
+                        </div>
+                        <div type="editModeView" class="col-sm-4">
+                            <strong>Продакт/Снабженец</strong><br />
+                            <div id="managersCell"></div>
+                            <textarea rows='4' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
+                        </div>
+                        <div type="readOnlyModeView" style="display: none;" class="col-sm-4">
+                            <div>
+                                <strong type='productManagerLabel'></strong>
+                            </div>
+                            <div class="form-group">
+                                <label>Комментарий</label>
+                                <div type="commentLabel"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+                        <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                        <button type='button' modetype='deleteButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>                
+    </div>
+    <div>
+        <ul id="claimStatusHistoryContainer"></ul>
+    </div>
+</div>

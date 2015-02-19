@@ -26,6 +26,7 @@ namespace TenderProcessing.Controllers
             ViewBag.DealTypes = db.LoadDealTypes();
             ViewBag.ClaimStatus = db.LoadClaimStatus();
             ViewBag.ProductManagers = UserHelper.GetProductManagers();
+            ViewBag.StatusHistory = new List<ClaimStatusHistory>();
             TenderClaim claim = null;
             if (claimId.HasValue)
             {
@@ -50,6 +51,7 @@ namespace TenderProcessing.Controllers
                             }
                         }
                     }
+                    ViewBag.StatusHistory = db.LoadStatusHistoryForClaim(claimId.Value);
                 }
             }
             ViewBag.Claim = claim;
@@ -436,6 +438,7 @@ namespace TenderProcessing.Controllers
         public JsonResult SaveClaim(TenderClaim model)
         {
             var isComplete = false;
+            ClaimStatusHistory statusHistory = null;
             try
             {
                 model.KPDeadline = DateTime.ParseExact(model.KPDeadlineString, "dd.MM.yyyy", CultureInfo.CurrentCulture);
@@ -456,7 +459,7 @@ namespace TenderProcessing.Controllers
                         model.ClaimDeadlineString = model.ClaimDeadline.ToString("dd.MM.yyyy");
                         model.TenderStartString = model.TenderStart.ToString("dd.MM.yyyy");
                         model.KPDeadlineString = model.KPDeadline.ToString("dd.MM.yyyy");
-                        var statusHistory = new ClaimStatusHistory()
+                        statusHistory = new ClaimStatusHistory()
                         {
                             Date = DateTime.Now,
                             IdClaim = model.Id,
@@ -465,6 +468,7 @@ namespace TenderProcessing.Controllers
                             Comment = "Создание заявки"
                         };
                         db.SaveClaimStatusHistory(statusHistory);
+                        statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
                     }
                 }
             }
@@ -473,7 +477,7 @@ namespace TenderProcessing.Controllers
                 isComplete = false;
                 Log(ex.Message);
             }
-            return Json(new {IsComplete = isComplete, Model = model});
+            return Json(new {IsComplete = isComplete, Model = model, StatusHistory = statusHistory});
         }
 
         [HttpPost]
@@ -598,6 +602,7 @@ namespace TenderProcessing.Controllers
         {
             var isComplete = false;
             var message = string.Empty;
+            ClaimStatusHistory model = null;
             try
             {
                 var db = new DbEngine();
@@ -619,7 +624,7 @@ namespace TenderProcessing.Controllers
                             }
                         }
                         var comment = string.Join(",", productManagers.Select(x => x.Name));
-                        var statusHistory = new ClaimStatusHistory()
+                        model = new ClaimStatusHistory()
                         {
                             Date = DateTime.Now,
                             IdClaim = id,
@@ -627,7 +632,8 @@ namespace TenderProcessing.Controllers
                             Status = new ClaimStatus() { Id = 2 },
                             Comment = comment
                         };
-                        db.SaveClaimStatusHistory(statusHistory);
+                        db.SaveClaimStatusHistory(model);
+                        model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
                     }
                 }
                 else
@@ -640,7 +646,55 @@ namespace TenderProcessing.Controllers
             {
                 isComplete = false;
             }
-            return Json(new { IsComplete = isComplete, Message = message }, JsonRequestBehavior.AllowGet);
+            return Json(new { IsComplete = isComplete, Message = message, Model = model }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult SetClaimCancelled(ClaimStatusHistory model)
+        {
+            var isComplete = false;
+            try
+            {
+                var db = new DbEngine();
+                isComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = model.IdClaim, ClaimStatus = 5 });
+                if (isComplete)
+                {
+                    model.Date = DateTime.Now;
+                    model.IdUser = string.Empty;
+                    model.Status = new ClaimStatus() {Id = 5};
+                    db.SaveClaimStatusHistory(model);
+                    model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
+                }
+            }
+            catch (Exception)
+            {
+                isComplete = false;
+            }
+            return Json(new { IsComplete = isComplete, Model = model });
+        }
+
+        [HttpPost]
+        public JsonResult SetClaimStopped(ClaimStatusHistory model)
+        {
+            var isComplete = false;
+            try
+            {
+                var db = new DbEngine();
+                isComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = model.IdClaim, ClaimStatus = 4 });
+                if (isComplete)
+                {
+                    model.Date = DateTime.Now;
+                    model.IdUser = string.Empty;
+                    model.Status = new ClaimStatus() { Id = 4 };
+                    db.SaveClaimStatusHistory(model);
+                    model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
+                }
+            }
+            catch (Exception)
+            {
+                isComplete = false;
+            }
+            return Json(new { IsComplete = isComplete, Model = model });
         }
 
         private bool IsPositionUnique(SpecificationPosition model, List<SpecificationPosition> list)

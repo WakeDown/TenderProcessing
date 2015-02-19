@@ -14,6 +14,8 @@ namespace TenderProcessingDataAccessLayer.Models
 
         public DateTime Date { get; set; }
 
+        public string DateString { get; set; }
+
         public string Comment { get; set; }
 
         public string IdUser { get; set; }

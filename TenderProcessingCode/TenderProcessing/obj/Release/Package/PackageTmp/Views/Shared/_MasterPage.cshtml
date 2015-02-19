@@ -6,14 +6,10 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width" />
         <title>@ViewBag.Title</title>
-        <link href="~/Content/bootstrap.css" rel="stylesheet" />
-        <link href="~/Content/jquery-ui.min.css" rel="stylesheet" />
-        <link href="~/Content/message.css" rel="stylesheet" />
-        <link href="~/Content/css" rel="stylesheet" />
-        <script src="~/Scripts/jquery-1.10.2.min.js"></script>
-        <script src="~/Scripts/jquery-ui.min.js"></script>
-        <script src="~/Scripts/bootstrap.min.js"></script>
-        <script src="~/Scripts/message.js"></script>
+        <link href="~/Content/css" rel="stylesheet"/>
+        <script src="~/bundles/jquery"></script>
+        <script src="~/bundles/modernizr"></script>
+        <script src="~/bundles/bootstrap"></script>
     </head>
 <body>
     <div class="navbar navbar-default navbar-static-top">
@@ -31,14 +27,14 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a href='#'><i class="fa fa-wrench fa-fw"></i>Новая заявка</a></li>
-                    <li><a href='#'><i class="fa fa-briefcase fa-fw"></i></a></li>
-                    <li>
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-book fa-fw"></i>Настройки <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href='#'>Роли</a></li>
-                        </ul>
-                    </li>
+                    <li><a href='/Claim/Index'><i class="fa fa-plus"></i> Новая заявка</a></li>
+                    @*<li><a href='#'><i class="fa fa-briefcase fa-fw"></i></a></li>
+    <li>
+         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-book fa-fw"></i>Настройки <b class="caret"></b></a>
+         <ul class="dropdown-menu">
+             <li><a href='#'>Роли</a></li>
+         </ul>
+     </li>*@
                 </ul>
 
                 <ul class="nav navbar-nav  navbar-right">

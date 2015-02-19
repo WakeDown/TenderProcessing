@@ -598,12 +598,10 @@ namespace TenderProcessing.Controllers
                                     {
                                         calculatePosition.IdSpecificationPosition = position.Id;
                                         calculatePosition.IdTenderClaim = claimId;
-                                        var isComplete = db.SaveCalculateSpecificationPosition(calculatePosition);
+                                        db.SaveCalculateSpecificationPosition(calculatePosition);
                                     }
                                 }
                             }
-                            var dbPositions = db.LoadSpecificationPositionsForTenderClaim(claimId);
-
                         }
                     }
                     else
@@ -701,6 +699,19 @@ namespace TenderProcessing.Controllers
                 {
                     isComplete = db.SetPositionsToConfirm(positions);
                     if (!isComplete) message = "Позиции не отправлены";
+                    else
+                    {
+                        db.ChangeTenderClaimClaimStatus(new TenderClaim() {Id = idClaim, ClaimStatus = 7});
+                        var statusHistory = new ClaimStatusHistory()
+                        {
+                            Date = DateTime.Now,
+                            Comment = "Расчет позиции завершен",
+                            IdClaim = idClaim,
+                            IdUser = string.Empty,
+                            Status = new ClaimStatus() {Id = 7}
+                        };
+                        db.SaveClaimStatusHistory(statusHistory);
+                    }
                 }
                 else
                 {

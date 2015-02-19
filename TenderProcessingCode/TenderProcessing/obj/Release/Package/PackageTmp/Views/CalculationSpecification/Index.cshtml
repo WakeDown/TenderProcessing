@@ -3,7 +3,7 @@
 @using TenderProcessingDataAccessLayer.Models
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Расчет заявки";
     Layout = "~/Views/Shared/_MasterPage.cshtml";
     var serializer = new JavaScriptSerializer();
     var claim = (TenderClaim)ViewBag.Claim;
@@ -66,7 +66,7 @@
         }
         var message = JSON.stringify(obj);
         sendMessage(message);
-    } 
+    }
 
     function sendMessage(message) {
         var target = getTargetOrigin();
@@ -197,9 +197,6 @@
                     var editCalculationButtonCancel = $("[modetype='editCalcButtonCancel']", calcRow);
                     editCalculationButtonCancel.click(editCalculateCancel);
                     deleteCalculationButton.hide();
-                    editCalculationButton.hide();
-                    editCalculationButtonOk.hide();
-                    editCalculationButtonCancel.hide();
                     lastElement.after(calcRow);
                     lastElement = calcRow;
                     calcRow.show();
@@ -219,8 +216,8 @@
                     $("[value='" + calculation.ProtectFact + "']", providerFact).attr("selected", "selected");
                     $("[modetype='saveCalcButton']", calcRow).hide();
                     $("[modetype='cancelCalcButton']", calcRow).hide();
+                    $("[type='editPositionPanel']", calcRow).show();
                     $("[modetype='deleteCalcButton']", calcRow).show();
-                    $("[modetype='editCalcButton']", calcRow).show();
                     setCalculatePositionReadOnly(calcRow);
                 }
             }
@@ -228,107 +225,80 @@
     }
 
     function showClaimInfo(model) {
-        var container = $("#claimInfoPanel");
-        container.empty();
-        container.append("<span class='claimInfoLabel'>Номер заявки: </span>");
-        container.append("<span class='claimInfoValueLabel'>" + model.Id + "</span>");
-        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
-        container.append("<span class='claimInfoLabel'>Номер конкурса: </span>");
-        container.append("<span class='claimInfoValueLabel'>" + model.TenderNumber + "</span>");
-        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
-        container.append("<span class='claimInfoLabel'>Дата начала: </span>");
-        container.append("<span class='claimInfoValueLabel'>" + model.TenderStartString + "</span>");
-        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
-        container.append("<span class='claimInfoLabel'>Срок сдачи: </span>");
-        container.append("<span class='claimInfoValueLabel'>" + model.ClaimDeadlineString + "</span>");
-        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
-        container.append("<span class='claimInfoLabel'>Срок подачи КП: </span>");
-        container.append("<span class='claimInfoValueLabel'>" + model.KPDeadlineString + "</span>");
-        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
-        container.append("<br/>");
-        container.append("<span class='claimInfoLabel'>Заказчик: </span>");
-        container.append("<span class='claimInfoValueLabel'>" + model.Customer + "</span>");
-        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
-        container.append("<span class='claimInfoLabel'>ИНН заказчика: </span>");
-        container.append("<span class='claimInfoValueLabel'>" + model.CustomerInn + "</span>");
-        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
-        container.append("<span class='claimInfoLabel'>Сумма (с НДС): </span>");
+        $("#claimId").text(model.Id);
+        $("#claimCustomer").text("Заказчик: " + model.Customer + " ИНН: " + model.CustomerInn);
+        $("#claimTenderStart").text(model.TenderStartString);
+        $("#claimDeadline").text(model.ClaimDeadlineString);
+        $("#kPDeadline").text(model.KPDeadlineString);
+        $("#claimManager").text(model.Manager.Name);
+        $("#managerSubDivision").text(model.Manager.SubDivision);
+        $("#managerChief").text(model.Manager.Chief);
+        $("#claimDealType").text(dealType);
         var sum = "";
         if (model.Sum > 0) {
             sum = model.Sum.toFixed(2);
         }
-        container.append("<span class='claimInfoValueLabel'>" + sum + "</span>");
-        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
-        container.append("<span class='claimInfoLabel'>Тип сделки: </span>");
-        container.append("<span class='claimInfoValueLabel'>" + dealType + "</span>");
-        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
-        container.append("<span class='claimInfoLabel'>Статус конкурса: </span>");
-        container.append("<span class='claimInfoValueLabel'>" + status + "</span>");
-        container.append("<span class='claimInfoValueLabel'>&nbsp;</span>");
-        container.append("<br/>");
-        container.append("<span class='claimInfoLabel'>Ссылка на закупки: </span>");
-        container.append("<span class='claimInfoValueLabel'>" + model.TenderUrl + "</span>");
-        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
-        container.append("<span class='claimInfoLabel'>Менеджер: </span>");
-        container.append("<span class='claimInfoValueLabel'>" + model.Manager.Name + "</span>");
-        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
-        container.append("<span class='claimInfoLabel'>Подразделение менеджера: </span>");
-        container.append("<span class='claimInfoValueLabel'>" + model.Manager.SubDivision + "</span>");
-        container.append("<span class='claimInfoValueLabel'>,&nbsp;</span>");
-        container.append("<span class='claimInfoLabel'>ФИО руководителя: </span>");
-        container.append("<span class='claimInfoValueLabel'>" + model.Manager.Chief + "</span>");
-        container.append("<span class='claimInfoValueLabel'>&nbsp;</span>");
-        container.append("<br/>");
-        container.append("<span class='claimInfoLabel'>Комментарий: </span>");
-        container.append("<span class='claimInfoValueLabel'>" + model.Comment + "</span>");
+        $("#claimSum").text(sum);
+        $("#claimTenderNumber").text(model.TenderNumber);
+        $("#claimTenderStatus").text(status);
+        if (model.TenderUrl != "") {
+            var link = $("<a href='" + model.TenderUrl + "' target='blank'>[ссылка]</a>");
+            $("#claimTenderUrl").append(link);   
+        }
     }
 
     function getPositionElement(position) {
-        var element = $("<tr type='position' style='border: 1px solid gray;' positionId='" + position.Id + "'></tr>");
-        element.append("<td><span>"+ position.CatalogNumber + "</span></td>");
-        element.append("<td><span>"+ position.Name + "</span></td>");
-        element.append("<td><span>"+ position.Replace + "</span></td>");
-        element.append("<td><span>"+ getUnitString(position.Unit) + "</span></td>");
-        element.append("<td><span>"+ position.Value + "</span></td>");
-        element.append("<td><div style='max-width: 260px;'>"+ position.Comment + "</div></td>");
+        var element = $("#positionElementTemplate").clone();
+        element.removeAttr("id");
+        element.show();
+        element.attr("positionId", position.Id);
+        $("[type='catalogNumberLabel']", element).text(position.CatalogNumber);
+        $("[type='nameLabel']", element).text(position.Name);
+        $("[type='replaceLabel']", element).text(position.Replace);
+        $("[type='unitLabel']", element).text(getUnitString(position.Unit));
+        $("[type='valueLabel']", element).text(position.Value);
+        $("[type='commentLabel']", element).text(position.Comment);
+        var price = "";
+        if (position.Price != 0) price = position.Price.toFixed(2);
+        $("[type='priceLabel']", element).text(price);
         var sum = "";
-        if (position.Sum > 0) {
-            sum = position.Sum.toFixed(2);
-        }
-        element.append("<td><span>"+ sum + "</span></td>");
-        var addCalculateButton = $("<button type='button' modetype='addCalcButton' class='btn btn-primary'>Добавить расчет</button>");
+        if (position.Sum != 0) sum = position.Sum.toFixed(2);
+        $("[type='sumLabel']", element).text(sum);
+        var addCalculateButton = $("[modetype='addCalcButton']", element);
         addCalculateButton.click(addCalculateButtonClick);
-        var actionCell = $("<td></td>");
-        actionCell.append(addCalculateButton);
-        element.append(actionCell);
         return element;
     }
 
     function deleteCalculate(e) {
         var button = $(e.currentTarget);
-        var row = button.parent().parent().parent().parent().parent().parent().parent();
+        var row = button.closest("[type='positionCalculate']");
         var calculateId = row.attr("calcId");
-        $.ajax({
-            url: "/CalculationSpecification/Delete?id=" + calculateId,
-            type: 'GET',
-            contentType: 'application/json; charset = utf-8 ',
-            success: function(data) {
-                if (data.IsComplete) {
-                    row.remove();
-                } else {
-                    messageUi.show("Запись не удалена", true, null, 1700);
+        var initalBackGround = row.css("background-color");
+        row.css("backgroundColor", "#EAA4A4");
+        var deleted = confirm("Вы уверены что хотите удалить выделенную запись?");
+        row.css("backgroundColor", initalBackGround);
+        if (deleted) {
+            $.ajax({
+                url: "/CalculationSpecification/Delete?id=" + calculateId,
+                type: 'GET',
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    if (data.IsComplete) {
+                        row.remove();
+                    } else {
+                        messageUi.show("Запись не удалена", true, null, 1700);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     function editCalculateButtonClick(e) {
         var button = $(e.currentTarget);
-        var row = button.parent().parent().parent().parent().parent().parent().parent();
+        var row = button.parent().parent().parent().parent().parent().parent();
         button.hide();
         $("[modetype='deleteCalcButton']", row).hide();
-        $("[modetype='editCalcButtonOk']", row).show();
-        $("[modetype='editCalcButtonCancel']", row).show();
+        $("[type='editPositionActionPanel']", row).show();
         $("table", row).css("backgroundColor", "rgb(200, 230, 255)");
         var controlTypeNames = ["calculateCatalogNumber", "calculateName", "calculateReplace", "calculatePriceUsd", "calculateSumUsd", "calculatePriceRub", "calculateSumRub", "calculateProvider", "calculateProtectCondition", "calculateComment"];
         var controlTypeNamesLength = controlTypeNames.length;
@@ -338,19 +308,18 @@
             var label = $("[modetype='" + controlTypeName + "ValueLabel']", row);
             var value = label.text().trim();
             control.val(value);
-            control.show();
-            label.hide();
         }
         var providerFact = $("[modetype='calculateProtectFact']", row);
         var providerFactValue = $("[modetype='calculateProtectFactValueLabel']", row).text();
         $("[value='" + providerFactValue + "']", providerFact).attr("selected", "selected");
-        providerFact.show();
-        $("[modetype='calculateProtectFactValueLabel']", row).hide();
+        $("[ type='readOnlyModeView']", row).hide();
+        $("[ type='editModeView']", row).show();
+
     }
 
     function editCalculate(e) {
         var button = $(e.currentTarget);
-        var row = button.parent().parent().parent().parent().parent().parent().parent();
+        var row = button.closest("[type='positionCalculate']");
         var obj = getCalculatePositionModelForPosition(row);
         if (!obj.isValid) {
             messageUi.show(obj.message);
@@ -366,9 +335,8 @@
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
                     if (data.IsComplete) {
-                        button.hide();
-                        $("[modetype='editCalcButtonCancel']", row).hide();
                         $("[modetype='deleteCalcButton']", row).show();
+                        $("[type='editPositionActionPanel']", row).hide();
                         $("[modetype='editCalcButton']", row).show();
                         setCalculatePositionReadOnly(row);
                     } else {
@@ -381,21 +349,13 @@
 
     function editCalculateCancel(e) {
         var button = $(e.currentTarget);
-        var row = button.parent().parent().parent().parent().parent().parent().parent();
-        button.hide();
+        var row = button.closest("[type='positionCalculate']");
         $("[modetype='deleteCalcButton']", row).show();
-        $("[modetype='editCalcButtonOk']", row).hide();
+        $("[type='editPositionActionPanel']", row).hide();
         $("[modetype='editCalcButton']", row).show();
         $("table", row).css("backgroundColor", "rgb(230, 230, 255)");
-        var controlTypeNames = ["calculateCatalogNumber", "calculateName", "calculateReplace", "calculatePriceUsd", "calculateSumUsd", "calculatePriceRub", "calculateSumRub", "calculateProvider", "calculateProtectCondition", "calculateComment"];
-        var controlTypeNamesLength = controlTypeNames.length;
-        for (var i = 0; i < controlTypeNamesLength; i++) {
-            var controlTypeName = controlTypeNames[i];
-            $("[modetype='" + controlTypeName + "']", row).hide();
-            $("[modetype='" + controlTypeName + "ValueLabel']", row).show();
-        }
-        $("[modetype='calculateProtectFact']", row).hide();
-        $("[modetype='calculateProtectFactValueLabel']", row).show();
+        $("[ type='readOnlyModeView']", row).show();
+        $("[ type='editModeView']", row).hide();
     }
 
     function addCalculateButtonClick(e) {
@@ -416,9 +376,7 @@
         var editCalculationButtonCancel = $("[modetype='editCalcButtonCancel']", calcRow);
         editCalculationButtonCancel.click(editCalculateCancel);
         deleteCalculationButton.hide();
-        editCalculationButton.hide();
-        editCalculationButtonOk.hide();
-        editCalculationButtonCancel.hide();
+        $("[type='editPositionPanel']", row).hide();
         row.after(calcRow);
         calcRow.show();
         $("[modetype='saveCalcButton']", calcRow).show();
@@ -427,7 +385,7 @@
 
     function saveCalculate(e) {
         var button = $(e.currentTarget);
-        var row = button.parent().parent().parent().parent().parent().parent().parent();
+        var row = button.closest("[type='positionCalculate']");
         var obj = getCalculatePositionModelForPosition(row);
         if (!obj.isValid) {
             messageUi.show(obj.message);
@@ -446,9 +404,10 @@
                     if (data.IsComplete) {
                         row.attr("calcId", data.Id);
                         button.hide();
+                        $("[modetype='saveCalcButton']", row).hide();
                         $("[modetype='cancelCalcButton']", row).hide();
+                        $("[type='editPositionPanel']", row).show();
                         $("[modetype='deleteCalcButton']", row).show();
-                        $("[modetype='editCalcButton']", row).show();
                         setCalculatePositionReadOnly(row);
                     } else {
                         messageUi.show("Ошибка при добавлении расчета", true, null, 1700);
@@ -467,15 +426,13 @@
             var value = control.val().trim();
             var label = $("[modetype='" + controlTypeName + "ValueLabel']", row);
             label.text(value);
-            label.show();
-            control.hide();
         }
         var providerFact = $("[modetype='calculateProtectFact']", row);
         var providerFactValue = $(":selected", providerFact).val();
         $("[modetype='calculateProtectFactValueLabel']", row).text(providerFactValue);
-        $("[modetype='calculateProtectFactValueLabel']", row).show();
-        providerFact.hide();
         $("table", row).css("backgroundColor", "rgb(230, 230, 255)");
+        $("[ type='readOnlyModeView']", row).show();
+        $("[ type='editModeView']", row).hide();
     }
 
     function getCalculatePositionModelForPosition(row) {
@@ -547,15 +504,24 @@
             obj.isValid = false;
             obj.message += message;
         }
-        var protectFact = $(":selected", $("[modetype='calculateProtectFact']", calcRow)).val().trim();
         var protectCondition = $("[modetype='calculateProtectCondition']", calcRow).val().trim();
-        if (protectCondition == "" && protectFact != "Не предоставляется") {
-            message = "Заполните поле Условия защиты";
+        var protectFact = $(":selected", $("[modetype='calculateProtectFact']", calcRow)).val().trim();
+        if (protectFact == "null") {
+            message = "Выберите значение Факт получения защиты";
             if (obj.message.trim() != "") {
                 message = "<br/>" + message;
             }
             obj.isValid = false;
             obj.message += message;
+        } else {
+            if (protectCondition == "" && protectFact != "Не предоставляется") {
+                message = "Заполните поле Условия защиты";
+                if (obj.message.trim() != "") {
+                    message = "<br/>" + message;
+                }
+                obj.isValid = false;
+                obj.message += message;
+            }    
         }
         if (obj.isValid) {
             var model = {
@@ -584,17 +550,17 @@
 
     function cancelCalculate(e) {
         var button = $(e.currentTarget);
-        var row = button.parent().parent().parent().parent().parent().parent().parent();
+        var row = button.closest("[type='positionCalculate']");
         row.remove();
     }
 
     function getCalculatePositionElement() {
         var row = $("<tr></tr>");
-        var cell = $("<td colspan='8' style='text-align: center;'></td>");
+        var cell = $("<td colspan='2'></td>");
         row.append(cell);
         var calcTable = $("#calculatePositionTable").clone();
+        calcTable.show();
         calcTable.removeAttr("id");
-        calcTable.css("display", "inline-block");
         cell.append(calcTable);
         row.attr("type", "positionCalculate");
         return row;
@@ -603,124 +569,224 @@
     function getUnitString(unit) {
         var result = "";
         switch (unit) {
-        case 1:
-            result = "Шт";
-            break;
-        case 2:
-            result = "Упак";
-            break;
+            case 1:
+                result = "Шт";
+                break;
+            case 2:
+                result = "Упак";
+                break;
         }
         return result;
     }
 </script>
 <div>
-    <div style="width: 100%; text-align: center;">
-        <h4 style="color: blue;">Заявка</h4>
-        <div id="claimInfoPanel"></div>
-        <button type='button' id="butSendOnConfirm" class='btn btn-info' style='margin: 4px;'>Отправить на подтверждение</button>
-        <br/>
-        <div id="excelPanel" style="display: inline-block">
-            <button id="butGetExcelFile" type='button' class='btn btn-success' style='margin: 4px;'>Скачать файл спецификаций</button>
-            <button id="butUploadExcelFile" type='button' class='btn btn-primary' style='margin: 4px; display: none;'>Загрузить файл спецификаций на сервер</button>
-            <iframe id="uploadFile" src="/CalculationSpecification/UploadFileForm?claimId=@claim.Id" style="display: none;"></iframe>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4>
+                Заявка №<span id="claimId"></span>
+                <div id="claimCustomer"></div>
+            </h4>
         </div>
-    </div>
-    <div style="width: 100%; text-align: center;">
-        <h4 style="color: blue;">Позиции спецификаций</h4>
-        <div style="display: inline-block; margin: 0 4px 0 4px;">
-            <table style="border-collapse: collapse;">
-                <thead>
-                    <tr style="background-color: rgb(180, 210, 240);">
-                        <th class="cell">Каталожный<br />номер</th>
-                        <th class="cell">Наименование</th>
-                        <th class="cell">Замена</th>
-                        <th class="cell">Ед.</th>
-                        <th class="cell">Колич.</th>
-                        <th class="cell">Комментарий</th>
-                        <th class="cell">Сумма<br />максимум</th>
-                        <th class="cell">Действие</th>
-                    </tr>
-                </thead>
-                <tbody id="positionsTable"></tbody>
-            </table>
-        </div>
-    </div>
-    <table id="calculatePositionTable" style="display: none; text-align: center; background-color: rgb(200, 230, 255);">
-        <tr>
-            <td class="claimInfoLabel">Каталожный<br />номер *</td>
-            <td>
-                <input type="text" modetype="calculateCatalogNumber" style="width: 140px;" />
-                <span modetype="calculateCatalogNumberValueLabel" style="font-weight: bold; display: none;"></span>
-            </td>
-            <td class="claimInfoLabel">Наименование *</td>
-            <td>
-                <input type="text" modetype="calculateName" style="width: 140px;" />
-                <span modetype="calculateNameValueLabel" style="font-weight: bold; display: none;"></span>
-            </td>
-            <td class="claimInfoLabel">Замена</td>
-            <td>
-                <input type="text" modetype="calculateReplace" style="width: 140px;" />
-                <span modetype="calculateReplaceValueLabel" style="font-weight: bold; display: none;"></span>
-            </td>
-            <td class="claimInfoLabel">Цена за ед.<br />USD</td>
-            <td>
-                <input type="text" modetype="calculatePriceUsd" style="width: 140px;" />
-                <span modetype="calculatePriceUsdValueLabel" style="font-weight: bold; display: none;"></span>
-            </td>
-        </tr>
-        <tr>
-            <td class="claimInfoLabel">Сумма вход<br />USD</td>
-            <td>
-                <input type="text" modetype="calculateSumUsd" style="width: 140px;" />
-                <span modetype="calculateSumUsdValueLabel" style="font-weight: bold; display: none;"></span>
-            </td>
-            <td class="claimInfoLabel">Цена за ед.<br />руб</td>
-            <td>
-                <input type="text" modetype="calculatePriceRub" style="width: 140px;" />
-                <span modetype="calculatePriceRubValueLabel" style="font-weight: bold; display: none;"></span>
-            </td>
-            <td class="claimInfoLabel">Сумма вход<br />руб *</td>
-            <td>
-                <input type="text" modetype="calculateSumRub" style="width: 140px;" />
-                <span modetype="calculateSumRubValueLabel" style="font-weight: bold; display: none;"></span>
-            </td>
-            <td class="claimInfoLabel">Поставщик</td>
-            <td>
-                <input type="text" modetype="calculateProvider" style="width: 140px;" />
-                <span modetype="calculateProviderValueLabel" style="font-weight: bold; display: none;"></span>
-            </td>
-        </tr>
-        <tr>
-            <td class="claimInfoLabel">Факт получ.<br />защиты</td>
-            <td>
-                <select size="1" modetype="calculateProtectFact" style="width: 170px;">
-                    <option value="Получена нами">Получена нами</option>
-                    <option value="Получена конкурентом">Получена конкурентом</option>
-                    <option value="Не предоставляется">Не предоставляется</option>
-                </select>
-                <span modetype="calculateProtectFactValueLabel" style="font-weight: bold; display: none;"></span>
-            </td>
-            <td class="claimInfoLabel">Условия<br />защиты</td>
-            <td>
-                <input type="text" modetype="calculateProtectCondition" style="width: 140px;" />
-                <span modetype="calculateProtectConditionValueLabel" style="font-weight: bold; display: none;"></span>
-            </td>
-            <td class="claimInfoLabel">Комментарий</td>
-            <td colspan="3">
-                <textarea rows="3" style="width: 240px" modetype="calculateComment"></textarea>
-                <div modetype="calculateCommentValueLabel" style="font-weight: bold; max-width: 300px; display: none;"></div>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="8">
-                <div type="actionPanel" style="display: inline-block">
-                    <button type='button' modetype='cancelCalcButton' class='btn btn-danger' style='margin: 4px;'>Отмена</button>
-                    <button type='button' modetype='saveCalcButton' class='btn btn-primary' style='margin: 4px;'>Сохранить расчет</button>
-                    <button type='button' modetype='deleteCalcButton' class='btn btn-danger' style='margin: 4px;'>Удалить расчет</button>
-                    <button type='button' modetype='editCalcButton' class='btn btn-primary' style='margin: 4px;'>Изменить расчет</button>
-                    <button type='button' modetype='editCalcButtonCancel' class='btn btn-danger' style='margin: 4px;'>Отмена</button>
-                    <button type='button' modetype='editCalcButtonOk' class='btn btn-primary' style='margin: 4px;'>Изменить</button>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="text-right">Дата начала:</div>
+                    <div class="text-right">Срок сдачи:</div>
+                    <div class="text-right">Срок подачи КП:</div>
+                    <div class="text-right">Менеджер:</div>
                 </div>
+                <div class="col-sm-2">
+                    <div>
+                        <strong id="claimTenderStart"></strong>
+                    </div>
+                    <div>
+                        <strong id="claimDeadline"></strong>
+                    </div>
+                    <div>
+                        <strong id="kPDeadline"></strong>
+                    </div>
+                    <div>
+                        <strong id="claimManager"></strong>
+                    </div>
+                    <div>
+                        <small id="managerSubDivision"></small>
+                    </div>
+                    <div>
+                        <small id="managerChief"></small>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="text-right">Тип сделки:</div>
+                    <div class="text-right">Сумма (с НДС):</div>
+                </div>
+                <div class="col-sm-2">
+                    <div>
+                        <strong id="claimDealType"></strong>
+                    </div>
+                    <div>
+                        <strong id="claimSum"></strong>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="text-right">№ конкурса:</div>
+                    <div class="text-right">Статус конкурса:</div>
+                    <div class="text-right">Ссылка на закупки:</div>
+                </div>
+                <div class="col-sm-2">
+                    <div>
+                        <strong id="claimTenderNumber"></strong>
+                    </div>
+                    <div>
+                        <strong id="claimTenderStatus"></strong>
+                    </div>
+                    <div>
+                        <small id="claimTenderUrl"></small>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <span id="excelPanel">
+                    <button id="butGetExcelFile" type='button' class='btn btn-default'><i class="fa fa-download"></i> выгрузить спецификацию</button>
+                    <button id="butUploadExcelFile" type='button' class='btn btn-default' style='margin: 4px; display: none;'><i class="fa fa-upload"></i> загрузить расчет спецификации</button>
+                    <iframe id="uploadFile" src="/CalculationSpecification/UploadFileForm?claimId=@claim.Id" style="display: none;"></iframe>
+                </span>
+                <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение</button>
+            </div>
+        </div>
+    </div>
+    <div>
+        <h5>Список позиций</h5>
+        <h5>
+            <span class="label label-default">Всего:<span>5</span></span>&nbsp;
+            <span class="label label-info">из них рассчитано:<span>3</span></span>
+        </h5>
+        <table class="table table-striped small">
+            <tbody id="positionsTable"></tbody>
+        </table>
+    </div>
+    <table>
+        <tr id="positionElementTemplate" style="display: none;">
+            <td class="min-width">
+                <button type="button" modetype='addCalcButton' class="btn btn-primary btn-lg" data-toggle="tooltip" title="добавить расчет"><i class="fa fa-plus"></i> <i class="fa fa-calculator"></i></button>
+            </td>
+            <td>
+                <div class="col-sm-3">
+                    <div>
+                        <strong>[Каталожный номер]</strong>&nbsp;<span type='catalogNumberLabel'></span>
+                    </div>
+                    <div>
+                        <strong>[Количество]</strong>&nbsp;<span type='valueLabel'></span>&nbsp;<span type='unitLabel'></span>
+                    </div>
+                    <div>
+                        <strong>[Цена]</strong>&nbsp;<span type='priceLabel'></span>&nbsp; руб. за ед. макс.
+                    </div>
+                    <div>
+                        <strong>[Сумма]</strong>&nbsp;<span type='sumLabel'></span>&nbsp;руб. всего макс.
+                    </div>
+                </div>
+                <div class="col-sm-5">
+                    <div>
+                        <strong>Наименование</strong>
+                        <div type='nameLabel'></div>
+                    </div>
+                    <div>
+                        <strong>Замена</strong>
+                        <div type='replaceLabel'></div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label>Комментарий</label>
+                        <div type="commentLabel"></div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <table id="calculatePositionTable" style="width: 100%; display: none;">
+        <tr>
+            <td>
+                <button type='button' modetype='saveCalcButton' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+                <button type='button' modetype='cancelCalcButton' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                <div type="editPositionPanel" style="display: none;">
+                    <button type='button' modetype='editCalcButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></button>
+                    <div type="editPositionActionPanel" style="display: none;">
+                        <button type='button' modetype='editCalcButtonOk' class='btn btn-primary btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-save'></i></button><br />
+                        <button type='button' modetype='editCalcButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div type="editModeView" class="col-sm-3">
+                    <input type='text' modetype="calculateCatalogNumber" class="form-control input-sm" placeholder="Каталожный номер" />
+                    <input type='text' modetype="calculatePriceUsd" class="form-control input-sm" placeholder="Цена за ед., $" />
+                    <input type='text' modetype="calculateSumUsd" class="form-control input-sm" placeholder="Сумма вход, $" />
+                    <input type='text' modetype="calculatePriceRub" class="form-control input-sm" placeholder="Цена за ед., руб." />
+                    <input type='text' modetype="calculateSumRub" class="form-control input-sm" placeholder="Сумма вход, руб." />
+                </div>
+                <div type="readOnlyModeView" style="display: none;" class="col-sm-3">
+                    <div>
+                        <strong>[Каталожный номер]</strong>&nbsp;<span modetype="calculateCatalogNumberValueLabel"></span>
+                    </div>
+                    <div>
+                        <strong>[Цена $]</strong>&nbsp;<span modetype="calculatePriceUsdValueLabel"></span>&nbsp;$ за ед.
+                    </div>
+                    <div>
+                        <strong>[Сумма $]</strong>&nbsp;<span modetype="calculateSumUsdValueLabel"></span>&nbsp;$ всего
+                    </div>
+                    <div>
+                        <strong>[Цена руб]</strong>&nbsp;<span modetype="calculatePriceRubValueLabel"></span>&nbsp;руб. за ед.
+                    </div>
+                    <div>
+                        <strong>[Сумма руб]</strong>&nbsp;<span modetype="calculateSumRubValueLabel"></span>&nbsp;руб. всего
+                    </div>
+                </div>
+                <div type="editModeView" class="col-sm-5">
+                    <textarea rows="3" modetype="calculateName" class="form-control input-sm" placeholder="Наименование"></textarea>
+                    <textarea rows="3" modetype="calculateReplace" class="form-control input-sm" placeholder="Замена"></textarea>
+                    <input type='text' modetype="calculateProvider" class="form-control input-sm" placeholder="Поставщик" />
+                </div>
+                <div type="readOnlyModeView" style="display: none;" class="col-sm-5">
+                    <div>
+                        <strong>Наименование</strong>
+                        <div modetype="calculateNameValueLabel"></div>
+                    </div>
+                    <div>
+                        <strong>Замена</strong>
+                        <div modetype="calculateReplaceValueLabel"></div>
+                    </div>
+                    <div>
+                        <strong>Поставщик</strong>
+                        <div modetype="calculateProviderValueLabel"></div>
+                    </div>
+                </div>
+                <div type="editModeView" class="col-sm-4">
+                    <select size="1" modetype="calculateProtectFact" class="form-control input-sm">
+                        <option value="null">--Факт получения защиты--</option>
+                        <option value="Получена нами">Получена нами</option>
+                        <option value="Получена конкурентом">Получена конкурентом</option>
+                        <option value="Не предоставляется">Не предоставляется</option>
+                    </select>
+                    <textarea rows='2' class="form-control input-sm" modetype="calculateProtectCondition" placeholder="Условия получения защиты"></textarea>
+                    <textarea rows='4' class="form-control input-sm" modetype="calculateComment" placeholder="Комментарий"></textarea>
+                </div>
+                <div type="readOnlyModeView" style="display: none;" class="col-sm-4">
+                    <div class="form-group">
+                        <label>Факт получения защиты</label>
+                        <div modetype="calculateProtectFactValueLabel"></div>
+                        <label>[Условия получения защиты]</label>
+                        <div modetype="calculateProtectConditionValueLabel"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Комментарий</label>
+                        <div modetype="calculateCommentValueLabel"></div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <button type='button' modetype='saveCalcButton' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+                <button type='button' modetype='cancelCalcButton' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                <button type='button' modetype='deleteCalcButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>
             </td>
         </tr>
     </table>
