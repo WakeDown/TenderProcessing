@@ -13,6 +13,13 @@
 --	primary key(id) 
 --)
 
+--create table ProtectFact
+--(
+--	Id int not null,
+--	Value nvarchar(100) not null,
+--	primary key(id) 
+--)
+
 --create table DealType
 --(
 --	Id int not null,
@@ -107,12 +114,16 @@
 --	PriceRub decimal(18,2),
 --	SumRub decimal(18,2) not null,
 --	Provider nvarchar(150),
---	ProtectFact nvarchar(100) not null,
+--	ProtectFact int not null,
 --	ProtectCondition nvarchar(500),
 --	Comment nvarchar(1000),
 --	primary key(Id),
 --	CONSTRAINT FK_CalculateClaimPosition_ClaimPosition FOREIGN KEY(IdPosition)
 --		REFERENCES ClaimPosition(Id)
+--    ON DELETE CASCADE
+--    ON UPDATE CASCADE,
+--	CONSTRAINT FK_CalculateClaimPosition_ProtectFact FOREIGN KEY(ProtectFact)
+--		REFERENCES ProtectFact(Id)
 --    ON DELETE CASCADE
 --    ON UPDATE CASCADE,
 --	CONSTRAINT FK_CalculateClaimPosition_TenderClaim FOREIGN KEY(IdClaim)
@@ -188,6 +199,14 @@
 --use tenderProcessing
 --go
 
+--create procedure LoadProtectFacts
+--as
+--select * from ProtectFact
+--go
+
+--use tenderProcessing
+--go
+
 --create procedure LoadStatusHistoryForClaim
 --(
 --	@idClaim int
@@ -233,7 +252,7 @@
 --	@priceRub decimal(18,2) = -1,
 --	@sumRub decimal(18,2),
 --	@provider nvarchar(150) = '',
---	@protectFact nvarchar(100),
+--	@protectFact int,
 --	@protectCondition nvarchar(500) = '',
 --	@comment nvarchar(1500) = ''
 --)
@@ -259,7 +278,7 @@
 --	@priceRub decimal(18,2) = -1,
 --	@sumRub decimal(18,2),
 --	@provider nvarchar(150) = '',
---	@protectFact nvarchar(100),
+--	@protectFact int,
 --	@protectCondition nvarchar(500) = '',
 --	@comment nvarchar(1500) = ''
 --)
@@ -311,7 +330,7 @@
 --	@pageSize int
 --)
 --as
---select top (@pageSize) * from TenderClaim where deleted = 0
+--select top (@pageSize) * from TenderClaim where deleted = 0 order by Id desc
 --go
 
 --use tenderProcessing
@@ -545,5 +564,9 @@
 --insert into TenderStatus values(2, N'Выигран');
 --insert into TenderStatus values(3, N'Проигран');
 --insert into TenderStatus values(4, N'Отказ');
+
+--insert into ProtectFact values(1, N'Получена нами');
+--insert into ProtectFact values(2, N'Получена конкурентом');
+--insert into ProtectFact values(3, N'Не предоставляется');
 
 --go

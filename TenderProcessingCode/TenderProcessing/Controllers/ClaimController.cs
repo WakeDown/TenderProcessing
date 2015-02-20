@@ -61,7 +61,7 @@ namespace TenderProcessing.Controllers
         public ActionResult List()
         {
             var db = new DbEngine();
-            var claims = db.LoadTenderClaims(50);
+            var claims = db.LoadTenderClaims(10);
             db.SetProductManagersForClaims(claims);
             var claimProductManagers = claims.SelectMany(x => x.ProductManagers).ToList();
             foreach (var claimProductManager in claimProductManagers)
@@ -198,7 +198,7 @@ namespace TenderProcessing.Controllers
                     {
                         var row = 2;
                         var errorStringBuilder = new StringBuilder();
-                        var parseError = false;
+                        var repeatRowCount = 0;
                         var db = new DbEngine();
                         while (true)
                         {
@@ -245,10 +245,9 @@ namespace TenderProcessing.Controllers
                                     var isValidInt = int.TryParse(numberValue, out intValue);
                                     if (!isValidInt)
                                     {
-                                        parseError = true;
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
-                                                                  ", значение '" + numberValue + "' в поле Порядковый номер не является целым числом<br/>");
+                                                                  ", значение '" + numberValue + "' в поле Порядковый номер не является целым числом\r");
                                     }
                                     else
                                     {
@@ -288,10 +287,9 @@ namespace TenderProcessing.Controllers
                             {
                                 if (valueRange.Value == null || string.IsNullOrEmpty(valueRange.Value.ToString()))
                                 {
-                                    parseError = true;
                                     rowValid = false;
                                     errorStringBuilder.Append("Строка: " + row +
-                                                              ", не задано обязательное значение Количество<br/>");
+                                                              ", не задано обязательное значение Количество\r");
                                 }
                                 else
                                 {
@@ -300,10 +298,9 @@ namespace TenderProcessing.Controllers
                                     var isValidInt = int.TryParse(valueValue, out intValue);
                                     if (!isValidInt)
                                     {
-                                        parseError = true;
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
-                                                                  ", значение '" + valueValue + "' в поле Количество не является целым числом<br/>");
+                                                                  ", значение '" + valueValue + "' в поле Количество не является целым числом\r");
                                     }
                                     else
                                     {
@@ -313,10 +310,9 @@ namespace TenderProcessing.Controllers
                             }
                             if (managerRange == null || managerRange.Value == null || string.IsNullOrEmpty(managerRange.Value.ToString()))
                             {
-                                parseError = true;
                                 rowValid = false;
                                 errorStringBuilder.Append("Строка: " + row +
-                                                          ", не задано обязательное значение Снабженец<br/>");
+                                                          ", не задано обязательное значение Снабженец\r");
                             }
                             else
                             {
@@ -337,10 +333,9 @@ namespace TenderProcessing.Controllers
                                     var isValidDouble = double.TryParse(priceValue, out doubleValue);
                                     if (!isValidDouble)
                                     {
-                                        parseError = true;
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
-                                                                  ", значение '" + priceValue + "' в поле Цена за единицу не является числом<br/>");
+                                                                  ", значение '" + priceValue + "' в поле Цена за единицу не является числом\r");
                                     }
                                     else
                                     {
@@ -357,10 +352,9 @@ namespace TenderProcessing.Controllers
                                     var isValidDouble = double.TryParse(sumValue, out doubleValue);
                                     if (!isValidDouble)
                                     {
-                                        parseError = true;
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
-                                                                  ", значение '" + sumValue + "' в поле Сумма не является числом<br/>");
+                                                                  ", значение '" + sumValue + "' в поле Сумма не является числом\r");
                                     }
                                     else
                                     {
@@ -381,24 +375,28 @@ namespace TenderProcessing.Controllers
                                 }
                                 else
                                 {
-                                    parseError = true;
-                                    errorStringBuilder.Append("Строка: " + row +
-                                                              ", не прошла проверку на уникальность<br/>");
+                                    repeatRowCount++;
                                 }
                             }
                             row++;
                         }
-                        if (parseError)
+                        foreach (var position in positions)
                         {
-                            error = true;
-                            message = errorStringBuilder.ToString();
+                            db.SaveSpecificationPosition(position);
                         }
-                        else
+                        message = "Получено строк: " + (row - 2);
+                        if (repeatRowCount > 0)
                         {
-                            foreach (var position in positions)
-                            {
-                                db.SaveSpecificationPosition(position);
-                            }
+                            message += "\rИз них повторных: " + repeatRowCount;
+                        }
+                        if (positions.Any())
+                        {
+                            message += "\rСохранено строк: " + positions.Count();
+                        }
+                        var errorMessage = errorStringBuilder.ToString();
+                        if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            message += "\rОшибки:<br />" + errorMessage;
                         }
                     }
                     else
@@ -465,7 +463,7 @@ namespace TenderProcessing.Controllers
                             IdClaim = model.Id,
                             IdUser = string.Empty,
                             Status = new ClaimStatus() {Id = model.ClaimStatus},
-                            Comment = "Создание заявки"
+                            Comment = string.Empty
                         };
                         db.SaveClaimStatusHistory(statusHistory);
                         statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
@@ -688,6 +686,40 @@ namespace TenderProcessing.Controllers
                     model.Status = new ClaimStatus() { Id = 4 };
                     db.SaveClaimStatusHistory(model);
                     model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
+                }
+            }
+            catch (Exception)
+            {
+                isComplete = false;
+            }
+            return Json(new { IsComplete = isComplete, Model = model });
+        }
+
+        [HttpPost]
+        public JsonResult SetClaimContinued(ClaimStatusHistory model)
+        {
+            var isComplete = false;
+            try
+            {
+                var db = new DbEngine();
+                var statusHistory = db.LoadStatusHistoryForClaim(model.IdClaim);
+                if (statusHistory.Count() > 1)
+                {
+                    var lastValueValid = statusHistory.Last().Status.Id == 4;
+                    if (lastValueValid)
+                    {
+                        var actualStatus = statusHistory[statusHistory.Count() - 2];
+                        isComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = model.IdClaim, ClaimStatus = actualStatus.Status.Id });
+                        if (isComplete)
+                        {
+                            model.Date = DateTime.Now;
+                            model.IdUser = string.Empty;
+                            model.Status = new ClaimStatus() { Id = actualStatus.Status.Id };
+                            if (string.IsNullOrEmpty(model.Comment)) model.Comment = "Возобновление заявки";
+                            db.SaveClaimStatusHistory(model);
+                            model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
+                        }
+                    }
                 }
             }
             catch (Exception)

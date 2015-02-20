@@ -43,14 +43,11 @@
             $("#uploadExcelForm").submit();
         });
         if (firstLoad.toLowerCase() == "false") {
-            var mes = message;
-            if (!error) {
-                mes = positions;
-            }
             var obj = {
                 type: "UploadExcelResult",
                 error: error,
-                message: mes
+                message: message,
+                positions: positions
             };
             var messageJson = JSON.stringify(obj);
             sendMessage(messageJson);
@@ -92,7 +89,7 @@
 </head>
 <body>
     <div>
-        @using (Html.BeginForm("UploadFileForm", "CalculationSpecification", FormMethod.Post, new { enctype = "multipart/form-data", id = "uploadExcelForm" }))
+        @using (Html.BeginForm("UploadFileForm", "Calc", FormMethod.Post, new { enctype = "multipart/form-data", id = "uploadExcelForm" }))
         {
             <input type="file" name="file" id="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
             <input type="hidden" name="claimId" value="@claimId" />

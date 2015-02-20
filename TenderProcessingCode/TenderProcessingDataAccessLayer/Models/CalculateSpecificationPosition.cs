@@ -30,7 +30,7 @@ namespace TenderProcessingDataAccessLayer.Models
 
         public string Provider { get; set; }
 
-        public string ProtectFact { get; set; }
+        public ProtectFact ProtectFact { get; set; }
 
         public string ProtectCondition { get; set; }
 

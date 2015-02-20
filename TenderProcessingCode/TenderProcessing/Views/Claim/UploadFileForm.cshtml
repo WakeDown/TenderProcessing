@@ -46,13 +46,11 @@
             });
             if (firstLoad.toLowerCase() == "false") {
                 var mes = message;
-                if (!error) {
-                    mes = positions;
-                }
                 var obj = {
                     type: "UploadExcelResult",
                     error: error,
-                    message: mes
+                    message: mes,
+                    positions: positions
                 };
                 var messageJson = JSON.stringify(obj);
                 sendMessage(messageJson);

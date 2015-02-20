@@ -51,6 +51,7 @@
     <Compile Include="Models\PositionCalculateCount.cs" />
     <Compile Include="Models\PositionState.cs" />
     <Compile Include="Models\ProductManager.cs" />
+    <Compile Include="Models\ProtectFact.cs" />
     <Compile Include="Models\ServerDirectBase.cs" />
     <Compile Include="Models\SpecificationPosition.cs" />
     <Compile Include="Models\TenderClaim.cs" />

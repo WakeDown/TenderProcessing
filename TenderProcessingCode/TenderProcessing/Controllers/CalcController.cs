@@ -15,7 +15,7 @@ using TenderProcessingDataAccessLayer.Models;
 
 namespace TenderProcessing.Controllers
 {
-    public class CalculationSpecificationController : Controller
+    public class CalcController : Controller
     {
         public ActionResult Index(int? claimId)
         {
@@ -36,7 +36,7 @@ namespace TenderProcessing.Controllers
                         {
                             IdClaim = claim.Id,
                             Date = DateTime.Now,
-                            Comment = "Старт расчета спецификаций",
+                            Comment = string.Empty,
                             Status = new ClaimStatus() {Id = claim.ClaimStatus},
                             IdUser = string.Empty
                         };
@@ -88,6 +88,7 @@ namespace TenderProcessing.Controllers
             ViewBag.Claim = claim;
             ViewBag.DealType = dealTypeString;
             ViewBag.Status = tenderStatus;
+            ViewBag.ProtectFacts = db.LoadProtectFacts();
             return View();
         }
 
@@ -112,9 +113,10 @@ namespace TenderProcessing.Controllers
                         }
                     }
                     excBook = new XLWorkbook();
-                    var workSheet = excBook.AddWorksheet("Расчет Позиций");
+                    var workSheet = excBook.AddWorksheet("Расчет");
                     var directRangeSheet = excBook.AddWorksheet("Справочники");
-                    var protectFactList = new[] { "Получена нами", "Получена конкурентом", "Не предоставляется" };
+                    var facts = db.LoadProtectFacts();
+                    var protectFactList = facts.Select(x => x.Value).ToList();
                     for (var i = 0; i < protectFactList.Count(); i++)
                     {
                         var protectFact = protectFactList[i];
@@ -157,7 +159,7 @@ namespace TenderProcessing.Controllers
                         positionRange.Style.Border.SetRightBorderColor(XLColor.Gray);
                         positionRange.Style.Border.SetLeftBorder(XLBorderStyleValues.Thin);
                         positionRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
-                        positionRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 251, 172, 159);
+                        positionRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 204, 233, 255);
                         row++;
                         workSheet.Cell(row, 1).Value = "Каталожный номер*";
                         workSheet.Cell(row, 2).Value = "Наименование*";
@@ -173,7 +175,7 @@ namespace TenderProcessing.Controllers
                         workSheet.Cell(row, 12).Value = "Комментарий";
                         var calcHeaderRange = workSheet.Range(workSheet.Cell(row, 1), workSheet.Cell(row, 12));
                         calcHeaderRange.Style.Font.SetBold(true);
-                        calcHeaderRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 41, 158, 185);
+                        calcHeaderRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 204, 255, 209);
                         calcHeaderRange.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                         calcHeaderRange.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
                         calcHeaderRange.Style.Border.SetBottomBorderColor(XLColor.Gray);
@@ -209,7 +211,8 @@ namespace TenderProcessing.Controllers
                                 validation.InCellDropdown = true;
                                 validation.Operator = XLOperator.Between;
                                 validation.List(protectFactRange);
-                                workSheet.Cell(row, 10).Value = calculation.ProtectFact;
+                                workSheet.Cell(row, 10).Value =
+                                    facts.First(x => x.Id == calculation.ProtectFact.Id).Value;
                                 workSheet.Cell(row, 11).Value = calculation.ProtectCondition;
                                 workSheet.Cell(row, 12).Value = calculation.Comment;
                             }
@@ -247,7 +250,7 @@ namespace TenderProcessing.Controllers
             {
                 return new FileStreamResult(ms, "application/vnd.ms-excel")
                 {
-                    FileDownloadName = "Позиции заявки id " + claimId + ".xlsx"
+                    FileDownloadName = "Specification_" + claimId + ".xlsx"
                 };
             }
             else
@@ -285,7 +288,7 @@ namespace TenderProcessing.Controllers
                     inputStream = file.InputStream;
                     inputStream.Seek(0, SeekOrigin.Begin);
                     excBook = new XLWorkbook(inputStream);
-                    var workSheet = excBook.Worksheet("Расчет Позиций");
+                    var workSheet = excBook.Worksheet("Расчет");
                     if (workSheet != null)
                     {
                         var row = 0;
@@ -296,6 +299,7 @@ namespace TenderProcessing.Controllers
                         var readyToParse = false;
                         SpecificationPosition model = null;
                         CalculateSpecificationPosition calculate = null;
+                        var protectFacts = db.LoadProtectFacts();
                         while (true)
                         {
                             row++;
@@ -338,7 +342,7 @@ namespace TenderProcessing.Controllers
                                             {
                                                 parseError = true;
                                                 rowValid = false;
-                                                errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "<br/>");
+                                                errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "\r");
                                                 break;
                                             }
                                             model.Id = id;
@@ -348,7 +352,7 @@ namespace TenderProcessing.Controllers
                                         {
                                             parseError = true;
                                             rowValid = false;
-                                            errorStringBuilder.Append("Ошибка разбора Id позиции в строке: " + row +"<br/>");
+                                            errorStringBuilder.Append("Ошибка разбора Id позиции в строке: " + row + "\r");
                                         }
                                     }
                                 }
@@ -373,7 +377,7 @@ namespace TenderProcessing.Controllers
                             {
                                 parseError = true;
                                 rowValid = false;
-                                errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "<br/>");
+                                errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "\r");
                                 break;
                             }
                             else
@@ -399,7 +403,7 @@ namespace TenderProcessing.Controllers
                                     {
                                         parseError = true;
                                         rowValid = false;
-                                        errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "<br/>");
+                                        errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "\r");
                                         break;
                                     }
                                     calculate = new CalculateSpecificationPosition()
@@ -423,7 +427,7 @@ namespace TenderProcessing.Controllers
                                         parseError = true;
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
-                                                              ", не задано обязательное значение Каталожный номер<br/>");
+                                                              ", не задано обязательное значение Каталожный номер\r");
                                     }
                                     else
                                     {
@@ -434,23 +438,23 @@ namespace TenderProcessing.Controllers
                                         parseError = true;
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
-                                                              ", не задано обязательное значение Факт получ.защиты<br/>");
+                                                              ", не задано обязательное значение Факт получ.защиты\r");
                                     }
                                     else
                                     {
                                         var protectFactValueString = protectFactValue.ToString().Trim();
-                                        var possibleValues = new[]
-                                        {"Получена нами", "Получена конкурентом", "Не предоставляется"};
+                                        var possibleValues = protectFacts.Select(x => x.Value);
                                         if (!possibleValues.Contains(protectFactValueString))
                                         {
                                             parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
-                                                                  ", Значение '" + protectFactValueString + "' не является допустимым для Факт получ.защиты<br/>");
+                                                                  ", Значение '" + protectFactValueString + "' не является допустимым для Факт получ.защиты\r");
                                         }
                                         else
                                         {
-                                            calculate.ProtectFact = protectFactValueString;
+                                            var fact = protectFacts.First(x => x.Value == protectFactValueString);
+                                            calculate.ProtectFact = fact;
                                             if (protectFactValueString != "Не предоставляется")
                                             {
                                                 if (protectConditionValue == null ||
@@ -459,7 +463,7 @@ namespace TenderProcessing.Controllers
                                                     parseError = true;
                                                     rowValid = false;
                                                     errorStringBuilder.Append("Строка: " + row +
-                                                                              ", не задано обязательное значение Условия защиты<br/>");
+                                                                              ", не задано обязательное значение Условия защиты\r");
                                                 }
                                                 else
                                                 {
@@ -481,7 +485,7 @@ namespace TenderProcessing.Controllers
                                         parseError = true;
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
-                                                                  ", не задано обязательное значение Сумма вход руб<br/>");
+                                                                  ", не задано обязательное значение Сумма вход руб\r");
                                     }
                                     else
                                     {
@@ -492,7 +496,7 @@ namespace TenderProcessing.Controllers
                                             parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
-                                                                      ", значение '" + sumRubValue.ToString().Trim() + "' в поле Сумма вход руб не является числом<br/>");
+                                                                      ", значение '" + sumRubValue.ToString().Trim() + "' в поле Сумма вход руб не является числом\r");
                                         }
                                         else
                                         {
@@ -508,7 +512,7 @@ namespace TenderProcessing.Controllers
                                             parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
-                                                                      ", значение '" + priceUsdValue.ToString().Trim() + "' в поле Цена за ед. USD не является числом<br/>");
+                                                                      ", значение '" + priceUsdValue.ToString().Trim() + "' в поле Цена за ед. USD не является числом\r");
                                         }
                                         else
                                         {
@@ -524,7 +528,7 @@ namespace TenderProcessing.Controllers
                                             parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
-                                                                      ", значение '" + sumUsdValue.ToString().Trim() + "' в поле Сумма вход USD не является числом<br/>");
+                                                                      ", значение '" + sumUsdValue.ToString().Trim() + "' в поле Сумма вход USD не является числом\r");
                                         }
                                         else
                                         {
@@ -540,7 +544,7 @@ namespace TenderProcessing.Controllers
                                             parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
-                                                                      ", значение '" + priceRubValue.ToString().Trim() + "' в поле Цена за ед. руб не является числом<br/>");
+                                                                      ", значение '" + priceRubValue.ToString().Trim() + "' в поле Цена за ед. руб не является числом\r");
                                         }
                                         else
                                         {
@@ -590,18 +594,23 @@ namespace TenderProcessing.Controllers
                         else
                         {
                             db.DeleteCalculateSpecificationPositionForClaim(claimId);
+                            var positionCalculate = 0;
+                            var calculateCount = 0;
                             if (positions != null && positions.Any())
                             {
                                 foreach (var position in positions)
                                 {
+                                    if (position.Calculations.Any()) positionCalculate++;
                                     foreach (var calculatePosition in position.Calculations)
                                     {
+                                        calculateCount++;
                                         calculatePosition.IdSpecificationPosition = position.Id;
                                         calculatePosition.IdTenderClaim = claimId;
                                         db.SaveCalculateSpecificationPosition(calculatePosition);
                                     }
                                 }
                             }
+                            message = "Позиций расчитано: " + positionCalculate + "\rСтрок расчета: " + calculateCount;
                         }
                     }
                     else
@@ -715,7 +724,7 @@ namespace TenderProcessing.Controllers
                 }
                 else
                 {
-                    message = "Невозможно отправить позиции на подтверждение<br/>Не все позиции имеют расчет";
+                    message = "Невозможно отправить позиции на подтверждение\rНе все позиции имеют расчет";
                 }
             }
             catch (Exception)

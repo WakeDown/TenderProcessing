@@ -32,11 +32,13 @@
         initFilterManagerSubDivisionsList();
         $("#filterTenderStartFrom").datepicker({
             format: "dd.mm.yyyy",
-            autoclose: true
+            autoclose: true,
+            todayBtn: "linked"
         });
         $("#filterTenderStartTo").datepicker({
             format: "dd.mm.yyyy",
-            autoclose: true
+            autoclose: true,
+            todayBtn: "linked"
         });
         $("#filterTenderStartFrom").add("#filterTenderStartTo").change(function(e) {
             var datepicker = $(e.currentTarget);
@@ -290,7 +292,7 @@
         element.append(editCell);
         var editButton = $("<a href='/Claim/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></a>");
         editCell.append(editButton);
-        editCell.append("<a href='/CalculationSpecification/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='рассчитать'><i class='fa fa-calculator'></i></a>");
+        editCell.append("<a href='/Calc/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='рассчитать'><i class='fa fa-calculator'></i></a>");
         element.append("<th><span>" + claim.Id + "</span></th>");
         element.append("<td><span>" + claim.TenderNumber + "</span></td>");
         element.append("<td><span>" + claim.Customer + "</span></td>");

@@ -13,7 +13,7 @@ namespace TenderProcessingDataAccessLayer.Models
 
         public string TenderNumber { get; set; }
 
-        public int ClaimStatus { get; set; }
+        public List<int> ClaimStatus { get; set; }
 
         public string IdManager { get; set; }
 

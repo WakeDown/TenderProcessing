@@ -7,6 +7,7 @@
     Layout = "~/Views/Shared/_MasterPage.cshtml";
     var serializer = new JavaScriptSerializer();
     var claim = (TenderClaim)ViewBag.Claim;
+    var protectFacts = (List<ProtectFact>) ViewBag.ProtectFacts;
 }
 <style type="text/css">
     .claimInfoLabel {
@@ -26,6 +27,7 @@
     var claim = @Html.Raw(serializer.Serialize(claim));
     var status = "@ViewBag.Status";
     var dealType = "@ViewBag.DealType";
+    var protectFacts = @Html.Raw(serializer.Serialize(protectFacts));
 
     $(init);
 
@@ -34,6 +36,7 @@
         window.addEventListener("message", messageHandler, true);
         $("#butGetExcelFile").click(getExcelFileFromServer);
         $("#butUploadExcelFile").click(openFile);
+        initProtectFactList();
         if (claim == null) {
             messageUi.show("Заявка не найдена<br/>или у Вас нет доступа к ней");
         } else {
@@ -56,6 +59,30 @@
                 $("#butUploadExcelFile").hide();
             }
         }
+    }
+
+    function initProtectFactList() {
+        var list = $("[modetype='calculateProtectFact']", $("#calculatePositionTable"));
+        list.append("<option value='null'>--Факт получения защиты--</option>");
+        var protectLength = protectFacts.length;
+        for (var i = 0; i < protectLength; i++) {
+            var model = protectFacts[i];
+            var option = $("<option value='" + model.Id + "'>" + model.Value + "</option>");
+            list.append(option);
+        }
+    }
+
+    function getProtectFactById(id) {
+        var model = null;
+        var protectLength = protectFacts.length;
+        for (var i = 0; i < protectLength; i++) {
+            var protect = protectFacts[i];
+            if (protect.id == id) {
+                model = protect;
+                break;
+            }
+        }
+        return model;
     }
 
     function openFile() {
@@ -99,11 +126,10 @@
             }
         }
         if (obj.type.trim() == "UploadExcelResult") {
-            if (obj.error == true) {
-                messageUi.show(obj.message);
-            } else {
+            messageUi.show(obj.message);
+            if (!obj.error) {
                 $("#positionsTable").empty();
-                var positions = obj.message;
+                var positions = obj.positions;
                 var positionLength = claim.Positions.length;
                 for (var i = 0; i < positionLength; i++) {
                     var position = claim.Positions[i];
@@ -114,7 +140,7 @@
                     }
                 }
                 initPositions(claim.Positions);
-            }
+            } 
         }
     }
 
@@ -132,12 +158,12 @@
     }
 
     function getExcelFileFromServer() {
-        $("body").append("<iframe src='/CalculationSpecification/GetSpecificationFile?claimId=" + claim.Id + "' width='0' height='0' style='display: none;' align='left'></iframe>");
+        $("body").append("<iframe src='/Calc/GetSpecificationFile?claimId=" + claim.Id + "' width='0' height='0' style='display: none;' align='left'></iframe>");
     }
 
     function sendOnConfirm() {
         $.ajax({
-            url: "/CalculationSpecification/SetPositionToConfirm?idClaim=" + claim.Id,
+            url: "/Calc/SetPositionToConfirm?idClaim=" + claim.Id,
             type: 'GET',
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
@@ -206,14 +232,29 @@
                     $("[modetype='calculateName']", calcRow).val(calculation.Name);
                     $("[modetype='calculateReplace']", calcRow).val(calculation.Replace);
                     $("[modetype='calculatePriceUsd']", calcRow).val(calculation.PriceUsd != 0 ? calculation.PriceUsd : "");
+                    if (calculation.PriceUsd == 0) {
+                        $("[modetype='calculatePriceUsdValueLabelPostix']", calcRow).hide();
+                    } else {
+                        $("[modetype='calculatePriceUsdValueLabelPostix']", calcRow).show();
+                    }
                     $("[modetype='calculateSumUsd']", calcRow).val(calculation.SumUsd ? calculation.SumUsd : "");
+                    if (calculation.SumUsd == 0) {
+                        $("[modetype='calculateSumUsdValueLabelPostix']", calcRow).hide();
+                    } else {
+                        $("[modetype='calculateSumUsdValueLabelPostix']", calcRow).show();
+                    }
                     $("[modetype='calculatePriceRub']", calcRow).val(calculation.PriceRub ? calculation.PriceRub : "");
+                    if (calculation.PriceRub == 0) {
+                        $("[modetype='calculatePriceRubValueLabelPostix']", calcRow).hide();
+                    } else {
+                        $("[modetype='calculatePriceRubValueLabelPostix']", calcRow).show();
+                    }
                     $("[modetype='calculateSumRub']", calcRow).val(calculation.SumRub);
                     $("[modetype='calculateProvider']", calcRow).val(calculation.Provider);
                     $("[modetype='calculateProtectCondition']", calcRow).val(calculation.ProtectCondition);
                     $("[modetype='calculateComment']", calcRow).val(calculation.Comment);
                     var providerFact = $("[modetype='calculateProtectFact']", calcRow);
-                    $("[value='" + calculation.ProtectFact + "']", providerFact).attr("selected", "selected");
+                    $("[value='" + calculation.ProtectFact.Id + "']", providerFact).attr("selected", "selected");
                     $("[modetype='saveCalcButton']", calcRow).hide();
                     $("[modetype='cancelCalcButton']", calcRow).hide();
                     $("[type='editPositionPanel']", calcRow).show();
@@ -261,9 +302,19 @@
         var price = "";
         if (position.Price != 0) price = position.Price.toFixed(2);
         $("[type='priceLabel']", element).text(price);
+        if (price == "") {
+            $("[type='priceLabelPostfix']", element).hide();
+        } else {
+            $("[type='priceLabelPostfix']", element).show();
+        }
         var sum = "";
         if (position.Sum != 0) sum = position.Sum.toFixed(2);
         $("[type='sumLabel']", element).text(sum);
+        if (sum == "") {
+            $("[type='sumLabelPostfix']", element).hide();
+        } else {
+            $("[type='sumLabelPostfix']", element).show();
+        }
         var addCalculateButton = $("[modetype='addCalcButton']", element);
         addCalculateButton.click(addCalculateButtonClick);
         return element;
@@ -279,7 +330,7 @@
         row.css("backgroundColor", initalBackGround);
         if (deleted) {
             $.ajax({
-                url: "/CalculationSpecification/Delete?id=" + calculateId,
+                url: "/Calc/Delete?id=" + calculateId,
                 type: 'GET',
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
@@ -310,7 +361,7 @@
             control.val(value);
         }
         var providerFact = $("[modetype='calculateProtectFact']", row);
-        var providerFactValue = $("[modetype='calculateProtectFactValueLabel']", row).text();
+        var providerFactValue = $("[modetype='calculateProtectFactValueLabel']", row).attr("val");
         $("[value='" + providerFactValue + "']", providerFact).attr("selected", "selected");
         $("[ type='readOnlyModeView']", row).hide();
         $("[ type='editModeView']", row).show();
@@ -327,7 +378,7 @@
             var model = obj.model;
             model.Id = Number(row.attr("calcId"));
             $.ajax({
-                url: "/CalculationSpecification/Edit",
+                url: "/Calc/Edit",
                 type: 'POST',
                 dataType: 'json',
                 data: JSON.stringify(model),
@@ -335,6 +386,21 @@
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
                     if (data.IsComplete) {
+                        if (model.PriceUsd == 0) {
+                            $("[modetype='calculatePriceUsdValueLabelPostix']", row).hide();
+                        } else {
+                            $("[modetype='calculatePriceUsdValueLabelPostix']", row).show();
+                        }
+                        if (model.SumUsd == 0) {
+                            $("[modetype='calculateSumUsdValueLabelPostix']", row).hide();
+                        } else {
+                            $("[modetype='calculateSumUsdValueLabelPostix']", row).show();
+                        }
+                        if (model.PriceRub == 0) {
+                            $("[modetype='calculatePriceRubValueLabelPostix']", row).hide();
+                        } else {
+                            $("[modetype='calculatePriceRubValueLabelPostix']", row).show();
+                        }
                         $("[modetype='deleteCalcButton']", row).show();
                         $("[type='editPositionActionPanel']", row).hide();
                         $("[modetype='editCalcButton']", row).show();
@@ -394,7 +460,7 @@
             model.IdSpecificationPosition = Number(row.attr("calcPositionId"));
             model.IdTenderClaim = claim.Id;
             $.ajax({
-                url: "/CalculationSpecification/Save",
+                url: "/Calc/Save",
                 type: 'POST',
                 dataType: 'json',
                 data: JSON.stringify(model),
@@ -402,6 +468,21 @@
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
                     if (data.IsComplete) {
+                        if (model.PriceUsd == 0) {
+                            $("[modetype='calculatePriceUsdValueLabelPostix']", row).hide();
+                        } else {
+                            $("[modetype='calculatePriceUsdValueLabelPostix']", row).show();
+                        }
+                        if (model.SumUsd == 0) {
+                            $("[modetype='calculateSumUsdValueLabelPostix']", row).hide();
+                        } else {
+                            $("[modetype='calculateSumUsdValueLabelPostix']", row).show();
+                        }
+                        if (model.PriceRub == 0) {
+                            $("[modetype='calculatePriceRubValueLabelPostix']", row).hide();
+                        } else {
+                            $("[modetype='calculatePriceRubValueLabelPostix']", row).show();
+                        }
                         row.attr("calcId", data.Id);
                         button.hide();
                         $("[modetype='saveCalcButton']", row).hide();
@@ -428,8 +509,9 @@
             label.text(value);
         }
         var providerFact = $("[modetype='calculateProtectFact']", row);
-        var providerFactValue = $(":selected", providerFact).val();
+        var providerFactValue = $(":selected", providerFact).text();
         $("[modetype='calculateProtectFactValueLabel']", row).text(providerFactValue);
+        $("[modetype='calculateProtectFactValueLabel']", row).attr("val", $(":selected", providerFact).val());
         $("table", row).css("backgroundColor", "rgb(230, 230, 255)");
         $("[ type='readOnlyModeView']", row).show();
         $("[ type='editModeView']", row).hide();
@@ -510,11 +592,11 @@
             message = "Выберите значение Факт получения защиты";
             if (obj.message.trim() != "") {
                 message = "<br/>" + message;
-            }
+            } 
             obj.isValid = false;
             obj.message += message;
         } else {
-            if (protectCondition == "" && protectFact != "Не предоставляется") {
+            if (protectCondition == "" && protectFact != "3") {
                 message = "Заполните поле Условия защиты";
                 if (obj.message.trim() != "") {
                     message = "<br/>" + message;
@@ -528,7 +610,7 @@
                 CatalogNumber: catalogNumber,
                 Name: name,
                 SumRub: Number(sumRub),
-                ProtectFact: protectFact,
+                ProtectFact: {Id: Number(protectFact)},
                 ProtectCondition: protectCondition,
                 Comment: $("[modetype='calculateComment']", calcRow).val().trim(),
                 Provider: $("[modetype='calculateProvider']", calcRow).val().trim(),
@@ -646,9 +728,9 @@
             </div>
             <div>
                 <span id="excelPanel">
-                    <button id="butGetExcelFile" type='button' class='btn btn-default'><i class="fa fa-download"></i> выгрузить спецификацию</button>
-                    <button id="butUploadExcelFile" type='button' class='btn btn-default' style='margin: 4px; display: none;'><i class="fa fa-upload"></i> загрузить расчет спецификации</button>
-                    <iframe id="uploadFile" src="/CalculationSpecification/UploadFileForm?claimId=@claim.Id" style="display: none;"></iframe>
+                    <button id="butGetExcelFile" type='button' class='btn btn-default'><i class="fa fa-download"></i> скачать спецификацию</button>
+                    <button id="butUploadExcelFile" type='button' class='btn btn-default' style='margin: 4px;'><i class="fa fa-upload"></i> загрузить расчет спецификации</button>
+                    <iframe id="uploadFile" src="/Calc/UploadFileForm?claimId=@claim.Id" style="display: none;"></iframe>
                 </span>
                 <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение</button>
             </div>
@@ -672,16 +754,16 @@
             <td>
                 <div class="col-sm-3">
                     <div>
-                        <strong>[Каталожный номер]</strong>&nbsp;<span type='catalogNumberLabel'></span>
+                        <strong type='catalogNumberLabel'></strong>
                     </div>
                     <div>
-                        <strong>[Количество]</strong>&nbsp;<span type='valueLabel'></span>&nbsp;<span type='unitLabel'></span>
+                        <strong type='valueLabel'></strong>&nbsp;<span type='unitLabel'></span>
                     </div>
                     <div>
-                        <strong>[Цена]</strong>&nbsp;<span type='priceLabel'></span>&nbsp; руб. за ед. макс.
+                        <strong type='priceLabel'></strong>&nbsp;<span type='priceLabelPostfix'>. за ед. макс.</span>
                     </div>
                     <div>
-                        <strong>[Сумма]</strong>&nbsp;<span type='sumLabel'></span>&nbsp;руб. всего макс.
+                        <strong type='sumLabel'></strong>&nbsp;<span type='sumLabelPostfix'>руб. всего макс.</span>
                     </div>
                 </div>
                 <div class="col-sm-5">
@@ -726,19 +808,19 @@
                 </div>
                 <div type="readOnlyModeView" style="display: none;" class="col-sm-3">
                     <div>
-                        <strong>[Каталожный номер]</strong>&nbsp;<span modetype="calculateCatalogNumberValueLabel"></span>
+                        <strong modetype="calculateCatalogNumberValueLabel"></strong>
                     </div>
                     <div>
-                        <strong>[Цена $]</strong>&nbsp;<span modetype="calculatePriceUsdValueLabel"></span>&nbsp;$ за ед.
+                        <strong modetype="calculatePriceUsdValueLabel"></strong>&nbsp;<span modetype="calculatePriceUsdValueLabelPostix">$ за ед</span>
                     </div>
                     <div>
-                        <strong>[Сумма $]</strong>&nbsp;<span modetype="calculateSumUsdValueLabel"></span>&nbsp;$ всего
+                        <strong modetype="calculateSumUsdValueLabel"></strong>&nbsp;<span modetype="calculateSumUsdValueLabelPostix">$ всего</span>
                     </div>
                     <div>
-                        <strong>[Цена руб]</strong>&nbsp;<span modetype="calculatePriceRubValueLabel"></span>&nbsp;руб. за ед.
+                        <strong modetype="calculatePriceRubValueLabel"></strong>&nbsp;<span modetype="calculatePriceRubValueLabelPostix">руб. за ед.</span>
                     </div>
                     <div>
-                        <strong>[Сумма руб]</strong>&nbsp;<span modetype="calculateSumRubValueLabel"></span>&nbsp;руб. всего
+                        <strong modetype="calculateSumRubValueLabel"></strong>&nbsp;руб. всего
                     </div>
                 </div>
                 <div type="editModeView" class="col-sm-5">
@@ -757,25 +839,19 @@
                     </div>
                     <div>
                         <strong>Поставщик</strong>
-                        <div modetype="calculateProviderValueLabel"></div>
+                        <strong modetype="calculateProviderValueLabel"></strong>
                     </div>
                 </div>
                 <div type="editModeView" class="col-sm-4">
-                    <select size="1" modetype="calculateProtectFact" class="form-control input-sm">
-                        <option value="null">--Факт получения защиты--</option>
-                        <option value="Получена нами">Получена нами</option>
-                        <option value="Получена конкурентом">Получена конкурентом</option>
-                        <option value="Не предоставляется">Не предоставляется</option>
-                    </select>
+                    <select size="1" modetype="calculateProtectFact" class="form-control input-sm"></select>
                     <textarea rows='2' class="form-control input-sm" modetype="calculateProtectCondition" placeholder="Условия получения защиты"></textarea>
                     <textarea rows='4' class="form-control input-sm" modetype="calculateComment" placeholder="Комментарий"></textarea>
                 </div>
                 <div type="readOnlyModeView" style="display: none;" class="col-sm-4">
                     <div class="form-group">
-                        <label>Факт получения защиты</label>
-                        <div modetype="calculateProtectFactValueLabel"></div>
-                        <label>[Условия получения защиты]</label>
-                        <div modetype="calculateProtectConditionValueLabel"></div>
+                        <label>Факт получения защиты</label><br/>
+                        <label modetype="calculateProtectFactValueLabel"></label><br/>
+                        <label modetype="calculateProtectConditionValueLabel"></label>
                     </div>
                     <div class="form-group">
                         <label>Комментарий</label>

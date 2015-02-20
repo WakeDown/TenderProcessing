@@ -323,9 +323,9 @@ namespace TenderProcessingDataAccessLayer
             {
                 sb.Append(" and TenderNumber = '" + model.TenderNumber + "'");
             }
-            if (model.ClaimStatus != 0)
+            if (model.ClaimStatus != null && model.ClaimStatus.Any())
             {
-                sb.Append(" and ClaimStatus = " + model.ClaimStatus);
+                sb.Append(" and ClaimStatus in (" + string.Join(",", model.ClaimStatus) + ")");
             }
             if (!string.IsNullOrEmpty(model.IdManager))
             {
@@ -690,7 +690,7 @@ namespace TenderProcessingDataAccessLayer
                 cmd.Parameters.AddWithValue("@idPosition", model.IdSpecificationPosition);
                 cmd.Parameters.AddWithValue("@name", model.Name);
                 cmd.Parameters.AddWithValue("@catalogNumber", model.CatalogNumber);
-                cmd.Parameters.AddWithValue("@protectFact", model.ProtectFact);
+                cmd.Parameters.AddWithValue("@protectFact", model.ProtectFact.Id);
                 cmd.Parameters.AddWithValue("@sumRub", model.SumRub);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
@@ -731,7 +731,7 @@ namespace TenderProcessingDataAccessLayer
                 cmd.Parameters.AddWithValue("@id", model.Id);
                 cmd.Parameters.AddWithValue("@name", model.Name);
                 cmd.Parameters.AddWithValue("@catalogNumber", model.CatalogNumber);
-                cmd.Parameters.AddWithValue("@protectFact", model.ProtectFact);
+                cmd.Parameters.AddWithValue("@protectFact", model.ProtectFact.Id);
                 cmd.Parameters.AddWithValue("@sumRub", model.SumRub);
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;
@@ -782,7 +782,7 @@ namespace TenderProcessingDataAccessLayer
                             PriceRub = (double)rd.GetDecimal(8),
                             SumRub = (double)rd.GetDecimal(9),
                             Provider = rd.GetString(10),
-                            ProtectFact = rd.GetString(11),
+                            ProtectFact = new ProtectFact() { Id = rd.GetInt32(11)},
                             ProtectCondition = rd.GetString(12),
                             Comment = rd.GetString(13)
                         };
@@ -977,6 +977,33 @@ namespace TenderProcessingDataAccessLayer
                     while (rd.Read())
                     {
                         var model = new TenderStatus()
+                        {
+                            Id = rd.GetInt32(0),
+                            Value = rd.GetString(1)
+                        };
+                        list.Add(model);
+                    }
+                }
+                rd.Dispose();
+            }
+            return list;
+        }
+
+        public List<ProtectFact> LoadProtectFacts()
+        {
+            var list = new List<ProtectFact>();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "LoadProtectFacts";
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        var model = new ProtectFact()
                         {
                             Id = rd.GetInt32(0),
                             Value = rd.GetString(1)
