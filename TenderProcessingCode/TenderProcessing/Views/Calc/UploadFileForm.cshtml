@@ -46,7 +46,7 @@
             var obj = {
                 type: "UploadExcelResult",
                 error: error,
-                message: message,
+                message: message.replace("<br/>", "\r"),
                 positions: positions
             };
             var messageJson = JSON.stringify(obj);

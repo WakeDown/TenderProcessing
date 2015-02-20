@@ -45,11 +45,10 @@
                 $("#uploadExcelForm").submit();
             });
             if (firstLoad.toLowerCase() == "false") {
-                var mes = message;
                 var obj = {
                     type: "UploadExcelResult",
                     error: error,
-                    message: mes,
+                    message: message.replace("<br/>", "\r"),
                     positions: positions
                 };
                 var messageJson = JSON.stringify(obj);

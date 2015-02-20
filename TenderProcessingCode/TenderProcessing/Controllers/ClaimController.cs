@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using System.Web.UI.WebControls;
 using ClosedXML.Excel;
+using Newtonsoft.Json;
 using TenderProcessing.Models;
 using TenderProcessingDataAccessLayer;
 using TenderProcessingDataAccessLayer.Enums;
@@ -27,6 +28,7 @@ namespace TenderProcessing.Controllers
             ViewBag.ClaimStatus = db.LoadClaimStatus();
             ViewBag.ProductManagers = UserHelper.GetProductManagers();
             ViewBag.StatusHistory = new List<ClaimStatusHistory>();
+            ViewBag.Facts = db.LoadProtectFacts();
             TenderClaim claim = null;
             if (claimId.HasValue)
             {
@@ -48,6 +50,15 @@ namespace TenderProcessing.Controllers
                             if (productManagerFromAd != null)
                             {
                                 productManager.Name = productManagerFromAd.Name;
+                            }
+                        }
+                        var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value);
+                        if (calculations != null && calculations.Any())
+                        {
+                            foreach (var position in claim.Positions)
+                            {
+                                position.Calculations =
+                                    calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
                             }
                         }
                     }
@@ -164,6 +175,117 @@ namespace TenderProcessing.Controllers
             }
         }
 
+        public ActionResult GetListExcelFile(string modelJson)
+        {
+            XLWorkbook excBook = null;
+            var ms = new MemoryStream();
+            var error = false;
+            var message = string.Empty;
+            try
+            {
+                var model = new FilterTenderClaim();
+                if (!string.IsNullOrEmpty(modelJson))
+                {
+                    model = JsonConvert.DeserializeObject<FilterTenderClaim>(modelJson);
+                }
+                var db = new DbEngine();
+                var list = db.FilterTenderClaims(model);
+                if (list.Any())
+                {
+                    db.SetProductManagersForClaims(list);
+                    var claimProductManagers = list.SelectMany(x => x.ProductManagers).ToList();
+                    foreach (var claimProductManager in claimProductManagers)
+                    {
+                        var managerFromAD = UserHelper.GetProductManagerFromActiveDirectoryById(claimProductManager.Id.Trim());
+                        if (managerFromAD != null)
+                        {
+                            claimProductManager.Name = managerFromAD.Name;
+                        }
+                    }
+                    foreach (var claim in list)
+                    {
+                        var manager = UserHelper.GetManagerFromActiveDirectoryById(claim.Manager.Id);
+                        if (manager != null)
+                        {
+                            claim.Manager.Name = manager.Name;
+                        }
+                    }
+                    var dealTypes = db.LoadDealTypes();
+                    var status = db.LoadClaimStatus();
+                    excBook = new XLWorkbook();
+                    var workSheet = excBook.AddWorksheet("Заявки");
+                    workSheet.Cell(1, 1).Value = "ID";
+                    workSheet.Cell(1, 2).Value = "№ Конкурса";
+                    workSheet.Cell(1, 3).Value = "Контрагент";
+                    workSheet.Cell(1, 4).Value = "Сумма";
+                    workSheet.Cell(1, 5).Value = "Менеджер";
+                    workSheet.Cell(1, 6).Value = "Снабженцы";
+                    workSheet.Cell(1, 7).Value = "Тип сделки";
+                    workSheet.Cell(1, 8).Value = "Статус";
+                    var headRange = workSheet.Range(workSheet.Cell(1, 1), workSheet.Cell(1, 8));
+                    headRange.Style.Font.SetBold(true);
+                    headRange.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                    headRange.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
+                    headRange.Style.Border.SetBottomBorderColor(XLColor.Gray);
+                    headRange.Style.Border.SetTopBorder(XLBorderStyleValues.Thin);
+                    headRange.Style.Border.SetTopBorderColor(XLColor.Gray);
+                    headRange.Style.Border.SetRightBorder(XLBorderStyleValues.Thin);
+                    headRange.Style.Border.SetRightBorderColor(XLColor.Gray);
+                    headRange.Style.Border.SetLeftBorder(XLBorderStyleValues.Thin);
+                    headRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
+                    headRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 204, 233, 255);
+                    var row = 2;
+                    foreach (var claim in list)
+                    {
+                        workSheet.Cell(row, 1).Value = claim.Id.ToString("G");
+                        workSheet.Cell(row, 2).Value = claim.TenderNumber;
+                        workSheet.Cell(row, 3).Value = claim.Customer;
+                        workSheet.Cell(row, 4).Value = claim.Sum.ToString("N2");
+                        workSheet.Cell(row, 5).Value = claim.Manager.Name;
+                        workSheet.Cell(row, 6).Value = claim.ProductManagers != null
+                            ? string.Join(",", claim.ProductManagers.Select(x => x.Name))
+                            : string.Empty;
+                        workSheet.Cell(row, 7).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
+                        workSheet.Cell(row, 8).Value = status.First(x => x.Id == claim.ClaimStatus).Value; ;
+                        row++;
+                    }
+                    workSheet.Columns(1, 8).AdjustToContents();
+                    excBook.SaveAs(ms);
+                    excBook.Dispose();
+                    ms.Seek(0, SeekOrigin.Begin);
+                }
+                else
+                {
+                    error = true;
+                    message = "Пустой набор";
+                }
+            }
+            catch (Exception)
+            {
+                error = true;
+                message = "Ошибка сервера";
+            }
+            finally
+            {
+                if (excBook != null)
+                {
+                    excBook.Dispose();
+                }
+            }
+            if (!error)
+            {
+                return new FileStreamResult(ms, "application/vnd.ms-excel")
+                {
+                    FileDownloadName = "Заявки.xlsx"
+                };
+            }
+            else
+            {
+                ViewBag.Message = message;
+                return View();
+            }
+        }
+
         public ActionResult UploadFileForm()
         {
             ViewBag.FirstLoad = true;
@@ -247,7 +369,7 @@ namespace TenderProcessing.Controllers
                                     {
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
-                                                                  ", значение '" + numberValue + "' в поле Порядковый номер не является целым числом\r");
+                                                                  ", значение '" + numberValue + "' в поле Порядковый номер не является целым числом<br/>");
                                     }
                                     else
                                     {
@@ -289,7 +411,7 @@ namespace TenderProcessing.Controllers
                                 {
                                     rowValid = false;
                                     errorStringBuilder.Append("Строка: " + row +
-                                                              ", не задано обязательное значение Количество\r");
+                                                              ", не задано обязательное значение Количество<br/>");
                                 }
                                 else
                                 {
@@ -300,7 +422,7 @@ namespace TenderProcessing.Controllers
                                     {
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
-                                                                  ", значение '" + valueValue + "' в поле Количество не является целым числом\r");
+                                                                  ", значение '" + valueValue + "' в поле Количество не является целым числом<br/>");
                                     }
                                     else
                                     {
@@ -312,7 +434,7 @@ namespace TenderProcessing.Controllers
                             {
                                 rowValid = false;
                                 errorStringBuilder.Append("Строка: " + row +
-                                                          ", не задано обязательное значение Снабженец\r");
+                                                          ", не задано обязательное значение Снабженец<br/>");
                             }
                             else
                             {
@@ -335,7 +457,7 @@ namespace TenderProcessing.Controllers
                                     {
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
-                                                                  ", значение '" + priceValue + "' в поле Цена за единицу не является числом\r");
+                                                                  ", значение '" + priceValue + "' в поле Цена за единицу не является числом<br/>");
                                     }
                                     else
                                     {
@@ -354,7 +476,7 @@ namespace TenderProcessing.Controllers
                                     {
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
-                                                                  ", значение '" + sumValue + "' в поле Сумма не является числом\r");
+                                                                  ", значение '" + sumValue + "' в поле Сумма не является числом<br/>");
                                     }
                                     else
                                     {
@@ -387,16 +509,16 @@ namespace TenderProcessing.Controllers
                         message = "Получено строк: " + (row - 2);
                         if (repeatRowCount > 0)
                         {
-                            message += "\rИз них повторных: " + repeatRowCount;
+                            message += "<br/>Из них повторных: " + repeatRowCount;
                         }
                         if (positions.Any())
                         {
-                            message += "\rСохранено строк: " + positions.Count();
+                            message += "<br/>Сохранено строк: " + positions.Count();
                         }
                         var errorMessage = errorStringBuilder.ToString();
                         if (!string.IsNullOrEmpty(errorMessage))
                         {
-                            message += "\rОшибки:<br />" + errorMessage;
+                            message += "<br/>Ошибки:<br />" + errorMessage;
                         }
                     }
                     else

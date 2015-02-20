@@ -25,6 +25,7 @@
 
     function init() {
         messageUi.initProgressImage();
+        window.addEventListener("message", messageHandler, true);
         initClaimsElements(claims);
         initFilterManagersList();
         initFilterProductManagersList();
@@ -51,7 +52,22 @@
         });
         $("#acceptFilter").click(filter);
         $("#clearFilter").click(clearFilter);
+        $("#saveFilterInExcel").click(filterInExcel);
         $("#showCountLabel").text(claims.length);
+    }
+
+    function messageHandler(e) {
+        var data = e.data;
+        var obj = $.parseJSON(data);
+        if (obj.type.trim() == "DownloadExcel") {
+            if (obj.error == true) {
+                if (obj.message != "") {
+                    alert(obj.message);
+                } else {
+                    alert("Ошибка при скачивании файла!");
+                }
+            }
+        }
     }
 
     function filter(e) {
@@ -78,6 +94,17 @@
                 }
             }
         });
+    }
+
+    function filterInExcel(e) {
+        var obj = getFilterObj();
+        if (!obj.isValid) {
+            alert(obj.message);
+            return;
+        }
+        var json = JSON.stringify(obj.model);
+        var urlJson = encodeURI(json);
+        $("body").append("<iframe src='/Claim/GetListExcelFile?modelJson=" + urlJson + "' width='0' height='0' style='display: none;' align='left'></iframe>");
     }
 
     function clearFilter(e) {
@@ -482,6 +509,7 @@
                             <div class="col-sm-offset-2 col-sm-10">
                                 <button type="button" id="acceptFilter" class="btn btn-primary"><i class="fa fa-search"></i>&nbsp;найти</button>
                                 <button type="button" id="clearFilter" class="btn btn-default"><i class="fa fa-repeat"></i>&nbsp;очистить</button>
+                                <button type="button" id="saveFilterInExcel" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;в Excel</button>
                             </div>
                         </div>
                     </div>

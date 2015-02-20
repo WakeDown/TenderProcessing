@@ -162,7 +162,9 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
-    <Content Include="App_Data\Спецификация конкурса.xlsx" />
+    <Content Include="App_Data\Спецификация конкурса.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
@@ -211,6 +213,7 @@
     <Content Include="Views\Claim\List.cshtml" />
     <Content Include="Views\Claim\Index.cshtml" />
     <Content Include="Views\Calc\Index.cshtml" />
+    <Content Include="Views\Claim\GetListExcelFile.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TenderProcessingDataAccessLayer\TenderProcessingDataAccessLayer.csproj">

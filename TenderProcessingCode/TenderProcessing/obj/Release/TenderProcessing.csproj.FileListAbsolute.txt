@@ -74,3 +74,4 @@ C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCod
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Release\TenderProcessing.csproj.ResolveComReference.cache
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Release\TenderProcessing.dll
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Release\TenderProcessing.pdb
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\App_Data\Спецификация конкурса.xlsx

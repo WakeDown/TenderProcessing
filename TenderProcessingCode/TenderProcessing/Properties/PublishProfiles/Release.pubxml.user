@@ -11,10 +11,13 @@
   </PropertyGroup>
   <ItemGroup>
     <File Include="App_Data/Спецификация конкурса.xlsx">
-      <publishTime>02/12/2015 13:55:20</publishTime>
+      <publishTime>02/20/2015 20:47:48</publishTime>
     </File>
     <File Include="bin/Antlr3.Runtime.dll">
       <publishTime>10/02/2015 14:29:46</publishTime>
+    </File>
+    <File Include="bin/App_Data/Спецификация конкурса.xlsx">
+      <publishTime>02/20/2015 20:47:48</publishTime>
     </File>
     <File Include="bin/ClosedXML.dll">
       <publishTime>12/17/2014 01:34:10</publishTime>
@@ -71,10 +74,10 @@
       <publishTime>02/10/2015 14:29:41</publishTime>
     </File>
     <File Include="bin/TenderProcessing.dll">
-      <publishTime>02/20/2015 17:13:25</publishTime>
+      <publishTime>02/20/2015 23:51:14</publishTime>
     </File>
     <File Include="bin/TenderProcessingDataAccessLayer.dll">
-      <publishTime>02/20/2015 14:44:13</publishTime>
+      <publishTime>02/20/2015 21:19:09</publishTime>
     </File>
     <File Include="bin/WebGrease.dll">
       <publishTime>02/10/2015 14:29:46</publishTime>
@@ -278,10 +281,10 @@
       <publishTime>02/16/2015 15:29:25</publishTime>
     </File>
     <File Include="Views/Calc/Index.cshtml">
-      <publishTime>02/20/2015 17:13:21</publishTime>
+      <publishTime>02/20/2015 22:17:13</publishTime>
     </File>
     <File Include="Views/Calc/UploadFileForm.cshtml">
-      <publishTime>02/20/2015 17:13:21</publishTime>
+      <publishTime>02/20/2015 22:41:36</publishTime>
     </File>
     <File Include="Views/CalculationSpecification/GetSpecificationFile.cshtml">
       <publishTime>01/01/0001 00:00:00</publishTime>
@@ -292,17 +295,20 @@
     <File Include="Views/CalculationSpecification/UploadFileForm.cshtml">
       <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
+    <File Include="Views/Claim/GetListExcelFile.cshtml">
+      <publishTime>02/20/2015 23:35:05</publishTime>
+    </File>
     <File Include="Views/Claim/GetSpecificationFile.cshtml">
       <publishTime>02/12/2015 16:55:13</publishTime>
     </File>
     <File Include="Views/Claim/Index.cshtml">
-      <publishTime>02/20/2015 15:52:55</publishTime>
+      <publishTime>02/20/2015 23:18:25</publishTime>
     </File>
     <File Include="Views/Claim/List.cshtml">
-      <publishTime>02/20/2015 15:42:55</publishTime>
+      <publishTime>02/20/2015 23:35:05</publishTime>
     </File>
     <File Include="Views/Claim/UploadFileForm.cshtml">
-      <publishTime>02/20/2015 15:22:10</publishTime>
+      <publishTime>02/20/2015 22:41:36</publishTime>
     </File>
     <File Include="Views/Home/Index.cshtml">
       <publishTime>10/02/2015 14:29:23</publishTime>

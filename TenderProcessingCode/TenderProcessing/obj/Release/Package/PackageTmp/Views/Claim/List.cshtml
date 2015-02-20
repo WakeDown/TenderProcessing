@@ -25,8 +25,8 @@
 
     function init() {
         messageUi.initProgressImage();
+        window.addEventListener("message", messageHandler, true);
         initClaimsElements(claims);
-        initFilterClaimStatusList();
         initFilterManagersList();
         initFilterProductManagersList();
         initFilterManagerSubDivisionsList();
@@ -52,13 +52,28 @@
         });
         $("#acceptFilter").click(filter);
         $("#clearFilter").click(clearFilter);
+        $("#saveFilterInExcel").click(filterInExcel);
         $("#showCountLabel").text(claims.length);
+    }
+
+    function messageHandler(e) {
+        var data = e.data;
+        var obj = $.parseJSON(data);
+        if (obj.type.trim() == "DownloadExcel") {
+            if (obj.error == true) {
+                if (obj.message != "") {
+                    alert(obj.message);
+                } else {
+                    alert("Ошибка при скачивании файла!");
+                }
+            }
+        }
     }
 
     function filter(e) {
         var obj = getFilterObj();
         if (!obj.isValid) {
-            messageUi.show(obj.message);
+            alert(obj.message);
             return;
         }
         $.ajax({
@@ -75,14 +90,44 @@
                     $("#claimCountLabel").text(data.Count);
                     $("#showCountLabel").text(claims.length);
                 } else {
-                    messageUi.show("Ошибка при фильтрации заявок", true, null, 1700);
+                    alert("Ошибка при фильтрации заявок");
                 }
             }
         });
     }
 
+    function filterInExcel(e) {
+        var obj = getFilterObj();
+        if (!obj.isValid) {
+            alert(obj.message);
+            return;
+        }
+        var json = JSON.stringify(obj.model);
+        var urlJson = encodeURI(json);
+        $("body").append("<iframe src='/Claim/GetListExcelFile?modelJson=" + urlJson + "' width='0' height='0' style='display: none;' align='left'></iframe>");
+    }
+
     function clearFilter(e) {
-        $("#filterRowCount").val("");
+        var model = {};
+        var rowCount = $("#filterRowCount").val().trim();
+        rowCount = rowCount.replace(",", ".");
+        if (rowCount != "") {
+            if (!isNaN(rowCount)) {
+                if (rowCount.indexOf(".") == -1) {
+                    rowCount = Number(rowCount);
+                    if (rowCount < 0) {
+                        $("#filterRowCount").val();
+                    }
+                    if (rowCount > 0) {
+                        model.RowCount = rowCount;
+                    }
+                } else {
+                    $("#filterRowCount").val("");
+                }
+            } else {
+                $("#filterRowCount").val("");
+            }
+        }
         $("#filterIdClaim").val("");
         $("#filterTenderNumber").val("");
         $("#filterTenderStartFrom").val("");
@@ -92,11 +137,17 @@
         $(":first", $("#filterClaimStatus")).attr("selected", "selected");
         $(":first", $("#filterManagerSubDivisions")).attr("selected", "selected");
         $(":first", $("#filterProductManagers")).attr("selected", "selected");
+        var filterStatusControls = ["filterClaimStatusCreated", "filterClaimStatusTransmissed", "filterClaimStatusInWork", "filterClaimStatusStopped", "filterClaimStatusCancelled", "filterClaimStatusSameCalculated", "filterClaimStatusCalculated", "filterClaimStatusConfirmed"];
+        var controlsLength = filterStatusControls.length;
+        for (var i = 0; i < controlsLength; i++) {
+            var control = $("#" + filterStatusControls[i]);
+            control.get(0).checked = false;
+        }
         $.ajax({
             url: "/Claim/FilterClaim",
             type: 'POST',
             dataType: 'json',
-            data: JSON.stringify({}),
+            data: JSON.stringify(model),
             processData: false,
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
@@ -106,7 +157,7 @@
                     $("#claimCountLabel").text(data.Count);
                     $("#showCountLabel").text(claims.length);
                 } else {
-                    messageUi.show("Ошибка при фильтрации заявок", true, null, 1700);
+                    alert("Ошибка при фильтрации заявок");
                 }
             }
         });
@@ -117,6 +168,7 @@
         var model = {};
         var message = "";
         var rowCount = $("#filterRowCount").val().trim();
+        rowCount = rowCount.replace(",", ".");
         if (rowCount != "") {
             if (!isNaN(rowCount)) {
                 if (rowCount.indexOf(".") == -1) {
@@ -145,7 +197,7 @@
                     if (claimId < 0) {
                         message = "№ Заявки не может быть отрицательным";
                         if (obj.message.trim() != "") {
-                            message = "<br/>" + message;
+                            message = "\r" + message;
                         }
                         obj.isValid = false;
                         obj.message = message;
@@ -156,7 +208,7 @@
                 } else {
                     message = "Значение '" + claimId + "' в поле № Заявки не является целым числом";
                     if (obj.message.trim() != "") {
-                        message = "<br/>" + message;
+                        message = "\r" + message;
                     }
                     obj.isValid = false;
                     obj.message = message;
@@ -164,7 +216,7 @@
             } else {
                 message = "Значение '" + claimId + "' в поле № Заявки не является целым числом";
                 if (obj.message.trim() != "") {
-                    message = "<br/>" + message;
+                    message = "\r" + message;
                 }
                 obj.isValid = false;
                 obj.message = message;
@@ -174,10 +226,16 @@
         if (tenderNumber != "") {
             model.TenderNumber = tenderNumber;
         }
-        var status = Number($(":selected", $("#filterClaimStatus")).val());
-        if (status != -1) {
-            model.ClaimStatus = status;
+        var status = [];
+        var filterStatusControls = ["filterClaimStatusCreated", "filterClaimStatusTransmissed", "filterClaimStatusInWork", "filterClaimStatusStopped", "filterClaimStatusCancelled", "filterClaimStatusSameCalculated", "filterClaimStatusCalculated", "filterClaimStatusConfirmed"];
+        var controlsLength = filterStatusControls.length;
+        for (var i = 0; i < controlsLength; i++) {
+            var control = $("#" + filterStatusControls[i]);
+            if (control.get(0).checked) {
+                status.push(Number(control.val()));
+            }
         }
+        model.ClaimStatus = status;
         var manager = $(":selected", $("#filterManagers")).val().trim();
         if (manager != "-1") {
             model.IdManager = manager;
@@ -204,7 +262,7 @@
             if (dateTo < dateFrom) {
                 message = "Дата 'срок сдачи с' должна быть не позже даты 'срок сдачи по'";
                 if (obj.message.trim() != "") {
-                    message = "<br/>" + message;
+                    message = "\r" + message;
                 }
                 obj.isValid = false;
                 obj.message = message;
@@ -224,18 +282,6 @@
             obj.model = model;
         }
         return obj;
-    }
-
-    function initFilterClaimStatusList() {
-        var statusLength = claimStatus.length;
-        var list = $("#filterClaimStatus");
-        var option = $("<option value='-1'>---Все---</option>");
-        list.append(option);
-        for (var i = 0; i < statusLength; i++) {
-            var status = claimStatus[i];
-            option = $("<option value='" + status.Id + "'>" + status.Value + "</option>");
-            list.append(option);
-        }
     }
 
     function initFilterManagersList() {
@@ -290,7 +336,7 @@
         var element = $("<tr claimId='" + claim.Id + "'></tr>");
         var editCell = $("<td class='min-width text-nowrap'></td>");
         element.append(editCell);
-        var editButton = $("<a href='/Claim/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></a>");
+        var editButton = $("<a type='claimPage' href='/Claim/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></a>");
         editCell.append(editButton);
         editCell.append("<a href='/Calc/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='рассчитать'><i class='fa fa-calculator'></i></a>");
         element.append("<th><span>" + claim.Id + "</span></th>");
@@ -310,6 +356,11 @@
         var deleteButton = $("<button type='button' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить'><i class='fa fa-trash'></i></button>");
         deleteButton.click(deleteButtonClick);
         actionCell.append(deleteButton);
+        element.dblclick(function(e) {
+            var row = $(e.currentTarget);
+            var claimId = row.attr("claimId");
+            document.location.href = "/Claim/Index?claimId=" + claimId;
+        });
         return element;
     }
 
@@ -330,7 +381,7 @@
                     if (data.IsComplete) {
                         row.remove();
                     } else {
-                        messageUi.show("Запись не удалена", true, null, 1700);
+                        alert("Запись не удалена");
                     }
                 }
             });
@@ -401,7 +452,14 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Статус заявки</label>
                             <div class="col-sm-10">
-                                <select size="1" id="filterClaimStatus" class="form-control input-sm"></select>
+                                <input type="checkbox" id="filterClaimStatusCreated" value="1" /><span>Создано</span>
+                                <input type="checkbox" id="filterClaimStatusTransmissed" value="2" /><span>Передано</span>
+                                <input type="checkbox" id="filterClaimStatusInWork" value="3" /><span>В работе</span>
+                                <input type="checkbox" id="filterClaimStatusStopped" value="4" /><span>Приостановлено</span>
+                                <input type="checkbox" id="filterClaimStatusCancelled" value="5" /><span>Отменено</span>
+                                <input type="checkbox" id="filterClaimStatusSameCalculated" value="6" /><span>Частично расчитано</span>
+                                <input type="checkbox" id="filterClaimStatusCalculated" value="7" /><span>Расчитано</span>
+                                <input type="checkbox" id="filterClaimStatusConfirmed" value="8" /><span>Подтверждено</span>
                             </div>
                         </div>
                         <div class="form-group">
@@ -444,13 +502,14 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Показать записей</label>
                             <div class="col-sm-10">
-                                <input type="text" id="filterRowCount" class="form-control input-sm" />
+                                <input type="text" id="filterRowCount" class="form-control input-sm" value="10" />
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="col-sm-offset-2 col-sm-10">
                                 <button type="button" id="acceptFilter" class="btn btn-primary"><i class="fa fa-search"></i>&nbsp;найти</button>
                                 <button type="button" id="clearFilter" class="btn btn-default"><i class="fa fa-repeat"></i>&nbsp;очистить</button>
+                                <button type="button" id="saveFilterInExcel" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;в Excel</button>
                             </div>
                         </div>
                     </div>

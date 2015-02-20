@@ -342,7 +342,7 @@ namespace TenderProcessing.Controllers
                                             {
                                                 parseError = true;
                                                 rowValid = false;
-                                                errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "\r");
+                                                errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "<br/>");
                                                 break;
                                             }
                                             model.Id = id;
@@ -352,7 +352,7 @@ namespace TenderProcessing.Controllers
                                         {
                                             parseError = true;
                                             rowValid = false;
-                                            errorStringBuilder.Append("Ошибка разбора Id позиции в строке: " + row + "\r");
+                                            errorStringBuilder.Append("Ошибка разбора Id позиции в строке: " + row + "<br/>");
                                         }
                                     }
                                 }
@@ -377,7 +377,7 @@ namespace TenderProcessing.Controllers
                             {
                                 parseError = true;
                                 rowValid = false;
-                                errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "\r");
+                                errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "<br/>");
                                 break;
                             }
                             else
@@ -403,7 +403,7 @@ namespace TenderProcessing.Controllers
                                     {
                                         parseError = true;
                                         rowValid = false;
-                                        errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "\r");
+                                        errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "<br/>");
                                         break;
                                     }
                                     calculate = new CalculateSpecificationPosition()
@@ -427,7 +427,7 @@ namespace TenderProcessing.Controllers
                                         parseError = true;
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
-                                                              ", не задано обязательное значение Каталожный номер\r");
+                                                              ", не задано обязательное значение Каталожный номер<br/>");
                                     }
                                     else
                                     {
@@ -438,7 +438,7 @@ namespace TenderProcessing.Controllers
                                         parseError = true;
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
-                                                              ", не задано обязательное значение Факт получ.защиты\r");
+                                                              ", не задано обязательное значение Факт получ.защиты<br/>");
                                     }
                                     else
                                     {
@@ -449,7 +449,7 @@ namespace TenderProcessing.Controllers
                                             parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
-                                                                  ", Значение '" + protectFactValueString + "' не является допустимым для Факт получ.защиты\r");
+                                                                  ", Значение '" + protectFactValueString + "' не является допустимым для Факт получ.защиты<br/>");
                                         }
                                         else
                                         {
@@ -463,7 +463,7 @@ namespace TenderProcessing.Controllers
                                                     parseError = true;
                                                     rowValid = false;
                                                     errorStringBuilder.Append("Строка: " + row +
-                                                                              ", не задано обязательное значение Условия защиты\r");
+                                                                              ", не задано обязательное значение Условия защиты<br/>");
                                                 }
                                                 else
                                                 {
@@ -485,7 +485,7 @@ namespace TenderProcessing.Controllers
                                         parseError = true;
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
-                                                                  ", не задано обязательное значение Сумма вход руб\r");
+                                                                  ", не задано обязательное значение Сумма вход руб<br/>");
                                     }
                                     else
                                     {
@@ -496,7 +496,7 @@ namespace TenderProcessing.Controllers
                                             parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
-                                                                      ", значение '" + sumRubValue.ToString().Trim() + "' в поле Сумма вход руб не является числом\r");
+                                                                      ", значение '" + sumRubValue.ToString().Trim() + "' в поле Сумма вход руб не является числом<br/>");
                                         }
                                         else
                                         {
@@ -512,7 +512,7 @@ namespace TenderProcessing.Controllers
                                             parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
-                                                                      ", значение '" + priceUsdValue.ToString().Trim() + "' в поле Цена за ед. USD не является числом\r");
+                                                                      ", значение '" + priceUsdValue.ToString().Trim() + "' в поле Цена за ед. USD не является числом<br/>");
                                         }
                                         else
                                         {
@@ -528,7 +528,7 @@ namespace TenderProcessing.Controllers
                                             parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
-                                                                      ", значение '" + sumUsdValue.ToString().Trim() + "' в поле Сумма вход USD не является числом\r");
+                                                                      ", значение '" + sumUsdValue.ToString().Trim() + "' в поле Сумма вход USD не является числом<br/>");
                                         }
                                         else
                                         {
@@ -544,7 +544,7 @@ namespace TenderProcessing.Controllers
                                             parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
-                                                                      ", значение '" + priceRubValue.ToString().Trim() + "' в поле Цена за ед. руб не является числом\r");
+                                                                      ", значение '" + priceRubValue.ToString().Trim() + "' в поле Цена за ед. руб не является числом<br/>");
                                         }
                                         else
                                         {
@@ -610,7 +610,7 @@ namespace TenderProcessing.Controllers
                                     }
                                 }
                             }
-                            message = "Позиций расчитано: " + positionCalculate + "\rСтрок расчета: " + calculateCount;
+                            message = "Позиций расчитано: " + positionCalculate + "<br/>Строк расчета: " + calculateCount;
                         }
                     }
                     else

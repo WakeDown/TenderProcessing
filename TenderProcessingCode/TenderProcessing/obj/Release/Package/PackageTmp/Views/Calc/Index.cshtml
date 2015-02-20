@@ -38,10 +38,11 @@
         $("#butUploadExcelFile").click(openFile);
         initProtectFactList();
         if (claim == null) {
-            messageUi.show("Заявка не найдена<br/>или у Вас нет доступа к ней");
+            alert("Заявка не найдена\rили у Вас нет доступа к ней");
         } else {
             showClaimInfo(claim);
             initPositions(claim.Positions);
+            setInfoForPositionRows();
             $("#butSendOnConfirm").click(sendOnConfirm);
             var noAction = true;
             var positionsLength = claim.Positions.length;
@@ -59,6 +60,26 @@
                 $("#butUploadExcelFile").hide();
             }
         }
+    }
+
+    function setInfoForPositionRows() {
+        var positionsRows = $("[type='positionRow']", $("#positionsTable"));
+        var positionsCount = 0;
+        var calculateCount = 0;
+        $.each(positionsRows, function(index, element) {
+            element = $(element);
+            positionsCount++;
+            var idPosition = element.attr("positionId");
+            var calcRowsCount = $("[type='positionCalculate'][calcPositionId='" + idPosition + "']", $("#positionsTable")).size();
+            if (calcRowsCount == 0) {
+                element.css("backgroundColor", "#e4b9b9");
+            } else {
+                element.css("backgroundColor", "#c1e2b3");
+                calculateCount++;
+            }
+        });
+        $("#positionCountLabel").text(positionsCount);
+        $("#positionCalculateCountLabel").text(calculateCount);
     }
 
     function initProtectFactList() {
@@ -117,16 +138,16 @@
         }
         if (obj.type.trim() == "DownloadExcel") {
             if (obj.error == true) {
-                messageUi.show("Ошибка при скачивании файла!", true, null, 1750);
+                alert("Ошибка при скачивании файла!");
             }
         }
         if (obj.type.trim() == "UploadExcel") {
             if (obj.error == true) {
-                messageUi.show(obj.message);
+                alert(obj.message);
             }
         }
         if (obj.type.trim() == "UploadExcelResult") {
-            messageUi.show(obj.message);
+            alert(obj.message);
             if (!obj.error) {
                 $("#positionsTable").empty();
                 var positions = obj.positions;
@@ -140,6 +161,7 @@
                     }
                 }
                 initPositions(claim.Positions);
+                setInfoForPositionRows();
             } 
         }
     }
@@ -173,7 +195,7 @@
                     $("#butUploadExcelFile").hide();
                     setPositionsToNoAction();
                 } else {
-                    messageUi.show(data.Message, true, null, 1700);
+                    alert(data.Message);
                 }
             }
         });
@@ -201,6 +223,7 @@
         for (var i = 0; i < positionsLength; i++) {
             var position = positions[i];
             var element = getPositionElement(position);
+            $("[modetype='rowNumber']", element).text(i + 1);
             container.append(element);
             var lastElement = element;
             if (position.Calculations != null) {
@@ -267,7 +290,7 @@
 
     function showClaimInfo(model) {
         $("#claimId").text(model.Id);
-        $("#claimCustomer").text("Заказчик: " + model.Customer + " ИНН: " + model.CustomerInn);
+        $("#claimCustomer").text(model.Customer + " " + model.CustomerInn);
         $("#claimTenderStart").text(model.TenderStartString);
         $("#claimDeadline").text(model.ClaimDeadlineString);
         $("#kPDeadline").text(model.KPDeadlineString);
@@ -280,6 +303,11 @@
             sum = model.Sum.toFixed(2);
         }
         $("#claimSum").text(sum);
+        if (sum == "") {
+            $("#claimSumPostfix").hide();
+        } else {
+            $("#claimSumPostfix").show();
+        }
         $("#claimTenderNumber").text(model.TenderNumber);
         $("#claimTenderStatus").text(status);
         if (model.TenderUrl != "") {
@@ -293,6 +321,7 @@
         element.removeAttr("id");
         element.show();
         element.attr("positionId", position.Id);
+        element.attr("type", "positionRow");
         $("[type='catalogNumberLabel']", element).text(position.CatalogNumber);
         $("[type='nameLabel']", element).text(position.Name);
         $("[type='replaceLabel']", element).text(position.Replace);
@@ -325,7 +354,7 @@
         var row = button.closest("[type='positionCalculate']");
         var calculateId = row.attr("calcId");
         var initalBackGround = row.css("background-color");
-        row.css("backgroundColor", "#EAA4A4");
+        row.css("backgroundColor", "rgb(190, 160, 230)");
         var deleted = confirm("Вы уверены что хотите удалить выделенную запись?");
         row.css("backgroundColor", initalBackGround);
         if (deleted) {
@@ -336,8 +365,9 @@
                 success: function(data) {
                     if (data.IsComplete) {
                         row.remove();
+                        setInfoForPositionRows();
                     } else {
-                        messageUi.show("Запись не удалена", true, null, 1700);
+                        alert("Запись не удалена");
                     }
                 }
             });
@@ -373,7 +403,7 @@
         var row = button.closest("[type='positionCalculate']");
         var obj = getCalculatePositionModelForPosition(row);
         if (!obj.isValid) {
-            messageUi.show(obj.message);
+            alert(obj.message);
         } else {
             var model = obj.model;
             model.Id = Number(row.attr("calcId"));
@@ -406,7 +436,7 @@
                         $("[modetype='editCalcButton']", row).show();
                         setCalculatePositionReadOnly(row);
                     } else {
-                        messageUi.show("Ошибка при изменении расчета", true, null, 1700);
+                        alert("Ошибка при изменении расчета");
                     }
                 }
             });
@@ -454,7 +484,7 @@
         var row = button.closest("[type='positionCalculate']");
         var obj = getCalculatePositionModelForPosition(row);
         if (!obj.isValid) {
-            messageUi.show(obj.message);
+            alert(obj.message);
         } else {
             var model = obj.model;
             model.IdSpecificationPosition = Number(row.attr("calcPositionId"));
@@ -490,8 +520,9 @@
                         $("[type='editPositionPanel']", row).show();
                         $("[modetype='deleteCalcButton']", row).show();
                         setCalculatePositionReadOnly(row);
+                        setInfoForPositionRows();
                     } else {
-                        messageUi.show("Ошибка при добавлении расчета", true, null, 1700);
+                        alert("Ошибка при добавлении расчета");
                     }
                 }
             });
@@ -512,7 +543,6 @@
         var providerFactValue = $(":selected", providerFact).text();
         $("[modetype='calculateProtectFactValueLabel']", row).text(providerFactValue);
         $("[modetype='calculateProtectFactValueLabel']", row).attr("val", $(":selected", providerFact).val());
-        $("table", row).css("backgroundColor", "rgb(230, 230, 255)");
         $("[ type='readOnlyModeView']", row).show();
         $("[ type='editModeView']", row).hide();
     }
@@ -530,50 +560,54 @@
         if (name == "") {
             message = "Заполните обязательное поле Наименование";
             if (obj.message.trim() != "") {
-                message = "<br/>" + message;
+                message = "\r" + message;
             }
             obj.isValid = false;
             obj.message += message;
         }
         var priceUsd = $("[modetype='calculatePriceUsd']", calcRow).val().trim();
+        priceUsd = priceUsd.replace(",", ".");
         if (priceUsd != "") {
             if (isNaN(priceUsd)) {
                 message = "Значение '" + priceUsd + "' в поле Цена за ед. USD не является числом";
                 if (obj.message.trim() != "") {
-                    message = "<br/>" + message;
+                    message = "\r" + message;
                 }
                 obj.isValid = false;
                 obj.message += message;
             }
         }
         var sumUsd = $("[modetype='calculateSumUsd']", calcRow).val().trim();
+        sumUsd = sumUsd.replace(",", ".");
         if (sumUsd != "") {
             if (isNaN(sumUsd)) {
                 message = "Значение '" + sumUsd + "' в поле Сумма вход USD не является числом";
                 if (obj.message.trim() != "") {
-                    message = "<br/>" + message;
+                    message = "\r" + message;
                 }
                 obj.isValid = false;
                 obj.message += message;
             }
         }
         var priceRub = $("[modetype='calculatePriceRub']", calcRow).val().trim();
+        priceRub = priceRub.replace(",", ".");
         if (priceRub != "") {
             if (isNaN(priceRub)) {
                 message = "Значение '" + priceRub + "' в поле Цена за ед. руб не является числом";
                 if (obj.message.trim() != "") {
-                    message = "<br/>" + message;
+                    message = "\r" + message;
                 }
                 obj.isValid = false;
                 obj.message += message;
             }
         }
         var sumRub = $("[modetype='calculateSumRub']", calcRow).val().trim();
+        sumRub = sumRub.replace(",", ".");
         if (sumRub != "") {
             if (isNaN(sumRub)) {
                 message = "Значение '" + sumRub + "' в поле Сумма вход руб не является числом";
                 if (obj.message.trim() != "") {
-                    message = "<br/>" + message;
+                    message = "\r" + message;
                 }
                 obj.isValid = false;
                 obj.message += message;
@@ -581,7 +615,7 @@
         } else {
             message = "Заполните обязательное поле Сумма вход руб";
             if (obj.message.trim() != "") {
-                message = "<br/>" + message;
+                message = "\r" + message;
             }
             obj.isValid = false;
             obj.message += message;
@@ -591,7 +625,7 @@
         if (protectFact == "null") {
             message = "Выберите значение Факт получения защиты";
             if (obj.message.trim() != "") {
-                message = "<br/>" + message;
+                message = "\r" + message;
             } 
             obj.isValid = false;
             obj.message += message;
@@ -599,7 +633,7 @@
             if (protectCondition == "" && protectFact != "3") {
                 message = "Заполните поле Условия защиты";
                 if (obj.message.trim() != "") {
-                    message = "<br/>" + message;
+                    message = "\r" + message;
                 }
                 obj.isValid = false;
                 obj.message += message;
@@ -638,7 +672,7 @@
 
     function getCalculatePositionElement() {
         var row = $("<tr></tr>");
-        var cell = $("<td colspan='2'></td>");
+        var cell = $("<td colspan='3'></td>");
         row.append(cell);
         var calcTable = $("#calculatePositionTable").clone();
         calcTable.show();
@@ -706,7 +740,7 @@
                         <strong id="claimDealType"></strong>
                     </div>
                     <div>
-                        <strong id="claimSum"></strong>
+                        <strong id="claimSum"></strong><strong id="claimSumPostfix">&nbsp;руб.</strong> 
                     </div>
                 </div>
                 <div class="col-sm-2">
@@ -739,10 +773,10 @@
     <div>
         <h5>Список позиций</h5>
         <h5>
-            <span class="label label-default">Всего:<span>5</span></span>&nbsp;
-            <span class="label label-info">из них рассчитано:<span>3</span></span>
+            <span class="label label-default">Всего:<span id="positionCountLabel"></span></span>&nbsp;
+            <span class="label label-info">из них рассчитано:<span id="positionCalculateCountLabel"></span></span>
         </h5>
-        <table class="table table-striped small">
+        <table class="table small">
             <tbody id="positionsTable"></tbody>
         </table>
     </div>
@@ -751,6 +785,7 @@
             <td class="min-width">
                 <button type="button" modetype='addCalcButton' class="btn btn-primary btn-lg" data-toggle="tooltip" title="добавить расчет"><i class="fa fa-plus"></i> <i class="fa fa-calculator"></i></button>
             </td>
+            <td class="min-width"><span modetype="rowNumber"></span></td>
             <td>
                 <div class="col-sm-3">
                     <div>
