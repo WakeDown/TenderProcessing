@@ -1034,8 +1034,26 @@
         <div>
             <button type="button" id="butAddPosition" class="btn btn-default"><i class="fa fa-plus-circle"></i> добавить позицию</button>
         </div>
-        <h5><span class="label label-default">Всего: 5</span> <span class="label label-info">из них рассчитано: 3</span></h5>
         <table class="table table-striped small">
+            <thead>
+                <tr>
+                    <th colspan="9">
+                        <h5>
+                            <span class="label label-default">
+                                Всего:
+                                <span>5</span>
+                            </span>
+                            &nbsp;
+                            <span class="label label-info">
+                                из них рассчитано:
+                                <span>3</span>
+                            </span>
+                        </h5>
+                    </th>
+                    <th>Продакт/Снабженец</th>
+                    <th></th>
+                </tr>
+            </thead>
             <tbody id="positionTable">
                 <tr id="addPositionRow" style="display: none;">
                     <td class="min-width text-nowrap">
@@ -1049,7 +1067,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td colspan="9">
                         <div type="editModeView" class="col-sm-3">
                             <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" />
                             <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество" />
@@ -1057,7 +1075,7 @@
                             <input type='text' modeltype='priceValue' class="form-control input-sm" placeholder="Цена за ед., макс." />
                             <input type='text' modeltype='sumValue' class="form-control input-sm" placeholder="Сумма, макс." />
                         </div>
-                        <div type="readOnlyModeView" style="display: none;" class="col-sm-3">
+                        <div type="readOnlyModeView" style="display: none;" class="col-sm-2">
                             <div>
                                 <strong type='catalogNumberLabel'></strong>
                             </div>
@@ -1090,13 +1108,15 @@
                             <div id="managersCell"></div>
                             <textarea rows='4' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
                         </div>
-                        <div type="readOnlyModeView" style="display: none;" class="col-sm-4">
-                            <div>
-                                <strong type='productManagerLabel'></strong>
-                            </div>
+                        <div type="readOnlyModeView" style="display: none;" class="col-sm-3">
                             <div class="form-group">
                                 <label>Комментарий</label>
                                 <div type="commentLabel"></div>
+                            </div>
+                        </div>
+                        <div type="readOnlyModeView" style="display: none;" class="col-sm-2">
+                            <div>
+                                <strong type='productManagerLabel'></strong>
                             </div>
                         </div>
                     </td>
