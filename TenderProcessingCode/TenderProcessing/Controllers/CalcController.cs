@@ -19,76 +19,86 @@ namespace TenderProcessing.Controllers
     {
         public ActionResult Index(int? claimId)
         {
-            var db = new DbEngine();
-            TenderClaim claim = null;
-            var dealTypeString = string.Empty;
-            var tenderStatus = string.Empty;
-            if (claimId.HasValue)
+            ViewBag.Error = false.ToString().ToLower();
+            ViewBag.DealType = string.Empty;
+            ViewBag.Status = string.Empty;
+            try
             {
-                claim = db.LoadTenderClaimById(claimId.Value);
-                if (claim != null)
+                var db = new DbEngine();
+                TenderClaim claim = null;
+                var dealTypeString = string.Empty;
+                var tenderStatus = string.Empty;
+                if (claimId.HasValue)
                 {
-                    if (claim.ClaimStatus == 2)
+                    claim = db.LoadTenderClaimById(claimId.Value);
+                    if (claim != null)
                     {
-                        claim.ClaimStatus = 3;
-                        db.ChangeTenderClaimClaimStatus(claim);
-                        var statusHistory = new ClaimStatusHistory()
+                        if (claim.ClaimStatus == 2)
                         {
-                            IdClaim = claim.Id,
-                            Date = DateTime.Now,
-                            Comment = string.Empty,
-                            Status = new ClaimStatus() {Id = claim.ClaimStatus},
-                            IdUser = string.Empty
-                        };
-                        db.SaveClaimStatusHistory(statusHistory);
-                    }
-                    var managerFromAd = UserHelper.GetManagerFromActiveDirectoryById(claim.Manager.Id);
-                    if (managerFromAd != null)
-                    {
-                        claim.Manager.Name = managerFromAd.Name;
-                        claim.Manager.Chief = managerFromAd.Chief;
-                    }
-                    claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value);
-                    if (claim.Positions != null && claim.Positions.Any())
-                    {
-                        var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
-                        foreach (var productManager in productManagers)
-                        {
-                            var productManagerFromAd =
-                                UserHelper.GetProductManagerFromActiveDirectoryById(productManager.Id);
-                            if (productManagerFromAd != null)
+                            claim.ClaimStatus = 3;
+                            db.ChangeTenderClaimClaimStatus(claim);
+                            var statusHistory = new ClaimStatusHistory()
                             {
-                                productManager.Name = productManagerFromAd.Name;
+                                IdClaim = claim.Id,
+                                Date = DateTime.Now,
+                                Comment = string.Empty,
+                                Status = new ClaimStatus() { Id = claim.ClaimStatus },
+                                IdUser = string.Empty
+                            };
+                            db.SaveClaimStatusHistory(statusHistory);
+                        }
+                        var managerFromAd = UserHelper.GetManagerFromActiveDirectoryById(claim.Manager.Id);
+                        if (managerFromAd != null)
+                        {
+                            claim.Manager.Name = managerFromAd.Name;
+                            claim.Manager.Chief = managerFromAd.Chief;
+                        }
+                        claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value);
+                        if (claim.Positions != null && claim.Positions.Any())
+                        {
+                            var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
+                            foreach (var productManager in productManagers)
+                            {
+                                var productManagerFromAd =
+                                    UserHelper.GetProductManagerFromActiveDirectoryById(productManager.Id);
+                                if (productManagerFromAd != null)
+                                {
+                                    productManager.Name = productManagerFromAd.Name;
+                                }
+                            }
+                            var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value);
+                            if (calculations != null && calculations.Any())
+                            {
+                                foreach (var position in claim.Positions)
+                                {
+                                    position.Calculations =
+                                        calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
+                                }
                             }
                         }
-                        var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value);
-                        if (calculations != null && calculations.Any())
+                        var dealTypes = db.LoadDealTypes();
+                        var dealType = dealTypes.FirstOrDefault(x => x.Id == claim.DealType);
+                        if (dealType != null)
                         {
-                            foreach (var position in claim.Positions)
-                            {
-                                position.Calculations =
-                                    calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
-                            }
+                            dealTypeString = dealType.Value;
                         }
-                    }
-                    var dealTypes = db.LoadDealTypes();
-                    var dealType = dealTypes.FirstOrDefault(x => x.Id == claim.DealType);
-                    if (dealType != null)
-                    {
-                        dealTypeString = dealType.Value;
-                    }
-                    var tenderStatusList = db.LoadTenderStatus();
-                    var status = tenderStatusList.FirstOrDefault(x => x.Id == claim.TenderStatus);
-                    if (status != null)
-                    {
-                        tenderStatus = status.Value;
+                        var tenderStatusList = db.LoadTenderStatus();
+                        var status = tenderStatusList.FirstOrDefault(x => x.Id == claim.TenderStatus);
+                        if (status != null)
+                        {
+                            tenderStatus = status.Value;
+                        }
                     }
                 }
+                ViewBag.Claim = claim;
+                ViewBag.DealType = dealTypeString;
+                ViewBag.Status = tenderStatus;
+                ViewBag.ProtectFacts = db.LoadProtectFacts();
             }
-            ViewBag.Claim = claim;
-            ViewBag.DealType = dealTypeString;
-            ViewBag.Status = tenderStatus;
-            ViewBag.ProtectFacts = db.LoadProtectFacts();
+            catch (Exception)
+            {
+                ViewBag.Error = true.ToString().ToLower();
+            }
             return View();
         }
 

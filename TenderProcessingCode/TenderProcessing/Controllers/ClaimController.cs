@@ -21,82 +21,99 @@ namespace TenderProcessing.Controllers
     {
         public ActionResult Index(int? claimId)
         {
-            ViewBag.Managers = UserHelper.GetManagers();
-            ViewBag.DateStart = DateTime.Now.ToString("dd.MM.yyyy");
-            var db = new DbEngine();
-            ViewBag.DealTypes = db.LoadDealTypes();
-            ViewBag.ClaimStatus = db.LoadClaimStatus();
-            ViewBag.ProductManagers = UserHelper.GetProductManagers();
-            ViewBag.StatusHistory = new List<ClaimStatusHistory>();
-            ViewBag.Facts = db.LoadProtectFacts();
-            TenderClaim claim = null;
-            if (claimId.HasValue)
+            ViewBag.Error = false.ToString().ToLower();
+            try
             {
-                claim = db.LoadTenderClaimById(claimId.Value);
-                if (claim != null)
+                ViewBag.Managers = UserHelper.GetManagers();
+                ViewBag.DateStart = DateTime.Now.ToString("dd.MM.yyyy");
+                var db = new DbEngine();
+                ViewBag.DealTypes = db.LoadDealTypes();
+                ViewBag.ClaimStatus = db.LoadClaimStatus();
+                ViewBag.ProductManagers = UserHelper.GetProductManagers();
+                ViewBag.StatusHistory = new List<ClaimStatusHistory>();
+                ViewBag.Facts = db.LoadProtectFacts();
+                TenderClaim claim = null;
+                if (claimId.HasValue)
                 {
-                    var managerFromAd = UserHelper.GetManagerFromActiveDirectoryById(claim.Manager.Id);
-                    if (managerFromAd != null)
+                    claim = db.LoadTenderClaimById(claimId.Value);
+                    if (claim != null)
                     {
-                        claim.Manager.Name = managerFromAd.Name;
-                    }
-                    claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value);
-                    if (claim.Positions != null && claim.Positions.Any())
-                    {
-                        var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
-                        foreach (var productManager in productManagers)
+                        var managerFromAd = UserHelper.GetManagerFromActiveDirectoryById(claim.Manager.Id);
+                        if (managerFromAd != null)
                         {
-                            var productManagerFromAd = UserHelper.GetProductManagerFromActiveDirectoryById(productManager.Id);
-                            if (productManagerFromAd != null)
+                            claim.Manager.Name = managerFromAd.Name;
+                        }
+                        claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value);
+                        if (claim.Positions != null && claim.Positions.Any())
+                        {
+                            var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
+                            foreach (var productManager in productManagers)
                             {
-                                productManager.Name = productManagerFromAd.Name;
+                                var productManagerFromAd = UserHelper.GetProductManagerFromActiveDirectoryById(productManager.Id);
+                                if (productManagerFromAd != null)
+                                {
+                                    productManager.Name = productManagerFromAd.Name;
+                                }
+                            }
+                            var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value);
+                            if (calculations != null && calculations.Any())
+                            {
+                                foreach (var position in claim.Positions)
+                                {
+                                    position.Calculations =
+                                        calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
+                                }
                             }
                         }
-                        var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value);
-                        if (calculations != null && calculations.Any())
-                        {
-                            foreach (var position in claim.Positions)
-                            {
-                                position.Calculations =
-                                    calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
-                            }
-                        }
+                        ViewBag.StatusHistory = db.LoadStatusHistoryForClaim(claimId.Value);
                     }
-                    ViewBag.StatusHistory = db.LoadStatusHistoryForClaim(claimId.Value);
                 }
+                ViewBag.Claim = claim;
             }
-            ViewBag.Claim = claim;
+            catch (Exception)
+            {
+                ViewBag.Error = true.ToString().ToLower();
+            }
             return View();
         }
 
         public ActionResult List()
         {
-            var db = new DbEngine();
-            var claims = db.LoadTenderClaims(10);
-            db.SetProductManagersForClaims(claims);
-            var claimProductManagers = claims.SelectMany(x => x.ProductManagers).ToList();
-            foreach (var claimProductManager in claimProductManagers)
+            ViewBag.Error = false.ToString().ToLower();
+            ViewBag.ClaimCount = 0;
+            try
             {
-                var managerFromAD = UserHelper.GetProductManagerFromActiveDirectoryById(claimProductManager.Id.Trim());
-                if (managerFromAD != null)
+                var db = new DbEngine();
+                var claims = db.LoadTenderClaims(10);
+                db.SetProductManagersForClaims(claims);
+                var claimProductManagers = claims.SelectMany(x => x.ProductManagers).ToList();
+                foreach (var claimProductManager in claimProductManagers)
                 {
-                    claimProductManager.Name = managerFromAD.Name;
+                    var managerFromAD = UserHelper.GetProductManagerFromActiveDirectoryById(claimProductManager.Id.Trim());
+                    if (managerFromAD != null)
+                    {
+                        claimProductManager.Name = managerFromAD.Name;
+                    }
                 }
+                foreach (var claim in claims)
+                {
+                    var manager = UserHelper.GetManagerFromActiveDirectoryById(claim.Manager.Id);
+                    if (manager != null)
+                    {
+                        claim.Manager.Name = manager.Name;
+                    }
+                }
+                ViewBag.Claims = claims;
+                ViewBag.DealTypes = db.LoadDealTypes();
+                ViewBag.ClaimStatus = db.LoadClaimStatus();
+                ViewBag.ProductManagers = UserHelper.GetProductManagers();
+                ViewBag.Managers = UserHelper.GetManagers();
+                ViewBag.ClaimCount = db.GetTenderClaimCount();
             }
-            foreach (var claim in claims)
+            catch (Exception)
             {
-                var manager = UserHelper.GetManagerFromActiveDirectoryById(claim.Manager.Id);
-                if (manager != null)
-                {
-                    claim.Manager.Name = manager.Name;
-                }
+                ViewBag.Error = true.ToString().ToLower();
             }
-            ViewBag.Claims = claims;
-            ViewBag.DealTypes = db.LoadDealTypes();
-            ViewBag.ClaimStatus = db.LoadClaimStatus();
-            ViewBag.ProductManagers = UserHelper.GetProductManagers();
-            ViewBag.Managers = UserHelper.GetManagers();
-            ViewBag.ClaimCount = db.GetTenderClaimCount();
             return View();
         }
 

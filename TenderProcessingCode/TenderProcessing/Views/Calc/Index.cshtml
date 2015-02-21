@@ -28,10 +28,15 @@
     var status = "@ViewBag.Status";
     var dealType = "@ViewBag.DealType";
     var protectFacts = @Html.Raw(serializer.Serialize(protectFacts));
+    var errorLoad = @ViewBag.Error;
 
     $(init);
 
     function init() {
+        if (errorLoad) {
+            alert("Произошла ошибка при загрузке");
+            return;
+        }
         messageUi.initProgressImage();
         window.addEventListener("message", messageHandler, true);
         $("#butGetExcelFile").click(getExcelFileFromServer);

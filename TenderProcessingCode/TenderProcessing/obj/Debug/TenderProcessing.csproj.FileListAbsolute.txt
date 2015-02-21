@@ -38,6 +38,7 @@ C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bi
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\ClosedXML.xml
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\DocumentFormat.OpenXml.dll
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\DocumentFormat.OpenXml.xml
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\App_Data\Спецификация конкурса.xlsx
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessing.dll.config
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessing.dll
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessing.pdb
@@ -74,4 +75,3 @@ C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCod
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.csproj.ResolveComReference.cache
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.dll
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.pdb
-C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\App_Data\Спецификация конкурса.xlsx

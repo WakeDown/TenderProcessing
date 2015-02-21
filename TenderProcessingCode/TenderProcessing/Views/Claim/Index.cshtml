@@ -25,10 +25,15 @@
     var histories = @Html.Raw(serializer.Serialize(history));
     var facts = @Html.Raw(serializer.Serialize(facts));
     var initClaimIdNedded = false;
+    var errorLoad = @ViewBag.Error;
 
     $(init);
 
     function init() {
+        if (errorLoad) {
+            alert("Произошла ошибка при загрузке");
+            return;
+        }
         messageUi.initProgressImage();
         window.addEventListener("message", messageHandler, true);
         if (claim != null && claim.ClaimStatus == 1) {
@@ -76,6 +81,7 @@
         $("#butAddPosition").click(addPositionButtonClick);
         $("[modetype='addPositionButtonOK']").click(addPosition);
         $("[modetype='addPositionButtonCancel']").click(addPositionCancel);
+        $("#butSetPositionReject").click(rejectPositions);
         if (claim != null) {
             $("#claimId").text("Заявка № " + claim.Id);
             if (claim.Positions != null) {
@@ -143,6 +149,12 @@
             initStatusHistory();
             setInfoForPositionRows();
         }
+    }
+
+    function rejectPositions() {
+        var positionsCb = $("[modetype='selectPositionElement']", $("#positionTable"));
+        var size = $("[checked='checked']", positionsCb);
+        alert(size);
     }
 
     function selectAllPosition(e) {

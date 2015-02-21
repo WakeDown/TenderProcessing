@@ -20,10 +20,15 @@
     var claims = @Html.Raw(serializer.Serialize(claims));
     var managers = @Html.Raw(serializer.Serialize(managers));
     var productManagers = @Html.Raw(serializer.Serialize(productManagers));
+    var errorLoad = @ViewBag.Error;
 
     $(init);
 
     function init() {
+        if (errorLoad) {
+            alert("Произошла ошибка при загрузке");
+            return;
+        }
         messageUi.initProgressImage();
         window.addEventListener("message", messageHandler, true);
         initClaimsElements(claims);
