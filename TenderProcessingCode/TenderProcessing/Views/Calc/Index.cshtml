@@ -7,7 +7,7 @@
     Layout = "~/Views/Shared/_MasterPage.cshtml";
     var serializer = new JavaScriptSerializer();
     var claim = (TenderClaim)ViewBag.Claim;
-    var protectFacts = (List<ProtectFact>) ViewBag.ProtectFacts;
+    var protectFacts = (List<ProtectFact>)ViewBag.ProtectFacts;
 }
 <style type="text/css">
     .claimInfoLabel {
@@ -162,7 +162,7 @@
                 }
                 initPositions(claim.Positions);
                 setInfoForPositionRows();
-            } 
+            }
         }
     }
 
@@ -312,7 +312,7 @@
         $("#claimTenderStatus").text(status);
         if (model.TenderUrl != "") {
             var link = $("<a href='" + model.TenderUrl + "' target='blank'>[ссылка]</a>");
-            $("#claimTenderUrl").append(link);   
+            $("#claimTenderUrl").append(link);
         }
     }
 
@@ -625,7 +625,7 @@
             message = "Выберите значение Факт получения защиты";
             if (obj.message.trim() != "") {
                 message = "\r" + message;
-            } 
+            }
             obj.isValid = false;
             obj.message += message;
         } else {
@@ -636,7 +636,7 @@
                 }
                 obj.isValid = false;
                 obj.message += message;
-            }    
+            }
         }
         if (obj.isValid) {
             var model = {
@@ -671,7 +671,8 @@
 
     function getCalculatePositionElement() {
         var row = $("<tr></tr>");
-        var cell = $("<td colspan='3'></td>");
+        row.append("<td></td>");
+        var cell = $("<td colspan='2'></td>");
         row.append(cell);
         var calcTable = $("#calculatePositionTable").clone();
         calcTable.show();
@@ -739,7 +740,7 @@
                         <strong id="claimDealType"></strong>
                     </div>
                     <div>
-                        <strong id="claimSum"></strong><strong id="claimSumPostfix">&nbsp;руб.</strong> 
+                        <strong id="claimSum"></strong><strong id="claimSumPostfix">&nbsp;руб.</strong>
                     </div>
                 </div>
                 <div class="col-sm-2">
@@ -760,21 +761,22 @@
                 </div>
             </div>
             <div>
-                <span id="excelPanel">
-                    <button id="butGetExcelFile" type='button' class='btn btn-default'><i class="fa fa-download"></i> скачать спецификацию</button>
-                    <button id="butUploadExcelFile" type='button' class='btn btn-default' style='margin: 4px;'><i class="fa fa-upload"></i> загрузить расчет спецификации</button>
-                    <iframe id="uploadFile" src="/Calc/UploadFileForm?claimId=@claim.Id" style="display: none;"></iframe>
-                </span>
+                
                 <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение</button>
             </div>
         </div>
     </div>
     <div>
-        <h5>Список позиций</h5>
         <h5>
-            <span class="label label-default">Всего:<span id="positionCountLabel"></span></span>&nbsp;
-            <span class="label label-info">из них рассчитано:<span id="positionCalculateCountLabel"></span></span>
+            Список позиций
+            <span class="label label-default">всего&nbsp;<span id="positionCountLabel"></span></span>
+            <span class="label label-info">из них рассчитано&nbsp;<span id="positionCalculateCountLabel"></span></span>
         </h5>
+        <span id="excelPanel">
+            <button id="butGetExcelFile" type='button' class='btn btn-default btn-sm'><i class="fa fa-download"></i> скачать спецификацию</button>
+            <button id="butUploadExcelFile" type='button' class='btn btn-default btn-sm' style='margin: 4px;'><i class="fa fa-upload"></i> загрузить расчет</button>
+            <iframe id="uploadFile" src="/Calc/UploadFileForm?claimId=@claim.Id" style="display: none;"></iframe>
+        </span>
         <table class="table small">
             <tbody id="positionsTable"></tbody>
         </table>
@@ -784,7 +786,7 @@
             <td class="min-width">
                 <button type="button" modetype='addCalcButton' class="btn btn-primary btn-lg" data-toggle="tooltip" title="добавить расчет"><i class="fa fa-plus"></i> <i class="fa fa-calculator"></i></button>
             </td>
-            <td class="min-width"><span modetype="rowNumber"></span></td>
+            <td class="min-width center"><strong modetype="rowNumber"></strong></td>
             <td>
                 <div class="col-sm-3">
                     <div>
@@ -800,7 +802,7 @@
                         <strong type='sumLabel'></strong>&nbsp;<span type='sumLabelPostfix'>руб. всего макс.</span>
                     </div>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-sm-4">
                     <div>
                         <strong>Наименование</strong>
                         <div type='nameLabel'></div>
@@ -819,9 +821,9 @@
             </td>
         </tr>
     </table>
-    <table id="calculatePositionTable" style="width: 100%; display: none;">
+    <table id="calculatePositionTable" class="table table-striped" style="display: none;">
         <tr>
-            <td>
+            <td class="min-width">
                 <button type='button' modetype='saveCalcButton' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
                 <button type='button' modetype='cancelCalcButton' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
                 <div type="editPositionPanel" style="display: none;">
@@ -840,7 +842,7 @@
                     <input type='text' modetype="calculatePriceRub" class="form-control input-sm" placeholder="Цена за ед., руб." />
                     <input type='text' modetype="calculateSumRub" class="form-control input-sm" placeholder="Сумма вход, руб." />
                 </div>
-                <div type="readOnlyModeView" style="display: none;" class="col-sm-3">
+                <div type="readOnlyModeView" style="display: none;" class="col-sm-2">
                     <div>
                         <strong modetype="calculateCatalogNumberValueLabel"></strong>
                     </div>
@@ -857,12 +859,12 @@
                         <strong modetype="calculateSumRubValueLabel"></strong>&nbsp;руб. всего
                     </div>
                 </div>
-                <div type="editModeView" class="col-sm-5">
+                <div type="editModeView" class="col-sm-4">
                     <textarea rows="3" modetype="calculateName" class="form-control input-sm" placeholder="Наименование"></textarea>
                     <textarea rows="3" modetype="calculateReplace" class="form-control input-sm" placeholder="Замена"></textarea>
                     <input type='text' modetype="calculateProvider" class="form-control input-sm" placeholder="Поставщик" />
                 </div>
-                <div type="readOnlyModeView" style="display: none;" class="col-sm-5">
+                <div type="readOnlyModeView" style="display: none;" class="col-sm-4">
                     <div>
                         <strong>Наименование</strong>
                         <div modetype="calculateNameValueLabel"></div>
@@ -873,7 +875,7 @@
                     </div>
                     <div>
                         <strong>Поставщик</strong>
-                        <strong modetype="calculateProviderValueLabel"></strong>
+                        <div modetype="calculateProviderValueLabel"></div>
                     </div>
                 </div>
                 <div type="editModeView" class="col-sm-4">
@@ -881,19 +883,21 @@
                     <textarea rows='2' class="form-control input-sm" modetype="calculateProtectCondition" placeholder="Условия получения защиты"></textarea>
                     <textarea rows='4' class="form-control input-sm" modetype="calculateComment" placeholder="Комментарий"></textarea>
                 </div>
-                <div type="readOnlyModeView" style="display: none;" class="col-sm-4">
+                <div type="readOnlyModeView" style="display: none;" class="col-sm-3">
                     <div class="form-group">
-                        <label>Факт получения защиты</label><br/>
-                        <label modetype="calculateProtectFactValueLabel"></label><br/>
-                        <label modetype="calculateProtectConditionValueLabel"></label>
+                        <label>Факт получения защиты</label><br />
+                        <span modetype="calculateProtectFactValueLabel"></span><br />
+                        <span modetype="calculateProtectConditionValueLabel"></span>
                     </div>
+                </div>
+                <div type="readOnlyModeView" style="display: none;" class="col-sm-3">
                     <div class="form-group">
                         <label>Комментарий</label>
                         <div modetype="calculateCommentValueLabel"></div>
                     </div>
                 </div>
             </td>
-            <td>
+            <td class="min-width">
                 <button type='button' modetype='saveCalcButton' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
                 <button type='button' modetype='cancelCalcButton' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
                 <button type='button' modetype='deleteCalcButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>

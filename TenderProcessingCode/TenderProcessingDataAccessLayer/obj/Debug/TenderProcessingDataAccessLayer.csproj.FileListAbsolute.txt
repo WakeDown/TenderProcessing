@@ -8,3 +8,8 @@ C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCod
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\obj\Debug\TenderProcessingDataAccessLayer.dll
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\obj\Debug\TenderProcessingDataAccessLayer.pdb
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\obj\Debug\TenderProcessingDataAccessLayer.csprojResolveAssemblyReference.cache
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\bin\Debug\TenderProcessingDataAccessLayer.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\bin\Debug\TenderProcessingDataAccessLayer.pdb
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\obj\Debug\TenderProcessingDataAccessLayer.csprojResolveAssemblyReference.cache
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\obj\Debug\TenderProcessingDataAccessLayer.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\obj\Debug\TenderProcessingDataAccessLayer.pdb
