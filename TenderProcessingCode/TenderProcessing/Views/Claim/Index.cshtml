@@ -10,8 +10,8 @@
     var claimStatus = (List<ClaimStatus>)ViewBag.ClaimStatus;
     var productManagers = (List<ProductManager>)ViewBag.ProductManagers;
     var claim = (TenderClaim)ViewBag.Claim;
-    var history = (List<ClaimStatusHistory>) ViewBag.StatusHistory;
-    var facts = (List<ProtectFact>) ViewBag.Facts;
+    var history = (List<ClaimStatusHistory>)ViewBag.StatusHistory;
+    var facts = (List<ProtectFact>)ViewBag.Facts;
 }
 <link href="~/Content/bootstrap-datepicker3.css" rel="stylesheet" />
 <script src="~/Scripts/bootstrap-datepicker.js"></script>
@@ -184,7 +184,8 @@
 
     function getElementForCalculate(model) {
         var row = $("<tr></tr>");
-        var cell = $("<td colspan='3'></td>");
+        row.append("<td colspan='3'></td>");
+        var cell = $("<td colspan='2'></td>");
         row.append(cell);
         var calcTable = $("#calculatePositionTable").clone();
         calcTable.show();
@@ -495,7 +496,7 @@
         if (tenderStart.trim() == "") {
             obj.isValid = false;
             obj.message = "Заполните поле Дата начала";
-        } 
+        }
         if (claimDeadLine.trim() == "") {
             message = "Заполните поле Срок сдачи";
             if (obj.message.trim() != "") {
@@ -1192,24 +1193,17 @@
                 <div class="form-group">
                     <div class="col-sm-offset-3 col-sm-9">
                         <button type="button" id="butSaveClaim" class="btn btn-primary"><i class="fa fa-save"></i> сохранить</button>
-                        <span id="excelPanel">
-                            <button id="butGetFile" type="button" class="btn btn-default"><i class="fa fa-download"></i> скачать шаблон спецификации</button>
-                            <button id="butUploadFile" type="button" class="btn btn-default" style="margin-left: 8px;"><i class="fa fa-upload"></i> загрузить спецификацию</button>
-                            <iframe id="uploadFile" src="/Claim/UploadFileForm" style="display: none;"></iframe>
-                        </span>
+
                         <button type="button" id="butSetClaimOnWork" style="display: none;" class="btn btn-success"><i class="fa fa-mail-forward"></i> в работу</button>
                         <div id="claimStatusPanel" style="display: none;">
                             <button id="butСlaimStatusContined" type="button" class="btn btn-success"><i class="fa fa-play"></i> возобновить</button>
                             <button id="butСlaimStatusStopped" type="button" class="btn btn-warning"><i class="fa fa-pause"></i> приостановить</button>
                             <button id="butСlaimStatusCanceled" type="button" class="btn btn-danger"><i class="fa fa-stop"></i> отменить</button>
-                            <button id="butSetPositionReject" type="button" class="btn btn-default">Отклонить выбранные позиции</button>
-                            <button id="butSetPositionConfirm" type="button" class="btn btn-default">Принять все позиции</button>
+                            
                             <textarea rows="7" id="claimStatusComment" class="form-control" placeholder="Комментарий"></textarea>
 
                         </div>
-                        <div id="excelCalculatePanel" style="display: none;">
-                            <button id="butGetCalculateFile" type="button" class="btn btn-default"><i class="fa fa-download"></i> скачать расчет спецификации</button>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -1222,38 +1216,58 @@
         </div>
     </div>
     <div id="positionPanel" style="display: none; margin-left: 4px; margin-right: 4px;">
-        <h5>Список позиций</h5>
-        <div>
-            <button type="button" id="butAddPosition" class="btn btn-default"><i class="fa fa-plus-circle"></i> добавить позицию</button>
-        </div>
+        <h5>
+            Список позиций
+            <span class="label label-default">всего&nbsp;<span class="big" id="positionCountLabel">0</span></span>
+            <span class="label label-info">из них рассчитано&nbsp;<span class="big" id="positionCalculateCountLabel">0</span></span>
+        </h5>
         <table class="table small">
             <thead>
-                <tr>
-                    <th>
-                        <h5>
-                            <span class="label label-default">Всего:<span id="positionCountLabel">0</span></span>&nbsp;
-                            <span class="label label-info">из них рассчитано:<span id="positionCalculateCountLabel">0</span></span>
-                        </h5>
-                    </th>
-                    <th>Продакт/Снабженец</th>
-                    <th>
-                        <input type="checkbox" id="cbSelectAllPosition"/><strong>Выделить все</strong>
-                    </th>
-                </tr>
+            <tr>
+                <th class="min-width"><input type="checkbox" id="cbSelectAllPosition" data-toggle="tooltip" title="выделить все"/></th>
+                <th>№</th>
+                <th></th>
+                <th>
+                    <div class="row">
+                        <div class="col-sm-10">
+                            <button type="button" id="butAddPosition" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> добавить позицию</button>
+                            <span id="excelPanel">
+                                    <button id="butGetFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать спецификацию</button>
+                                    <button id="butUploadFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-upload"></i> загрузить спецификацию</button>
+                                    <iframe id="uploadFile" src="/Claim/UploadFileForm" style="display: none;"></iframe>
+                                </span>
+                            <button id="butSetPositionReject" type="button" class="btn btn-danger btn-sm"><i class="fa fa-close"></i> отклонить отмеченные</button>
+                            <button id="butSetPositionConfirm" type="button" class="btn btn-success btn-sm"><i class="fa fa-check"></i> принять все</button>
+                            <span id="excelCalculatePanel" style="display: none;">
+                                <button id="butGetCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</button>
+                            </span>
+                        </div>
+                        <div class="col-sm-2">Продакт/Снабженец</div>
+                    </div>
+                </th>
+                <th>
+
+                </th>
+            </tr>
             </thead>
             <tbody id="positionTable">
-                <tr id="addPositionRow" style="display: none;">
-                    <td class="min-width text-nowrap">
-                        <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
-                        <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
-                        <div type="editPositionPanel" style="display: none;">
-                            <button type='button' modetype='editButton' class='btn btn-primary btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></button>
-                            <div type="editPositionActionPanel" style="display: none;">
-                                <button type='button' modetype='editPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-save'></i></button><br />
-                                <button type='button' modetype='editPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
-                            </div>
-                        </div>
-                    </td>
+            <tr id="addPositionRow" style="display: none;">
+                <td class="min-width center">
+                    <input type="checkbox" modetype="selectPositionElement"/>
+                </td>
+                <td class="min-width center"><strong>1</strong></td>
+                <td class="min-width">
+                    <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+                    <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                    <span type="editPositionPanel" style="display: none;">
+
+                        <button type='button' modetype='editButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></button>
+                        <span type="editPositionActionPanel" style="display: none;">
+                            <button type='button' modetype='editPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-save'></i></button><br />
+                            <button type='button' modetype='editPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                        </span>
+                    </span>
+                </td>
                     <td>
                         <div type="editModeView" class="col-sm-3">
                             <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" />
@@ -1280,7 +1294,7 @@
                             <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование"></textarea>
                             <textarea rows="3" class="form-control input-sm" modeltype='replaceValue' placeholder="Замена"></textarea>
                         </div>
-                        <div type="readOnlyModeView" style="display: none;" class="col-sm-5">
+                        <div type="readOnlyModeView" style="display: none;" class="col-sm-4">
                             <div>
                                 <strong>Наименование</strong>
                                 <div type='nameLabel'></div>
@@ -1294,7 +1308,7 @@
                             <div id="managersCell"></div>
                             <textarea rows='4' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
                         </div>
-                        <div type="readOnlyModeView" style="display: none;" class="col-sm-3">
+                        <div type="readOnlyModeView" style="display: none;" class="col-sm-4">
                             <div class="form-group">
                                 <label>Комментарий</label>
                                 <div type="commentLabel"></div>
@@ -1302,29 +1316,23 @@
                         </div>
                         <div type="readOnlyModeView" style="display: none;" class="col-sm-2">
                             <div>
-                                <strong type='productManagerLabel'></strong>
-                            </div>
-                            <div>
-                                <input type="checkbox" modeType="selectPositionElement"/>
+                                <span type='productManagerLabel'></span>
                             </div>
                         </div>
                     </td>
-                    <td class="min-width text-nowrap">
-                        <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
-                        <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
-                        <button type='button' modetype='deleteButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>
-                    </td>
+                <td class="min-width">
+                    <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+                    <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                    <button type='button' modetype='deleteButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>
+                </td>
                 </tr>
             </tbody>
-        </table>                
+        </table>
     </div>
-    <div>
-        <ul id="claimStatusHistoryContainer"></ul>
-    </div>
-    <table id="calculatePositionTable" style="width: 100%; display: none; background-color: rgb(140, 195, 220)">
+    <table id="calculatePositionTable" class="table table-striped" style="display: none;">
         <tr>
             <td>
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <div>
                         <strong modetype="calculateCatalogNumberValueLabel"></strong>
                     </div>
@@ -1341,7 +1349,7 @@
                         <strong modetype="calculateSumRubValueLabel"></strong>&nbsp;руб. всего
                     </div>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-sm-4">
                     <div>
                         <strong>Наименование</strong>
                         <div modetype="calculateNameValueLabel"></div>
@@ -1352,15 +1360,18 @@
                     </div>
                     <div>
                         <strong>Поставщик</strong>
-                        <strong modetype="calculateProviderValueLabel"></strong>
+                        <div modetype="calculateProviderValueLabel"></div>
                     </div>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <div class="form-group">
-                        <label>Факт получения защиты</label><br />
-                        <label modetype="calculateProtectFactValueLabel"></label><br />
-                        <label modetype="calculateProtectConditionValueLabel"></label>
+                        <label>Факт получения защиты</label><br/>
+                        <span modetype="calculateProtectFactValueLabel"></span><br/>
+                        <span modetype="calculateProtectConditionValueLabel"></span>
                     </div>
+
+                </div>
+                <div class="col-sm-3">
                     <div class="form-group">
                         <label>Комментарий</label>
                         <div modetype="calculateCommentValueLabel"></div>

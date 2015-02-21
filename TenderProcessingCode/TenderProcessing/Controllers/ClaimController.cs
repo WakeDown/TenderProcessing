@@ -124,7 +124,7 @@ namespace TenderProcessing.Controllers
             var error = false;
             try
             {
-                var filePath = Path.Combine(Server.MapPath("~"), "App_Data", "Спецификация конкурса.xlsx");
+                var filePath = Path.Combine(Server.MapPath("~"), "App_Data", "Specification.xlsx");
                 var newFilePath = Path.Combine(Server.MapPath("~"), "App_Data", Guid.NewGuid() + ".xlsx");
                 System.IO.File.Copy(filePath, newFilePath);
                 var productManagers = UserHelper.GetProductManagers();
@@ -183,7 +183,7 @@ namespace TenderProcessing.Controllers
             {
                 return new FileStreamResult(ms, "application/vnd.ms-excel")
                 {
-                    FileDownloadName = "Спецификация конкурса.xlsx"
+                    FileDownloadName = "Specification.xlsx"
                 };
             }
             else

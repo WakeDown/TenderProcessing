@@ -121,12 +121,20 @@ body {
     width: 1px !important;
 }
 
-.min-width .btn {
-    padding: 5px !important;
+input[type="checkbox"] {
+    margin: 0 !important;
+}
+
+.min-width .btn-link {
+    padding: 0 !important;
     margin: 0 !important;
 }
 
 .center {
-    vertical-align: middle;
-    text-align: center;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.big {
+    /*font-size: 1.5em;*/
 }
