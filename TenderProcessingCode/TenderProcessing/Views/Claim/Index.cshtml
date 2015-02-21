@@ -68,6 +68,7 @@
         $("#butUploadFile").click(openFile);
         $("#butSaveClaim").click(saveClaim);
         $("#butSetClaimOnWork").click(setClaimOnWork);
+        $("#cbSelectAllPosition").change(selectAllPosition);
         var unitList = getUnitsList(null);
         $("#unitCell").append(unitList);
         var managersList = getProductManagersList(null);
@@ -142,6 +143,14 @@
             initStatusHistory();
             setInfoForPositionRows();
         }
+    }
+
+    function selectAllPosition(e) {
+        var state = e.currentTarget.checked;
+        var positionsCb = $("[modetype='selectPositionElement']", $("#positionTable"));
+        $.each(positionsCb, function(i, element) {
+            element.checked = state;
+        });
     }
 
     function setInfoForPositionRows() {
@@ -645,20 +654,7 @@
         deleteButton.click(deleteButtonClick);
         $("[type='editModeView']", element).hide();
         $("[type='readOnlyModeView']", element).show();
-        $("[modeType='selectPositionElement']", element).change(selectPositionElementChange);
         return element;
-    }
-
-    function selectPositionElementChange(e) {
-        var checkbox = $(e.currentTarget);
-        var state = checkbox.get(0).checked;
-        var row = checkbox.closest("tr");
-        var positionId = row.attr("positionId");
-        var calcRows = $("[type='positionCalculate'][calcPositionId='" + positionId + "']", $("#positionTable"));
-        var childsCheckBoxes = $("[modeType='selectPositionElement']", calcRows);
-        $.each(childsCheckBoxes, function(index, element) {
-            element.checked = state;
-        });
     }
 
     function addPositionButtonClick(e) {
@@ -1194,7 +1190,8 @@
                             <button id="butСlaimStatusContined" type="button" class="btn btn-success"><i class="fa fa-play"></i> возобновить</button>
                             <button id="butСlaimStatusStopped" type="button" class="btn btn-warning"><i class="fa fa-pause"></i> приостановить</button>
                             <button id="butСlaimStatusCanceled" type="button" class="btn btn-danger"><i class="fa fa-stop"></i> отменить</button>
-
+                            <button id="butSetPositionReject" type="button" class="btn btn-default">Отклонить выбранные позиции</button>
+                            <button id="butSetPositionConfirm" type="button" class="btn btn-default">Принять все позиции</button>
                             <textarea rows="7" id="claimStatusComment" class="form-control" placeholder="Комментарий"></textarea>
 
                         </div>
@@ -1227,7 +1224,9 @@
                         </h5>
                     </th>
                     <th>Продакт/Снабженец</th>
-                    <th></th>
+                    <th>
+                        <input type="checkbox" id="cbSelectAllPosition"/><strong>Выделить все</strong>
+                    </th>
                 </tr>
             </thead>
             <tbody id="positionTable">
@@ -1353,9 +1352,6 @@
                     <div class="form-group">
                         <label>Комментарий</label>
                         <div modetype="calculateCommentValueLabel"></div>
-                        <div>
-                            <input type="checkbox" modetype="selectPositionElement" />
-                        </div>
                     </div>
                 </div>
             </td>
