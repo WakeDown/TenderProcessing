@@ -25,6 +25,8 @@ namespace TenderProcessingDataAccessLayer.Models
 
         public string TenderStartTo { get; set; }
 
+        public string Author { get; set; }
+
         public bool? Overdie { get; set; }
     }
 }

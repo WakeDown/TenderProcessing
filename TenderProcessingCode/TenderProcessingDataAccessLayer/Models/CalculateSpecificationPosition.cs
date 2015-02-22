@@ -35,5 +35,7 @@ namespace TenderProcessingDataAccessLayer.Models
         public string ProtectCondition { get; set; }
 
         public string Comment { get; set; }
+
+        public string Author { get; set; }
     }
 }

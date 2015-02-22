@@ -24,6 +24,7 @@
     var claim = @Html.Raw(serializer.Serialize(claim));
     var histories = @Html.Raw(serializer.Serialize(history));
     var facts = @Html.Raw(serializer.Serialize(facts));
+    var hasTransmissedPosition = @ViewBag.HasTransmissedPosition;
     var initClaimIdNedded = false;
     var errorLoad = @ViewBag.Error;
 
@@ -68,12 +69,14 @@
         $("#butСlaimStatusStopped").click(setClaimStopped);
         $("#butСlaimStatusContined").click(setClaimContined);
         $("#butGetCalculateFile").click(getCalculateExcelFileFromServer);
+        $("#butGetCalculateOnlyCalculateFile").click(getCalculateOnlyCalculateExcelFileFromServer);
         $("#tenderStart").val(dateStart);
         $("#butGetFile").click(getExcelFileFromServer);
         $("#butUploadFile").click(openFile);
         $("#butSaveClaim").click(saveClaim);
         $("#butSetClaimOnWork").click(setClaimOnWork);
         $("#cbSelectAllPosition").change(selectAllPosition);
+        $("#butRejectPositionOk").click(rejectPositionOk);
         var unitList = getUnitsList(null);
         $("#unitCell").append(unitList);
         var managersList = getProductManagersList(null);
@@ -82,6 +85,7 @@
         $("[modetype='addPositionButtonOK']").click(addPosition);
         $("[modetype='addPositionButtonCancel']").click(addPositionCancel);
         $("#butSetPositionReject").click(rejectPositions);
+        $("#butSetPositionConfirm").click(setAllPositionConfirmed);
         if (claim != null) {
             $("#claimId").text("Заявка № " + claim.Id);
             if (claim.Positions != null) {
@@ -91,15 +95,23 @@
                     var position = claim.Positions[i];
                     var element = getPositionElement(position);
                     container.append(element);
-                    var lastElement = element;
+                    var calculateRowTable = getCalculateTableForPosition(position);
+                    container.append(calculateRowTable);
+                    var calculateTabel = calculateRowTable.find("table");
+                    var lastElement = null;
                     if (position.Calculations != null) {
                         var calculationsLength = position.Calculations.length;
                         for (var j = 0; j < calculationsLength; j++) {
                             var calculate = position.Calculations[j];
                             var calculateRow = getElementForCalculate(calculate);
                             calculateRow.attr("calcPositionId", position.Id);
-                            lastElement.after(calculateRow);
-                            lastElement = calculateRow;
+                            if (lastElement == null) {
+                                calculateTabel.append(calculateRow);
+                                lastElement = calculateRow;
+                            } else {
+                                lastElement.after(calculateRow);
+                                lastElement = calculateRow;   
+                            }
                         }
                     }
                 }
@@ -144,17 +156,141 @@
                         $("#butСlaimStatusContined").hide();
                     }
                 }
+                if (claim.ClaimStatus == 8) {
+                    $("#butSetPositionReject").hide();
+                    $("#butSetPositionConfirm").hide();
+                    $("[modetype='selectPositionElement']", $("#positionTable")).hide();
+                    $("#cbSelectAllPosition").hide();
+                }
                 $("#excelCalculatePanel").show();
             }
             initStatusHistory();
             setInfoForPositionRows();
+            if (!hasTransmissedPosition) {
+                $("#butSetPositionReject").hide();
+                $("#butSetPositionConfirm").hide();
+            }
         }
     }
 
+    function getCalculateTableForPosition(position) {
+        var element = $("<tr></tr>");
+        var cell = $("<td colspan='5'></td>");
+        element.append(cell);
+        var table = $("<table style='width: 100%;'></table>");
+        table.attr("positionId", position.Id);
+        table.attr("type", "calculatePositionTable");
+        cell.append(table);
+        return element;
+    }
+
+    function setAllPositionConfirmed(e) {
+        $.ajax({
+            url: "/Claim/SetClaimAllPositonConfirmed?idClaim=" + claim.Id,
+            type: 'GET',
+            contentType: 'application/json; charset = utf-8 ',
+            success: function(data) {
+                if (data.IsComplete) {
+                    claim.ClaimStatus = data.Model.Status.Id;
+                    var status = getClaimStatusById(claim.ClaimStatus);
+                    if (status == null) {
+                        status = { Value: "Неопределен" };
+                    }
+                    $("#claimStatus").text(status.Value);
+                    addClaimStatusHistoryElement(data.Model);
+                    var positionsRows = $("[type='positionRow']", $("#positionTable"));
+                    var color = getColorForPositionState(4);
+                    positionsRows.css("backgroundColor", color);
+                    $("#butSetPositionReject").hide();
+                    $("#butSetPositionConfirm").hide();
+                    $("#claimStatusPanel").hide();
+                    $("[modetype='selectPositionElement']", $("#positionTable")).hide();
+                    $("#cbSelectAllPosition").hide();
+                } else {
+                    if (data.Message != "") {
+                        showMessage(data.Message);
+                    } else {
+                        showMessage("Ошибка с подтверждением");   
+                    }
+                }
+            }
+        });
+    }
+
+    function rejectPositionOk(e) {
+        $('#rejectPositionCommentBox').modal("hide");
+        var rejectPostionsId = $("#rejectPositionCommentBox").attr("rejectedId");
+        var arrIds = rejectPostionsId.split(",");
+        var comment = $("#rejectPositionComment").val().trim();
+        $.ajax({
+            url: "/Claim/SetPositonRejected?comment=" + encodeURI(comment) + "&idClaim=" + claim.Id,
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(arrIds),
+            processData: false,
+            contentType: 'application/json; charset = utf-8 ',
+            success: function(data) {
+                if (data.IsComplete) {
+                    claim.ClaimStatus = data.Model.Status.Id;
+                    var status = getClaimStatusById(claim.ClaimStatus);
+                    if (status == null) {
+                        status = { Value: "Неопределен" };
+                    }
+                    $("#claimStatus").text(status.Value);
+                    addClaimStatusHistoryElement(data.Model);
+                    var positionsRows = $("[type='positionRow']", $("#positionTable"));
+                    $.each(positionsRows, function(index, element) {
+                        element = $(element);
+                        var positionId = Number(element.attr("positionId"));
+                        if ($.inArray(positionId, arrIds) != -1) {
+                            var color = getColorForPositionState(3);
+                            element.css("backgroundColor", color);
+                        }
+                    });
+                } else {
+                    showMessage("Ошибка");
+                }
+            }
+        });
+    }
+
     function rejectPositions() {
-        var positionsCb = $("[modetype='selectPositionElement']", $("#positionTable"));
-        var size = $("[checked='checked']", positionsCb);
-        alert(size);
+        var positionsId = [];
+        var positionsRows = $("[type='positionRow']", $("#positionTable"));
+        $.each(positionsRows, function(index, element) {
+            element = $(element);
+            var isChecked = $("[modetype='selectPositionElement']", element).get(0).checked;
+            if (isChecked) {
+                positionsId.push(Number(element.attr("positionId")));
+            }
+        });
+        if (positionsId.length == 0) {
+            alert("Не отмечено ни одной позиции");
+        } else {
+            var rejectPostionsId = positionsId.join(",");
+            $("#rejectPositionCommentBox").attr("rejectedId", rejectPostionsId);
+            $("#rejectPositionComment").val("");
+            $('#rejectPositionCommentBox').modal("show");
+        }
+    }
+
+    function getColorForPositionState(state) {
+        var result = "";
+        switch (state) {
+            case 1:
+                result = "#CCCCCC";
+                break;
+            case 2:
+                result = "#f7ecb5";
+                break;
+            case 3:
+                result = "#e4b9b9";
+                break;
+            case 4:
+                result = "#c1e2b3";
+                break;
+        }
+        return result;
     }
 
     function selectAllPosition(e) {
@@ -173,6 +309,7 @@
             element = $(element);
             positionsCount++;
             var idPosition = element.attr("positionId");
+            $("[modetype='claimRowNumber']", element).text(index + 1);
             var calcRowsCount = $("[type='positionCalculate'][calcPositionId='" + idPosition + "']", $("#positionTable")).size();
             if (calcRowsCount > 0) {
                 calculateCount++;
@@ -183,14 +320,9 @@
     }
 
     function getElementForCalculate(model) {
-        var row = $("<tr></tr>");
-        row.append("<td colspan='3'></td>");
-        var cell = $("<td colspan='2'></td>");
-        row.append(cell);
         var calcTable = $("#calculatePositionTable").clone();
-        calcTable.show();
         calcTable.removeAttr("id");
-        cell.append(calcTable);
+        var row = calcTable.find("tr");
         row.attr("type", "positionCalculate");
         row.attr("calcId", model.Id);
         row.show();
@@ -586,6 +718,11 @@
                 showMessage("Ошибка при скачивании файла!");
             }
         }
+        if (obj.type.trim() == "DownloadExcelOnlyCalculate") {
+            if (obj.error == true) {
+                showMessage("Ошибка при скачивании файла!");
+            }
+        }
         if (obj.type.trim() == "UploadExcel") {
             if (obj.error == true) {
                 showMessage(obj.message);
@@ -667,7 +804,30 @@
         deleteButton.click(deleteButtonClick);
         $("[type='editModeView']", element).hide();
         $("[type='readOnlyModeView']", element).show();
+        var color = getColorForPositionState(position.State);
+        element.css("backgroundColor", color);
+        element.css("cursor", "pointer");
+        element.attr("selectState", "false");
+        element.attr("initalColor", color);
+        element.click(rowSelect);
         return element;
+    }
+
+    function rowSelect(e) {
+        var row = $(e.currentTarget);
+        var state = row.attr("selectState") == "true";
+        if (state) {
+            row.attr("selectState", "false");
+            var color = row.attr("initalColor");
+            row.css("backgroundColor", color);
+            $("[modetype='selectPositionElement']", row).get(0).checked = false;
+        } else {
+            row.attr("selectState", "true");
+            var initalColor = row.css("backgroundColor");
+            row.attr("initalColor", initalColor);
+            row.css("backgroundColor", "aqua");
+            $("[modetype='selectPositionElement']", row).get(0).checked = true;
+        }
     }
 
     function addPositionButtonClick(e) {
@@ -951,7 +1111,11 @@
     }
 
     function getCalculateExcelFileFromServer() {
-        $("body").append("<iframe src='/Calc/GetSpecificationFile?claimId="+ claim.Id + "' width='0' height='0' style='display: none;' align='left'></iframe>");
+        $("body").append("<iframe src='/Calc/GetSpecificationFile?claimId="+ claim.Id + "&forManager=true' width='0' height='0' style='display: none;' align='left'></iframe>");
+    }
+
+    function getCalculateOnlyCalculateExcelFileFromServer() {
+        $("body").append("<iframe src='/Claim/GetSpecificationFileOnlyCalculation?claimId="+ claim.Id + "' width='0' height='0' style='display: none;' align='left'></iframe>");
     }
 
     function initManagersList() {
@@ -1240,6 +1404,7 @@
                             <button id="butSetPositionConfirm" type="button" class="btn btn-success btn-sm"><i class="fa fa-check"></i> принять все</button>
                             <span id="excelCalculatePanel" style="display: none;">
                                 <button id="butGetCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</button>
+                                <button id="butGetCalculateOnlyCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет(без позиций)</button>
                             </span>
                         </div>
                         <div class="col-sm-2">Продакт/Снабженец</div>
@@ -1255,7 +1420,7 @@
                 <td class="min-width center">
                     <input type="checkbox" modetype="selectPositionElement"/>
                 </td>
-                <td class="min-width center"><strong>1</strong></td>
+                <td class="min-width center"><strong modetype="claimRowNumber"></strong></td>
                 <td class="min-width">
                     <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
                     <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
@@ -1268,7 +1433,7 @@
                         </span>
                     </span>
                 </td>
-                    <td>
+                <td>
                         <div type="editModeView" class="col-sm-3">
                             <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" />
                             <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество" />
@@ -1380,4 +1545,21 @@
             </td>
         </tr>
     </table>
+    <div id="rejectPositionCommentBox" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Комментарий к отклонению</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea id="rejectPositionComment" rows="7" placeholder="Комментарий"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+                    <button id="butRejectPositionOk" type="button" class="btn btn-primary">Продолжить</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

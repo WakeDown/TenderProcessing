@@ -20,6 +20,7 @@
     var claims = @Html.Raw(serializer.Serialize(claims));
     var managers = @Html.Raw(serializer.Serialize(managers));
     var productManagers = @Html.Raw(serializer.Serialize(productManagers));
+    var settings = @Html.Raw(serializer.Serialize(ViewBag.Settings));
     var errorLoad = @ViewBag.Error;
 
     $(init);
@@ -32,9 +33,14 @@
         messageUi.initProgressImage();
         window.addEventListener("message", messageHandler, true);
         initClaimsElements(claims);
-        initFilterManagersList();
-        initFilterProductManagersList();
+        var managerId = (settings.filterManager != "") ? settings.filterManager : "";
+        initFilterManagersList(managerId);
+        var productId = (settings.filterProduct != "") ? settings.filterProduct : "";
+        initFilterProductManagersList(productId);
         initFilterManagerSubDivisionsList();
+        if (settings.filterClaimStatus != null && settings.filterClaimStatus.length > 0) {
+            initFilterClaimStatus(settings.filterClaimStatus);
+        }
         $("#filterTenderStartFrom").datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
@@ -59,6 +65,21 @@
         $("#clearFilter").click(clearFilter);
         $("#saveFilterInExcel").click(filterInExcel);
         $("#showCountLabel").text(claims.length);
+        if (!settings.reportExcel) {
+            $("#saveFilterInExcel").hide();
+        }
+    }
+
+    function initFilterClaimStatus(status) {
+        var container = $("#filterClaimStatusPanel");
+        var statusLength = status.length;
+        for (var i = 0; i < statusLength; i++) {
+            var value = status[i];
+            var element = $("[value='" + value + "']", container).get(0);
+            if (element != null) {
+                element.checked = true;
+            }
+        }
     }
 
     function messageHandler(e) {
@@ -289,7 +310,7 @@
         return obj;
     }
 
-    function initFilterManagersList() {
+    function initFilterManagersList(id) {
         var managersLength = managers.length;
         var list = $("#filterManagers");
         var option = $("<option value='-1'>---Все---</option>");
@@ -297,11 +318,12 @@
         for (var i = 0; i < managersLength; i++) {
             var manager = managers[i];
             option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
+            if (id != null && id != "" && manager.Id == id) option.attr("selected", "selected");
             list.append(option);
         }
     }
 
-    function initFilterProductManagersList() {
+    function initFilterProductManagersList(id) {
         var managersLength = productManagers.length;
         var list = $("#filterProductManagers");
         var option = $("<option value='-1'>---Все---</option>");
@@ -309,6 +331,7 @@
         for (var i = 0; i < managersLength; i++) {
             var manager = productManagers[i];
             option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
+            if (id != null && id != "" && manager.Id == id) option.attr("selected", "selected");
             list.append(option);
         }
     }
@@ -339,11 +362,40 @@
 
     function getClaimElement(claim) {
         var element = $("<tr claimId='" + claim.Id + "'></tr>");
+        if (settings.clickAction != "null") {
+            element.css("cursor", "pointer");
+        }
         var editCell = $("<td class='min-width text-nowrap'></td>");
         element.append(editCell);
-        var editButton = $("<a type='claimPage' href='/Claim/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></a>");
-        editCell.append(editButton);
-        editCell.append("<a href='/Calc/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='рассчитать'><i class='fa fa-calculator'></i></a>");
+        if (settings.showEdit)  {
+            var editButton = $("<a type='claimPage' href='/Claim/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></a>");
+            if (settings.userId == "" && settings.author == "") {
+                editCell.append(editButton);
+            } else {
+                if (settings.author != "") {
+                    if (claim.Author == settings.author) {
+                        editCell.append(editButton);
+                    }
+                }
+                if (settings.filterManager != "") {
+                    if (claim.Manager.Id == settings.filterManager || claim.Author == settings.filterManager) {
+                        editCell.append(editButton);
+                    }
+                }
+            }
+        }
+        if (settings.showCalculate)  {
+            var calculateButton = $("<a href='/Calc/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='рассчитать'><i class='fa fa-calculator'></i></a>");
+            if (settings.userId == "") {
+                editCell.append(calculateButton);
+            } else {
+                if (settings.filterProduct != "") {
+                    if (containsProduct(claim.ProductManagers, settings.filterProduct)) {
+                        editCell.append(calculateButton);
+                    }
+                }
+            }
+        }
         element.append("<th><span>" + claim.Id + "</span></th>");
         element.append("<td><span>" + claim.TenderNumber + "</span></td>");
         element.append("<td><span>" + claim.Customer + "</span></td>");
@@ -356,17 +408,36 @@
         element.append("<td><span>" + getProductManagersString(claim.ProductManagers) + "</span></td>");
         element.append("<td><span>" + getDealTypeById(claim.DealType).Value + "</span></td>");
         element.append("<td><span>" + getClaimStatusById(claim.ClaimStatus).Value + "</span></td>");
+        element.append("<td><span>" + claim.RecordDateString + "<span/></td>");
         var actionCell = $("<td class='min-width'></td>");
         element.append(actionCell);
         var deleteButton = $("<button type='button' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить'><i class='fa fa-trash'></i></button>");
         deleteButton.click(deleteButtonClick);
         actionCell.append(deleteButton);
-        element.dblclick(function(e) {
-            var row = $(e.currentTarget);
-            var claimId = row.attr("claimId");
-            document.location.href = "/Claim/Index?claimId=" + claimId;
-        });
+        if (settings.clickAction != "null") {
+            element.dblclick(function(e) {
+                var row = $(e.currentTarget);
+                var claimId = row.attr("claimId");
+                var href = "";
+                if (settings.clickAction == "editClaim") href = "/Claim/Index?claimId=" + claimId;
+                if (settings.clickAction == "calculateClaim") href = "/Calc/Index?claimId=" + claim.Id;
+                if (href != "") document.location.href = href;
+            });
+        }
         return element;
+    }
+
+    function containsProduct(managers, id) {
+        var managersLength = managers.length;
+        var result = false;
+        for (var i = 0; i < managersLength; i++) {
+            var model = managers[i];
+            if (model.Id == id) {
+                result = true;
+                break;
+            }
+        }
+        return result;
     }
 
     function deleteButtonClick(e) {
@@ -456,7 +527,7 @@
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Статус заявки</label>
-                            <div class="col-sm-10">
+                            <div class="col-sm-10" id="filterClaimStatusPanel">
                                 <input type="checkbox" id="filterClaimStatusCreated" value="1" /><span>Создано</span>
                                 <input type="checkbox" id="filterClaimStatusTransmissed" value="2" /><span>Передано</span>
                                 <input type="checkbox" id="filterClaimStatusInWork" value="3" /><span>В работе</span>
@@ -549,6 +620,7 @@
                 <th>Снабженцы</th>
                 <th>Тип сделки</th>
                 <th>Статус</th>
+                <th>Создано</th>
                 <th></th>
             </tr>
             </thead>

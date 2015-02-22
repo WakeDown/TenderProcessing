@@ -42,12 +42,15 @@
   <ItemGroup>
     <Compile Include="DbEngine.cs" />
     <Compile Include="Enums\PositionUnit.cs" />
+    <Compile Include="Enums\Role.cs" />
     <Compile Include="Models\CalculateSpecificationPosition.cs" />
     <Compile Include="Models\ClaimStatus.cs" />
     <Compile Include="Models\ClaimStatusHistory.cs" />
+    <Compile Include="Models\ControllerUser.cs" />
     <Compile Include="Models\DealType.cs" />
     <Compile Include="Models\FilterTenderClaim.cs" />
     <Compile Include="Models\Manager.cs" />
+    <Compile Include="Models\Operator.cs" />
     <Compile Include="Models\PositionCalculateCount.cs" />
     <Compile Include="Models\PositionState.cs" />
     <Compile Include="Models\ProductManager.cs" />
@@ -56,6 +59,7 @@
     <Compile Include="Models\SpecificationPosition.cs" />
     <Compile Include="Models\TenderClaim.cs" />
     <Compile Include="Models\TenderStatus.cs" />
+    <Compile Include="Models\TenderStatusUser.cs" />
     <Compile Include="Models\UserBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

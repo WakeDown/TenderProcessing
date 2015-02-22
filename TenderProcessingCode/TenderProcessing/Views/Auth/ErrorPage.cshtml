@@ -1,0 +1,21 @@
+﻿@using DocumentFormat.OpenXml.Wordprocessing
+
+@{
+    ViewBag.Title = "Ошибка";
+    Layout = "~/Views/Shared/_MasterPage.cshtml";
+}
+
+<script type="text/javascript">
+    var message = "@Html.Raw(ViewBag.Message)";
+
+    $(init);
+
+    function init() {
+        $("#errorMessage").text(message);
+    }
+
+</script>
+
+<h2>Ошибка</h2>
+<div style="text-align: center;" id="errorMessage"></div>
+

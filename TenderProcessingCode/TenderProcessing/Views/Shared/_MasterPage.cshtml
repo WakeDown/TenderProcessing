@@ -41,8 +41,10 @@
                     <li class="navbar-text">
                         Вы вошли как
                         <strong>
-                            UserName
+                            @User.Identity.Name
                         </strong>
+                        <br/>
+                        @Html.ActionLink("Выход", "SignOut", "Auth")
                     </li>
                 </ul>
             </div>

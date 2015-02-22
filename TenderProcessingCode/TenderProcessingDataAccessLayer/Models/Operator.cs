@@ -7,13 +7,7 @@ using TenderProcessingDataAccessLayer.Enums;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
-    public class UserBase
+    public class Operator : UserBase
     {
-
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
-        public List<Role> Roles { get; set; }
     }
 }

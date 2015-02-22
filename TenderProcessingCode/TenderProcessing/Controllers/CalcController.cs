@@ -6,8 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Math;
+using Microsoft.Vbe.Interop;
 using TenderProcessing.Models;
 using TenderProcessingDataAccessLayer;
 using TenderProcessingDataAccessLayer.Enums;
@@ -15,47 +17,79 @@ using TenderProcessingDataAccessLayer.Models;
 
 namespace TenderProcessing.Controllers
 {
+    [Authorize]
     public class CalcController : Controller
     {
         public ActionResult Index(int? claimId)
         {
+            var user = GetUser();
+            if (user == null || !UserHelper.IsUserAccess(user))
+            {
+                var dict = new RouteValueDictionary();
+                dict.Add("message", "У Вас нет доступа к приложению");
+                return RedirectToAction("ErrorPage", "Auth", dict);
+            }
+            var isController = UserHelper.IsController(user);
+            var isProduct = UserHelper.IsProductManager(user);
+            if (!isController && !isProduct)
+            {
+                var dict = new RouteValueDictionary();
+                dict.Add("message", "У Вас нет доступа к этой странице");
+                return RedirectToAction("ErrorPage", "Auth", dict);
+            }
             ViewBag.Error = false.ToString().ToLower();
             ViewBag.DealType = string.Empty;
             ViewBag.Status = string.Empty;
+            ViewBag.StatusHistory = new List<ClaimStatusHistory>();
             try
             {
                 var db = new DbEngine();
                 TenderClaim claim = null;
                 var dealTypeString = string.Empty;
                 var tenderStatus = string.Empty;
+                ViewBag.ClaimStatus = db.LoadClaimStatus();
                 if (claimId.HasValue)
                 {
                     claim = db.LoadTenderClaimById(claimId.Value);
                     if (claim != null)
                     {
-                        if (claim.ClaimStatus == 2)
+                        if (claim.ClaimStatus == 1 || claim.ClaimStatus == 4 || claim.ClaimStatus == 5 || claim.ClaimStatus == 8)
                         {
-                            claim.ClaimStatus = 3;
-                            db.ChangeTenderClaimClaimStatus(claim);
-                            var statusHistory = new ClaimStatusHistory()
-                            {
-                                IdClaim = claim.Id,
-                                Date = DateTime.Now,
-                                Comment = string.Empty,
-                                Status = new ClaimStatus() { Id = claim.ClaimStatus },
-                                IdUser = string.Empty
-                            };
-                            db.SaveClaimStatusHistory(statusHistory);
+                            var dict = new RouteValueDictionary();
+                            dict.Add("message", "Статус заявки не позволяет производить расчет позиций");
+                            return RedirectToAction("ErrorPage", "Auth", dict);
                         }
-                        var managerFromAd = UserHelper.GetManagerFromActiveDirectoryById(claim.Manager.Id);
-                        if (managerFromAd != null)
+                        if (!isController)
                         {
-                            claim.Manager.Name = managerFromAd.Name;
-                            claim.Manager.Chief = managerFromAd.Chief;
+                            claim.Positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId.Value,
+                                user.Id);
                         }
-                        claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value);
+                        else
+                        {
+                            claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value);
+                        }
                         if (claim.Positions != null && claim.Positions.Any())
                         {
+                            if (claim.ClaimStatus == 2)
+                            {
+                                claim.ClaimStatus = 3;
+                                db.ChangeTenderClaimClaimStatus(claim);
+                                var statusHistory = new ClaimStatusHistory()
+                                {
+                                    IdClaim = claim.Id,
+                                    Date = DateTime.Now,
+                                    Comment = string.Empty,
+                                    Status = new ClaimStatus() { Id = claim.ClaimStatus },
+                                    IdUser = user.Id
+                                };
+                                db.SaveClaimStatusHistory(statusHistory);
+                            }
+                            var managerFromAd = UserHelper.GetManagerFromActiveDirectoryById(claim.Manager.Id);
+                            if (managerFromAd != null)
+                            {
+                                claim.Manager.Name = managerFromAd.Name;
+                                claim.Manager.Chief = managerFromAd.Chief;
+                            }
                             var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
                             foreach (var productManager in productManagers)
                             {
@@ -76,6 +110,21 @@ namespace TenderProcessing.Controllers
                                 }
                             }
                         }
+                        else
+                        {
+                            if (isController)
+                            {
+                                var dict = new RouteValueDictionary();
+                                dict.Add("message", "У заявки нет позиций");
+                                return RedirectToAction("ErrorPage", "Auth", dict); 
+                            }
+                            else
+                            {
+                                var dict = new RouteValueDictionary();
+                                dict.Add("message", "У Вас нет доступа к этой заявке, Вам не назначены позиции для расчета");
+                                return RedirectToAction("ErrorPage", "Auth", dict);   
+                            }
+                        }
                         var dealTypes = db.LoadDealTypes();
                         var dealType = dealTypes.FirstOrDefault(x => x.Id == claim.DealType);
                         if (dealType != null)
@@ -88,6 +137,7 @@ namespace TenderProcessing.Controllers
                         {
                             tenderStatus = status.Value;
                         }
+                        ViewBag.StatusHistory = db.LoadStatusHistoryForClaim(claimId.Value);
                     }
                 }
                 ViewBag.Claim = claim;
@@ -102,152 +152,184 @@ namespace TenderProcessing.Controllers
             return View();
         }
 
-        public ActionResult GetSpecificationFile(int claimId)
+        public ActionResult GetSpecificationFile(int claimId, bool forManager)
         {
             XLWorkbook excBook = null;
             var ms = new MemoryStream();
             var error = false;
+            var message = string.Empty;
             try
             {
+                var user = GetUser();
                 var db = new DbEngine();
-                var positions = db.LoadSpecificationPositionsForTenderClaim(claimId);
-                if (positions != null && positions.Any())
+                var positions = new List<SpecificationPosition>();
+                if (UserHelper.IsController(user) || UserHelper.IsManager(user))
                 {
-                    var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId);
-                    if (calculations != null && calculations.Any())
+                    positions = db.LoadSpecificationPositionsForTenderClaim(claimId);
+                }
+                else
+                {
+                    if (UserHelper.IsProductManager(user))
                     {
+                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId, user.Id);
+                    }
+                }
+                if (positions.Any())
+                {
+                    positions = positions.Where(x => x.State == 1 || x.State == 3).ToList();
+                    if (positions.Any())
+                    {
+                        var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId);
+                        if (calculations != null && calculations.Any())
+                        {
+                            foreach (var position in positions)
+                            {
+                                if (UserHelper.IsManager(user) && position.State == 1) continue;
+                                position.Calculations =
+                                    calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
+                            }
+                        }
+                        excBook = new XLWorkbook();
+                        var workSheet = excBook.AddWorksheet("Расчет");
+                        var directRangeSheet = excBook.AddWorksheet("Справочники");
+                        var facts = db.LoadProtectFacts();
+                        var protectFactList = facts.Select(x => x.Value).ToList();
+                        for (var i = 0; i < protectFactList.Count(); i++)
+                        {
+                            var protectFact = protectFactList[i];
+                            var cell = directRangeSheet.Cell(i + 1, 1);
+                            if (cell != null)
+                            {
+                                cell.Value = protectFact;
+                            }
+                        }
+                        var protectFactRange = directRangeSheet.Range(directRangeSheet.Cell(1, 1),
+                            directRangeSheet.Cell(protectFactList.Count(), 1));
+                        directRangeSheet.Visibility = XLWorksheetVisibility.Hidden;
+                        var row = 1;
                         foreach (var position in positions)
                         {
-                            position.Calculations =
-                                calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
-                        }
-                    }
-                    excBook = new XLWorkbook();
-                    var workSheet = excBook.AddWorksheet("Расчет");
-                    var directRangeSheet = excBook.AddWorksheet("Справочники");
-                    var facts = db.LoadProtectFacts();
-                    var protectFactList = facts.Select(x => x.Value).ToList();
-                    for (var i = 0; i < protectFactList.Count(); i++)
-                    {
-                        var protectFact = protectFactList[i];
-                        var cell = directRangeSheet.Cell(i + 1, 1);
-                        if (cell != null)
-                        {
-                            cell.Value = protectFact;
-                        }
-                    }
-                    var protectFactRange = directRangeSheet.Range(directRangeSheet.Cell(1, 1), directRangeSheet.Cell(protectFactList.Count(), 1));
-                    directRangeSheet.Visibility = XLWorksheetVisibility.Hidden;
-                    var row = 1;
-                    foreach (var position in positions)
-                    {
-                        workSheet.Cell(row, 1).Value = "Каталожный номер";
-                        workSheet.Cell(row, 2).Value = "Наименование";
-                        workSheet.Cell(row, 3).Value = "Замена";
-                        workSheet.Cell(row, 4).Value = "Единица";
-                        workSheet.Cell(row, 5).Value = "Количество";
-                        workSheet.Cell(row, 6).Value = "Комментарий";
-                        workSheet.Cell(row, 7).Value = "Сумма, максимум";
-                        workSheet.Cell(row, 8).Value = "Id";
-                        workSheet.Range(workSheet.Cell(row, 1), workSheet.Cell(row, 8)).Style.Font.SetBold(true);
-                        row++;
-                        workSheet.Cell(row, 1).Value = position.CatalogNumber;
-                        workSheet.Cell(row, 2).Value = position.Name;
-                        workSheet.Cell(row, 3).Value = position.Replace;
-                        workSheet.Cell(row, 4).Value = GetUnitString(position.Unit);
-                        workSheet.Cell(row, 5).Value = position.Value;
-                        workSheet.Cell(row, 6).Value = position.Comment;
-                        workSheet.Cell(row, 7).Value = !position.Sum.Equals(0) ? position.Sum.ToString("N2") : string.Empty;
-                        workSheet.Cell(row, 8).Value = position.Id;
-                        var positionRange = workSheet.Range(workSheet.Cell(row - 1, 1), workSheet.Cell(row, 8));
-                        positionRange.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                        positionRange.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
-                        positionRange.Style.Border.SetBottomBorderColor(XLColor.Gray);
-                        positionRange.Style.Border.SetTopBorder(XLBorderStyleValues.Thin);
-                        positionRange.Style.Border.SetTopBorderColor(XLColor.Gray);
-                        positionRange.Style.Border.SetRightBorder(XLBorderStyleValues.Thin);
-                        positionRange.Style.Border.SetRightBorderColor(XLColor.Gray);
-                        positionRange.Style.Border.SetLeftBorder(XLBorderStyleValues.Thin);
-                        positionRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
-                        positionRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 204, 233, 255);
-                        row++;
-                        workSheet.Cell(row, 1).Value = "Каталожный номер*";
-                        workSheet.Cell(row, 2).Value = "Наименование*";
-                        workSheet.Cell(row, 3).Value = "Замена";
-                        workSheet.Cell(row, 4).Value = "Цена за ед. USD";
-                        workSheet.Cell(row, 5).Value = "Сумма вход USD";
-                        workSheet.Cell(row, 6).Value = "Цена за ед. руб";
-                        workSheet.Cell(row, 7).Value = "Сумма вход руб*";
-                        workSheet.Cell(row, 8).Value = "callHd";
-                        workSheet.Cell(row, 9).Value = "Поставщик";
-                        workSheet.Cell(row, 10).Value = "Факт получ.защиты*";
-                        workSheet.Cell(row, 11).Value = "Условия защиты";
-                        workSheet.Cell(row, 12).Value = "Комментарий";
-                        var calcHeaderRange = workSheet.Range(workSheet.Cell(row, 1), workSheet.Cell(row, 12));
-                        calcHeaderRange.Style.Font.SetBold(true);
-                        calcHeaderRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 204, 255, 209);
-                        calcHeaderRange.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                        calcHeaderRange.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
-                        calcHeaderRange.Style.Border.SetBottomBorderColor(XLColor.Gray);
-                        calcHeaderRange.Style.Border.SetTopBorder(XLBorderStyleValues.Thin);
-                        calcHeaderRange.Style.Border.SetTopBorderColor(XLColor.Gray);
-                        calcHeaderRange.Style.Border.SetRightBorder(XLBorderStyleValues.Thin);
-                        calcHeaderRange.Style.Border.SetRightBorderColor(XLColor.Gray);
-                        calcHeaderRange.Style.Border.SetLeftBorder(XLBorderStyleValues.Thin);
-                        calcHeaderRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
-                        if (position.Calculations != null && position.Calculations.Any())
-                        {
-                            foreach (var calculation in position.Calculations)
+                            workSheet.Cell(row, 1).Value = "Каталожный номер";
+                            workSheet.Cell(row, 2).Value = "Наименование";
+                            workSheet.Cell(row, 3).Value = "Замена";
+                            workSheet.Cell(row, 4).Value = "Единица";
+                            workSheet.Cell(row, 5).Value = "Количество";
+                            workSheet.Cell(row, 6).Value = "Комментарий";
+                            workSheet.Cell(row, 7).Value = "Сумма, максимум";
+                            workSheet.Cell(row, 8).Value = "Id";
+                            workSheet.Range(workSheet.Cell(row, 1), workSheet.Cell(row, 8)).Style.Font.SetBold(true);
+                            row++;
+                            workSheet.Cell(row, 1).Value = position.CatalogNumber;
+                            workSheet.Cell(row, 2).Value = position.Name;
+                            workSheet.Cell(row, 3).Value = position.Replace;
+                            workSheet.Cell(row, 4).Value = GetUnitString(position.Unit);
+                            workSheet.Cell(row, 5).Value = position.Value;
+                            workSheet.Cell(row, 6).Value = position.Comment;
+                            workSheet.Cell(row, 7).Value = !position.Sum.Equals(0)
+                                ? position.Sum.ToString("N2")
+                                : string.Empty;
+                            workSheet.Cell(row, 8).Value = position.Id;
+                            var positionRange = workSheet.Range(workSheet.Cell(row - 1, 1), workSheet.Cell(row, 8));
+                            positionRange.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            positionRange.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
+                            positionRange.Style.Border.SetBottomBorderColor(XLColor.Gray);
+                            positionRange.Style.Border.SetTopBorder(XLBorderStyleValues.Thin);
+                            positionRange.Style.Border.SetTopBorderColor(XLColor.Gray);
+                            positionRange.Style.Border.SetRightBorder(XLBorderStyleValues.Thin);
+                            positionRange.Style.Border.SetRightBorderColor(XLColor.Gray);
+                            positionRange.Style.Border.SetLeftBorder(XLBorderStyleValues.Thin);
+                            positionRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
+                            positionRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 204, 233, 255);
+                            row++;
+                            workSheet.Cell(row, 1).Value = "Каталожный номер*";
+                            workSheet.Cell(row, 2).Value = "Наименование*";
+                            workSheet.Cell(row, 3).Value = "Замена";
+                            workSheet.Cell(row, 4).Value = "Цена за ед. USD";
+                            workSheet.Cell(row, 5).Value = "Сумма вход USD";
+                            workSheet.Cell(row, 6).Value = "Цена за ед. руб";
+                            workSheet.Cell(row, 7).Value = "Сумма вход руб*";
+                            workSheet.Cell(row, 8).Value = "callHd";
+                            workSheet.Cell(row, 9).Value = "Поставщик";
+                            workSheet.Cell(row, 10).Value = "Факт получ.защиты*";
+                            workSheet.Cell(row, 11).Value = "Условия защиты";
+                            workSheet.Cell(row, 12).Value = "Комментарий";
+                            var calcHeaderRange = workSheet.Range(workSheet.Cell(row, 1), workSheet.Cell(row, 12));
+                            calcHeaderRange.Style.Font.SetBold(true);
+                            calcHeaderRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 204, 255, 209);
+                            calcHeaderRange.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            calcHeaderRange.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
+                            calcHeaderRange.Style.Border.SetBottomBorderColor(XLColor.Gray);
+                            calcHeaderRange.Style.Border.SetTopBorder(XLBorderStyleValues.Thin);
+                            calcHeaderRange.Style.Border.SetTopBorderColor(XLColor.Gray);
+                            calcHeaderRange.Style.Border.SetRightBorder(XLBorderStyleValues.Thin);
+                            calcHeaderRange.Style.Border.SetRightBorderColor(XLColor.Gray);
+                            calcHeaderRange.Style.Border.SetLeftBorder(XLBorderStyleValues.Thin);
+                            calcHeaderRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
+                            if (position.Calculations != null && position.Calculations.Any())
+                            {
+                                foreach (var calculation in position.Calculations)
+                                {
+                                    row++;
+                                    workSheet.Cell(row, 1).Value = calculation.CatalogNumber;
+                                    workSheet.Cell(row, 2).Value = calculation.Name;
+                                    workSheet.Cell(row, 3).Value = calculation.Replace;
+                                    workSheet.Cell(row, 4).Value = !calculation.PriceUsd.Equals(0)
+                                        ? calculation.PriceUsd.ToString("N2")
+                                        : string.Empty;
+                                    workSheet.Cell(row, 5).Value = !calculation.SumUsd.Equals(0)
+                                        ? calculation.SumUsd.ToString("N2")
+                                        : string.Empty;
+                                    workSheet.Cell(row, 6).Value = !calculation.PriceRub.Equals(0)
+                                        ? calculation.PriceRub.ToString("N2")
+                                        : string.Empty;
+                                    workSheet.Cell(row, 7).Value = !calculation.SumRub.Equals(0)
+                                        ? calculation.SumRub.ToString("N2")
+                                        : string.Empty;
+                                    workSheet.Cell(row, 9).Value = calculation.Provider;
+                                    var validation = workSheet.Cell(row, 10).SetDataValidation();
+                                    validation.AllowedValues = XLAllowedValues.List;
+                                    validation.InCellDropdown = true;
+                                    validation.Operator = XLOperator.Between;
+                                    validation.List(protectFactRange);
+                                    workSheet.Cell(row, 10).Value =
+                                        facts.First(x => x.Id == calculation.ProtectFact.Id).Value;
+                                    workSheet.Cell(row, 11).Value = calculation.ProtectCondition;
+                                    workSheet.Cell(row, 12).Value = calculation.Comment;
+                                }
+                            }
+                            else
                             {
                                 row++;
-                                workSheet.Cell(row, 1).Value = calculation.CatalogNumber;
-                                workSheet.Cell(row, 2).Value = calculation.Name;
-                                workSheet.Cell(row, 3).Value = calculation.Replace;
-                                workSheet.Cell(row, 4).Value = !calculation.PriceUsd.Equals(0)
-                                    ? calculation.PriceUsd.ToString("N2")
-                                    : string.Empty;
-                                workSheet.Cell(row, 5).Value = !calculation.SumUsd.Equals(0)
-                                    ? calculation.SumUsd.ToString("N2")
-                                    : string.Empty;
-                                workSheet.Cell(row, 6).Value = !calculation.PriceRub.Equals(0)
-                                    ? calculation.PriceRub.ToString("N2")
-                                    : string.Empty;
-                                workSheet.Cell(row, 7).Value = !calculation.SumRub.Equals(0)
-                                    ? calculation.SumRub.ToString("N2")
-                                    : string.Empty;
-                                workSheet.Cell(row, 9).Value = calculation.Provider;
                                 var validation = workSheet.Cell(row, 10).SetDataValidation();
                                 validation.AllowedValues = XLAllowedValues.List;
                                 validation.InCellDropdown = true;
                                 validation.Operator = XLOperator.Between;
                                 validation.List(protectFactRange);
-                                workSheet.Cell(row, 10).Value =
-                                    facts.First(x => x.Id == calculation.ProtectFact.Id).Value;
-                                workSheet.Cell(row, 11).Value = calculation.ProtectCondition;
-                                workSheet.Cell(row, 12).Value = calculation.Comment;
                             }
-                        }
-                        else
-                        {
                             row++;
-                            var validation = workSheet.Cell(row, 10).SetDataValidation();
-                            validation.AllowedValues = XLAllowedValues.List;
-                            validation.InCellDropdown = true;
-                            validation.Operator = XLOperator.Between;
-                            validation.List(protectFactRange);
                         }
-                        row++;
+                        workSheet.Columns(1, 12).AdjustToContents();
+                        workSheet.Column(8).Hide();
+                        excBook.SaveAs(ms);
+                        excBook.Dispose();
+                        ms.Seek(0, SeekOrigin.Begin);
                     }
-                    workSheet.Columns(1, 12).AdjustToContents();
-                    workSheet.Column(8).Hide();
-                    excBook.SaveAs(ms);
-                    excBook.Dispose();
-                    ms.Seek(0, SeekOrigin.Begin);
-                } 
+                    else
+                    {
+                        error = true;
+                        message = "Нет позиций для расчета";
+                    }
+                }
+                else
+                {
+                    error = true;
+                    message = "Нет позиций для расчета";
+                }
             }
             catch (Exception)
             {
                 error = true;
+                message = "Ошибка сервера";
             }
             finally
             {
@@ -265,6 +347,7 @@ namespace TenderProcessing.Controllers
             }
             else
             {
+                ViewBag.Message = message;
                 return View();
             }
         }
@@ -301,6 +384,7 @@ namespace TenderProcessing.Controllers
                     var workSheet = excBook.Worksheet("Расчет");
                     if (workSheet != null)
                     {
+                        var user = GetUser();
                         var row = 0;
                         var errorStringBuilder = new StringBuilder();
                         var parseError = false;
@@ -334,7 +418,7 @@ namespace TenderProcessing.Controllers
                                         {
                                             positions.Add(model);
                                         }
-                                        model = new SpecificationPosition() { Calculations = new List<CalculateSpecificationPosition>() };
+                                        model = new SpecificationPosition() { Calculations = new List<CalculateSpecificationPosition>(), Author = user.Id};
                                     }
                                     else if (controlValueString == "callHd")
                                     {
@@ -420,7 +504,8 @@ namespace TenderProcessing.Controllers
                                     {
                                         IdSpecificationPosition = model.Id,
                                         IdTenderClaim = claimId,
-                                        Name = nameValueString
+                                        Name = nameValueString,
+                                        Author = user.Id
                                     };
                                     var catalogValue = workSheet.Cell(row, 1).Value;
                                     var replaceValue = workSheet.Cell(row, 3).Value;
@@ -603,24 +688,65 @@ namespace TenderProcessing.Controllers
                         }
                         else
                         {
-                            db.DeleteCalculateSpecificationPositionForClaim(claimId);
-                            var positionCalculate = 0;
-                            var calculateCount = 0;
-                            if (positions != null && positions.Any())
+                            var userPositions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId, user.Id);
+                            var possibleEditPosition = userPositions.Where(x => x.State == 1 || x.State == 3).ToList();
+                            if (possibleEditPosition.Any())
+                            {
+                                db.DeleteCalculateForPositions(claimId, possibleEditPosition);
+                                var userPositionsId = possibleEditPosition.Select(x => x.Id).ToList();
+                                var positionCalculate = 0;
+                                var calculateCount = 0;
+                                if (positions != null && positions.Any())
+                                {
+                                    foreach (var position in positions)
+                                    {
+                                        if (!userPositionsId.Contains(position.Id)) continue;
+                                        if (position.Calculations.Any()) positionCalculate++;
+                                        foreach (var calculatePosition in position.Calculations)
+                                        {
+                                            calculateCount++;
+                                            calculatePosition.IdSpecificationPosition = position.Id;
+                                            calculatePosition.IdTenderClaim = claimId;
+                                            db.SaveCalculateSpecificationPosition(calculatePosition);
+                                        }
+                                    }
+                                }
+                                message = "Позиций расчитано: " + positionCalculate + "<br/>Строк расчета: " +
+                                          calculateCount;
+                            }
+                            else
+                            {
+                                message = "нет позиций для расчета";
+                            }
+                            var isController = UserHelper.IsController(user);
+                            if (!isController)
+                            {
+                                positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId,
+                                    user.Id);
+                            }
+                            else
+                            {
+                                positions = db.LoadSpecificationPositionsForTenderClaim(claimId);
+                            }
+                            var productManagers = positions.Select(x => x.ProductManager).ToList();
+                            foreach (var productManager in productManagers)
+                            {
+                                var productManagerFromAd =
+                                    UserHelper.GetProductManagerFromActiveDirectoryById(productManager.Id);
+                                if (productManagerFromAd != null)
+                                {
+                                    productManager.Name = productManagerFromAd.Name;
+                                }
+                            }
+                            var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId);
+                            if (calculations != null && calculations.Any())
                             {
                                 foreach (var position in positions)
                                 {
-                                    if (position.Calculations.Any()) positionCalculate++;
-                                    foreach (var calculatePosition in position.Calculations)
-                                    {
-                                        calculateCount++;
-                                        calculatePosition.IdSpecificationPosition = position.Id;
-                                        calculatePosition.IdTenderClaim = claimId;
-                                        db.SaveCalculateSpecificationPosition(calculatePosition);
-                                    }
+                                    position.Calculations =
+                                        calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
                                 }
                             }
-                            message = "Позиций расчитано: " + positionCalculate + "<br/>Строк расчета: " + calculateCount;
                         }
                     }
                     else
@@ -663,6 +789,7 @@ namespace TenderProcessing.Controllers
             var id = -1;
             try
             {
+                model.Author = GetUser().Id;
                 var db = new DbEngine();
                 isComplete = db.SaveCalculateSpecificationPosition(model);
                 id = model.Id;
@@ -680,6 +807,7 @@ namespace TenderProcessing.Controllers
             var isComplete = false;
             try
             {
+                model.Author = GetUser().Id;
                 var db = new DbEngine();
                 isComplete = db.UpdateCalculateSpecificationPosition(model);
             }
@@ -711,30 +839,49 @@ namespace TenderProcessing.Controllers
             var message = string.Empty;
             try
             {
+                var user = GetUser();
                 var db = new DbEngine();
-                var positions = db.LoadSpecificationPositionsForTenderClaim(idClaim);
-                var isReady = db.IsPositionsReadyToConfirm(positions);
-                if (isReady)
+                var positions = new List<SpecificationPosition>();
+                if (UserHelper.IsController(user))
                 {
-                    isComplete = db.SetPositionsToConfirm(positions);
-                    if (!isComplete) message = "Позиции не отправлены";
-                    else
-                    {
-                        db.ChangeTenderClaimClaimStatus(new TenderClaim() {Id = idClaim, ClaimStatus = 7});
-                        var statusHistory = new ClaimStatusHistory()
-                        {
-                            Date = DateTime.Now,
-                            Comment = "Расчет позиции завершен",
-                            IdClaim = idClaim,
-                            IdUser = string.Empty,
-                            Status = new ClaimStatus() {Id = 7}
-                        };
-                        db.SaveClaimStatusHistory(statusHistory);
-                    }
+                    positions = db.LoadSpecificationPositionsForTenderClaim(idClaim);
                 }
                 else
                 {
-                    message = "Невозможно отправить позиции на подтверждение\rНе все позиции имеют расчет";
+                    if (UserHelper.IsProductManager(user))
+                    {
+                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(idClaim, user.Id);
+                    }
+                }
+                if (positions.Any())
+                {
+                    var isReady = db.IsPositionsReadyToConfirm(positions);
+                    if (isReady)
+                    {
+                        isComplete = db.SetPositionsToConfirm(positions);
+                        if (!isComplete) message = "Позиции не отправлены";
+                        else
+                        {
+                            var allPositions = db.LoadSpecificationPositionsForTenderClaim(idClaim);
+                            var isAllCalculate = allPositions.Count() ==
+                                                 allPositions.Count(x => x.State == 2 || x.State == 4);
+                            var claimStatus = isAllCalculate ? 7 : 6;
+                            db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = idClaim, ClaimStatus = claimStatus });
+                            var statusHistory = new ClaimStatusHistory()
+                            {
+                                Date = DateTime.Now,
+                                Comment = "",
+                                IdClaim = idClaim,
+                                IdUser = user.Id,
+                                Status = new ClaimStatus() { Id = claimStatus }
+                            };
+                            db.SaveClaimStatusHistory(statusHistory);
+                        }
+                    }
+                    else
+                    {
+                        message = "Невозможно отправить позиции на подтверждение\rНе все позиции имеют расчет";
+                    }
                 }
             }
             catch (Exception)
@@ -743,6 +890,32 @@ namespace TenderProcessing.Controllers
                 message = "Ошибка сервера";
             }
             return Json(new { IsComplete = isComplete, Message = message }, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult AddComment(int idClaim, string comment)
+        {
+            var isComplete = false;
+            ClaimStatusHistory model = null;
+            try
+            {
+                var user = GetUser();
+                var db = new DbEngine();
+                var lastHistory = db.LoadLastStatusHistoryForClaim(idClaim);
+                if (lastHistory != null)
+                {
+                    lastHistory.Date = DateTime.Now;
+                    lastHistory.Comment = comment;
+                    lastHistory.IdUser = user.Id;
+                    isComplete = db.SaveClaimStatusHistory(lastHistory);
+                    lastHistory.DateString = lastHistory.Date.ToString("dd.MM.yyyy HH:mm");
+                    model = lastHistory;
+                }
+            }
+            catch (Exception)
+            {
+                isComplete = false;
+            }
+            return Json(new { IsComplete = isComplete, Model = model }, JsonRequestBehavior.AllowGet);
         }
 
         private string GetUnitString(PositionUnit unit)
@@ -758,6 +931,14 @@ namespace TenderProcessing.Controllers
                     break;
             }
             return result;
+        }
+
+        private UserBase GetUser()
+        {
+            UserBase user = null;
+            var userName = User.Identity.Name;
+            user = UserHelper.GetUserByName(userName);
+            return user;
         }
 
         private enum RowType

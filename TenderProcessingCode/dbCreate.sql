@@ -60,6 +60,7 @@
 --	ClaimStatus int not null,
 --	RecordDate datetime not null,
 --	Deleted bit not null,
+--	Author nvarchar(150),
 --	primary key(Id),
 --	CONSTRAINT FK_TenderClaim_DealType FOREIGN KEY(DealType)
 --		REFERENCES DealType(Id)
@@ -90,6 +91,7 @@
 --	Price decimal(18,2),
 --	SumMax decimal(18,2),
 --	PositionState int not null,
+--	Author nvarchar(150),
 --	primary key(Id),
 --	CONSTRAINT FK_ClaimPosition_TenderClaim FOREIGN KEY(IdClaim)
 --		REFERENCES TenderClaim(Id)
@@ -117,6 +119,7 @@
 --	ProtectFact int not null,
 --	ProtectCondition nvarchar(500),
 --	Comment nvarchar(1000),
+--	Author nvarchar(150),
 --	primary key(Id),
 --	CONSTRAINT FK_CalculateClaimPosition_ClaimPosition FOREIGN KEY(IdPosition)
 --		REFERENCES ClaimPosition(Id)
@@ -171,155 +174,15 @@
 --	@managerSubDivision nvarchar(500),
 --	@claimStatus int,
 --	@recordDate datetime,
+--	@author nvarchar(150),
 --	@deleted bit
 --)
 --as
 --declare @id int;
 --insert into TenderClaim values(@tenderNumber, @tenderStart, @claimDeadline, @kPDeadline, @comment, @customer, 
---	@customerInn, @totalSum, @dealType, @tenderUrl, @tenderStatus, @manager, @managerSubDivision, @claimStatus, @recordDate, @deleted)
+--	@customerInn, @totalSum, @dealType, @tenderUrl, @tenderStatus, @manager, @managerSubDivision, @claimStatus, @recordDate, @deleted, @author)
 --set @id = @@IDENTITY;
 --select @id;
---go
-
---use tenderProcessing
---go
-
---create procedure SaveClaimStatusHistory
---(
---	@idClaim int,
---	@idStatus int,
---	@comment nvarchar(1000) = '',
---	@idUser nvarchar(500),
---	@recordDate datetime
---)
---as
---insert into ClaimStatusHistory values(@recordDate, @idClaim, @idStatus, @comment, @idUser)
---go
-
---use tenderProcessing
---go
-
---create procedure LoadProtectFacts
---as
---select * from ProtectFact
---go
-
---use tenderProcessing
---go
-
---create procedure LoadStatusHistoryForClaim
---(
---	@idClaim int
---)
---as
---select [ClaimStatusHistory].*, Value from ClaimStatusHistory, ClaimStatus where IdClaim = @idClaim and IdStatus = [ClaimStatus].Id order by RecordDate
---go
-
---use tenderProcessing
---go
-
---create procedure LoadProductManagersForClaim
---(
---	@idClaim int
---)
---as
---select distinct ProductManager from ClaimPosition where IdClaim = @idClaim
---go
-
---use tenderProcessing
---go
-
---create procedure LoadLastStatusHistoryForClaim
---(
---	@idClaim int
---)
---as
---select top(1) [ClaimStatusHistory].*, Value from ClaimStatusHistory, ClaimStatus where IdClaim = @idClaim and IdStatus = [ClaimStatus].Id order by RecordDate desc
---go
-
---use tenderProcessing
---go
-
---create procedure SaveCalculateClaimPosition
---(
---	@idPosition int,
---	@idClaim int,
---	@catalogNumber nvarchar(500),
---	@name nvarchar(1000),
---	@replaceValue nvarchar(1000) = '',
---	@priceUsd decimal(18,2) = -1,
---	@sumUsd decimal(18,2) = -1,
---	@priceRub decimal(18,2) = -1,
---	@sumRub decimal(18,2),
---	@provider nvarchar(150) = '',
---	@protectFact int,
---	@protectCondition nvarchar(500) = '',
---	@comment nvarchar(1500) = ''
---)
---as
---declare @id int;
---insert into CalculateClaimPosition values(@idPosition, @idClaim, @catalogNumber, @name, @replaceValue, @priceUsd, @sumUsd,
---		@priceRub, @sumRub, @provider, @protectFact, @protectCondition, @comment)
---set @id = @@IDENTITY;
---select @id;
---go
-
---use tenderProcessing
---go
-
---create procedure UpdateCalculateClaimPosition
---(
---	@id int,
---	@catalogNumber nvarchar(500),
---	@name nvarchar(1000),
---	@replaceValue nvarchar(1000) = '',
---	@priceUsd decimal(18,2) = -1,
---	@sumUsd decimal(18,2) = -1,
---	@priceRub decimal(18,2) = -1,
---	@sumRub decimal(18,2),
---	@provider nvarchar(150) = '',
---	@protectFact int,
---	@protectCondition nvarchar(500) = '',
---	@comment nvarchar(1500) = ''
---)
---as
---Update CalculateClaimPosition set CatalogNumber = @catalogNumber, Name = @name, ReplaceValue = @replaceValue, 
---	PriceUsd = @priceUsd, SumUsd = @sumUsd, PriceRub = @priceRub, SumRub = @sumRub, Provider = @provider, 
---	ProtectFact = @protectFact, ProtectCondition = @protectCondition, Comment = @comment
---	where Id = @id
---go
-
---use tenderProcessing
---go
-
---create procedure DeleteCalculateClaimPosition
---(
---	@id int
---)
---as
---delete from CalculateClaimPosition where Id = @id
---go
-
---use tenderProcessing
---go
-
---create procedure LoadCalculateClaimPositionForClaim
---(
---	@id int
---)
---as
---select * from CalculateClaimPosition where IdClaim = @id
---go
-
---use tenderProcessing
---go
-
---create procedure DeleteCalculatePositionForClaim
---(
---	@id int
---)
---as
---delete from CalculateClaimPosition where IdClaim = @id
 --go
 
 --use tenderProcessing
@@ -331,28 +194,6 @@
 --)
 --as
 --select top (@pageSize) * from TenderClaim where deleted = 0 order by Id desc
---go
-
---use tenderProcessing
---go
-
---create procedure LoadTenderClaimById
---(
---	@id int
---)
---as
---select * from TenderClaim where deleted = 0 and Id = @id
---go
-
---use tenderProcessing
---go
-
---create procedure LoadClaimPositionForTenderClaim
---(
---	@id int
---)
---as
---select * from ClaimPosition where IdClaim = @id
 --go
 
 --use tenderProcessing
@@ -381,6 +222,17 @@
 --use tenderProcessing
 --go
 
+--create procedure LoadTenderClaimById
+--(
+--	@id int
+--)
+--as
+--select * from TenderClaim where deleted = 0 and Id = @id
+--go
+
+--use tenderProcessing
+--go
+
 --create procedure GetTenderClaimCount
 --as
 --select count(*) from TenderClaim where Deleted = 0
@@ -402,12 +254,13 @@
 --	@comment nvarchar(1500) = '',
 --	@price decimal(18,2) = -1,
 --	@sumMax decimal(18,2) = -1,
---	@positionState int
+--	@positionState int,
+--	@author nvarchar(150)
 --)
 --as
 --declare @id int;
 --insert into ClaimPosition values(@idClaim, @rowNumber, @catalogNumber, @name, @replaceValue, @unit,
---	@value, @productManager, @comment, @price, @sumMax, @positionState)
+--	@value, @productManager, @comment, @price, @sumMax, @positionState, @author)
 --set @id = @@IDENTITY;
 --select @id;
 --go
@@ -428,12 +281,13 @@
 --	@comment nvarchar(1500) = '',
 --	@price decimal(18,2) = -1,
 --	@sumMax decimal(18,2) = -1,
---	@positionState int
+--	@positionState int,
+--	@author nvarchar(150)
 --)
 --as
 --update ClaimPosition set RowNumber = @rowNumber, CatalogNumber = @catalogNumber, Name = @name, 
 --	ReplaceValue = @replaceValue, Unit = @unit, Value = @value, ProductManager = @productManager, 
---	Comment = @comment, Price = @price, SumMax = @sumMax, PositionState = @positionState where Id = @id
+--	Comment = @comment, Price = @price, SumMax = @sumMax, PositionState = @positionState, Author = @author where Id = @id
 --go
 
 --use tenderProcessing
@@ -445,6 +299,17 @@
 --)
 --as
 --delete from ClaimPosition where Id = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure HasClaimTranmissedPosition
+--(
+--	@id int
+--)
+--as
+--select count(*) from ClaimPosition where IdClaim = @id and PositionState > 1 
 --go
 
 --use tenderProcessing
@@ -494,6 +359,175 @@
 --use tenderProcessing
 --go
 
+--create procedure HasClaimPosition
+--(
+--	@id int
+--)
+--as
+--select count(*) from ClaimPosition where IdClaim = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadProductManagersForClaim
+--(
+--	@idClaim int
+--)
+--as
+--select distinct ProductManager from ClaimPosition where IdClaim = @idClaim
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadClaimPositionForTenderClaim
+--(
+--	@id int
+--)
+--as
+--select * from ClaimPosition where IdClaim = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadClaimPositionForTenderClaimForProduct
+--(
+--	@id int,
+--	@product nvarchar(500)
+--)
+--as
+--select * from ClaimPosition where IdClaim = @id and ProductManager = @product
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure SaveCalculateClaimPosition
+--(
+--	@idPosition int,
+--	@idClaim int,
+--	@catalogNumber nvarchar(500),
+--	@name nvarchar(1000),
+--	@replaceValue nvarchar(1000) = '',
+--	@priceUsd decimal(18,2) = -1,
+--	@sumUsd decimal(18,2) = -1,
+--	@priceRub decimal(18,2) = -1,
+--	@sumRub decimal(18,2),
+--	@provider nvarchar(150) = '',
+--	@protectFact int,
+--	@protectCondition nvarchar(500) = '',
+--	@comment nvarchar(1500) = '',
+--	@author nvarchar(150)
+--)
+--as
+--declare @id int;
+--insert into CalculateClaimPosition values(@idPosition, @idClaim, @catalogNumber, @name, @replaceValue, @priceUsd, @sumUsd,
+--		@priceRub, @sumRub, @provider, @protectFact, @protectCondition, @comment, @author)
+--set @id = @@IDENTITY;
+--select @id;
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure UpdateCalculateClaimPosition
+--(
+--	@id int,
+--	@catalogNumber nvarchar(500),
+--	@name nvarchar(1000),
+--	@replaceValue nvarchar(1000) = '',
+--	@priceUsd decimal(18,2) = -1,
+--	@sumUsd decimal(18,2) = -1,
+--	@priceRub decimal(18,2) = -1,
+--	@sumRub decimal(18,2),
+--	@provider nvarchar(150) = '',
+--	@protectFact int,
+--	@protectCondition nvarchar(500) = '',
+--	@comment nvarchar(1500) = '',
+--	@author nvarchar(150)
+--)
+--as
+--Update CalculateClaimPosition set CatalogNumber = @catalogNumber, Name = @name, ReplaceValue = @replaceValue, 
+--	PriceUsd = @priceUsd, SumUsd = @sumUsd, PriceRub = @priceRub, SumRub = @sumRub, Provider = @provider, 
+--	ProtectFact = @protectFact, ProtectCondition = @protectCondition, Comment = @comment, Author = @author
+--	where Id = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure DeleteCalculateClaimPosition
+--(
+--	@id int
+--)
+--as
+--delete from CalculateClaimPosition where Id = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadCalculateClaimPositionForClaim
+--(
+--	@id int
+--)
+--as
+--select * from CalculateClaimPosition where IdClaim = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure DeleteCalculatePositionForClaim
+--(
+--	@id int
+--)
+--as
+--delete from CalculateClaimPosition where IdClaim = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure SaveClaimStatusHistory
+--(
+--	@idClaim int,
+--	@idStatus int,
+--	@comment nvarchar(1000) = '',
+--	@idUser nvarchar(500),
+--	@recordDate datetime
+--)
+--as
+--insert into ClaimStatusHistory values(@recordDate, @idClaim, @idStatus, @comment, @idUser)
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadStatusHistoryForClaim
+--(
+--	@idClaim int
+--)
+--as
+--select [ClaimStatusHistory].*, Value from ClaimStatusHistory, ClaimStatus where IdClaim = @idClaim and IdStatus = [ClaimStatus].Id order by RecordDate
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadLastStatusHistoryForClaim
+--(
+--	@idClaim int
+--)
+--as
+--select top(1) [ClaimStatusHistory].*, Value from ClaimStatusHistory, ClaimStatus where IdClaim = @idClaim and IdStatus = [ClaimStatus].Id order by RecordDate desc
+--go
+
+--use tenderProcessing
+--go
+
 --create procedure LoadDealTypes
 --as
 --select * from DealType
@@ -526,12 +560,9 @@
 --use tenderProcessing
 --go
 
---create procedure HasClaimPosition
---(
---	@id int
---)
+--create procedure LoadProtectFacts
 --as
---select count(*) from ClaimPosition where IdClaim = @id
+--select * from ProtectFact
 --go
 
 --use tenderProcessing

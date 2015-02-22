@@ -45,6 +45,10 @@ namespace TenderProcessingDataAccessLayer.Models
 
         public DateTime RecordDate { get; set; }
 
+        public string RecordDateString { get; set; }
+
+        public string Author { get; set; }
+
         public bool Deleted { get; set; }
 
         public List<ProductManager> ProductManagers { get; set; }

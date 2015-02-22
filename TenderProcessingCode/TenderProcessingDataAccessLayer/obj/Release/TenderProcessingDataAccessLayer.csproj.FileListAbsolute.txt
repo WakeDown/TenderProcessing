@@ -1,7 +1,3 @@
-C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingDataAccessLayer\bin\Release\TenderProcessingDataAccessLayer.dll
-C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingDataAccessLayer\bin\Release\TenderProcessingDataAccessLayer.pdb
-C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingDataAccessLayer\obj\Release\TenderProcessingDataAccessLayer.dll
-C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingDataAccessLayer\obj\Release\TenderProcessingDataAccessLayer.pdb
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\bin\Release\TenderProcessingDataAccessLayer.dll
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\bin\Release\TenderProcessingDataAccessLayer.pdb
 C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\obj\Release\TenderProcessingDataAccessLayer.dll
