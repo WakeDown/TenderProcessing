@@ -890,7 +890,7 @@ namespace TenderProcessingDataAccessLayer
             {
                 var cmd = conn.CreateCommand();
                 cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "delete from CalculateClaimPosition where IdClaim = @id and IdPosition in (" +
+                cmd.CommandText = "delete from CalculateClaimPosition where IdClaim = " + idClaim + " and IdPosition in (" +
                                   string.Join(",", positions.Select(x => x.Id)) + ")";
                 conn.Open();
                 cmd.ExecuteNonQuery();

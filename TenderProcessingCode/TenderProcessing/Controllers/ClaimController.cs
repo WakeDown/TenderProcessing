@@ -51,6 +51,7 @@ namespace TenderProcessing.Controllers
                 ViewBag.ProductManagers = UserHelper.GetProductManagers();
                 ViewBag.StatusHistory = new List<ClaimStatusHistory>();
                 ViewBag.Facts = db.LoadProtectFacts();
+                ViewBag.HasTransmissedPosition = false.ToString().ToLower();
                 TenderClaim claim = null;
                 if (claimId.HasValue)
                 {

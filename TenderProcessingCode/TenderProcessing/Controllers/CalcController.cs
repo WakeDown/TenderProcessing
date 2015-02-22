@@ -387,7 +387,6 @@ namespace TenderProcessing.Controllers
                         var user = GetUser();
                         var row = 0;
                         var errorStringBuilder = new StringBuilder();
-                        var parseError = false;
                         var db = new DbEngine();
                         var emptyRowCount = 0;
                         var readyToParse = false;
@@ -434,8 +433,6 @@ namespace TenderProcessing.Controllers
                                         {
                                             if (model == null)
                                             {
-                                                parseError = true;
-                                                rowValid = false;
                                                 errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "<br/>");
                                                 break;
                                             }
@@ -444,9 +441,8 @@ namespace TenderProcessing.Controllers
                                         }
                                         else
                                         {
-                                            parseError = true;
-                                            rowValid = false;
                                             errorStringBuilder.Append("Ошибка разбора Id позиции в строке: " + row + "<br/>");
+                                            rowType = RowType.PositionRecord;
                                         }
                                     }
                                 }
@@ -469,8 +465,6 @@ namespace TenderProcessing.Controllers
                             }
                             if (!readyToParse)
                             {
-                                parseError = true;
-                                rowValid = false;
                                 errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "<br/>");
                                 break;
                             }
@@ -495,8 +489,6 @@ namespace TenderProcessing.Controllers
                                     }
                                     if (model == null)
                                     {
-                                        parseError = true;
-                                        rowValid = false;
                                         errorStringBuilder.Append("Нарушена последовательность следования строк, в строке: " + row + "<br/>");
                                         break;
                                     }
@@ -519,7 +511,6 @@ namespace TenderProcessing.Controllers
                                     var commentValue = workSheet.Cell(row, 12).Value;
                                     if (catalogValue == null || string.IsNullOrEmpty(catalogValue.ToString().Trim()))
                                     {
-                                        parseError = true;
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
                                                               ", не задано обязательное значение Каталожный номер<br/>");
@@ -530,7 +521,6 @@ namespace TenderProcessing.Controllers
                                     }
                                     if (protectFactValue == null || string.IsNullOrEmpty(protectFactValue.ToString().Trim()))
                                     {
-                                        parseError = true;
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
                                                               ", не задано обязательное значение Факт получ.защиты<br/>");
@@ -541,7 +531,6 @@ namespace TenderProcessing.Controllers
                                         var possibleValues = protectFacts.Select(x => x.Value);
                                         if (!possibleValues.Contains(protectFactValueString))
                                         {
-                                            parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
                                                                   ", Значение '" + protectFactValueString + "' не является допустимым для Факт получ.защиты<br/>");
@@ -555,7 +544,6 @@ namespace TenderProcessing.Controllers
                                                 if (protectConditionValue == null ||
                                                     string.IsNullOrEmpty(protectConditionValue.ToString().Trim()))
                                                 {
-                                                    parseError = true;
                                                     rowValid = false;
                                                     errorStringBuilder.Append("Строка: " + row +
                                                                               ", не задано обязательное значение Условия защиты<br/>");
@@ -577,7 +565,6 @@ namespace TenderProcessing.Controllers
                                     }
                                     if (sumRubValue == null || string.IsNullOrEmpty(sumRubValue.ToString().Trim()))
                                     {
-                                        parseError = true;
                                         rowValid = false;
                                         errorStringBuilder.Append("Строка: " + row +
                                                                   ", не задано обязательное значение Сумма вход руб<br/>");
@@ -588,7 +575,6 @@ namespace TenderProcessing.Controllers
                                         var isValidDouble = double.TryParse(sumRubValue.ToString().Trim(), out doubleValue);
                                         if (!isValidDouble)
                                         {
-                                            parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
                                                                       ", значение '" + sumRubValue.ToString().Trim() + "' в поле Сумма вход руб не является числом<br/>");
@@ -604,7 +590,6 @@ namespace TenderProcessing.Controllers
                                         var isValidDouble = double.TryParse(priceUsdValue.ToString().Trim(), out doubleValue);
                                         if (!isValidDouble)
                                         {
-                                            parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
                                                                       ", значение '" + priceUsdValue.ToString().Trim() + "' в поле Цена за ед. USD не является числом<br/>");
@@ -620,7 +605,6 @@ namespace TenderProcessing.Controllers
                                         var isValidDouble = double.TryParse(sumUsdValue.ToString().Trim(), out doubleValue);
                                         if (!isValidDouble)
                                         {
-                                            parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
                                                                       ", значение '" + sumUsdValue.ToString().Trim() + "' в поле Сумма вход USD не является числом<br/>");
@@ -636,7 +620,6 @@ namespace TenderProcessing.Controllers
                                         var isValidDouble = double.TryParse(priceRubValue.ToString().Trim(), out doubleValue);
                                         if (!isValidDouble)
                                         {
-                                            parseError = true;
                                             rowValid = false;
                                             errorStringBuilder.Append("Строка: " + row +
                                                                       ", значение '" + priceRubValue.ToString().Trim() + "' в поле Цена за ед. руб не является числом<br/>");
@@ -681,71 +664,71 @@ namespace TenderProcessing.Controllers
                                 }
                             }
                         }
-                        if (parseError)
+                        var userPositions = new List<SpecificationPosition>();
+                        if (UserHelper.IsController(user))
                         {
-                            error = true;
-                            message = errorStringBuilder.ToString();
+                            userPositions = db.LoadSpecificationPositionsForTenderClaim(claimId);
                         }
-                        else
+                        else if (UserHelper.IsProductManager(user))
                         {
-                            var userPositions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId, user.Id);
-                            var possibleEditPosition = userPositions.Where(x => x.State == 1 || x.State == 3).ToList();
-                            if (possibleEditPosition.Any())
-                            {
-                                db.DeleteCalculateForPositions(claimId, possibleEditPosition);
-                                var userPositionsId = possibleEditPosition.Select(x => x.Id).ToList();
-                                var positionCalculate = 0;
-                                var calculateCount = 0;
-                                if (positions != null && positions.Any())
-                                {
-                                    foreach (var position in positions)
-                                    {
-                                        if (!userPositionsId.Contains(position.Id)) continue;
-                                        if (position.Calculations.Any()) positionCalculate++;
-                                        foreach (var calculatePosition in position.Calculations)
-                                        {
-                                            calculateCount++;
-                                            calculatePosition.IdSpecificationPosition = position.Id;
-                                            calculatePosition.IdTenderClaim = claimId;
-                                            db.SaveCalculateSpecificationPosition(calculatePosition);
-                                        }
-                                    }
-                                }
-                                message = "Позиций расчитано: " + positionCalculate + "<br/>Строк расчета: " +
-                                          calculateCount;
-                            }
-                            else
-                            {
-                                message = "нет позиций для расчета";
-                            }
-                            var isController = UserHelper.IsController(user);
-                            if (!isController)
-                            {
-                                positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId,
-                                    user.Id);
-                            }
-                            else
-                            {
-                                positions = db.LoadSpecificationPositionsForTenderClaim(claimId);
-                            }
-                            var productManagers = positions.Select(x => x.ProductManager).ToList();
-                            foreach (var productManager in productManagers)
-                            {
-                                var productManagerFromAd =
-                                    UserHelper.GetProductManagerFromActiveDirectoryById(productManager.Id);
-                                if (productManagerFromAd != null)
-                                {
-                                    productManager.Name = productManagerFromAd.Name;
-                                }
-                            }
-                            var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId);
-                            if (calculations != null && calculations.Any())
+                            userPositions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId, user.Id);
+                        }
+                        var possibleEditPosition = userPositions.Where(x => x.State == 1 || x.State == 3).ToList();
+                        if (possibleEditPosition.Any())
+                        {
+                            db.DeleteCalculateForPositions(claimId, possibleEditPosition);
+                            var userPositionsId = possibleEditPosition.Select(x => x.Id).ToList();
+                            var positionCalculate = 0;
+                            var calculateCount = 0;
+                            if (positions != null && positions.Any())
                             {
                                 foreach (var position in positions)
                                 {
-                                    position.Calculations =
-                                        calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
+                                    if (!userPositionsId.Contains(position.Id)) continue;
+                                    if (position.Calculations.Any()) positionCalculate++;
+                                    foreach (var calculatePosition in position.Calculations)
+                                    {
+                                        calculateCount++;
+                                        calculatePosition.IdSpecificationPosition = position.Id;
+                                        calculatePosition.IdTenderClaim = claimId;
+                                        db.SaveCalculateSpecificationPosition(calculatePosition);
+                                    }
                                 }
+                            }
+                            message = "Позиций расчитано: " + positionCalculate + "<br/>Строк расчета: " +
+                                      calculateCount + "<br/>Ошибки:<br/>" + errorStringBuilder;
+                        }
+                        else
+                        {
+                            message = "нет позиций для расчета<br/>Ошибки:<br/>" + errorStringBuilder;
+                        }
+                        var isController = UserHelper.IsController(user);
+                        if (!isController)
+                        {
+                            positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId,
+                                user.Id);
+                        }
+                        else
+                        {
+                            positions = db.LoadSpecificationPositionsForTenderClaim(claimId);
+                        }
+                        var productManagers = positions.Select(x => x.ProductManager).ToList();
+                        foreach (var productManager in productManagers)
+                        {
+                            var productManagerFromAd =
+                                UserHelper.GetProductManagerFromActiveDirectoryById(productManager.Id);
+                            if (productManagerFromAd != null)
+                            {
+                                productManager.Name = productManagerFromAd.Name;
+                            }
+                        }
+                        var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId);
+                        if (calculations != null && calculations.Any())
+                        {
+                            foreach (var position in positions)
+                            {
+                                position.Calculations =
+                                    calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
                             }
                         }
                     }
