@@ -87,6 +87,22 @@ namespace TenderProcessingDataAccessLayer
             return result;
         }
 
+        public bool ChangeTenderClaimTenderStatus(int idClaim, int status)
+        {
+            var result = false;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "ChangeTenderClaimTenderStatus";
+                cmd.Parameters.AddWithValue("@id", idClaim);
+                cmd.Parameters.AddWithValue("@status", status);
+                conn.Open();
+                result = cmd.ExecuteNonQuery() > 0;
+            }
+            return result;
+        }
+
         public List<TenderClaim> LoadTenderClaims(int pageSize)
         {
             var list = new List<TenderClaim>();
@@ -409,6 +425,10 @@ namespace TenderProcessingDataAccessLayer
             {
                 sb.Append(" and Author = '" + model.Author + "'");
             }
+            if (!forCount)
+            {
+                sb.Append(" order by Id desc");
+            }
             return sb.ToString();
         }
 
@@ -576,6 +596,48 @@ namespace TenderProcessingDataAccessLayer
             return list;
         }
 
+        public List<SpecificationPosition> LoadNoneCalculateSpecificationPositionsForTenderClaim(int claimId)
+        {
+            var list = new List<SpecificationPosition>();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "LoadNoneCalculatePosition";
+                cmd.Parameters.AddWithValue("@id", claimId);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        var model = new SpecificationPosition()
+                        {
+                            Id = rd.GetInt32(0),
+                            RowNumber = rd.GetInt32(2),
+                            CatalogNumber = rd.GetString(3),
+                            Name = rd.GetString(4),
+                            Replace = rd.GetString(5),
+                            Unit = (PositionUnit)Enum.Parse(typeof(PositionUnit), rd.GetString(6)),
+                            Value = rd.GetInt32(7),
+                            ProductManager = new ProductManager() { Id = rd.GetString(8) },
+                            Comment = rd.GetString(9),
+                            Price = (double)rd.GetDecimal(10),
+                            Sum = (double)rd.GetDecimal(11),
+                            State = rd.GetInt32(12),
+                            Author = rd.GetString(13)
+                        };
+                        if (model.Sum.Equals(-1)) model.Sum = 0;
+                        if (model.Price.Equals(-1)) model.Price = 0;
+                        if (model.RowNumber == -1) model.RowNumber = 0;
+                        list.Add(model);
+                    }
+                }
+                rd.Dispose();
+            }
+            return list;
+        }
+
         public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaimForProduct(int claimId, string product)
         {
             var list = new List<SpecificationPosition>();
@@ -629,7 +691,7 @@ namespace TenderProcessingDataAccessLayer
                 cmd.CommandText = "update ClaimPosition set PositionState = " + state + " where Id in(" +
                                   string.Join(",", ids) + ")";
                 conn.Open();
-                result = (int)cmd.ExecuteScalar() > 0;
+                result = cmd.ExecuteNonQuery() > 0;
             }
             return result;
         }
@@ -1094,6 +1156,34 @@ namespace TenderProcessingDataAccessLayer
                         {
                             Id = rd.GetInt32(0),
                             Value = rd.GetString(1)
+                        };
+                        list.Add(model);
+                    }
+                }
+                rd.Dispose();
+            }
+            return list;
+        }
+
+        public List<UserRole> LoadRoles()
+        {
+            var list = new List<UserRole>();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "LoadRoles";
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        var model = new UserRole()
+                        {
+                            Role = (Role)rd.GetInt32(0),
+                            Sid = rd.GetString(1),
+                            Name = rd.GetString(2)
                         };
                         list.Add(model);
                     }

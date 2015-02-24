@@ -61,6 +61,7 @@
     <Compile Include="Models\TenderStatus.cs" />
     <Compile Include="Models\TenderStatusUser.cs" />
     <Compile Include="Models\UserBase.cs" />
+    <Compile Include="Models\UserRole.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

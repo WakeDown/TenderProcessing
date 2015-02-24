@@ -38,7 +38,7 @@
             for (var i = 0; i < rolesLength; i++) {
                 var role = roles[i];
                 var mapString = roleToString(role);
-                arr.push(mapString);
+                if (mapString != "") arr.push(mapString);
             }
             return arr.join("/");
         }

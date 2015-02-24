@@ -191,13 +191,15 @@
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 if (data.IsComplete) {
-                    claim.ClaimStatus = data.Model.Status.Id;
-                    var status = getClaimStatusById(claim.ClaimStatus);
-                    if (status == null) {
-                        status = { Value: "Неопределен" };
+                    if (data.Model != null) {
+                        claim.ClaimStatus = data.Model.Status.Id;
+                        var status = getClaimStatusById(claim.ClaimStatus);
+                        if (status == null) {
+                            status = { Value: "Неопределен" };
+                        }
+                        $("#claimStatus").text(status.Value);
+                        addClaimStatusHistoryElement(data.Model);
                     }
-                    $("#claimStatus").text(status.Value);
-                    addClaimStatusHistoryElement(data.Model);
                     var positionsRows = $("[type='positionRow']", $("#positionTable"));
                     var color = getColorForPositionState(4);
                     positionsRows.css("backgroundColor", color);
@@ -231,17 +233,19 @@
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 if (data.IsComplete) {
-                    claim.ClaimStatus = data.Model.Status.Id;
-                    var status = getClaimStatusById(claim.ClaimStatus);
-                    if (status == null) {
-                        status = { Value: "Неопределен" };
+                    if (data.Model != null) {
+                        claim.ClaimStatus = data.Model.Status.Id;
+                        var status = getClaimStatusById(claim.ClaimStatus);
+                        if (status == null) {
+                            status = { Value: "Неопределен" };
+                        }
+                        $("#claimStatus").text(status.Value);
+                        addClaimStatusHistoryElement(data.Model);
                     }
-                    $("#claimStatus").text(status.Value);
-                    addClaimStatusHistoryElement(data.Model);
                     var positionsRows = $("[type='positionRow']", $("#positionTable"));
                     $.each(positionsRows, function(index, element) {
                         element = $(element);
-                        var positionId = Number(element.attr("positionId"));
+                        var positionId = element.attr("positionId");
                         if ($.inArray(positionId, arrIds) != -1) {
                             var color = getColorForPositionState(3);
                             element.css("backgroundColor", color);
@@ -392,15 +396,18 @@
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 if (data.IsComplete) {
-                    claim.ClaimStatus = data.Model.Status.Id;
-                    var status = getClaimStatusById(claim.ClaimStatus);
-                    if (status == null) {
-                        status = { Value: "Неопределен" };
+                    if (data.Model != null) {
+                        claim.ClaimStatus = data.Model.Status.Id;
+                        var status = getClaimStatusById(claim.ClaimStatus);
+                        if (status == null) {
+                            status = { Value: "Неопределен" };
+                        }
+                        $("#claimStatus").text(status.Value);
+                        addClaimStatusHistoryElement(data.Model);
                     }
-                    $("#claimStatus").text(status.Value);
                     $("#butСlaimStatusStopped").show();
                     $("#butСlaimStatusContined").hide();
-                    addClaimStatusHistoryElement(data.Model);
+                    
                 } else {
                     showMessage("Ошибка");
                 }
@@ -423,14 +430,16 @@
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 if (data.IsComplete) {
-                    claim.ClaimStatus = data.Model.Status.Id;
-                    var status = getClaimStatusById(claim.ClaimStatus);
-                    if (status == null) {
-                        status = { Value: "Неопределен" };
+                    if (data.Model != null) {
+                        claim.ClaimStatus = data.Model.Status.Id;
+                        var status = getClaimStatusById(claim.ClaimStatus);
+                        if (status == null) {
+                            status = { Value: "Неопределен" };
+                        }
+                        $("#claimStatus").text(status.Value);
+                        addClaimStatusHistoryElement(data.Model);
                     }
-                    $("#claimStatus").text(status.Value);
                     $("#claimStatusPanel").remove();
-                    addClaimStatusHistoryElement(data.Model);
                 } else {
                     showMessage("Ошибка");
                 }
@@ -453,16 +462,18 @@
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 if (data.IsComplete) {
-                    claim.ClaimStatus = data.Model.Status.Id;
-                    var status = getClaimStatusById(claim.ClaimStatus);
-                    if (status == null) {
-                        status = { Value: "Неопределен" };
+                    if (data.Model != null){
+                        claim.ClaimStatus = data.Model.Status.Id;
+                        var status = getClaimStatusById(claim.ClaimStatus);
+                        if (status == null) {
+                            status = { Value: "Неопределен" };
+                        }
+                        $("#claimStatus").text(status.Value);
+                        addClaimStatusHistoryElement(data.Model);
                     }
-                    $("#claimStatus").text(status.Value);
                     $("#butСlaimStatusStopped").hide();
                     $("#butСlaimStatusContined").show();
                     $("#claimStatusComment").val("");
-                    addClaimStatusHistoryElement(data.Model);
                 } else {
                     showMessage("Ошибка");
                 }
@@ -481,12 +492,15 @@
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 if (data.IsComplete) {
-                    claim.ClaimStatus = data.Model.Status.Id;
-                    var status = getClaimStatusById(claim.ClaimStatus);
-                    if (status == null) {
-                        status = { Value: "Неопределен" };
+                    if (data.Model != null) {
+                        claim.ClaimStatus = data.Model.Status.Id;
+                        var status = getClaimStatusById(claim.ClaimStatus);
+                        if (status == null) {
+                            status = { Value: "Неопределен" };
+                        }
+                        $("#claimStatus").text(status.Value);
+                        addClaimStatusHistoryElement(data.Model);
                     }
-                    $("#claimStatus").text(status.Value);
                     $("#butSetClaimOnWork").hide();
                     $("#addPositionRow").remove();
                     $("#butAddPosition").remove();
@@ -507,7 +521,6 @@
                         $(elem).remove();
                     });
                     $("#excelPanel").hide();
-                    addClaimStatusHistoryElement(data.Model);
                     $("#claimStatusPanel").show();
                     $("#butСlaimStatusContined").hide();
                 } else {
@@ -572,7 +585,7 @@
             $("#butSetClaimOnWork").show();
             $("#excelPanel").show(250);
             $("#positionPanel").show(250);
-            addClaimStatusHistoryElement(data.StatusHistory);
+            if (data.StatusHistory != null) addClaimStatusHistoryElement(data.StatusHistory);
             var obj = {
                 type: "setClaimId",
                 error: false,
@@ -809,14 +822,28 @@
         element.css("cursor", "pointer");
         element.attr("selectState", "false");
         element.attr("initalColor", color);
-        element.click(rowSelect);
+        element.click(rowPositionClick);
+        $("[modetype='selectPositionElement']", element).click(function(e) {
+            e.stopImmediatePropagation();
+        });
         return element;
     }
 
-    function rowSelect(e) {
+    function rowPositionClick(e) {
         var row = $(e.currentTarget);
         var state = row.attr("selectState") == "true";
-        if (state) {
+        if (!state) {
+            var selectedRows = $("[type='positionRow'][selectState='true']", $("#positionTable"));
+            $.each(selectedRows, function(index, element) {
+                element = $(element);
+                setRowSelect(element, true);
+            });
+        }
+        setRowSelect(row, state);
+    }
+
+    function setRowSelect(row, currentState) {
+        if (currentState) {
             row.attr("selectState", "false");
             var color = row.attr("initalColor");
             row.css("backgroundColor", color);

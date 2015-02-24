@@ -154,6 +154,14 @@
 --		ON UPDATE no action
 --)
 
+--create table Roles
+--(
+--	Id int not null,
+--	GroupId nvarchar(500) not null,
+--	GroupName nvarchar(500) not null, 
+--	primary key(Id)
+--)
+
 --use tenderProcessing
 --go
 
@@ -217,6 +225,18 @@
 --)
 --as
 --update TenderClaim set ClaimStatus = @claimStatus where Id = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure ChangeTenderClaimTenderStatus
+--(
+--	@id int,
+--	@status int
+--)
+--as
+--update TenderClaim set TenderStatus = @status where Id = @id
 --go
 
 --use tenderProcessing
@@ -299,6 +319,17 @@
 --)
 --as
 --delete from ClaimPosition where Id = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadNoneCalculatePosition
+--(
+--	@id int
+--)
+--as
+--select * from ClaimPosition where IdClaim = @id and (PositionState = 1 or PositionState = 3)
 --go
 
 --use tenderProcessing
@@ -568,6 +599,14 @@
 --use tenderProcessing
 --go
 
+--create procedure LoadRoles
+--as
+--select * from Roles
+--go
+
+--use tenderProcessing
+--go
+
 --insert into DealType values(1, N'Аукцион');
 --insert into DealType values(2, N'Котировка');
 --insert into DealType values(3, N'Открытый запрос цен');
@@ -599,5 +638,12 @@
 --insert into ProtectFact values(1, N'Получена нами');
 --insert into ProtectFact values(2, N'Получена конкурентом');
 --insert into ProtectFact values(3, N'Не предоставляется');
+
+--insert into Roles values(1, 'S-1-5-21-1970802976-3466419101-4042325969-4287', 'SpeCalc-Operator');
+--insert into Roles values(2, 'S-1-5-21-1970802976-3466419101-4042325969-4283', 'SpeCalc-Manager');
+--insert into Roles values(3, 'S-1-5-21-1970802976-3466419101-4042325969-4284', 'SpeCalc-Product');
+--insert into Roles values(4, 'S-1-5-21-1970802976-3466419101-4042325969-4286', 'SpeCalc-Kontroler');
+--insert into Roles values(5, 'S-1-5-21-1970802976-3466419101-4042325969-4285', 'SpeCalc-Konkurs');
+--insert into Roles values(6, 'S-1-5-21-1970802976-3466419101-4042325969-4282', 'SpeCalc-Enter');
 
 --go

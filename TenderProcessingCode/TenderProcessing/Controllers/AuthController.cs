@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
-using TenderProcessing.Models;
+using TenderProcessing.Helpers;
 using TenderProcessingDataAccessLayer.Models;
 
 namespace TenderProcessing.Controllers

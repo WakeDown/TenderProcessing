@@ -21,6 +21,7 @@
     var managers = @Html.Raw(serializer.Serialize(managers));
     var productManagers = @Html.Raw(serializer.Serialize(productManagers));
     var settings = @Html.Raw(serializer.Serialize(ViewBag.Settings));
+    var tenderStatus = @Html.Raw(serializer.Serialize(ViewBag.TenderStatus));
     var errorLoad = @ViewBag.Error;
 
     $(init);
@@ -362,6 +363,7 @@
 
     function getClaimElement(claim) {
         var element = $("<tr claimId='" + claim.Id + "'></tr>");
+        element.attr("type", "claimRow");
         if (settings.clickAction != "null") {
             element.css("cursor", "pointer");
         }
@@ -409,6 +411,25 @@
         element.append("<td><span>" + getDealTypeById(claim.DealType).Value + "</span></td>");
         element.append("<td><span>" + getClaimStatusById(claim.ClaimStatus).Value + "</span></td>");
         element.append("<td><span>" + claim.RecordDateString + "<span/></td>");
+        var tenderStatusCell = $("<td></td>");
+        var tenderStatusPanel = $("<div></div>");
+        tenderStatusPanel.append("<strong modetype='tenderStatusLabel'>" + getTenderStatusById(claim.TenderStatus).Value + "</strong>");
+        element.append(tenderStatusCell);
+        tenderStatusCell.append(tenderStatusPanel);
+        if (settings.changeTenderStatus && claim.TenderStatus == 1) {
+            var butSetTenderStatusWin = $("<button type='button' statusValue='2' modetype='butSetTenderStatusWin'>Выигран</button>");
+            var butSetTenderStatusLose = $("<button type='button' statusValue='3' modetype='butSetTenderStatusLose'>Проигран</button>");
+            var butSetTenderStatusReject = $("<button type='button' statusValue='4' modetype='butSetTenderStatusReject'>Отказ</button>");
+            tenderStatusPanel.append("<br/>");
+            tenderStatusPanel.append(butSetTenderStatusWin);
+            tenderStatusPanel.append("<br/>");
+            tenderStatusPanel.append(butSetTenderStatusLose);
+            tenderStatusPanel.append("<br/>");
+            tenderStatusPanel.append(butSetTenderStatusReject);
+            butSetTenderStatusWin.click(changeTenderStatus);
+            butSetTenderStatusLose.click(changeTenderStatus);
+            butSetTenderStatusReject.click(changeTenderStatus);
+        }
         var actionCell = $("<td class='min-width'></td>");
         element.append(actionCell);
         var deleteButton = $("<button type='button' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить'><i class='fa fa-trash'></i></button>");
@@ -425,6 +446,31 @@
             });
         }
         return element;
+    }
+
+    function changeTenderStatus(e) {
+        var button = $(e.currentTarget);
+        var row = button.closest("[type='claimRow']");
+        var claimId = row.attr("claimId");
+        var status = Number(button.attr("statusValue"));
+        $.ajax({
+            url: "/Claim/ChangeClaimTenderStatus?idClaim=" + claimId + "&tenderStatus=" + status,
+            type: 'GET',
+            contentType: 'application/json; charset = utf-8 ',
+            success: function(data) {
+                if (data.IsComplete) {
+                    $("[modetype='tenderStatusLabel']", row).text(getTenderStatusById(status).Value);
+                    var butTypes = ["butSetTenderStatusWin", "butSetTenderStatusLose", "butSetTenderStatusReject"];
+                    var typesLength = butTypes.length;
+                    for (var i = 0; i < typesLength; i++) {
+                        var type = butTypes[i];
+                        $("[modetype='" + type + "']", row).hide();
+                    }
+                } else {
+                    alert("Ошибка при изменении статуса конкурса");
+                }
+            }
+        });
     }
 
     function containsProduct(managers, id) {
@@ -505,10 +551,24 @@
         }
         return status;
     }
+
+    function getTenderStatusById(id) {
+        id = Number(id);
+        var status = null;
+        var statusLength = tenderStatus.length;
+        for (var i = 0; i < statusLength; i++) {
+            var model = tenderStatus[i];
+            if (model.Id == id) {
+                status = model;
+                break;
+            }
+        }
+        return status;
+    }
 </script>
 
 <div>
-    <div class="panel-group" id="accordion" runat="server">
+    <div class="panel-group" id="accordion">
         <div class="panel panel-default" id="filter">
             <div id="filterPanel" class="panel-collapse collapse">
                 <div class="panel-body">
@@ -621,6 +681,7 @@
                 <th>Тип сделки</th>
                 <th>Статус</th>
                 <th>Создано</th>
+                <th>Статус<br />конкурса</th>
                 <th></th>
             </tr>
             </thead>

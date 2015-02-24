@@ -64,8 +64,8 @@
             if (noAction) {
                 setPositionsToNoAction();
                 $("#butSendOnConfirm").hide();
-                $("#butGetExcelFile").hide();
-                $("#butUploadExcelFile").hide();
+                $("#excelPanel").hide();
+                $("#commentPanel").hide();
             }
             initStatusHistory();
         }
@@ -80,8 +80,10 @@
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 if (data.IsComplete) {
-                    claim.ClaimStatus = data.Model.Status.Id;
-                    addClaimStatusHistoryElement(data.Model);
+                    if (data.Model != null) {
+                        claim.ClaimStatus = data.Model.Status.Id;
+                        addClaimStatusHistoryElement(data.Model);
+                    }
                     $("#comment").val("");
                 } else {
                     alert("Ошибка с добавления комментария");
@@ -259,6 +261,10 @@
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 if (data.IsComplete) {
+                    if (data.Model != null) {
+                        claim.ClaimStatus = data.Model.Status.Id;
+                        addClaimStatusHistoryElement(data.Model);
+                    }
                     $("#butSendOnConfirm").hide();
                     $("#butGetExcelFile").hide();
                     $("#butUploadExcelFile").hide();
@@ -860,7 +866,7 @@
             <div>
                 <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение</button>
             </div>
-            <div>
+            <div id="commentPanel">
                 <textarea id="comment" rows="7" placeholder="Комментарий"></textarea><br/>
                 <button type="button" id="butSendComment">Отправить комментарий</button>
             </div>
