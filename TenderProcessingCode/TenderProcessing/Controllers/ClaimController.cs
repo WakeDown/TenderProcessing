@@ -888,7 +888,8 @@ namespace TenderProcessing.Controllers
                             var manager = UserHelper.GetUserById(model.Manager.Id);
                             if (manager != null)
                             {
-                                var host = ConfigurationManager.AppSettings["AppHost"];
+                                var host = string.Empty;
+                                if (Request.Url != null) host = Request.Url.Host;
                                 var message = new StringBuilder();
                                 message.Append("Здравствуйте ");
                                 message.Append(manager.Name);
@@ -1080,7 +1081,8 @@ namespace TenderProcessing.Controllers
                         var productInClaim =
                             productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
                         var claim = db.LoadTenderClaimById(id);
-                        var host = ConfigurationManager.AppSettings["AppHost"];
+                        var host = string.Empty;
+                        if (Request.Url != null) host = Request.Url.Host;
                         var messageMail = new StringBuilder();
                         messageMail.Append("Здравствуйте");
                         messageMail.Append(".<br/>");
@@ -1134,7 +1136,8 @@ namespace TenderProcessing.Controllers
                         var user = GetUser();
                         var productInClaim =
                             productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
-                        var host = ConfigurationManager.AppSettings["AppHost"];
+                        var host = string.Empty;
+                        if (Request.Url != null) host = Request.Url.Host;
                         var messageMail = new StringBuilder();
                         messageMail.Append("Здравствуйте");
                         messageMail.Append(".<br/>");
@@ -1184,7 +1187,8 @@ namespace TenderProcessing.Controllers
                         var user = GetUser();
                         var productInClaim =
                             productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
-                        var host = ConfigurationManager.AppSettings["AppHost"];
+                        var host = string.Empty;
+                        if (Request.Url != null) host = Request.Url.Host;
                         var messageMail = new StringBuilder();
                         messageMail.Append("Здравствуйте");
                         messageMail.Append(".<br/>");
@@ -1241,7 +1245,8 @@ namespace TenderProcessing.Controllers
                                 var user = GetUser();
                                 var productInClaim =
                                     productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
-                                var host = ConfigurationManager.AppSettings["AppHost"];
+                                var host = string.Empty;
+                                if (Request.Url != null) host = Request.Url.Host;
                                 var messageMail = new StringBuilder();
                                 messageMail.Append("Здравствуйте");
                                 messageMail.Append(".<br/>");
@@ -1267,6 +1272,7 @@ namespace TenderProcessing.Controllers
             return Json(new { IsComplete = isComplete, Model = model });
         }
 
+        //>>>>Уведомления
         [HttpPost]
         public JsonResult SetPositonRejected(List<int> positionsId, string comment, int idClaim)
         {
@@ -1311,7 +1317,8 @@ namespace TenderProcessing.Controllers
                         var productManagersFromAd = UserHelper.GetProductManagers();
                         var productInClaim =
                             productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
-                        var host = ConfigurationManager.AppSettings["AppHost"];
+                        var host = string.Empty;
+                        if (Request.Url != null) host = Request.Url.Host;
                         var messageMail = new StringBuilder();
                         messageMail.Append("Здравствуйте");
                         messageMail.Append(".<br/>");
@@ -1337,6 +1344,7 @@ namespace TenderProcessing.Controllers
             return Json(new { IsComplete = isComplete, Model = model });
         }
 
+        //>>>>Уведомления
         public JsonResult SetClaimAllPositonConfirmed(int idClaim)
         {
             var isComplete = false;
@@ -1374,7 +1382,8 @@ namespace TenderProcessing.Controllers
                                 var productManagersFromAd = UserHelper.GetProductManagers();
                                 var productInClaim =
                                     productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
-                                var host = ConfigurationManager.AppSettings["AppHost"];
+                                var host = string.Empty;
+                                if (Request.Url != null) host = Request.Url.Host;
                                 var messageMail = new StringBuilder();
                                 messageMail.Append("Здравствуйте");
                                 messageMail.Append(".<br/>");

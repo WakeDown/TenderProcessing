@@ -89,7 +89,8 @@ namespace TenderProcessing.Controllers
                                 var manager = UserHelper.GetUserById(claim.Manager.Id);
                                 if (manager != null)
                                 {
-                                    var host = ConfigurationManager.AppSettings["AppHost"];
+                                    var host = string.Empty;
+                                    if (Request.Url != null) host = Request.Url.Host;
                                     var message = new StringBuilder();
                                     message.Append("Здравствуйте ");
                                     message.Append(manager.Name);
@@ -838,6 +839,7 @@ namespace TenderProcessing.Controllers
             return Json(new { IsComplete = isComplete }, JsonRequestBehavior.AllowGet);
         }
 
+        //>>>>Уведомления
         public JsonResult SetPositionToConfirm(int idClaim)
         {
             var isComplete = false;
@@ -893,7 +895,8 @@ namespace TenderProcessing.Controllers
                                 model = statusHistory;
                             }
                             var claim = db.LoadTenderClaimById(idClaim);
-                            var host = ConfigurationManager.AppSettings["AppHost"];
+                            var host = string.Empty;
+                            if (Request.Url != null) host = Request.Url.Host;
                             var productManagersFromAd = UserHelper.GetProductManagers();
                             var productManagers = db.LoadProductManagersForClaim(claim.Id);
                             var productInClaim =

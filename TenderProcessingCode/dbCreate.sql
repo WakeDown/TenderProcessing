@@ -165,6 +165,13 @@
 --use tenderProcessing
 --go
 
+--create index i_idClaim_claimPosition on ClaimPosition(IdClaim);
+--create index i_idClaim_calculateClaimPosition on CalculateClaimPosition(IdClaim);
+--create index i_idPosition_calculateClaimPosition on CalculateClaimPosition(IdPosition);
+
+--use tenderProcessing
+--go
+
 --create procedure SaveTenderClaim
 --(
 --	@tenderNumber nvarchar(150) = '',
