@@ -14,12 +14,16 @@ namespace TenderProcessing.Controllers
 {
     public class ExternApiController : ApiController
     {
+        //изменение статуса конкурса, параметр sig - хеш по определенному алгоритму, контекация строк параметров и секретного ключа
+        //: параметр1имя=Параметр1значениеПараметр2имя=Параметр2значениеСекретныйКлюч
+        //md5.Hash(idClaim=5status=3secretkey)
         [HttpGet]
         public ApiRequestResult ChangeClaimTenderStatus(int idClaim, int status, string sig)
         {
             var model = new ApiRequestResult() {IsComplete = false, Message = string.Empty, ErrorCode = 0};
             try
             {
+                //проверка sig
                 var md5 = MD5.Create();
                 var key = ConfigurationManager.AppSettings["AppKey"];
                 var paramArr = new[]
@@ -31,6 +35,7 @@ namespace TenderProcessing.Controllers
                 var isSigValid = sig == validSig;
                 if (isSigValid)
                 {
+                    //изменение статуса
                     var db = new DbEngine();
                     var tenderStatus = db.LoadTenderStatus();
                     if (tenderStatus.FirstOrDefault(x => x.Id == status) == null)

@@ -71,394 +71,8 @@
         }
     }
 
-    function sendComment() {
-        var comment = $("#comment").val().trim();
-        if (comment == "") return;
-        messageUi.progressShow();
-        $.ajax({
-            url: "/Calc/AddComment?idClaim=" + claim.Id +"&comment=" + encodeURI(comment),
-            type: 'GET',
-            contentType: 'application/json; charset = utf-8 ',
-            success: function(data) {
-                messageUi.progressHide();
-                if (data.IsComplete) {
-                    if (data.Model != null) {
-                        claim.ClaimStatus = data.Model.Status.Id;
-                        addClaimStatusHistoryElement(data.Model);
-                    }
-                    $("#comment").val("");
-                } else {
-                    alert("Ошибка с добавления комментария");
-                }
-            }
-        });
-    }
-
-    function initStatusHistory() {
-        if (histories == null) return;
-        var historyLength = histories.length;
-        for (var i = 0; i < historyLength; i++) {
-            var statusHistory = histories[i];
-            addClaimStatusHistoryElement(statusHistory);
-        }
-    }
-
-    function addClaimStatusHistoryElement(model) {
-        var container = $("#claimStatusHistoryContainer");
-        var element = $("<li class='list-group-item'></li>");
-        var status = getClaimStatusById(model.Status.Id);
-        if (status == null) {
-            status = { Value: "Неопределен" };
-        }
-        if (model.Comment == null) model.Comment = "";
-        element.append("<h5 class='list-group-item-heading'>" + model.DateString + "<br />" + "<strong>" + status.Value + "</strong>" + "</h5>");
-        element.append("<p class='list-group-item-text'>" + model.Comment + "</p>");
-        container.append(element);
-    }
-
-    function getClaimStatusById(id) {
-        id = Number(id);
-        var status = null;
-        var statusLength = claimStatus.length;
-        for (var i = 0; i < statusLength; i++) {
-            var model = claimStatus[i];
-            if (model.Id == id) {
-                status = model;
-                break;
-            }
-        }
-        return status;
-    }
-
-    function setInfoForPositionRows() {
-        var positionsRows = $("[type='positionRow']", $("#positionsTable"));
-        var positionsCount = 0;
-        var calculateCount = 0;
-        $.each(positionsRows, function(index, element) {
-            element = $(element);
-            positionsCount++;
-            var idPosition = element.attr("positionId");
-            var calcRowsCount = $("[type='positionCalculate'][calcPositionId='" + idPosition + "']", $("#positionsTable")).size();
-            if (calcRowsCount == 0) {
-                element.css("backgroundColor", "#e4b9b9");
-            } else {
-                element.css("backgroundColor", "#c1e2b3");
-                calculateCount++;
-            }
-        });
-        $("#positionCountLabel").text(positionsCount);
-        $("#positionCalculateCountLabel").text(calculateCount);
-    }
-
-    function initProtectFactList() {
-        var list = $("[modetype='calculateProtectFact']", $("#calculatePositionTable"));
-        list.append("<option value='null'>--Факт получения защиты--</option>");
-        var protectLength = protectFacts.length;
-        for (var i = 0; i < protectLength; i++) {
-            var model = protectFacts[i];
-            var option = $("<option value='" + model.Id + "'>" + model.Value + "</option>");
-            list.append(option);
-        }
-    }
-
-    function getProtectFactById(id) {
-        var model = null;
-        var protectLength = protectFacts.length;
-        for (var i = 0; i < protectLength; i++) {
-            var protect = protectFacts[i];
-            if (protect.id == id) {
-                model = protect;
-                break;
-            }
-        }
-        return model;
-    }
-
-    function openFile() {
-        var obj = {
-            type: "mainWindow",
-            error: false,
-            message: "openFile"
-        }
-        var message = JSON.stringify(obj);
-        sendMessage(message);
-    }
-
-    function sendMessage(message) {
-        var target = getTargetOrigin();
-        document.getElementById("uploadFile").contentWindow.postMessage(message, target);
-    }
-
-    function getTargetOrigin() {
-        var url = document.location.href;
-        url = url.replace("http://", "");
-        var index = url.indexOf("/");
-        url = url.substr(0, index);
-        url = "http://" + url;
-        return url;
-    }
-
-    function messageHandler(e) {
-        var data = e.data;
-        var obj = $.parseJSON(data);
-        if (obj.type.trim() == "UploadFrameLoaded") {
-            $("#butUploadExcelFile").show();
-        }
-        if (obj.type.trim() == "DownloadExcel") {
-            if (obj.error == true) {
-                if (obj.message == "") {
-                    alert("Ошибка при скачивании файла!");
-                } else {
-                    alert(obj.message);
-                }
-            }
-        }
-        if (obj.type.trim() == "UploadExcel") {
-            if (obj.error == true) {
-                alert(obj.message);
-            }
-        }
-        if (obj.type.trim() == "UploadExcelStarted") {
-            messageUi.progressShow();
-        }
-        if (obj.type.trim() == "UploadExcelResult") {
-            messageUi.progressHide();
-            alert(obj.message);
-            if (!obj.error) {
-                if (obj.positions == null || obj.positions.length == 0) return;
-                $("#positionsTable").empty();
-                var positions = obj.positions;
-                var positionLength = claim.Positions.length;
-                for (var i = 0; i < positionLength; i++) {
-                    var position = claim.Positions[i];
-                    position.Calculations = [];
-                    var serverPosition = getPosition(positions, position.Id);
-                    if (serverPosition != null) {
-                        position.Calculations = serverPosition.Calculations;
-                    }
-                }
-                initPositions(claim.Positions);
-                setInfoForPositionRows();
-            }
-        }
-    }
-
-    function getPosition(arr, id) {
-        var position = null;
-        var arrLength = arr.length;
-        for (var i = 0; i < arrLength; i++) {
-            var model = arr[i];
-            if (model.Id == id) {
-                position = model;
-                break;
-            }
-        }
-        return position;
-    }
-
-    function getExcelFileFromServer() {
-        $("body").append("<iframe src='/Calc/GetSpecificationFile?claimId=" + claim.Id + "&forManager=false' width='0' height='0' style='display: none;' align='left'></iframe>");
-    }
-
-    function sendOnConfirm() {
-        messageUi.progressShow();
-        $.ajax({
-            url: "/Calc/SetPositionToConfirm?idClaim=" + claim.Id,
-            type: 'GET',
-            contentType: 'application/json; charset = utf-8 ',
-            success: function(data) {
-                messageUi.progressHide();
-                if (data.IsComplete) {
-                    if (data.Model != null) {
-                        claim.ClaimStatus = data.Model.Status.Id;
-                        addClaimStatusHistoryElement(data.Model);
-                    }
-                    $("#butSendOnConfirm").hide();
-                    $("#butGetExcelFile").hide();
-                    $("#butUploadExcelFile").hide();
-                    setPositionsToNoAction();
-                } else {
-                    alert(data.Message);
-                }
-            }
-        });
-    }
-
-    function setPositionsToNoAction() {
-        var table = $("#positionsTable");
-        var addCalcButtons = $("[modetype='addCalcButton']", table);
-        addCalcButtons.hide();
-        var calcRows = $("[type='positionCalculate']", table);
-        $.each(calcRows, function(index, elem) {
-            if (elem.hasAttribute("calcId")) {
-                setCalculatePositionReadOnly($(elem));
-                $("[type='actionPanel']", $(elem)).remove();
-            } else {
-                $(elem).remove();
-            }
-        });
-    }
-
-    function initPositions(positions) {
-        if (positions == null) return;
-        var container = $("#positionsTable");
-        var positionsLength = positions.length;
-        for (var i = 0; i < positionsLength; i++) {
-            var position = positions[i];
-            var element = getPositionElement(position);
-            $("[modetype='rowNumber']", element).text(i + 1);
-            container.append(element);
-            var calculateRowTable = getCalculateTableForPosition(position);
-            container.append(calculateRowTable);
-            var calculateTabel = calculateRowTable.find("table");
-            var lastElement = null;
-            if (position.Calculations != null) {
-                var calculationsLength = position.Calculations.length;
-                for (var j = 0; j < calculationsLength; j++) {
-                    var calculation = position.Calculations[j];
-                    var calcRow = getCalculatePositionElement();
-                    calcRow.attr("calcPositionId", position.Id);
-                    calcRow.attr("calcId", calculation.Id);
-                    var saveCalculationButton = $("[modetype='saveCalcButton']", calcRow);
-                    saveCalculationButton.click(saveCalculate);
-                    var cancelCalculationButton = $("[modetype='cancelCalcButton']", calcRow);
-                    cancelCalculationButton.click(cancelCalculate);
-                    var deleteCalculationButton = $("[modetype='deleteCalcButton']", calcRow);
-                    deleteCalculationButton.click(deleteCalculate);
-                    var editCalculationButton = $("[modetype='editCalcButton']", calcRow);
-                    editCalculationButton.click(editCalculateButtonClick);
-                    var editCalculationButtonOk = $("[modetype='editCalcButtonOk']", calcRow);
-                    editCalculationButtonOk.click(editCalculate);
-                    var editCalculationButtonCancel = $("[modetype='editCalcButtonCancel']", calcRow);
-                    editCalculationButtonCancel.click(editCalculateCancel);
-                    deleteCalculationButton.hide();
-                    if (lastElement == null) {
-                        calculateTabel.append(calcRow);
-                        lastElement = calcRow;
-                    } else {
-                        lastElement.after(calcRow);
-                        lastElement = calcRow;   
-                    }
-                    calcRow.show();
-                    $("[modetype='saveCalcButton']", calcRow).show();
-                    $("[modetype='cancelCalcButton']", calcRow).show();
-                    $("[modetype='calculateCatalogNumber']", calcRow).val(calculation.CatalogNumber);
-                    $("[modetype='calculateName']", calcRow).val(calculation.Name);
-                    $("[modetype='calculateReplace']", calcRow).val(calculation.Replace);
-                    $("[modetype='calculatePriceUsd']", calcRow).val(calculation.PriceUsd != 0 ? calculation.PriceUsd : "");
-                    if (calculation.PriceUsd == 0) {
-                        $("[modetype='calculatePriceUsdValueLabelPostix']", calcRow).hide();
-                    } else {
-                        $("[modetype='calculatePriceUsdValueLabelPostix']", calcRow).show();
-                    }
-                    $("[modetype='calculateSumUsd']", calcRow).val(calculation.SumUsd ? calculation.SumUsd : "");
-                    if (calculation.SumUsd == 0) {
-                        $("[modetype='calculateSumUsdValueLabelPostix']", calcRow).hide();
-                    } else {
-                        $("[modetype='calculateSumUsdValueLabelPostix']", calcRow).show();
-                    }
-                    $("[modetype='calculatePriceRub']", calcRow).val(calculation.PriceRub ? calculation.PriceRub : "");
-                    if (calculation.PriceRub == 0) {
-                        $("[modetype='calculatePriceRubValueLabelPostix']", calcRow).hide();
-                    } else {
-                        $("[modetype='calculatePriceRubValueLabelPostix']", calcRow).show();
-                    }
-                    $("[modetype='calculateSumRub']", calcRow).val(calculation.SumRub);
-                    $("[modetype='calculateProvider']", calcRow).val(calculation.Provider);
-                    $("[modetype='calculateProtectCondition']", calcRow).val(calculation.ProtectCondition);
-                    $("[modetype='calculateComment']", calcRow).val(calculation.Comment);
-                    var providerFact = $("[modetype='calculateProtectFact']", calcRow);
-                    $("[value='" + calculation.ProtectFact.Id + "']", providerFact).attr("selected", "selected");
-                    $("[modetype='saveCalcButton']", calcRow).hide();
-                    $("[modetype='cancelCalcButton']", calcRow).hide();
-                    $("[type='editPositionPanel']", calcRow).show();
-                    $("[modetype='deleteCalcButton']", calcRow).show();
-                    if (position.State != 1 && position.State != 3) {
-                        $("[type='editPositionPanel']", calcRow).hide();
-                        $("[modetype='deleteCalcButton']", calcRow).hide();
-                    } 
-                    setCalculatePositionReadOnly(calcRow);
-                }
-            }
-        }
-    }
-
-    function getCalculateTableForPosition(position) {
-        var element = $("<tr></tr>");
-        var cell = $("<td colspan='3'></td>");
-        element.append(cell);
-        var table = $("<table style='width: 100%;'></table>");
-        table.attr("positionId", position.Id);
-        table.attr("type", "calculatePositionTable");
-        cell.append(table);
-        return element;
-    }
-
-    function showClaimInfo(model) {
-        $("#claimId").text(model.Id);
-        $("#claimCustomer").text(model.Customer + " " + model.CustomerInn);
-        $("#claimTenderStart").text(model.TenderStartString);
-        $("#claimDeadline").text(model.ClaimDeadlineString);
-        $("#kPDeadline").text(model.KPDeadlineString);
-        $("#claimManager").text(model.Manager.Name);
-        $("#managerSubDivision").text(model.Manager.SubDivision);
-        $("#managerChief").text(model.Manager.Chief);
-        $("#claimDealType").text(dealType);
-        var sum = "";
-        if (model.Sum > 0) {
-            sum = model.Sum.toFixed(2);
-        }
-        $("#claimSum").text(sum);
-        if (sum == "") {
-            $("#claimSumPostfix").hide();
-        } else {
-            $("#claimSumPostfix").show();
-        }
-        $("#claimTenderNumber").text(model.TenderNumber);
-        $("#claimTenderStatus").text(status);
-        if (model.TenderUrl != "") {
-            var link = $("<a href='" + model.TenderUrl + "' target='blank'>[ссылка]</a>");
-            $("#claimTenderUrl").append(link);
-        }
-    }
-
-    function getPositionElement(position) {
-        var element = $("#positionElementTemplate").clone();
-        element.removeAttr("id");
-        element.show();
-        element.attr("positionId", position.Id);
-        element.attr("type", "positionRow");
-        $("[type='catalogNumberLabel']", element).text(position.CatalogNumber);
-        $("[type='nameLabel']", element).text(position.Name);
-        $("[type='replaceLabel']", element).text(position.Replace);
-        $("[type='unitLabel']", element).text(getUnitString(position.Unit));
-        $("[type='valueLabel']", element).text(position.Value);
-        $("[type='commentLabel']", element).text(position.Comment);
-        var price = "";
-        if (position.Price != 0) price = position.Price.toFixed(2);
-        $("[type='priceLabel']", element).text(price);
-        if (price == "") {
-            $("[type='priceLabelPostfix']", element).hide();
-        } else {
-            $("[type='priceLabelPostfix']", element).show();
-        }
-        var sum = "";
-        if (position.Sum != 0) sum = position.Sum.toFixed(2);
-        $("[type='sumLabel']", element).text(sum);
-        if (sum == "") {
-            $("[type='sumLabelPostfix']", element).hide();
-        } else {
-            $("[type='sumLabelPostfix']", element).show();
-        }
-        var addCalculateButton = $("[modetype='addCalcButton']", element);
-        if (position.State != 1 && position.State != 3) {
-            addCalculateButton.hide();
-        } else {
-            addCalculateButton.click(addCalculateButtonClick);
-        }
-        return element;
-    }
-
+    //<<<<<<<Работа с расчетом позиций>>>>>>>
+    //действия
     function deleteCalculate(e) {
         var button = $(e.currentTarget);
         var row = button.closest("[type='positionCalculate']");
@@ -650,6 +264,79 @@
         }
     }
 
+    function cancelCalculate(e) {
+        var button = $(e.currentTarget);
+        var row = button.closest("[type='positionCalculate']");
+        row.remove();
+    }
+
+    function sendOnConfirm() {
+        messageUi.progressShow();
+        $.ajax({
+            url: "/Calc/SetPositionToConfirm?idClaim=" + claim.Id,
+            type: 'GET',
+            contentType: 'application/json; charset = utf-8 ',
+            success: function(data) {
+                messageUi.progressHide();
+                if (data.IsComplete) {
+                    if (data.Model != null) {
+                        claim.ClaimStatus = data.Model.Status.Id;
+                        addClaimStatusHistoryElement(data.Model);
+                    }
+                    $("#butSendOnConfirm").hide();
+                    $("#butGetExcelFile").hide();
+                    $("#butUploadExcelFile").hide();
+                    setPositionsToNoAction();
+                } else {
+                    alert(data.Message);
+                }
+            }
+        });
+    }
+
+    function sendComment() {
+        var comment = $("#comment").val().trim();
+        if (comment == "") return;
+        messageUi.progressShow();
+        $.ajax({
+            url: "/Calc/AddComment?idClaim=" + claim.Id +"&comment=" + encodeURI(comment),
+            type: 'GET',
+            contentType: 'application/json; charset = utf-8 ',
+            success: function(data) {
+                messageUi.progressHide();
+                if (data.IsComplete) {
+                    if (data.Model != null) {
+                        claim.ClaimStatus = data.Model.Status.Id;
+                        addClaimStatusHistoryElement(data.Model);
+                    }
+                    $("#comment").val("");
+                } else {
+                    alert("Ошибка с добавления комментария");
+                }
+            }
+        });
+    }
+
+    //отображение
+    function getCalculateTableForPosition(position) {
+        var element = $("<tr></tr>");
+        var cell = $("<td colspan='3'></td>");
+        element.append(cell);
+        var table = $("<table style='width: 100%;'></table>");
+        table.attr("positionId", position.Id);
+        table.attr("type", "calculatePositionTable");
+        cell.append(table);
+        return element;
+    }
+
+    function getCalculatePositionElement() {
+        var calcTable = $("#calculatePositionTable").clone();
+        calcTable.removeAttr("id");
+        var row = calcTable.find("tr");
+        row.attr("type", "positionCalculate");
+        return row;
+    }
+
     function setCalculatePositionReadOnly(row) {
         var controlTypeNames = ["calculateCatalogNumber", "calculateName", "calculateReplace", "calculatePriceUsd", "calculateSumUsd", "calculatePriceRub", "calculateSumRub", "calculateProvider", "calculateProtectCondition", "calculateComment"];
         var controlTypeNamesLength = controlTypeNames.length;
@@ -668,6 +355,22 @@
         $("[ type='editModeView']", row).hide();
     }
 
+    function setPositionsToNoAction() {
+        var table = $("#positionsTable");
+        var addCalcButtons = $("[modetype='addCalcButton']", table);
+        addCalcButtons.hide();
+        var calcRows = $("[type='positionCalculate']", table);
+        $.each(calcRows, function(index, elem) {
+            if (elem.hasAttribute("calcId")) {
+                setCalculatePositionReadOnly($(elem));
+                $("[type='actionPanel']", $(elem)).remove();
+            } else {
+                $(elem).remove();
+            }
+        });
+    }
+    
+    //получение данных по расчету позиции из эл. управления и проверка на валидность введенных значений
     function getCalculatePositionModelForPosition(row) {
         var obj = { isValid: true, message: "", model: null };
         var message = "";
@@ -785,19 +488,326 @@
         return obj;
     }
 
-    function cancelCalculate(e) {
-        var button = $(e.currentTarget);
-        var row = button.closest("[type='positionCalculate']");
-        row.remove();
+    //<<<<<<<Отображение инфы по заявке>>>>>>
+    function showClaimInfo(model) {
+        $("#claimId").text(model.Id);
+        $("#claimCustomer").text(model.Customer + " " + model.CustomerInn);
+        $("#claimTenderStart").text(model.TenderStartString);
+        $("#claimDeadline").text(model.ClaimDeadlineString);
+        $("#kPDeadline").text(model.KPDeadlineString);
+        $("#claimManager").text(model.Manager.Name);
+        $("#managerSubDivision").text(model.Manager.SubDivision);
+        $("#managerChief").text(model.Manager.Chief);
+        $("#claimDealType").text(dealType);
+        var sum = "";
+        if (model.Sum > 0) {
+            sum = model.Sum.toFixed(2);
+        }
+        $("#claimSum").text(sum);
+        if (sum == "") {
+            $("#claimSumPostfix").hide();
+        } else {
+            $("#claimSumPostfix").show();
+        }
+        $("#claimTenderNumber").text(model.TenderNumber);
+        $("#claimTenderStatus").text(status);
+        if (model.TenderUrl != "") {
+            var link = $("<a href='" + model.TenderUrl + "' target='blank'>[ссылка]</a>");
+            $("#claimTenderUrl").append(link);
+        }
     }
 
-    function getCalculatePositionElement() {
-        var calcTable = $("#calculatePositionTable").clone();
-        calcTable.removeAttr("id");
-        var row = calcTable.find("tr");
-        row.attr("type", "positionCalculate");
-        return row;
+    //<<<<<<<Позиции заявки>>>>>>>
+    function initPositions(positions) {
+        if (positions == null) return;
+        var container = $("#positionsTable");
+        var positionsLength = positions.length;
+        for (var i = 0; i < positionsLength; i++) {
+            var position = positions[i];
+            var element = getPositionElement(position);
+            $("[modetype='rowNumber']", element).text(i + 1);
+            container.append(element);
+            var calculateRowTable = getCalculateTableForPosition(position);
+            container.append(calculateRowTable);
+            var calculateTabel = calculateRowTable.find("table");
+            var lastElement = null;
+            if (position.Calculations != null) {
+                var calculationsLength = position.Calculations.length;
+                for (var j = 0; j < calculationsLength; j++) {
+                    var calculation = position.Calculations[j];
+                    var calcRow = getCalculatePositionElement();
+                    calcRow.attr("calcPositionId", position.Id);
+                    calcRow.attr("calcId", calculation.Id);
+                    var saveCalculationButton = $("[modetype='saveCalcButton']", calcRow);
+                    saveCalculationButton.click(saveCalculate);
+                    var cancelCalculationButton = $("[modetype='cancelCalcButton']", calcRow);
+                    cancelCalculationButton.click(cancelCalculate);
+                    var deleteCalculationButton = $("[modetype='deleteCalcButton']", calcRow);
+                    deleteCalculationButton.click(deleteCalculate);
+                    var editCalculationButton = $("[modetype='editCalcButton']", calcRow);
+                    editCalculationButton.click(editCalculateButtonClick);
+                    var editCalculationButtonOk = $("[modetype='editCalcButtonOk']", calcRow);
+                    editCalculationButtonOk.click(editCalculate);
+                    var editCalculationButtonCancel = $("[modetype='editCalcButtonCancel']", calcRow);
+                    editCalculationButtonCancel.click(editCalculateCancel);
+                    deleteCalculationButton.hide();
+                    if (lastElement == null) {
+                        calculateTabel.append(calcRow);
+                        lastElement = calcRow;
+                    } else {
+                        lastElement.after(calcRow);
+                        lastElement = calcRow;   
+                    }
+                    calcRow.show();
+                    $("[modetype='saveCalcButton']", calcRow).show();
+                    $("[modetype='cancelCalcButton']", calcRow).show();
+                    $("[modetype='calculateCatalogNumber']", calcRow).val(calculation.CatalogNumber);
+                    $("[modetype='calculateName']", calcRow).val(calculation.Name);
+                    $("[modetype='calculateReplace']", calcRow).val(calculation.Replace);
+                    $("[modetype='calculatePriceUsd']", calcRow).val(calculation.PriceUsd != 0 ? calculation.PriceUsd : "");
+                    if (calculation.PriceUsd == 0) {
+                        $("[modetype='calculatePriceUsdValueLabelPostix']", calcRow).hide();
+                    } else {
+                        $("[modetype='calculatePriceUsdValueLabelPostix']", calcRow).show();
+                    }
+                    $("[modetype='calculateSumUsd']", calcRow).val(calculation.SumUsd ? calculation.SumUsd : "");
+                    if (calculation.SumUsd == 0) {
+                        $("[modetype='calculateSumUsdValueLabelPostix']", calcRow).hide();
+                    } else {
+                        $("[modetype='calculateSumUsdValueLabelPostix']", calcRow).show();
+                    }
+                    $("[modetype='calculatePriceRub']", calcRow).val(calculation.PriceRub ? calculation.PriceRub : "");
+                    if (calculation.PriceRub == 0) {
+                        $("[modetype='calculatePriceRubValueLabelPostix']", calcRow).hide();
+                    } else {
+                        $("[modetype='calculatePriceRubValueLabelPostix']", calcRow).show();
+                    }
+                    $("[modetype='calculateSumRub']", calcRow).val(calculation.SumRub);
+                    $("[modetype='calculateProvider']", calcRow).val(calculation.Provider);
+                    $("[modetype='calculateProtectCondition']", calcRow).val(calculation.ProtectCondition);
+                    $("[modetype='calculateComment']", calcRow).val(calculation.Comment);
+                    var providerFact = $("[modetype='calculateProtectFact']", calcRow);
+                    $("[value='" + calculation.ProtectFact.Id + "']", providerFact).attr("selected", "selected");
+                    $("[modetype='saveCalcButton']", calcRow).hide();
+                    $("[modetype='cancelCalcButton']", calcRow).hide();
+                    $("[type='editPositionPanel']", calcRow).show();
+                    $("[modetype='deleteCalcButton']", calcRow).show();
+                    if (position.State != 1 && position.State != 3) {
+                        $("[type='editPositionPanel']", calcRow).hide();
+                        $("[modetype='deleteCalcButton']", calcRow).hide();
+                    } 
+                    setCalculatePositionReadOnly(calcRow);
+                }
+            }
+        }
     }
+
+    function getPositionElement(position) {
+        var element = $("#positionElementTemplate").clone();
+        element.removeAttr("id");
+        element.show();
+        element.attr("positionId", position.Id);
+        element.attr("type", "positionRow");
+        $("[type='catalogNumberLabel']", element).text(position.CatalogNumber);
+        $("[type='nameLabel']", element).text(position.Name);
+        $("[type='replaceLabel']", element).text(position.Replace);
+        $("[type='unitLabel']", element).text(getUnitString(position.Unit));
+        $("[type='valueLabel']", element).text(position.Value);
+        $("[type='commentLabel']", element).text(position.Comment);
+        var price = "";
+        if (position.Price != 0) price = position.Price.toFixed(2);
+        $("[type='priceLabel']", element).text(price);
+        if (price == "") {
+            $("[type='priceLabelPostfix']", element).hide();
+        } else {
+            $("[type='priceLabelPostfix']", element).show();
+        }
+        var sum = "";
+        if (position.Sum != 0) sum = position.Sum.toFixed(2);
+        $("[type='sumLabel']", element).text(sum);
+        if (sum == "") {
+            $("[type='sumLabelPostfix']", element).hide();
+        } else {
+            $("[type='sumLabelPostfix']", element).show();
+        }
+        var addCalculateButton = $("[modetype='addCalcButton']", element);
+        if (position.State != 1 && position.State != 3) {
+            addCalculateButton.hide();
+        } else {
+            addCalculateButton.click(addCalculateButtonClick);
+        }
+        return element;
+    }
+
+    function setInfoForPositionRows() {
+        var positionsRows = $("[type='positionRow']", $("#positionsTable"));
+        var positionsCount = 0;
+        var calculateCount = 0;
+        $.each(positionsRows, function(index, element) {
+            element = $(element);
+            positionsCount++;
+            var idPosition = element.attr("positionId");
+            var calcRowsCount = $("[type='positionCalculate'][calcPositionId='" + idPosition + "']", $("#positionsTable")).size();
+            if (calcRowsCount == 0) {
+                element.css("backgroundColor", "#e4b9b9");
+            } else {
+                element.css("backgroundColor", "#c1e2b3");
+                calculateCount++;
+            }
+        });
+        $("#positionCountLabel").text(positionsCount);
+        $("#positionCalculateCountLabel").text(calculateCount);
+    }
+
+    function getPosition(arr, id) {
+        var position = null;
+        var arrLength = arr.length;
+        for (var i = 0; i < arrLength; i++) {
+            var model = arr[i];
+            if (model.Id == id) {
+                position = model;
+                break;
+            }
+        }
+        return position;
+    }
+
+    //<<<<<<История изменения статусов>>>>>>
+    function initStatusHistory() {
+        if (histories == null) return;
+        var historyLength = histories.length;
+        for (var i = 0; i < historyLength; i++) {
+            var statusHistory = histories[i];
+            addClaimStatusHistoryElement(statusHistory);
+        }
+    }
+
+    function addClaimStatusHistoryElement(model) {
+        var container = $("#claimStatusHistoryContainer");
+        var element = $("<li class='list-group-item'></li>");
+        var status = getClaimStatusById(model.Status.Id);
+        if (status == null) {
+            status = { Value: "Неопределен" };
+        }
+        if (model.Comment == null) model.Comment = "";
+        element.append("<h5 class='list-group-item-heading'>" + model.DateString + "<br />" + "<strong>" + status.Value + "</strong>" + "</h5>");
+        element.append("<p class='list-group-item-text'>" + model.Comment + "</p>");
+        container.append(element);
+    }
+
+    function getClaimStatusById(id) {
+        id = Number(id);
+        var status = null;
+        var statusLength = claimStatus.length;
+        for (var i = 0; i < statusLength; i++) {
+            var model = claimStatus[i];
+            if (model.Id == id) {
+                status = model;
+                break;
+            }
+        }
+        return status;
+    }
+
+    //<<<<<<<Вспомагательные методы>>>>>>
+    //Получение excel файлов с сервера и взаимодействия с фреймами с функ. загрузки/выгрузки файлов
+    function openFile() {
+        var obj = {
+            type: "mainWindow",
+            error: false,
+            message: "openFile"
+        }
+        var message = JSON.stringify(obj);
+        sendMessage(message);
+    }
+
+    function sendMessage(message) {
+        var target = getTargetOrigin();
+        document.getElementById("uploadFile").contentWindow.postMessage(message, target);
+    }
+ 
+    function getTargetOrigin() {
+        var url = document.location.href;
+        url = url.replace("http://", "");
+        var index = url.indexOf("/");
+        url = url.substr(0, index);
+        url = "http://" + url;
+        return url;
+    }
+
+    function messageHandler(e) {
+        var data = e.data;
+        var obj = $.parseJSON(data);
+        if (obj.type.trim() == "UploadFrameLoaded") {
+            $("#butUploadExcelFile").show();
+        }
+        if (obj.type.trim() == "DownloadExcel") {
+            if (obj.error == true) {
+                if (obj.message == "") {
+                    alert("Ошибка при скачивании файла!");
+                } else {
+                    alert(obj.message);
+                }
+            }
+        }
+        if (obj.type.trim() == "UploadExcel") {
+            if (obj.error == true) {
+                alert(obj.message);
+            }
+        }
+        if (obj.type.trim() == "UploadExcelStarted") {
+            messageUi.progressShow();
+        }
+        if (obj.type.trim() == "UploadExcelResult") {
+            messageUi.progressHide();
+            alert(obj.message);
+            if (!obj.error) {
+                if (obj.positions == null || obj.positions.length == 0) return;
+                $("#positionsTable").empty();
+                var positions = obj.positions;
+                var positionLength = claim.Positions.length;
+                for (var i = 0; i < positionLength; i++) {
+                    var position = claim.Positions[i];
+                    position.Calculations = [];
+                    var serverPosition = getPosition(positions, position.Id);
+                    if (serverPosition != null) {
+                        position.Calculations = serverPosition.Calculations;
+                    }
+                }
+                initPositions(claim.Positions);
+                setInfoForPositionRows();
+            }
+        }
+    }
+
+    function getExcelFileFromServer() {
+        $("body").append("<iframe src='/Calc/GetSpecificationFile?claimId=" + claim.Id + "&forManager=false' width='0' height='0' style='display: none;' align='left'></iframe>");
+    }
+
+    //Методы для работы со справочниками
+    function initProtectFactList() {
+        var list = $("[modetype='calculateProtectFact']", $("#calculatePositionTable"));
+        list.append("<option value='null'>--Факт получения защиты--</option>");
+        var protectLength = protectFacts.length;
+        for (var i = 0; i < protectLength; i++) {
+            var model = protectFacts[i];
+            var option = $("<option value='" + model.Id + "'>" + model.Value + "</option>");
+            list.append(option);
+        }
+    }
+
+    function getProtectFactById(id) {
+        var model = null;
+        var protectLength = protectFacts.length;
+        for (var i = 0; i < protectLength; i++) {
+            var protect = protectFacts[i];
+            if (protect.id == id) {
+                model = protect;
+                break;
+            }
+        }
+        return model;
+    }   
 
     function getUnitString(unit) {
         var result = "";

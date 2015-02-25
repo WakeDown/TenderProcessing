@@ -12,6 +12,7 @@ namespace TenderProcessing.Helpers
 {
     public static class Notification
     {
+        //отправка почтового сообщения
         public static void SendNotification(IEnumerable<UserBase> users, string message, string header)
         {
             var userList = users.ToList();

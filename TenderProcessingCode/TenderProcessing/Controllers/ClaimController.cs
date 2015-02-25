@@ -23,9 +23,10 @@ namespace TenderProcessing.Controllers
     [Authorize]
     public class ClaimController : Controller
     {
+        //форма заявки, если передан параметр idClaim, то загружается инфа по заявки с этим id
         public ActionResult Index(int? claimId)
         {
-           
+            //получения текущего юзера и проверка наличия у него доступа к странице
             ViewBag.Error = false.ToString().ToLower();
             var user = GetUser();
             if (user == null || !UserHelper.IsUserAccess(user))
@@ -46,6 +47,7 @@ namespace TenderProcessing.Controllers
             }
             try
             {
+                //получение необходимой инфы из БД и ActiveDirectory
                 var managers = UserHelper.GetManagers();
                 ViewBag.Managers = managers;
                 ViewBag.DateStart = DateTime.Now.ToString("dd.MM.yyyy");
@@ -64,6 +66,7 @@ namespace TenderProcessing.Controllers
                     if (claim != null)
                     {
                         ViewBag.HasTransmissedPosition = db.HasTenderClaimTransmissedPosition(claimId.Value).ToString().ToLower();
+                        //проверка наличия доступа к данной заявке
                         if (!isController)
                         {
                             if (isManager)
@@ -90,6 +93,7 @@ namespace TenderProcessing.Controllers
                         {
                             claim.Manager.Name = managerFromAd.Name;
                         }
+                        //получение позиций по заявке и расчета к ним
                         claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value);
                         if (claim.Positions != null && claim.Positions.Any())
                         {
@@ -126,8 +130,11 @@ namespace TenderProcessing.Controllers
             return View();
         }
 
+        //список заявок
         public ActionResult List()
         {
+            //получение пользователя и через наличие у него определенных ролей, определяются настройки по 
+            //функциональности на странице
             var user = GetUser();
             if (user == null || !UserHelper.IsUserAccess(user))
             {
@@ -213,6 +220,7 @@ namespace TenderProcessing.Controllers
             ViewBag.ClaimCount = 0;
             try
             {
+                //получение инфы по заявкам из БД
                 var db = new DbEngine();
                 var filter = new FilterTenderClaim()
                 {
@@ -223,6 +231,7 @@ namespace TenderProcessing.Controllers
                 if (!string.IsNullOrEmpty(author)) filter.Author = author;
                 if (filterClaimStatus.Any()) filter.ClaimStatus = filterClaimStatus;
                 var claims = db.FilterTenderClaims(filter);
+                //снабженцы и менеджеры из ActiveDirectory
                 var adProductManagers = UserHelper.GetProductManagers();
                 var managers = UserHelper.GetManagers();
                 if (claims != null && claims.Any())
@@ -261,6 +270,7 @@ namespace TenderProcessing.Controllers
             return View();
         }
 
+        //получение excel файла, для определения позиций по заявке 
         public ActionResult GetSpecificationFile()
         {
             XLWorkbook excBook = null;
@@ -268,6 +278,7 @@ namespace TenderProcessing.Controllers
             var error = false;
             try
             {
+                //получение файла-шаблона
                 var filePath = Path.Combine(Server.MapPath("~"), "App_Data", "Specification.xlsx");
                 using (var fs = System.IO.File.OpenRead(filePath))
                 {
@@ -276,6 +287,7 @@ namespace TenderProcessing.Controllers
                     ms.Write(buffer, 0, buffer.Count());
                     ms.Seek(0, SeekOrigin.Begin);
                 }
+                //создание диапазона выбора снабженцев
                 var productManagers = UserHelper.GetProductManagers();
                 excBook = new XLWorkbook(ms);
                 var workSheet = excBook.Worksheet("Спецификации");
@@ -334,6 +346,7 @@ namespace TenderProcessing.Controllers
             }
         }
 
+        //получение excel файла, содержащем только расчет по заявке
         public ActionResult GetSpecificationFileOnlyCalculation(int claimId)
         {
             XLWorkbook excBook = null;
@@ -342,6 +355,7 @@ namespace TenderProcessing.Controllers
             var message = string.Empty;
             try
             {
+                //получение позиций по заявке и расчетов к ним
                 var db = new DbEngine();
                 var positions = db.LoadSpecificationPositionsForTenderClaim(claimId);
                 var facts = db.LoadProtectFacts();
@@ -357,7 +371,9 @@ namespace TenderProcessing.Controllers
                                 calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
                         }
                     }
+                    //создание файла excel с инфой по расчетам
                     excBook = new XLWorkbook();
+                    //заголовок
                     var workSheet = excBook.AddWorksheet("Расчет");
                     workSheet.Cell(1, 1).Value = "Каталожный номер*";
                     workSheet.Cell(1, 2).Value = "Наименование*";
@@ -383,6 +399,7 @@ namespace TenderProcessing.Controllers
                     calcHeaderRange.Style.Border.SetLeftBorder(XLBorderStyleValues.Thin);
                     calcHeaderRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
                     var row = 2;
+                    //строки расчета
                     foreach (var position in positions)
                     {
                         if (position.Calculations != null && position.Calculations.Any())
@@ -451,6 +468,8 @@ namespace TenderProcessing.Controllers
             }
         }
 
+        //загрузка списка заявок в excel файл, с учетом фильтра - фильтр передается
+        //в параметре modelJson, сериализованный в формат JSON
         public ActionResult GetListExcelFile(string modelJson)
         {
             XLWorkbook excBook = null;
@@ -459,14 +478,17 @@ namespace TenderProcessing.Controllers
             var message = string.Empty;
             try
             {
+                //получение объекта фильтра 
                 var model = new FilterTenderClaim();
                 if (!string.IsNullOrEmpty(modelJson))
                 {
                     model = JsonConvert.DeserializeObject<FilterTenderClaim>(modelJson);
                 }
                 if (model.RowCount == 0) model.RowCount = 10;
+                //получение отфильтрованной инфы по заявкам из БД
                 var db = new DbEngine();
                 var list = db.FilterTenderClaims(model);
+                //снабженцв и менеджеры из ActiveDirectory
                 var adProductManagers = UserHelper.GetProductManagers();
                 var managers = UserHelper.GetManagers();
                 if (list.Any())
@@ -491,8 +513,10 @@ namespace TenderProcessing.Controllers
                     }
                     var dealTypes = db.LoadDealTypes();
                     var status = db.LoadClaimStatus();
+                    //Создание excel файла с инфой о заявках
                     excBook = new XLWorkbook();
                     var workSheet = excBook.AddWorksheet("Заявки");
+                    //заголовок
                     workSheet.Cell(1, 1).Value = "ID";
                     workSheet.Cell(1, 2).Value = "№ Конкурса";
                     workSheet.Cell(1, 3).Value = "Контрагент";
@@ -515,6 +539,7 @@ namespace TenderProcessing.Controllers
                     headRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
                     headRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 204, 233, 255);
                     var row = 2;
+                    //строки с инфой по заявкам
                     foreach (var claim in list)
                     {
                         workSheet.Cell(row, 1).Value = claim.Id.ToString("G");
@@ -569,6 +594,7 @@ namespace TenderProcessing.Controllers
             }
         }
 
+        //страница с функциональностью загрузки файла excel по позициям на сервер
         public ActionResult UploadFileForm()
         {
             ViewBag.FirstLoad = true;
@@ -578,6 +604,7 @@ namespace TenderProcessing.Controllers
             return View();
         }
 
+        //получение excel файла, с инфой по позициям заявки
         [HttpPost]
         public ActionResult UploadFileForm(HttpPostedFileBase file, int claimId)
         {
@@ -599,6 +626,7 @@ namespace TenderProcessing.Controllers
                     inputStream = file.InputStream;
                     inputStream.Seek(0, SeekOrigin.Begin);
                     excBook = new XLWorkbook(inputStream);
+                    //разбор файла
                     var workSheet = excBook.Worksheet("Спецификации");
                     if (workSheet != null)
                     {
@@ -607,6 +635,7 @@ namespace TenderProcessing.Controllers
                         var errorStringBuilder = new StringBuilder();
                         var repeatRowCount = 0;
                         var db = new DbEngine();
+                        //проход по всем строкам
                         while (true)
                         {
                             var rowValid = true;
@@ -621,6 +650,7 @@ namespace TenderProcessing.Controllers
                                 State = 1,
                                 Author = user.Id
                             };
+                            //получение ячеек с инфой по позициям
                             var numberRange = workSheet.Cell(row, 1);
                             var catalogNumberRange = workSheet.Cell(row, 2);
                             var nameRange = workSheet.Cell(row, 3);
@@ -631,6 +661,7 @@ namespace TenderProcessing.Controllers
                             var commentRange = workSheet.Cell(row, 8);
                             var priceRange = workSheet.Cell(row, 9);
                             var sumRange = workSheet.Cell(row, 10);
+                            //наименование
                             if (nameRange != null && nameRange.Value != null)
                             {
                                 string nameValue = nameRange.Value.ToString();
@@ -644,6 +675,7 @@ namespace TenderProcessing.Controllers
                             {
                                 break;
                             }
+                            //разбор инфы по Порядковый номер
                             if (numberRange != null && numberRange.Value != null)
                             {
                                 string numberValue = numberRange.Value.ToString();
@@ -663,6 +695,7 @@ namespace TenderProcessing.Controllers
                                     }
                                 }
                             }
+                            //разбор инфы по Каталожный номер, Замена, Единицы
                             if (catalogNumberRange != null && catalogNumberRange.Value != null)
                             {
                                 model.CatalogNumber = catalogNumberRange.Value.ToString();
@@ -691,6 +724,7 @@ namespace TenderProcessing.Controllers
                             {
                                 model.Unit = PositionUnit.Thing;
                             }
+                            //разбор инфы по Количество
                             if (valueRange != null)
                             {
                                 if (valueRange.Value == null || string.IsNullOrEmpty(valueRange.Value.ToString()))
@@ -716,6 +750,7 @@ namespace TenderProcessing.Controllers
                                     }
                                 }
                             }
+                            //разбор инфы по Снабженец
                             if (managerRange == null || managerRange.Value == null || string.IsNullOrEmpty(managerRange.Value.ToString()))
                             {
                                 rowValid = false;
@@ -739,6 +774,7 @@ namespace TenderProcessing.Controllers
                             {
                                 model.Comment = commentRange.Value.ToString();
                             }
+                            //разбор инфы по Цена и Сумма
                             if (priceRange != null && priceRange.Value != null)
                             {
                                 string priceValue = priceRange.Value.ToString();
@@ -795,6 +831,7 @@ namespace TenderProcessing.Controllers
                             }
                             row++;
                         }
+                        //сохранение полученых позиций в БД
                         foreach (var position in positions)
                         {
                             db.SaveSpecificationPosition(position);
@@ -848,6 +885,7 @@ namespace TenderProcessing.Controllers
         }
 
         //>>>>Уведомления
+        //Сохранение заявки
         [HttpPost]
         public JsonResult SaveClaim(TenderClaim model)
         {
@@ -872,6 +910,7 @@ namespace TenderProcessing.Controllers
                     isComplete = db.SaveTenderClaim(model);
                     if (isComplete)
                     {
+                        //История изменения статуса
                         model.ClaimDeadlineString = model.ClaimDeadline.ToString("dd.MM.yyyy");
                         model.TenderStartString = model.TenderStart.ToString("dd.MM.yyyy");
                         model.KPDeadlineString = model.KPDeadline.ToString("dd.MM.yyyy");
@@ -918,6 +957,7 @@ namespace TenderProcessing.Controllers
             return Json(new {IsComplete = isComplete, Model = model, StatusHistory = statusHistory});
         }
 
+        //Изменение позиции
         [HttpPost]
         public JsonResult EditClaimPosition(SpecificationPosition model)
         {
@@ -942,6 +982,7 @@ namespace TenderProcessing.Controllers
             return Json(new { IsComplete = isComplete });
         }
 
+        //удаление позиции
         public JsonResult DeleteClaimPosition(int id)
         {
             var isComplete = false;
@@ -957,6 +998,7 @@ namespace TenderProcessing.Controllers
             return Json(new { IsComplete = isComplete }, JsonRequestBehavior.AllowGet);
         }
 
+        //удаление заявки
         public JsonResult DeleteClaim(int id)
         {
             var isComplete = false;
@@ -972,6 +1014,7 @@ namespace TenderProcessing.Controllers
             return Json(new { IsComplete = isComplete }, JsonRequestBehavior.AllowGet);
         }
 
+        //фильтрация списка заявок
         [HttpPost]
         public JsonResult FilterClaim(FilterTenderClaim model)
         {
@@ -1016,6 +1059,7 @@ namespace TenderProcessing.Controllers
             return Json(new { IsComplete = isComplete, Claims = list, Count = count });
         }
 
+        //добавление позиции по заявке
         [HttpPost]
         public JsonResult AddClaimPosition(SpecificationPosition model)
         {
@@ -1044,6 +1088,7 @@ namespace TenderProcessing.Controllers
         }
 
         //>>>>Уведомления
+        //передача заявки в работу
         public JsonResult SetClaimOnWork(int id)
         {
             var isComplete = false;
@@ -1069,6 +1114,7 @@ namespace TenderProcessing.Controllers
                                 productManager.Name = productManagerFromAd.Name;
                             }
                         }
+                        //истроия изменения статуса заявки
                         var user = GetUser();
                         var comment = string.Join(",", productManagers.Select(x => x.Name));
                         model = new ClaimStatusHistory()
@@ -1116,6 +1162,7 @@ namespace TenderProcessing.Controllers
         }
 
         //>>>>Уведомления
+        //отмена заявки
         [HttpPost]
         public JsonResult SetClaimCancelled(ClaimStatusHistory model)
         {
@@ -1167,6 +1214,7 @@ namespace TenderProcessing.Controllers
         }
 
         //>>>>Уведомления
+        //приостановка заявки
         [HttpPost]
         public JsonResult SetClaimStopped(ClaimStatusHistory model)
         {
@@ -1217,6 +1265,7 @@ namespace TenderProcessing.Controllers
         }
 
         //>>>>Уведомления
+        //возобновление заявки
         [HttpPost]
         public JsonResult SetClaimContinued(ClaimStatusHistory model)
         {
@@ -1277,6 +1326,7 @@ namespace TenderProcessing.Controllers
         }
 
         //>>>>Уведомления
+        //Отклонение позиций
         [HttpPost]
         public JsonResult SetPositonRejected(List<int> positionsId, string comment, int idClaim)
         {
@@ -1292,6 +1342,7 @@ namespace TenderProcessing.Controllers
                 var isSameCalculate = allPositions.Any(x => x.State == 2 || x.State == 4);
                 if (isSameCalculate) claimStatus = 6;
                 var status = db.LoadLastStatusHistoryForClaim(idClaim).Id;
+                //изменение статуса заявки и истроиии изменения статусов
                 if (status != claimStatus)
                 {
                     var changeStatusComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() {Id = idClaim, ClaimStatus = claimStatus});
@@ -1349,6 +1400,7 @@ namespace TenderProcessing.Controllers
         }
 
         //>>>>Уведомления
+        //подтверждение позиций по заявке
         public JsonResult SetClaimAllPositonConfirmed(int idClaim)
         {
             var isComplete = false;
@@ -1361,9 +1413,11 @@ namespace TenderProcessing.Controllers
                 var positions = db.LoadSpecificationPositionsForTenderClaim(idClaim);
                 if (positions.Any())
                 {
+                    //все ли позиции имеют расчет
                     var isReady = db.IsPositionsReadyToConfirm(positions);
                     if (isReady)
                     {
+                        //изменение статуса позиций, заявки и истории изменения статусов
                         isComplete = db.ChangePositionsState(positions.Select(x => x.Id).ToList(), 4);
                         if (isComplete)
                         {
@@ -1423,6 +1477,7 @@ namespace TenderProcessing.Controllers
             return Json(new { IsComplete = isComplete, Model = model, Message = message }, JsonRequestBehavior.AllowGet);
         }
 
+        //Изменение статуса конкурса
         public JsonResult ChangeClaimTenderStatus(int idClaim, int tenderStatus)
         {
             var isComplete = false;
@@ -1438,6 +1493,7 @@ namespace TenderProcessing.Controllers
             return Json(new { IsComplete = isComplete }, JsonRequestBehavior.AllowGet);
         }
 
+        //Проверка позиции на уникальность по отношению к переданому массиву позиций
         private bool IsPositionUnique(SpecificationPosition model, List<SpecificationPosition> list)
         {
             var isUnique = true;
@@ -1467,6 +1523,7 @@ namespace TenderProcessing.Controllers
             return user;
         }
 
+        //создание уникального имени снабженца, для excel файла загрузки позиций
         private string GetUniqueDisplayName(UserBase user)
         {
             var result = new StringBuilder();

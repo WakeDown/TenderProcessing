@@ -71,32 +71,7 @@
         }
     }
 
-    function initFilterClaimStatus(status) {
-        var container = $("#filterClaimStatusPanel");
-        var statusLength = status.length;
-        for (var i = 0; i < statusLength; i++) {
-            var value = status[i];
-            var element = $("[value='" + value + "']", container).get(0);
-            if (element != null) {
-                element.checked = true;
-            }
-        }
-    }
-
-    function messageHandler(e) {
-        var data = e.data;
-        var obj = $.parseJSON(data);
-        if (obj.type.trim() == "DownloadExcel") {
-            if (obj.error == true) {
-                if (obj.message != "") {
-                    alert(obj.message);
-                } else {
-                    alert("Ошибка при скачивании файла!");
-                }
-            }
-        }
-    }
-
+    //Фильтрация
     function filter(e) {
         var obj = getFilterObj();
         if (!obj.isValid) {
@@ -195,6 +170,7 @@
     }
 
     function getFilterObj() {
+        //получение настроек фильтра из формы и проверка валидности введенных значений
         var obj = { isValid: true, message: "", model: null };
         var model = {};
         var message = "";
@@ -315,6 +291,19 @@
         return obj;
     }
 
+    //инициализация эл. управления для фильтрации
+    function initFilterClaimStatus(status) {
+        var container = $("#filterClaimStatusPanel");
+        var statusLength = status.length;
+        for (var i = 0; i < statusLength; i++) {
+            var value = status[i];
+            var element = $("[value='" + value + "']", container).get(0);
+            if (element != null) {
+                element.checked = true;
+            }
+        }
+    }
+
     function initFilterManagersList(id) {
         var managersLength = managers.length;
         var list = $("#filterManagers");
@@ -353,6 +342,7 @@
         }
     }
 
+    //отображение списка заявок
     function initClaimsElements(list) {
         var container = $("#claimTable");
         container.empty();
@@ -366,6 +356,7 @@
     }
 
     function getClaimElement(claim) {
+        //получение разметки для заявки с учетом настроек функциональности
         var element = $("<tr claimId='" + claim.Id + "'></tr>");
         element.attr("type", "claimRow");
         if (settings.clickAction != "null") {
@@ -452,6 +443,7 @@
         return element;
     }
 
+    //действия
     function changeTenderStatus(e) {
         var button = $(e.currentTarget);
         var row = button.closest("[type='claimRow']");
@@ -479,19 +471,6 @@
         });
     }
 
-    function containsProduct(managers, id) {
-        var managersLength = managers.length;
-        var result = false;
-        for (var i = 0; i < managersLength; i++) {
-            var model = managers[i];
-            if (model.Id == id) {
-                result = true;
-                break;
-            }
-        }
-        return result;
-    }
-
     function deleteButtonClick(e) {
         var button = $(e.currentTarget);
         var row = button.parent().parent();
@@ -516,6 +495,34 @@
                 }
             });
         }
+    }
+
+    //Вспомогательные мтоды
+    function messageHandler(e) {
+        var data = e.data;
+        var obj = $.parseJSON(data);
+        if (obj.type.trim() == "DownloadExcel") {
+            if (obj.error == true) {
+                if (obj.message != "") {
+                    alert(obj.message);
+                } else {
+                    alert("Ошибка при скачивании файла!");
+                }
+            }
+        }
+    }
+
+    function containsProduct(managers, id) {
+        var managersLength = managers.length;
+        var result = false;
+        for (var i = 0; i < managersLength; i++) {
+            var model = managers[i];
+            if (model.Id == id) {
+                result = true;
+                break;
+            }
+        }
+        return result;
     }
 
     function getProductManagersString(managers) {

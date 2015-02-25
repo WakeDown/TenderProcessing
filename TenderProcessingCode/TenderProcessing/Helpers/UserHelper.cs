@@ -11,6 +11,7 @@ using TenderProcessingDataAccessLayer.Models;
 
 namespace TenderProcessing.Helpers
 {
+    //класс для работы с юзерами из ActiveDirectory
     public static class UserHelper
     {
         private static List<UserRole> _roles;
@@ -21,6 +22,7 @@ namespace TenderProcessing.Helpers
             _roles = db.LoadRoles();
         }
 
+        //получение юзера из идентичности потока
         public static UserBase GetUser(IIdentity identity)
         {
             UserBase user = null;
@@ -92,6 +94,7 @@ namespace TenderProcessing.Helpers
             return result;
         }
 
+        //получение снабженцев из ActiveDirectory
         public static List<ProductManager> GetProductManagers()
         {
             //return new List<ProductManager>()
@@ -132,6 +135,7 @@ namespace TenderProcessing.Helpers
             return list;
         }
 
+        //получение менеджеров из ActiveDirectory
         public static List<Manager> GetManagers()
         {
             //return new List<Manager>
@@ -235,6 +239,7 @@ namespace TenderProcessing.Helpers
             return user;
         }
 
+        //получение юзера по id(sid)
         public static UserBase GetUserById(string id)
         {
             //UserBase user = null;

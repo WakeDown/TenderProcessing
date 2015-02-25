@@ -22,8 +22,10 @@ namespace TenderProcessing.Controllers
     public class CalcController : Controller
     {
         //>>>>Уведомления
+        //Страница расчета позиций по заявке
         public ActionResult Index(int? claimId)
         {
+            //проверка наличия доступа к странице
             var user = GetUser();
             if (user == null || !UserHelper.IsUserAccess(user))
             {
@@ -46,6 +48,7 @@ namespace TenderProcessing.Controllers
             ViewBag.StatusHistory = new List<ClaimStatusHistory>();
             try
             {
+                //получение инфы по заявке и сопутствующих справочников
                 var db = new DbEngine();
                 TenderClaim claim = null;
                 var dealTypeString = string.Empty;
@@ -62,6 +65,7 @@ namespace TenderProcessing.Controllers
                             dict.Add("message", "Статус заявки не позволяет производить расчет позиций");
                             return RedirectToAction("ErrorPage", "Auth", dict);
                         }
+                        //позиции заявки, в зависимости от роли юзера
                         if (!isController)
                         {
                             claim.Positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId.Value,
@@ -73,6 +77,7 @@ namespace TenderProcessing.Controllers
                         }
                         if (claim.Positions != null && claim.Positions.Any())
                         {
+                            //изменение статуса  в Работе если это первая загрузка для расчета по данной заявке
                             if (claim.ClaimStatus == 2)
                             {
                                 claim.ClaimStatus = 3;
@@ -107,6 +112,7 @@ namespace TenderProcessing.Controllers
                                         "Заявка №" + claim.Id + " принята работу в системе СпецРасчет");
                                 }
                             }
+                            //менеджеры и снабженцы из ActiveDirectory
                             var managers = UserHelper.GetManagers();
                             var managerFromAd = managers.FirstOrDefault(x => x.Id == claim.Manager.Id); 
                             if (managerFromAd != null)
@@ -124,6 +130,7 @@ namespace TenderProcessing.Controllers
                                     productManager.Name = productManagerFromAd.Name;
                                 }
                             }
+                            //Расчет по позициям
                             var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value);
                             if (calculations != null && calculations.Any())
                             {
@@ -176,6 +183,7 @@ namespace TenderProcessing.Controllers
             return View();
         }
 
+        //получение excel файла с инфой по позициям и расчетам к ним
         public ActionResult GetSpecificationFile(int claimId, bool forManager)
         {
             XLWorkbook excBook = null;
@@ -187,6 +195,7 @@ namespace TenderProcessing.Controllers
                 var user = GetUser();
                 var db = new DbEngine();
                 var positions = new List<SpecificationPosition>();
+                //получение позиций исходя из роли юзера
                 if (UserHelper.IsController(user) || UserHelper.IsManager(user))
                 {
                     positions = db.LoadSpecificationPositionsForTenderClaim(claimId);
@@ -203,6 +212,7 @@ namespace TenderProcessing.Controllers
                     positions = positions.Where(x => x.State == 1 || x.State == 3).ToList();
                     if (positions.Any())
                     {
+                        //расчет к позициям
                         var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId);
                         if (calculations != null && calculations.Any())
                         {
@@ -213,9 +223,11 @@ namespace TenderProcessing.Controllers
                                     calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
                             }
                         }
+                        //создание excel файла
                         excBook = new XLWorkbook();
                         var workSheet = excBook.AddWorksheet("Расчет");
                         var directRangeSheet = excBook.AddWorksheet("Справочники");
+                        //создание дипазона выбора значений Факт получения защиты 
                         var facts = db.LoadProtectFacts();
                         var protectFactList = facts.Select(x => x.Value).ToList();
                         for (var i = 0; i < protectFactList.Count(); i++)
@@ -231,8 +243,10 @@ namespace TenderProcessing.Controllers
                             directRangeSheet.Cell(protectFactList.Count(), 1));
                         directRangeSheet.Visibility = XLWorksheetVisibility.Hidden;
                         var row = 1;
+                        //вывод инфы по позициям
                         foreach (var position in positions)
                         {
+                            //заголовок и данные по позиции
                             workSheet.Cell(row, 1).Value = "Каталожный номер";
                             workSheet.Cell(row, 2).Value = "Наименование";
                             workSheet.Cell(row, 3).Value = "Замена";
@@ -265,6 +279,7 @@ namespace TenderProcessing.Controllers
                             positionRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
                             positionRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 204, 233, 255);
                             row++;
+                            //заголовок для строк расчета
                             workSheet.Cell(row, 1).Value = "Каталожный номер*";
                             workSheet.Cell(row, 2).Value = "Наименование*";
                             workSheet.Cell(row, 3).Value = "Замена";
@@ -289,6 +304,7 @@ namespace TenderProcessing.Controllers
                             calcHeaderRange.Style.Border.SetRightBorderColor(XLColor.Gray);
                             calcHeaderRange.Style.Border.SetLeftBorder(XLBorderStyleValues.Thin);
                             calcHeaderRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
+                            //вывод инфы по расчету к позиции
                             if (position.Calculations != null && position.Calculations.Any())
                             {
                                 foreach (var calculation in position.Calculations)
@@ -376,6 +392,7 @@ namespace TenderProcessing.Controllers
             }
         }
 
+        //страница с функциональностью загрузки на сервер excel файла с расчетом по позициям
         public ActionResult UploadFileForm(int claimId)
         {
             ViewBag.FirstLoad = true;
@@ -385,6 +402,7 @@ namespace TenderProcessing.Controllers
             return View();
         }
 
+        //обработка загруженного файла excel, с расчетом по позициям
         [HttpPost]
         public ActionResult UploadFileForm(HttpPostedFileBase file, int claimId)
         {
@@ -406,6 +424,7 @@ namespace TenderProcessing.Controllers
                     inputStream.Seek(0, SeekOrigin.Begin);
                     excBook = new XLWorkbook(inputStream);
                     var workSheet = excBook.Worksheet("Расчет");
+                    //разбор полученного файла
                     if (workSheet != null)
                     {
                         var user = GetUser();
@@ -418,11 +437,13 @@ namespace TenderProcessing.Controllers
                         CalculateSpecificationPosition calculate = null;
                         var protectFacts = db.LoadProtectFacts();
                         var adProductManagers = UserHelper.GetProductManagers();
+                        //проход по всем строкам
                         while (true)
                         {
                             row++;
                             var rowValid = true;
                             var controlCell = workSheet.Cell(row, 8);
+                            //определение типа строки
                             var rowType = RowType.CalculateHeader;
                             var controlValue = controlCell.Value;
                             if (controlValue != null)
@@ -430,10 +451,12 @@ namespace TenderProcessing.Controllers
                                 var controlValueString = controlValue.ToString();
                                 if (string.IsNullOrEmpty(controlValueString))
                                 {
+                                    //строка расчета
                                     rowType = RowType.CalculateRow;
                                 }
                                 else
                                 {
+                                    //заголовок позиции
                                     if (controlValueString == "Id")
                                     {
                                         emptyRowCount = 0;
@@ -446,11 +469,13 @@ namespace TenderProcessing.Controllers
                                     }
                                     else if (controlValueString == "callHd")
                                     {
+                                        //заголовок расчета
                                         emptyRowCount = 0;
                                         rowType = RowType.CalculateHeader;
                                     }
                                     else
                                     {
+                                        //получение Id позиции
                                         emptyRowCount = 0;
                                         int id;
                                         var converting = int.TryParse(controlValueString, out id);
@@ -478,6 +503,7 @@ namespace TenderProcessing.Controllers
                             }
                             if (rowType == RowType.CalculateHeader)
                             {
+                                //готовность к разбору инфы по расчету
                                 readyToParse = true;
                             }
                             if (rowType == RowType.PositionHeader || rowType == RowType.PositionRecord)
@@ -495,6 +521,7 @@ namespace TenderProcessing.Controllers
                             }
                             else
                             {
+                                //разбор инфы по расчету к позиции
                                 var nameValue = workSheet.Cell(row, 2).Value;
                                 if (nameValue != null)
                                 {
@@ -524,6 +551,7 @@ namespace TenderProcessing.Controllers
                                         Name = nameValueString,
                                         Author = user.Id
                                     };
+                                    //получение значений расчета из ячеек
                                     var catalogValue = workSheet.Cell(row, 1).Value;
                                     var replaceValue = workSheet.Cell(row, 3).Value;
                                     var priceUsdValue = workSheet.Cell(row, 4).Value;
@@ -534,6 +562,7 @@ namespace TenderProcessing.Controllers
                                     var protectFactValue = workSheet.Cell(row, 10).Value;
                                     var protectConditionValue = workSheet.Cell(row, 11).Value;
                                     var commentValue = workSheet.Cell(row, 12).Value;
+                                    //проверка: Каталожный номер
                                     if (catalogValue == null || string.IsNullOrEmpty(catalogValue.ToString().Trim()))
                                     {
                                         rowValid = false;
@@ -544,6 +573,7 @@ namespace TenderProcessing.Controllers
                                     {
                                         calculate.CatalogNumber = catalogValue.ToString().Trim();
                                     }
+                                    //проверка: Факт получ.защиты и условия защиты
                                     if (protectFactValue == null || string.IsNullOrEmpty(protectFactValue.ToString().Trim()))
                                     {
                                         rowValid = false;
@@ -588,6 +618,7 @@ namespace TenderProcessing.Controllers
                                             }
                                         }
                                     }
+                                    //проверка: Сумма вход руб
                                     if (sumRubValue == null || string.IsNullOrEmpty(sumRubValue.ToString().Trim()))
                                     {
                                         rowValid = false;
@@ -609,6 +640,7 @@ namespace TenderProcessing.Controllers
                                             calculate.SumRub = doubleValue;
                                         }
                                     }
+                                    //проверка: Цена за ед. USD
                                     if (priceUsdValue != null && !string.IsNullOrEmpty(priceUsdValue.ToString().Trim()))
                                     {
                                         double doubleValue;
@@ -624,6 +656,7 @@ namespace TenderProcessing.Controllers
                                             calculate.PriceUsd = doubleValue;
                                         }
                                     }
+                                    //проверка: Сумма вход USD
                                     if (sumUsdValue != null && !string.IsNullOrEmpty(sumUsdValue.ToString().Trim()))
                                     {
                                         double doubleValue;
@@ -639,6 +672,7 @@ namespace TenderProcessing.Controllers
                                             calculate.SumUsd = doubleValue;
                                         }
                                     }
+                                    //проверка: Цена за ед. руб
                                     if (priceRubValue != null && !string.IsNullOrEmpty(priceRubValue.ToString().Trim()))
                                     {
                                         double doubleValue;
@@ -654,6 +688,7 @@ namespace TenderProcessing.Controllers
                                             calculate.PriceRub = doubleValue;
                                         }
                                     }
+                                    //Замена, Поставщик и комментарий
                                     if (replaceValue != null && !string.IsNullOrEmpty(replaceValue.ToString().Trim()))
                                     {
                                         calculate.Replace = replaceValue.ToString().Trim();
@@ -689,6 +724,7 @@ namespace TenderProcessing.Controllers
                                 }
                             }
                         }
+                        //получение позиций для текущего юзера
                         var userPositions = new List<SpecificationPosition>();
                         if (UserHelper.IsController(user))
                         {
@@ -698,9 +734,11 @@ namespace TenderProcessing.Controllers
                         {
                             userPositions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId, user.Id);
                         }
+                        //позиции доступные для изменения
                         var possibleEditPosition = userPositions.Where(x => x.State == 1 || x.State == 3).ToList();
                         if (possibleEditPosition.Any())
                         {
+                            //сохранение позиций и расчета к ним в БД
                             db.DeleteCalculateForPositions(claimId, possibleEditPosition);
                             var userPositionsId = possibleEditPosition.Select(x => x.Id).ToList();
                             var positionCalculate = 0;
@@ -727,6 +765,7 @@ namespace TenderProcessing.Controllers
                         {
                             message = "нет позиций для расчета<br/>Ошибки:<br/>" + errorStringBuilder;
                         }
+                        //получение позиций и расчетов к ним для текущего юзера для передачи в ответ
                         var isController = UserHelper.IsController(user);
                         if (!isController)
                         {
@@ -789,6 +828,7 @@ namespace TenderProcessing.Controllers
             return View();
         }
 
+        //сохранение расчета
         [HttpPost]
         public JsonResult Save(CalculateSpecificationPosition model)
         {
@@ -808,6 +848,7 @@ namespace TenderProcessing.Controllers
             return Json(new {IsComplete = isComplete, Id = id});
         }
 
+        //изменение расчета
         [HttpPost]
         public JsonResult Edit(CalculateSpecificationPosition model)
         {
@@ -825,6 +866,7 @@ namespace TenderProcessing.Controllers
             return Json(new { IsComplete = isComplete });
         }
 
+        //удаление расчета
         public JsonResult Delete(int id)
         {
             var isComplete = false;
@@ -841,6 +883,7 @@ namespace TenderProcessing.Controllers
         }
 
         //>>>>Уведомления
+        //отправка позиций на подтверждение - изменение статуса позиции
         public JsonResult SetPositionToConfirm(int idClaim)
         {
             var isComplete = false;
@@ -850,6 +893,7 @@ namespace TenderProcessing.Controllers
             {
                 var user = GetUser();
                 var db = new DbEngine();
+                //получение позиций для текущего юзера
                 var positions = new List<SpecificationPosition>();
                 if (UserHelper.IsController(user))
                 {
@@ -864,9 +908,11 @@ namespace TenderProcessing.Controllers
                 }
                 if (positions.Any())
                 {
+                    //проверка наличия у позиций строк расчета
                     var isReady = db.IsPositionsReadyToConfirm(positions);
                     if (isReady)
                     {
+                        //изменения статуса позиций на - отправлено
                         isComplete = db.SetPositionsToConfirm(positions);
                         if (!isComplete) message = "Позиции не отправлены";
                         else
@@ -875,6 +921,7 @@ namespace TenderProcessing.Controllers
                             var isAllCalculate = allPositions.Count() ==
                                                  allPositions.Count(x => x.State == 2 || x.State == 4);
                             var claimStatus = isAllCalculate ? 7 : 6;
+                            //Изменение статуса заявки и истроии изменения статусов
                             var status = db.LoadLastStatusHistoryForClaim(idClaim).Id;
                             if (status != claimStatus)
                             {
@@ -895,6 +942,7 @@ namespace TenderProcessing.Controllers
                                 statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
                                 model = statusHistory;
                             }
+                            //инфа для уведомления
                             var claim = db.LoadTenderClaimById(idClaim);
                             var host = string.Empty;
                             if (Request.Url != null) host = Request.Url.Host;
@@ -979,6 +1027,7 @@ namespace TenderProcessing.Controllers
             return Json(new { IsComplete = isComplete, Message = message, Model = model }, JsonRequestBehavior.AllowGet);
         }
 
+        //добавление комментария
         public JsonResult AddComment(int idClaim, string comment)
         {
             var isComplete = false;
