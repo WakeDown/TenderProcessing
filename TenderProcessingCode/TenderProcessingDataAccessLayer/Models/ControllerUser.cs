@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //юзер с ролью контроллер
     public class ControllerUser:UserBase
     {
     }

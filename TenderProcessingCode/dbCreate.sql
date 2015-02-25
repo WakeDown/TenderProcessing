@@ -203,6 +203,41 @@
 --use tenderProcessing
 --go
 
+--SET ANSI_NULLS ON
+--GO
+--SET QUOTED_IDENTIFIER ON
+--GO
+--create function [dbo].[Split]
+--(
+--    @value varchar(max),
+--    @delimiter nvarchar(10)
+--)
+--returns @SplittedValues table
+--(
+--    value int
+--)
+--as
+--begin
+--    declare @SplitLength int
+    
+--    while len(@value) > 0
+--    begin 
+--        select @SplitLength = (case charindex(@delimiter,@value) when 0 then
+--            len(@value) else charindex(@delimiter,@value) -1 end)
+ 
+--        insert into @SplittedValues
+--        select cast(substring(@value,1,@SplitLength) as int)
+    
+--        select @value = (case (len(@value) - @SplitLength) when 0 then  ''
+--            else right(@value, len(@value) - @SplitLength - 1) end)
+--    end 
+--return  
+--end
+--go
+
+--use tenderProcessing
+--go
+
 --create procedure LoadTenderClaims
 --(
 --	@pageSize int
@@ -255,6 +290,87 @@
 --)
 --as
 --select * from TenderClaim where deleted = 0 and Id = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure FilterTenderClaims
+--(
+--    @rowCount int,
+--	@idClaim int = null,
+--	@tenderNumber nvarchar(150) = null,
+--	@claimStatusIds nvarchar(max) = null,
+--	@manager nvarchar(500) = null,
+--	@managerSubDivision nvarchar(500) = null,
+--	@tenderStartFrom datetime = null,
+--	@tenderStartTo datetime = null,
+--	@overdie bit = null,
+--	@idProductManager nvarchar(500) = null,
+--	@author nvarchar(150) = null
+--)
+--as
+--select top(@rowCount) * from TenderClaim where deleted = 0 and ((@idClaim is null) or (@idClaim is not null and Id = @idClaim)) 
+--and ((@tenderNumber is null) or (@tenderNumber is not null and TenderNumber = @tenderNumber))
+--and ((@claimStatusIds is null) or (@claimStatusIds is not null and ClaimStatus in (select * from dbo.Split(@claimStatusIds,','))))
+--and ((@manager is null) or (@manager is not null and Manager = @manager))
+--and ((@managerSubDivision is null) or (@managerSubDivision is not null and ManagerSubDivision = @managerSubDivision))
+--and ((@author is null) or (@author is not null and Author = @author))
+--and ((@idProductManager is null) or (@idProductManager is not null and @idProductManager in (select ProductManager from ClaimPosition where IdClaim = [TenderClaim].Id)))
+--and ((@overdie is null) or (@overdie is not null and 
+--((@overdie = 1 and GETDATE() > ClaimDeadline) or (@overdie = 0 and GETDATE() < ClaimDeadline))))
+--and ((@tenderStartFrom is null and @tenderStartTo is null) or (@tenderStartFrom is not null and @tenderStartTo is not null
+--and ClaimDeadline BETWEEN @tenderStartFrom AND @tenderStartTo) or (@tenderStartFrom is null and @tenderStartTo is not null
+--and ClaimDeadline <= @tenderStartTo) or (@tenderStartFrom is not null and @tenderStartTo is null
+--and ClaimDeadline >= @tenderStartFrom)) order by Id desc
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure FilterTenderClaimsCount
+--(
+--	@idClaim int = null,
+--	@tenderNumber nvarchar(150) = null,
+--	@claimStatusIds nvarchar(max) = null,
+--	@manager nvarchar(500) = null,
+--	@managerSubDivision nvarchar(500) = null,
+--	@tenderStartFrom datetime = null,
+--	@tenderStartTo datetime = null,
+--	@overdie bit = null,
+--	@idProductManager nvarchar(500) = null,
+--	@author nvarchar(150) = null
+--)
+--as
+--select count(*) from TenderClaim where deleted = 0 and ((@idClaim is null) or (@idClaim is not null and Id = @idClaim)) 
+--and ((@tenderNumber is null) or (@tenderNumber is not null and TenderNumber = @tenderNumber))
+--and ((@claimStatusIds is null) or (@claimStatusIds is not null and ClaimStatus in (select * from dbo.Split(@claimStatusIds,','))))
+--and ((@manager is null) or (@manager is not null and Manager = @manager))
+--and ((@managerSubDivision is null) or (@managerSubDivision is not null and ManagerSubDivision = @managerSubDivision))
+--and ((@author is null) or (@author is not null and Author = @author))
+--and ((@idProductManager is null) or (@idProductManager is not null and @idProductManager in (select ProductManager from ClaimPosition where IdClaim = [TenderClaim].Id)))
+--and ((@overdie is null) or (@overdie is not null and 
+--((@overdie = 1 and GETDATE() > ClaimDeadline) or (@overdie = 0 and GETDATE() < ClaimDeadline))))
+--and ((@tenderStartFrom is null and @tenderStartTo is null) or (@tenderStartFrom is not null and @tenderStartTo is not null
+--and ClaimDeadline BETWEEN @tenderStartFrom AND @tenderStartTo) or (@tenderStartFrom is null and @tenderStartTo is not null
+--and ClaimDeadline <= @tenderStartTo) or (@tenderStartFrom is not null and @tenderStartTo is null
+--and ClaimDeadline >= @tenderStartFrom))
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadApproachingTenderClaim
+--as
+--select Id from TenderClaim where deleted = 0 and ClaimStatus not in(4,5,8) and datediff(hour, GETDATE(), ClaimDeadline) <= 24
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure LoadOverdieTenderClaim
+--as
+--select Id from TenderClaim where deleted = 0 and ClaimStatus in(2,3,6,7) and ClaimDeadline > GETDATE()
 --go
 
 --use tenderProcessing
@@ -342,12 +458,45 @@
 --use tenderProcessing
 --go
 
+--create procedure GetProductsForClaims
+--(
+--	@ids nvarchar(max)
+--)
+--as
+--select distinct IdClaim, ProductManager from ClaimPosition where IdClaim in (select * from dbo.Split(@ids,','));
+--go
+
+--use tenderProcessing
+--go
+
 --create procedure HasClaimTranmissedPosition
 --(
 --	@id int
 --)
 --as
 --select count(*) from ClaimPosition where IdClaim = @id and PositionState > 1 
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure IsPositionsReadyToConfirm
+--(
+--	@ids nvarchar(max)
+--)
+--as
+--select IdPosition, count(*) from CalculateClaimPosition where IdPosition in(select * from dbo.Split(@ids,',')) group by IdPosition;
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure SetPositionsToConfirm
+--(
+--	@ids nvarchar(max)
+--)
+--as
+--update ClaimPosition set PositionState = 2 where Id in(select * from dbo.Split(@ids,','));
 --go
 
 --use tenderProcessing
@@ -392,6 +541,29 @@
 --)
 --as
 --update ClaimPosition set PositionState = @positionState where Id = @id
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure ChangePositionsState
+--(
+--	@ids nvarchar(max),
+--	@state int
+--)
+--as
+--update ClaimPosition set PositionState = @state where Id in (select * from dbo.Split(@ids,','));
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure GetProductsForClaim
+--(
+--	@id int
+--)
+--as
+--select ProductManager from ClaimPosition where IdClaim = @id and (PositionState = 1 or PositionState = 3)
 --go
 
 --use tenderProcessing
@@ -539,6 +711,18 @@
 --)
 --as
 --insert into ClaimStatusHistory values(@recordDate, @idClaim, @idStatus, @comment, @idUser)
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure DeleteCalculateForPositions
+--(
+--    @idClaim int,
+--	@ids nvarchar(max)
+--)
+--as
+--delete from CalculateClaimPosition where IdClaim = @idClaim and IdPosition in(select * from dbo.Split(@ids,','));
 --go
 
 --use tenderProcessing

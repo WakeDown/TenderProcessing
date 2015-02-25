@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //класс - истроия статуса заявки
     public class ClaimStatusHistory
     {
         public int Id { get; set; }

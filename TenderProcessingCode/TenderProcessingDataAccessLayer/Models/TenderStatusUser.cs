@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //Класс - пользователь с ролью: Статус конкурса
     public class TenderStatusUser : UserBase
     {
     }

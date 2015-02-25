@@ -7,6 +7,7 @@ using TenderProcessingDataAccessLayer.Enums;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //класс - роль пользователя
     public class UserRole
     {
         public Role Role { get; set; }

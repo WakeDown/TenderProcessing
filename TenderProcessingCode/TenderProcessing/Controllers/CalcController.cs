@@ -31,6 +31,7 @@ namespace TenderProcessing.Controllers
                 dict.Add("message", "У Вас нет доступа к приложению");
                 return RedirectToAction("ErrorPage", "Auth", dict);
             }
+            ViewBag.UserName = user.Name;
             var isController = UserHelper.IsController(user);
             var isProduct = UserHelper.IsProductManager(user);
             if (!isController && !isProduct)

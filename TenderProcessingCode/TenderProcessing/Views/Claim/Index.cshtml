@@ -185,11 +185,13 @@
     }
 
     function setAllPositionConfirmed(e) {
+        messageUi.progressShow();
         $.ajax({
             url: "/Claim/SetClaimAllPositonConfirmed?idClaim=" + claim.Id,
             type: 'GET',
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
+                messageUi.progressHide();
                 if (data.IsComplete) {
                     if (data.Model != null) {
                         claim.ClaimStatus = data.Model.Status.Id;
@@ -224,6 +226,7 @@
         var rejectPostionsId = $("#rejectPositionCommentBox").attr("rejectedId");
         var arrIds = rejectPostionsId.split(",");
         var comment = $("#rejectPositionComment").val().trim();
+        messageUi.progressShow();
         $.ajax({
             url: "/Claim/SetPositonRejected?comment=" + encodeURI(comment) + "&idClaim=" + claim.Id,
             type: 'POST',
@@ -232,6 +235,7 @@
             processData: false,
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
+                messageUi.progressHide();
                 if (data.IsComplete) {
                     if (data.Model != null) {
                         claim.ClaimStatus = data.Model.Status.Id;
@@ -387,6 +391,7 @@
             Comment: comment,
             IdClaim: claim.Id
         }
+        messageUi.progressShow();
         $.ajax({
             url: "/Claim/SetClaimContinued",
             type: 'POST',
@@ -395,6 +400,7 @@
             processData: false,
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
+                messageUi.progressHide();
                 if (data.IsComplete) {
                     if (data.Model != null) {
                         claim.ClaimStatus = data.Model.Status.Id;
@@ -421,6 +427,7 @@
             Comment: comment,
             IdClaim: claim.Id
         }
+        messageUi.progressShow();
         $.ajax({
             url: "/Claim/SetClaimCancelled",
             type: 'POST',
@@ -429,6 +436,7 @@
             processData: false,
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
+                messageUi.progressHide();
                 if (data.IsComplete) {
                     if (data.Model != null) {
                         claim.ClaimStatus = data.Model.Status.Id;
@@ -453,6 +461,7 @@
             Comment: comment,
             IdClaim: claim.Id
         }
+        messageUi.progressShow();
         $.ajax({
             url: "/Claim/SetClaimStopped",
             type: 'POST',
@@ -461,6 +470,7 @@
             processData: false,
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
+                messageUi.progressHide();
                 if (data.IsComplete) {
                     if (data.Model != null){
                         claim.ClaimStatus = data.Model.Status.Id;
@@ -486,11 +496,13 @@
     }
 
     function setClaimOnWork(e) {
+        messageUi.progressShow();
         $.ajax({
             url: "/Claim/SetClaimOnWork?id=" + claim.Id,
             type: 'GET',
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
+                messageUi.progressHide();
                 if (data.IsComplete) {
                     if (data.Model != null) {
                         claim.ClaimStatus = data.Model.Status.Id;
@@ -565,6 +577,7 @@
             TenderUrl: tenderUrl,
             Manager: { Id: managerId, SubDivision: managerSubDivision }
         };
+        messageUi.progressShow();
         $.ajax({
             url: "/Claim/SaveClaim",
             type: 'POST',
@@ -577,6 +590,7 @@
     }
 
     function saveClaimComplete (data) {
+        messageUi.progressHide();
         if (data.IsComplete) {
             claim = data.Model;
             showClaimReadOnly(claim);
@@ -741,7 +755,11 @@
                 showMessage(obj.message);
             }
         }
+        if (obj.type.trim() == "UploadExcelStarted") {
+            messageUi.progressShow();
+        }
         if (obj.type.trim() == "UploadExcelResult") {
+            messageUi.progressHide();
             showMessage(obj.message);
             if (!obj.error) {
                 var positions = obj.positions;
@@ -876,6 +894,7 @@
         if (obj.error) {
             showMessage(obj.message);
         } else {
+            messageUi.progressShow();
             var model = obj.model;
             model.IdClaim = claim.Id;
             $.ajax({
@@ -886,6 +905,7 @@
                 processData: false,
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
+                    messageUi.progressHide();
                     if (data.IsComplete) {
                         $("[modeltype='rowNumberValue']", row).val("");
                         $("[modeltype='catalogNumberValue']", row).val("");
@@ -930,11 +950,13 @@
         var deleted = confirm("Вы уверены что хотите удалить выделенную запись?");
         row.css("backgroundColor", initalBackGround);
         if (deleted) {
+            messageUi.progressShow();
             $.ajax({
                 url: "/Claim/DeleteClaimPosition?id=" + id,
                 type: 'GET',
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
+                    messageUi.progressHide();
                     if (data.IsComplete) {
                         row.remove();
                         setInfoForPositionRows();
@@ -978,6 +1000,7 @@
         if (obj.error) {
             showMessage(obj.message);
         } else {
+            messageUi.progressShow();
             var model = obj.model;
             model.IdClaim = claim.Id;
             model.Id = Number(row.attr("positionId"));
@@ -989,6 +1012,7 @@
                 processData: false,
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
+                    messageUi.progressHide();
                     if (data.IsComplete) {
                         $("[type='rowNumberLabel']", row).text(model.RowNumber != 0 ? model.RowNumber : "");
                         $("[type='catalogNumberLabel']", row).text(model.CatalogNumber);

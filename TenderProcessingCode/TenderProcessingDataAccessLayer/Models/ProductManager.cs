@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //Класс - юзер с ролью снабженец
     public class ProductManager : UserBase
     {
         

@@ -7,6 +7,7 @@ using TenderProcessingDataAccessLayer.Enums;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //юзер а ролью оператор
     public class Operator : UserBase
     {
     }

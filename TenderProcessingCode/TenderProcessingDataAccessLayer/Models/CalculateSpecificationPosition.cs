@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //Класс - расчет к позиции
     public class CalculateSpecificationPosition
     {
         public int Id { get; set; }

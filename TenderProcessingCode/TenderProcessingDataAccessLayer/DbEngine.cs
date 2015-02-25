@@ -254,8 +254,19 @@ namespace TenderProcessingDataAccessLayer
             using (var conn = new SqlConnection(_connectionString))
             {
                 var cmd = conn.CreateCommand();
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = GetFilterTenderClaimQuery(filter, false);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "FilterTenderClaims";
+                cmd.Parameters.AddWithValue("@rowCount", filter.RowCount);
+                if (filter.IdClaim != 0) cmd.Parameters.AddWithValue("@idClaim", filter.IdClaim);
+                if (!string.IsNullOrEmpty(filter.TenderNumber)) cmd.Parameters.AddWithValue("@tenderNumber", filter.TenderNumber);
+                if (filter.ClaimStatus != null && filter.ClaimStatus.Any()) cmd.Parameters.AddWithValue("@claimStatusIds", string.Join(",", filter.ClaimStatus));
+                if (!string.IsNullOrEmpty(filter.IdManager)) cmd.Parameters.AddWithValue("@manager", filter.IdManager);
+                if (!string.IsNullOrEmpty(filter.ManagerSubDivision)) cmd.Parameters.AddWithValue("@managerSubDivision", filter.ManagerSubDivision);
+                if (filter.Overdie.HasValue) cmd.Parameters.AddWithValue("@overdie", filter.Overdie);
+                if (!string.IsNullOrEmpty(filter.IdProductManager)) cmd.Parameters.AddWithValue("@idProductManager", filter.IdProductManager);
+                if (!string.IsNullOrEmpty(filter.Author)) cmd.Parameters.AddWithValue("@author", filter.Author);
+                if (!string.IsNullOrEmpty(filter.TenderStartFrom)) cmd.Parameters.AddWithValue("@tenderStartFrom", DateTime.ParseExact(filter.TenderStartFrom, "dd.MM.yyyy", CultureInfo.CurrentCulture));
+                if (!string.IsNullOrEmpty(filter.TenderStartTo)) cmd.Parameters.AddWithValue("@tenderStartTo", DateTime.ParseExact(filter.TenderStartTo, "dd.MM.yyyy", CultureInfo.CurrentCulture));
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -305,8 +316,19 @@ namespace TenderProcessingDataAccessLayer
             using (var conn = new SqlConnection(_connectionString))
             {
                 var cmd = conn.CreateCommand();
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = GetFilterTenderClaimQuery(filter, true);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "FilterTenderClaimsCount";
+                if (filter.IdClaim != 0) cmd.Parameters.AddWithValue("@idClaim", filter.IdClaim);
+                if (!string.IsNullOrEmpty(filter.TenderNumber)) cmd.Parameters.AddWithValue("@tenderNumber", filter.TenderNumber);
+                if (filter.ClaimStatus != null && filter.ClaimStatus.Any()) cmd.Parameters.AddWithValue("@claimStatusIds", string.Join(",", filter.ClaimStatus));
+                if (!string.IsNullOrEmpty(filter.IdManager)) cmd.Parameters.AddWithValue("@manager", filter.IdManager);
+                if (!string.IsNullOrEmpty(filter.ManagerSubDivision)) cmd.Parameters.AddWithValue("@managerSubDivision", filter.ManagerSubDivision);
+                if (filter.Overdie.HasValue) cmd.Parameters.AddWithValue("@overdie", filter.Overdie);
+                if (!string.IsNullOrEmpty(filter.IdProductManager)) cmd.Parameters.AddWithValue("@idProductManager", filter.IdProductManager);
+                if (!string.IsNullOrEmpty(filter.Author)) cmd.Parameters.AddWithValue("@author", filter.Author);
+                if (!string.IsNullOrEmpty(filter.TenderStartFrom)) cmd.Parameters.AddWithValue("@tenderStartFrom", DateTime.ParseExact(filter.TenderStartFrom, "dd.MM.yyyy", CultureInfo.CurrentCulture));
+                if (!string.IsNullOrEmpty(filter.TenderStartTo)) cmd.Parameters.AddWithValue("@tenderStartTo", DateTime.ParseExact(filter.TenderStartTo, "dd.MM.yyyy", CultureInfo.CurrentCulture));
+                
                 conn.Open();
                 count = (int)cmd.ExecuteScalar();
             }
@@ -318,10 +340,9 @@ namespace TenderProcessingDataAccessLayer
             using (var conn = new SqlConnection(_connectionString))
             {
                 var cmd = conn.CreateCommand();
-                cmd.CommandType = CommandType.Text;
-                var query = "select distinct IdClaim, ProductManager from ClaimPosition where IdClaim in (" +
-                            string.Join(",", claims.Select(x=>x.Id)) + ")";
-                cmd.CommandText = query;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "GetProductsForClaims";
+                cmd.Parameters.AddWithValue("@ids", string.Join(",", claims.Select(x => x.Id)));
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -337,100 +358,6 @@ namespace TenderProcessingDataAccessLayer
             }
         }
 
-        private string GetFilterTenderClaimQuery(FilterTenderClaim model, bool forCount)
-        {
-            var sb = new StringBuilder();
-            sb.Append("select ");
-            if (!forCount)
-            {
-                if (model.RowCount > 0)
-                {
-                    sb.Append("top(" + model.RowCount + ") ");
-                }
-                sb.Append(" * from TenderClaim where deleted = 0");
-            }
-            else
-            {
-                sb.Append(" count(*) from TenderClaim where deleted = 0");
-            }
-            if (model.IdClaim != 0)
-            {
-                sb.Append(" and Id = " + model.IdClaim);
-            }
-            if (!string.IsNullOrEmpty(model.TenderNumber))
-            {
-                sb.Append(" and TenderNumber = '" + model.TenderNumber + "'");
-            }
-            if (model.ClaimStatus != null && model.ClaimStatus.Any())
-            {
-                sb.Append(" and ClaimStatus in (" + string.Join(",", model.ClaimStatus) + ")");
-            }
-            if (!string.IsNullOrEmpty(model.IdManager))
-            {
-                sb.Append(" and Manager = '" + model.IdManager + "'");
-            }
-            if (!string.IsNullOrEmpty(model.ManagerSubDivision))
-            {
-                sb.Append(" and ManagerSubDivision = '" + model.ManagerSubDivision + "'");
-            }
-            if (!string.IsNullOrEmpty(model.TenderStartFrom) && !string.IsNullOrEmpty(model.TenderStartTo))
-            {
-                var dateFrom = DateTime.ParseExact(model.TenderStartFrom, "dd.MM.yyyy", CultureInfo.CurrentCulture);
-                var dateTo = DateTime.ParseExact(model.TenderStartTo, "dd.MM.yyyy", CultureInfo.CurrentCulture);
-                var dateFromString = dateFrom.Year.ToString("G") +
-                                     (dateFrom.Month < 10
-                                         ? "0" + dateFrom.Month.ToString("G")
-                                         : dateFrom.Month.ToString("G")) +
-                                     (dateFrom.Day < 10 ? "0" + dateFrom.Day.ToString("G") : dateFrom.Day.ToString("G"));
-                var dateToString = dateTo.Year.ToString("G") +
-                                     (dateTo.Month < 10
-                                         ? "0" + dateTo.Month.ToString("G")
-                                         : dateTo.Month.ToString("G")) +
-                                     (dateTo.Day < 10 ? "0" + dateTo.Day.ToString("G") : dateTo.Day.ToString("G"));
-                sb.Append(" and ClaimDeadline BETWEEN '" + dateFromString + "' AND '" + dateToString + "'");
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(model.TenderStartFrom))
-                {
-                    var dateFrom = DateTime.ParseExact(model.TenderStartFrom, "dd.MM.yyyy", CultureInfo.CurrentCulture);
-                    var dateFromString = dateFrom.Year.ToString("G") +
-                                         (dateFrom.Month < 10
-                                             ? "0" + dateFrom.Month.ToString("G")
-                                             : dateFrom.Month.ToString("G")) +
-                                         (dateFrom.Day < 10 ? "0" + dateFrom.Day.ToString("G") : dateFrom.Day.ToString("G"));
-                    sb.Append(" and ClaimDeadline >= '" + dateFromString + "'");
-                }
-                if (!string.IsNullOrEmpty(model.TenderStartTo))
-                {
-                    var dateTo = DateTime.ParseExact(model.TenderStartTo, "dd.MM.yyyy", CultureInfo.CurrentCulture);
-                    var dateToString = dateTo.Year.ToString("G") +
-                                         (dateTo.Month < 10
-                                             ? "0" + dateTo.Month.ToString("G")
-                                             : dateTo.Month.ToString("G")) +
-                                         (dateTo.Day < 10 ? "0" + dateTo.Day.ToString("G") : dateTo.Day.ToString("G"));
-                    sb.Append(" and ClaimDeadline <= '" + dateToString + "'");
-                }
-            }
-            if (model.Overdie.HasValue)
-            {
-                
-            }
-            if (!string.IsNullOrEmpty(model.IdProductManager))
-            {
-                sb.Append(" and '" + model.IdProductManager +
-                          "' in (select ProductManager from ClaimPosition where IdClaim = [TenderClaim].Id)");
-            }
-            if (!string.IsNullOrEmpty(model.Author))
-            {
-                sb.Append(" and Author = '" + model.Author + "'");
-            }
-            if (!forCount)
-            {
-                sb.Append(" order by Id desc");
-            }
-            return sb.ToString();
-        }
 
         #endregion
 
@@ -687,9 +614,10 @@ namespace TenderProcessingDataAccessLayer
             using (var conn = new SqlConnection(_connectionString))
             {
                 var cmd = conn.CreateCommand();
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "update ClaimPosition set PositionState = " + state + " where Id in(" +
-                                  string.Join(",", ids) + ")";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "ChangePositionsState";
+                cmd.Parameters.AddWithValue("@ids", string.Join(",", ids));
+                cmd.Parameters.AddWithValue("@state", state);
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;
             }
@@ -717,10 +645,9 @@ namespace TenderProcessingDataAccessLayer
             using (var conn = new SqlConnection(_connectionString))
             {
                 var cmd = conn.CreateCommand();
-                var query = "select IdPosition, count(*) from CalculateClaimPosition where IdPosition in(" +
-                            string.Join(",", positions.Select(x => x.Id)) + ") group by IdPosition";
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = query;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "IsPositionsReadyToConfirm";
+                cmd.Parameters.AddWithValue("@ids", string.Join(",", positions.Select(x => x.Id)));
                 conn.Open();
                 var list = new List<PositionCalculateCount>();
                 var rd = cmd.ExecuteReader();
@@ -759,10 +686,9 @@ namespace TenderProcessingDataAccessLayer
             using (var conn = new SqlConnection(_connectionString))
             {
                 var cmd = conn.CreateCommand();
-                var query = "update ClaimPosition set PositionState = 2 where Id in(" +
-                            string.Join(",", positions.Select(x => x.Id)) + ")";
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = query;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "SetPositionsToConfirm";
+                cmd.Parameters.AddWithValue("@ids", string.Join(",", positions.Select(x => x.Id)));
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;
             }
@@ -951,9 +877,10 @@ namespace TenderProcessingDataAccessLayer
             using (var conn = new SqlConnection(_connectionString))
             {
                 var cmd = conn.CreateCommand();
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "delete from CalculateClaimPosition where IdClaim = " + idClaim + " and IdPosition in (" +
-                                  string.Join(",", positions.Select(x => x.Id)) + ")";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "DeleteCalculateForPositions";
+                cmd.Parameters.AddWithValue("@idClaim", idClaim);
+                cmd.Parameters.AddWithValue("@ids", string.Join(",", positions.Select(x => x.Id)));
                 conn.Open();
                 cmd.ExecuteNonQuery();
             }

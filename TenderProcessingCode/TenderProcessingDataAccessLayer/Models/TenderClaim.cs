@@ -7,6 +7,7 @@ using TenderProcessingDataAccessLayer.Enums;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //класс - заявка
     public class TenderClaim
     {
         public int Id { get; set; }

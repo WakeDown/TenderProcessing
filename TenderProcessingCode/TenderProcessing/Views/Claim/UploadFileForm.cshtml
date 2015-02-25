@@ -42,6 +42,12 @@
                     sendMessage(messageJson);
                     return;
                 }
+                var obj = {
+                    type: "UploadExcelStarted",
+                    error: false
+                };
+                var messageJson = JSON.stringify(obj);
+                sendMessage(messageJson);
                 $("#uploadExcelForm").submit();
             });
             if (firstLoad.toLowerCase() == "false") {

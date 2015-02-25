@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //базовый класс для справочников
     public class ServerDirectBase
     {
         public int Id { get; set; }

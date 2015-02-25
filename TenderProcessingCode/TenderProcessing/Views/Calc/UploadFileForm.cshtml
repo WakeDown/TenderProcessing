@@ -40,6 +40,13 @@
                 sendMessage(messageJson);
                 return;
             }
+            var obj = {
+                type: "UploadExcelStarted",
+                error: true,
+                message: "Укажите файл Excel"
+            };
+            var messageJson = JSON.stringify(obj);
+            sendMessage(messageJson);
             $("#uploadExcelForm").submit();
         });
         if (firstLoad.toLowerCase() == "false") {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //класс - факт получения защиты
     public class ProtectFact : ServerDirectBase
     {
     }

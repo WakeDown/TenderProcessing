@@ -14,12 +14,12 @@ namespace TenderProcessing.Helpers
     {
         public static void SendNotification(IEnumerable<UserBase> users, string message, string header)
         {
-            try
+            var userList = users.ToList();
+            if (userList.Any() && !string.IsNullOrEmpty(message) && !string.IsNullOrEmpty(header))
             {
-                var userList = users.ToList();
-                if (userList.Any() && !string.IsNullOrEmpty(message) && !string.IsNullOrEmpty(header))
+                Task.Run(() =>
                 {
-                    Task.Run(() =>
+                    try
                     {
                         using (var mail = new MailMessage())
                         {
@@ -30,14 +30,21 @@ namespace TenderProcessing.Helpers
                             var password = ConfigurationManager.AppSettings["SmtpPassword"];
                             var from = ConfigurationManager.AppSettings["MailFrom"];
                             mail.From = new MailAddress(from);
-                            //foreach (var user in userList)
-                            //{
-                            //    mail.To.Add(new MailAddress(user.Email));   
-                            //}
-                            mail.To.Add(new MailAddress("Anton.Rehov@unitgroup.ru"));
-                            foreach (var user in userList)
+                            var fakeMail = ConfigurationManager.AppSettings["FakeMailTo"].Trim();
+                            if (string.IsNullOrEmpty(fakeMail))
                             {
-                                message += "<br/>" + user.Email;
+                                foreach (var user in userList)
+                                {
+                                    mail.To.Add(new MailAddress(user.Email));
+                                }
+                            }
+                            else
+                            {
+                                mail.To.Add(new MailAddress(fakeMail));
+                                foreach (var user in userList)
+                                {
+                                    message += "<br/>" + user.Email;
+                                }   
                             }
                             mail.Subject = header;
                             mail.Body = message;
@@ -53,12 +60,13 @@ namespace TenderProcessing.Helpers
                             client.DeliveryMethod = SmtpDeliveryMethod.Network;
                             client.Send(mail);
                         }
-                    });
+                    }
+                    catch (Exception)
+                    {
+                    }
                     
-                }
-            }
-            catch (Exception)
-            {
+                });
+
             }
         }
     }

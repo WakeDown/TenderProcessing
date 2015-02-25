@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //класс - статус конкурса
     public class TenderStatus : ServerDirectBase
     {
     }

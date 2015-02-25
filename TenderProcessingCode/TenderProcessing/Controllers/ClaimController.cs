@@ -34,6 +34,7 @@ namespace TenderProcessing.Controllers
                 dict.Add("message", "У Вас нет доступа к приложению");
                 return RedirectToAction("ErrorPage", "Auth", dict);
             }
+            ViewBag.UserName = user.Name;
             var isController = UserHelper.IsController(user);
             var isManager = UserHelper.IsManager(user);
             var isOperator = UserHelper.IsOperator(user);
@@ -134,6 +135,7 @@ namespace TenderProcessing.Controllers
                 dict.Add("message", "У Вас нет доступа к приложению");
                 return RedirectToAction("ErrorPage", "Auth", dict);
             }
+            ViewBag.UserName = user.Name;
             var showCalculate = false;
             var showEdit = false;
             var changeTenderStatus = false;
@@ -462,6 +464,7 @@ namespace TenderProcessing.Controllers
                 {
                     model = JsonConvert.DeserializeObject<FilterTenderClaim>(modelJson);
                 }
+                if (model.RowCount == 0) model.RowCount = 10;
                 var db = new DbEngine();
                 var list = db.FilterTenderClaims(model);
                 var adProductManagers = UserHelper.GetProductManagers();
@@ -978,6 +981,7 @@ namespace TenderProcessing.Controllers
             try
             {
                 var db = new DbEngine();
+                if (model.RowCount == 0) model.RowCount = 10;
                 list = db.FilterTenderClaims(model);
                 var adProductManagers = UserHelper.GetProductManagers();
                 var managers = UserHelper.GetManagers();

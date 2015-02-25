@@ -74,11 +74,13 @@
     function sendComment() {
         var comment = $("#comment").val().trim();
         if (comment == "") return;
+        messageUi.progressShow();
         $.ajax({
             url: "/Calc/AddComment?idClaim=" + claim.Id +"&comment=" + encodeURI(comment),
             type: 'GET',
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
+                messageUi.progressHide();
                 if (data.IsComplete) {
                     if (data.Model != null) {
                         claim.ClaimStatus = data.Model.Status.Id;
@@ -216,7 +218,11 @@
                 alert(obj.message);
             }
         }
+        if (obj.type.trim() == "UploadExcelStarted") {
+            messageUi.progressShow();
+        }
         if (obj.type.trim() == "UploadExcelResult") {
+            messageUi.progressHide();
             alert(obj.message);
             if (!obj.error) {
                 if (obj.positions == null || obj.positions.length == 0) return;
@@ -255,11 +261,13 @@
     }
 
     function sendOnConfirm() {
+        messageUi.progressShow();
         $.ajax({
             url: "/Calc/SetPositionToConfirm?idClaim=" + claim.Id,
             type: 'GET',
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
+                messageUi.progressHide();
                 if (data.IsComplete) {
                     if (data.Model != null) {
                         claim.ClaimStatus = data.Model.Status.Id;
@@ -460,11 +468,13 @@
         var deleted = confirm("Вы уверены что хотите удалить выделенную запись?");
         row.css("backgroundColor", initalBackGround);
         if (deleted) {
+            messageUi.progressShow();
             $.ajax({
                 url: "/Calc/Delete?id=" + calculateId,
                 type: 'GET',
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
+                    messageUi.progressHide();
                     if (data.IsComplete) {
                         row.remove();
                         setInfoForPositionRows();
@@ -506,6 +516,7 @@
         if (!obj.isValid) {
             alert(obj.message);
         } else {
+            messageUi.progressShow();
             var model = obj.model;
             model.Id = Number(row.attr("calcId"));
             $.ajax({
@@ -516,6 +527,7 @@
                 processData: false,
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
+                    messageUi.progressHide();
                     if (data.IsComplete) {
                         if (model.PriceUsd == 0) {
                             $("[modetype='calculatePriceUsdValueLabelPostix']", row).hide();
@@ -593,6 +605,7 @@
         if (!obj.isValid) {
             alert(obj.message);
         } else {
+            messageUi.progressShow();
             var model = obj.model;
             model.IdSpecificationPosition = Number(row.attr("calcPositionId"));
             model.IdTenderClaim = claim.Id;
@@ -604,6 +617,7 @@
                 processData: false,
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
+                    messageUi.progressHide();
                     if (data.IsComplete) {
                         if (model.PriceUsd == 0) {
                             $("[modetype='calculatePriceUsdValueLabelPostix']", row).hide();

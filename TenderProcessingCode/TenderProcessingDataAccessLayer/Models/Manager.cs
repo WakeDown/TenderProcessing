@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //юзер с ролью менеджер
     public class Manager : UserBase
     {
         public string SubDivision { get; set; }

@@ -1,11 +1,16 @@
-﻿@using DocumentFormat.OpenXml.Wordprocessing
-
+﻿
 @{
-    ViewBag.Title = "Ошибка";
-    Layout = "~/Views/Shared/_MasterPage.cshtml";
+    Layout = null;
 }
 
-<script type="text/javascript">
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Ошибка</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript">
     var message = "@Html.Raw(ViewBag.Message)";
 
     $(init);
@@ -14,8 +19,12 @@
         $("#errorMessage").text(message);
     }
 
-</script>
-
-<h2>Ошибка</h2>
-<div style="text-align: center;" id="errorMessage"></div>
-
+    </script>
+</head>
+<body>
+    <div>
+        <h2 style="text-align: center;">Ошибка</h2>
+        <div style="width: 80%; margin: 10%; text-align: center;" id="errorMessage"></div> 
+    </div>
+</body>
+</html>

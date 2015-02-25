@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //класс - количество расчетов по позиции
     public class PositionCalculateCount
     {
         public int Id { get; set; }

@@ -5,6 +5,7 @@ using System.Web;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //класс - настройки фильтра
     public class FilterTenderClaim
     {
         public int RowCount { get; set; }

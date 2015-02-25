@@ -103,6 +103,7 @@
             alert(obj.message);
             return;
         }
+        messageUi.progressShow();
         $.ajax({
             url: "/Claim/FilterClaim",
             type: 'POST',
@@ -111,6 +112,7 @@
             processData: false,
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
+                messageUi.progressHide();
                 if (data.IsComplete) {
                     claims = data.Claims;
                     initClaimsElements(claims);
@@ -170,6 +172,7 @@
             var control = $("#" + filterStatusControls[i]);
             control.get(0).checked = false;
         }
+        messageUi.progressShow();
         $.ajax({
             url: "/Claim/FilterClaim",
             type: 'POST',
@@ -178,6 +181,7 @@
             processData: false,
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
+                messageUi.progressHide();
                 if (data.IsComplete) {
                     claims = data.Claims;
                     initClaimsElements(claims);
@@ -453,11 +457,13 @@
         var row = button.closest("[type='claimRow']");
         var claimId = row.attr("claimId");
         var status = Number(button.attr("statusValue"));
+        messageUi.progressShow();
         $.ajax({
             url: "/Claim/ChangeClaimTenderStatus?idClaim=" + claimId + "&tenderStatus=" + status,
             type: 'GET',
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
+                messageUi.progressHide();
                 if (data.IsComplete) {
                     $("[modetype='tenderStatusLabel']", row).text(getTenderStatusById(status).Value);
                     var butTypes = ["butSetTenderStatusWin", "butSetTenderStatusLose", "butSetTenderStatusReject"];
@@ -494,12 +500,14 @@
         var deleteConfirm = confirm("Удалить выделенную заявку?");
         row.css("backgroundColor", initalBackGround);
         if (deleteConfirm) {
+            messageUi.progressShow();
             var id = row.attr("claimId");
             $.ajax({
                 url: "/Claim/DeleteClaim?id=" + id,
                 type: 'GET',
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
+                    messageUi.progressHide();
                     if (data.IsComplete) {
                         row.remove();
                     } else {

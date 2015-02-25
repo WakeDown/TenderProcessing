@@ -7,6 +7,7 @@ using TenderProcessingDataAccessLayer.Enums;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //класс - пользователь из ActiveDirectory 
     public class UserBase
     {
 

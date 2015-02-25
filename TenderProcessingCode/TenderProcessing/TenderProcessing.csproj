@@ -243,8 +243,8 @@
     <Content Include="Views\Calc\Index.cshtml" />
     <Content Include="Views\Claim\GetListExcelFile.cshtml" />
     <Content Include="Views\Auth\Index.cshtml" />
-    <Content Include="Views\Auth\ErrorPage.cshtml" />
     <Content Include="Views\Claim\GetSpecificationFileOnlyCalculation.cshtml" />
+    <Content Include="Views\Auth\ErrorPage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TenderProcessingDataAccessLayer\TenderProcessingDataAccessLayer.csproj">
