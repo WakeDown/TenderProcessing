@@ -90,6 +90,7 @@ namespace TenderProcessingClaimDeadLineMonitor
                     }
                     //Обращение к БД за инфой о просроченных заявках
                     var controllers = GetControllers();
+                    var expiredNoteUsers = GetExpiredNoteUsers();
                     cmd.Parameters.Clear();
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.CommandText = "LoadOverdieTenderClaim";
@@ -145,6 +146,9 @@ namespace TenderProcessingClaimDeadLineMonitor
                                 messageMail.Append("<br/>Сообщение от системы Спец расчет");
                                 SendNotification(users, messageMail.ToString(),
                                     "Срока сдачи расчета по заявке истек. Система СпецРасчет");
+                                var userList = new List<UserBase>();
+                                userList.AddRange(controllers);
+                                userList.AddRange(expiredNoteUsers);
                                 //Отправка писем контроллерам
                                 messageMail = new StringBuilder();
                                 messageMail.Append("Здравствуйте");
@@ -157,7 +161,7 @@ namespace TenderProcessingClaimDeadLineMonitor
                                 messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
                                                    "/Calc/Index?claimId=" + claim.Id + "</a>");
                                 messageMail.Append("<br/>Сообщение от системы Спец расчет");
-                                SendNotification(controllers, messageMail.ToString(),
+                                SendNotification(userList, messageMail.ToString(),
                                     "Срока сдачи расчета по заявке истек. Система СпецРасчет");
                             }
                         }
@@ -275,6 +279,39 @@ namespace TenderProcessingClaimDeadLineMonitor
                             Id = sid,
                             Name = name,
                             Email = email
+                        };
+                        list.Add(user);
+                    }
+                }
+            }
+            return list;
+        }
+
+        //Получение получателей извещений о просроченных заявках из ActiveDirectory
+        public static List<UserBase> GetExpiredNoteUsers()
+        {
+            var db = new DbEngine();
+            var roles = db.LoadRoles();
+            var list = new List<UserBase>();
+            var domain = new PrincipalContext(ContextType.Domain);
+            var group = GroupPrincipal.FindByIdentity(domain, IdentityType.Name, roles.First(x => x.Role == Role.ExpiredNote).Name);
+            if (group != null)
+            {
+                var members = group.GetMembers(true);
+                foreach (var principal in members)
+                {
+                    var userPrincipal = UserPrincipal.FindByIdentity(domain, principal.Name);
+                    if (userPrincipal != null)
+                    {
+                        var email = userPrincipal.EmailAddress;
+                        var name = userPrincipal.DisplayName;
+                        var sid = userPrincipal.Sid.Value;
+                        var user = new UserBase()
+                        {
+                            Id = sid,
+                            Name = name,
+                            Email = email,
+                            Roles = new List<Role>() { Role.ExpiredNote }
                         };
                         list.Add(user);
                     }

@@ -31,6 +31,7 @@
     var histories = @Html.Raw(serializer.Serialize(ViewBag.StatusHistory));
     var claimStatus = @Html.Raw(serializer.Serialize(ViewBag.ClaimStatus));
     var errorLoad = @ViewBag.Error;
+    var newClaim = @ViewBag.NewClaim;
 
     $(init);
 
@@ -41,6 +42,7 @@
         }
         messageUi.initProgressImage();
         window.addEventListener("message", messageHandler, true);
+        if (!newClaim) $("#newClaimNavButton").hide();
         $("#butGetExcelFile").click(getExcelFileFromServer);
         $("#butUploadExcelFile").click(openFile);
         initProtectFactList();
@@ -272,8 +274,9 @@
 
     function sendOnConfirm() {
         messageUi.progressShow();
+        var comment = $("#comment").val().trim();
         $.ajax({
-            url: "/Calc/SetPositionToConfirm?idClaim=" + claim.Id,
+            url: "/Calc/SetPositionToConfirm?idClaim=" + claim.Id + "&comment=" + comment,
             type: 'GET',
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
@@ -491,13 +494,13 @@
     //<<<<<<<Отображение инфы по заявке>>>>>>
     function showClaimInfo(model) {
         $("#claimId").text(model.Id);
-        $("#claimCustomer").text(model.Customer + " " + model.CustomerInn);
+        $("#claimCustomer").text(model.Customer + "<br/>" + model.CustomerInn);
         $("#claimTenderStart").text(model.TenderStartString);
         $("#claimDeadline").text(model.ClaimDeadlineString);
         $("#kPDeadline").text(model.KPDeadlineString);
-        $("#claimManager").text(model.Manager.Name);
+        $("#claimManager").text(model.Manager.ShortName);
         $("#managerSubDivision").text(model.Manager.SubDivision);
-        $("#managerChief").text(model.Manager.Chief);
+        $("#managerChief").text(model.Manager.ChiefShortName);
         $("#claimDealType").text(dealType);
         var sum = "";
         if (model.Sum > 0) {

@@ -13,6 +13,7 @@ namespace TenderProcessingDataAccessLayer.Enums
         ProductManager = 3,
         Controller = 4,
         TenderStatus = 5,
-        Enter = 6
+        Enter = 6,
+        ExpiredNote = 7
     }
 }

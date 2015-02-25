@@ -42,8 +42,7 @@
             }
             var obj = {
                 type: "UploadExcelStarted",
-                error: true,
-                message: "Укажите файл Excel"
+                error: false
             };
             var messageJson = JSON.stringify(obj);
             sendMessage(messageJson);

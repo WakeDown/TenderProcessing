@@ -813,7 +813,7 @@
 --insert into ClaimStatus values(4, N'Приостановлено');
 --insert into ClaimStatus values(5, N'Отменено');
 --insert into ClaimStatus values(6, N'Частично расчитано');
---insert into ClaimStatus values(7, N'Расчитано');
+--insert into ClaimStatus values(7, N'Рассчитано');
 --insert into ClaimStatus values(8, N'Подтверждено');
 
 --insert into PositionState values(1, N'Создана');
@@ -836,5 +836,6 @@
 --insert into Roles values(4, 'S-1-5-21-1970802976-3466419101-4042325969-4286', 'SpeCalc-Kontroler');
 --insert into Roles values(5, 'S-1-5-21-1970802976-3466419101-4042325969-4285', 'SpeCalc-Konkurs');
 --insert into Roles values(6, 'S-1-5-21-1970802976-3466419101-4042325969-4282', 'SpeCalc-Enter');
+--insert into Roles values(7, 'S-1-5-21-1970802976-3466419101-4042325969-4296', 'SpeClac-ExpiredNote');
 
 --go

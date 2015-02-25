@@ -153,6 +153,8 @@ namespace TenderProcessing.Controllers
             var userId = string.Empty;
             var author = string.Empty;
             var reportExcel = false;
+            var deleteClaim = "none";
+            var newClaim = "true";
             var filterClaimStatus = new List<int>();
             var isController = UserHelper.IsController(user);
             var isTenderStatus = UserHelper.IsTenderStatus(user);
@@ -167,6 +169,7 @@ namespace TenderProcessing.Controllers
                 clickAction = "editClaim";
                 posibleAction = "all";
                 reportExcel = true;
+                deleteClaim = "true";
             }
             else
             {
@@ -175,6 +178,7 @@ namespace TenderProcessing.Controllers
                     changeTenderStatus = true;
                     clickAction = "null";
                     posibleAction = "null";
+                    newClaim = "false";
                 }
                 if (isManager)
                 {
@@ -184,6 +188,7 @@ namespace TenderProcessing.Controllers
                     posibleAction = "editClaim";
                     userId = user.Id;
                     filterClaimStatus.AddRange(new [] { 1,2,3,6,7 });
+                    deleteClaim = "self&manager";
                 }
                 if (isProduct)
                 {
@@ -192,6 +197,7 @@ namespace TenderProcessing.Controllers
                     clickAction = "calculateClaim";
                     posibleAction = (isManager ? "all" : "calculateClaim");
                     userId = user.Id;
+                    newClaim = "false";
                     if (!isManager) filterClaimStatus.AddRange(new[] { 2, 3, 6, 7 });
                 }
                 if (isOperator)
@@ -200,6 +206,7 @@ namespace TenderProcessing.Controllers
                     clickAction = "editClaim";
                     posibleAction = (isProduct ? "all" : "editClaim");
                     author = user.Id;
+                    deleteClaim = "self";
                 }
             }
             ViewBag.Settings = new
@@ -214,7 +221,9 @@ namespace TenderProcessing.Controllers
                 userId,
                 filterClaimStatus,
                 author,
-                reportExcel
+                reportExcel,
+                deleteClaim,
+                newClaim
             };
             ViewBag.Error = false.ToString().ToLower();
             ViewBag.ClaimCount = 0;
@@ -920,7 +929,7 @@ namespace TenderProcessing.Controllers
                             IdClaim = model.Id,
                             IdUser = user.Id,
                             Status = new ClaimStatus() {Id = model.ClaimStatus},
-                            Comment = string.Empty
+                            Comment = "Автор: " + user.Name
                         };
                         db.SaveClaimStatusHistory(statusHistory);
                         statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
@@ -1116,7 +1125,8 @@ namespace TenderProcessing.Controllers
                         }
                         //истроия изменения статуса заявки
                         var user = GetUser();
-                        var comment = string.Join(",", productManagers.Select(x => x.Name));
+                        var comment = string.Join("\r", productManagers.Select(x => x.Name));
+                        comment += "\rАвтор: " + user.Name; 
                         model = new ClaimStatusHistory()
                         {
                             Date = DateTime.Now,
@@ -1128,24 +1138,38 @@ namespace TenderProcessing.Controllers
                         db.SaveClaimStatusHistory(model);
                         model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
                         //>>>>Уведомления
+                        var claimPositions = db.LoadSpecificationPositionsForTenderClaim(id);
                         var productInClaim =
                             productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
                         var claim = db.LoadTenderClaimById(id);
                         var host = string.Empty;
                         if (Request.Url != null) host = Request.Url.Host;
-                        var messageMail = new StringBuilder();
-                        messageMail.Append("Здравствуйте");
-                        messageMail.Append(".<br/>");
-                        messageMail.Append("Пользователь ");
-                        messageMail.Append(user.Name);
-                        messageMail.Append(" создал заявку где Вам назначены позиции для расчета.<br/>");
-                        messageMail.Append("Заявка № " + claim.Id + ", Заказчик: " + claim.Customer + ", Срок сдачи: " + claim.ClaimDeadline.ToString("dd.MM.yyyy") + ".<br/>");
-                        messageMail.Append("Ссылка на заявку: ");
-                        messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
-                                       "/Calc/Index?claimId=" + claim.Id + "</a>");
-                        messageMail.Append("<br/>Сообщение от системы Спец расчет");
-                        Notification.SendNotification(productInClaim, messageMail.ToString(),
-                            "Новая заявка для расчета в системе СпецРасчет");
+                        var dealTypes = db.LoadDealTypes();
+                        foreach (var productManager in productInClaim)
+                        {
+                            var positionCount = claimPositions.Count(x => x.ProductManager.Id == productManager.Id);
+                            var messageMail = new StringBuilder();
+                            messageMail.Append("Здравствуйте ");
+                            messageMail.Append(productManager.Name);
+                            messageMail.Append(".<br/>");
+                            messageMail.Append("Пользователь ");
+                            messageMail.Append(user.Name);
+                            messageMail.Append(
+                                " создал заявку где Вам назначены позиции для расчета. Количество назначенных позиций: " +
+                                positionCount + "<br/>");
+                            messageMail.Append("Заявка № " + claim.Id + ", Менеджер: " +
+                                           UserHelper.GetUserById(claim.Manager.Id).ShortName +
+                                           ", Тип конкурса: " + dealTypes.First(x => x.Id == claim.DealType).Value +
+                                           ", Заказчик: " + claim.Customer +
+                                           ", Сумма: " + claim.Sum.ToString("N2") + ", Срок сдачи: "
+                                           + claim.ClaimDeadline.ToString("dd.MM.yyyy") + ".<br/>");
+                            messageMail.Append("Ссылка на заявку: ");
+                            messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
+                                           "/Calc/Index?claimId=" + claim.Id + "</a>");
+                            messageMail.Append("<br/>Сообщение от системы Спец расчет");
+                            Notification.SendNotification(new[] {productManager}, messageMail.ToString(),
+                                "Новая заявка для расчета в системе СпецРасчет");
+                        }
                     }
                 }
                 else
@@ -1188,6 +1212,7 @@ namespace TenderProcessing.Controllers
                         var productInClaim =
                             productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
                         var host = string.Empty;
+                        var dealTypes = db.LoadDealTypes();
                         if (Request.Url != null) host = Request.Url.Host;
                         var messageMail = new StringBuilder();
                         messageMail.Append("Здравствуйте");
@@ -1195,7 +1220,12 @@ namespace TenderProcessing.Controllers
                         messageMail.Append("Пользователь ");
                         messageMail.Append(user.Name);
                         messageMail.Append(" отменил заявку где Вам назначены позиции для расчета.<br/>");
-                        messageMail.Append("Заявка № " + claim.Id + ", Заказчик: " + claim.Customer + ", Срок сдачи: " + claim.ClaimDeadline.ToString("dd.MM.yyyy") + ".<br/>");
+                        messageMail.Append("Заявка № " + claim.Id + ", Менеджер: " +
+                                           UserHelper.GetUserById(claim.Manager.Id).ShortName +
+                                           ", Тип конкурса: " + dealTypes.First(x => x.Id == claim.DealType).Value +
+                                           ", Заказчик: " + claim.Customer +
+                                           ", Сумма: " + claim.Sum.ToString("N2") + ", Срок сдачи: "
+                                           + claim.ClaimDeadline.ToString("dd.MM.yyyy") + ".<br/>");
                         messageMail.Append("Ссылка на заявку: ");
                         messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
                                        "/Calc/Index?claimId=" + claim.Id + "</a>");
@@ -1229,6 +1259,7 @@ namespace TenderProcessing.Controllers
                     model.IdUser = GetUser().Id;
                     model.Status = new ClaimStatus() { Id = 4 };
                     db.SaveClaimStatusHistory(model);
+                    var dealTypes = db.LoadDealTypes();
                     model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
                     //>>>>Уведомления
                     var claim = db.LoadTenderClaimById(model.IdClaim);
@@ -1247,7 +1278,12 @@ namespace TenderProcessing.Controllers
                         messageMail.Append("Пользователь ");
                         messageMail.Append(user.Name);
                         messageMail.Append(" приостановил заявку где Вам назначены позиции для расчета.<br/>");
-                        messageMail.Append("Заявка № " + claim.Id + ", Заказчик: " + claim.Customer + ", Срок сдачи: " + claim.ClaimDeadline.ToString("dd.MM.yyyy") + ".<br/>");
+                        messageMail.Append("Заявка № " + claim.Id + ", Менеджер: " +
+                                           UserHelper.GetUserById(claim.Manager.Id).ShortName +
+                                           ", Тип конкурса: " + dealTypes.First(x => x.Id == claim.DealType).Value +
+                                           ", Заказчик: " + claim.Customer +
+                                           ", Сумма: " + claim.Sum.ToString("N2") + ", Срок сдачи: "
+                                           + claim.ClaimDeadline.ToString("dd.MM.yyyy") + ".<br/>");
                         messageMail.Append("Ссылка на заявку: ");
                         messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
                                        "/Calc/Index?claimId=" + claim.Id + "</a>");
@@ -1288,6 +1324,7 @@ namespace TenderProcessing.Controllers
                             model.Status = new ClaimStatus() { Id = actualStatus.Status.Id };
                             if (string.IsNullOrEmpty(model.Comment)) model.Comment = "Возобновление заявки";
                             db.SaveClaimStatusHistory(model);
+                            var dealTypes = db.LoadDealTypes();
                             model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
                             //>>>>Уведомления
                             var claim = db.LoadTenderClaimById(model.IdClaim);
@@ -1306,7 +1343,12 @@ namespace TenderProcessing.Controllers
                                 messageMail.Append("Пользователь ");
                                 messageMail.Append(user.Name);
                                 messageMail.Append(" возобновил заявку для работы где Вам назначены позиции для расчета.<br/>");
-                                messageMail.Append("Заявка № " + claim.Id + ", Заказчик: " + claim.Customer + ", Срок сдачи: " + claim.ClaimDeadline.ToString("dd.MM.yyyy") + ".<br/>");
+                                messageMail.Append("Заявка № " + claim.Id + ", Менеджер: " +
+                                           UserHelper.GetUserById(claim.Manager.Id).ShortName +
+                                           ", Тип конкурса: " + dealTypes.First(x => x.Id == claim.DealType).Value +
+                                           ", Заказчик: " + claim.Customer +
+                                           ", Сумма: " + claim.Sum.ToString("N2") + ", Срок сдачи: "
+                                           + claim.ClaimDeadline.ToString("dd.MM.yyyy") + ".<br/>");
                                 messageMail.Append("Ссылка на заявку: ");
                                 messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
                                                "/Calc/Index?claimId=" + claim.Id + "</a>");
@@ -1365,6 +1407,7 @@ namespace TenderProcessing.Controllers
                 {
                     //>>>>Уведомления
                     var claim = db.LoadTenderClaimById(idClaim);
+                    var dealTypes = db.LoadDealTypes();
                     var productManagers =
                         allPositions.Where(x => positionsId.Contains(x.Id)).Select(x => x.ProductManager).ToList();
                     if (productManagers.Any())
@@ -1381,8 +1424,12 @@ namespace TenderProcessing.Controllers
                         messageMail.Append(user.Name);
                         messageMail.Append(" отклонил Ваш расчет позиции по заявке № " + claim.Id + "<br/>");
                         if (!string.IsNullOrEmpty(comment)) messageMail.Append("Комментарий: " + comment + "<br/>");
-                        messageMail.Append("Заявка № " + claim.Id + ", Заказчик: " + claim.Customer + ", Срок сдачи: " +
-                                           claim.ClaimDeadline.ToString("dd.MM.yyyy") + ".<br/>");
+                        messageMail.Append("Заявка № " + claim.Id + ", Менеджер: " +
+                                           UserHelper.GetUserById(claim.Manager.Id).ShortName +
+                                           ", Тип конкурса: " + dealTypes.First(x => x.Id == claim.DealType).Value +
+                                           ", Заказчик: " + claim.Customer +
+                                           ", Сумма: " + claim.Sum.ToString("N2") + ", Срок сдачи: "
+                                           + claim.ClaimDeadline.ToString("dd.MM.yyyy") + ".<br/>");
                         messageMail.Append("Ссылка на заявку: ");
                         messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
                                            "/Calc/Index?claimId=" + claim.Id + "</a>");
@@ -1437,6 +1484,7 @@ namespace TenderProcessing.Controllers
                             var productManagers = positions.Select(x => x.ProductManager).ToList();
                             if (productManagers.Any())
                             {
+                                var dealTypes = db.LoadDealTypes();
                                 var productManagersFromAd = UserHelper.GetProductManagers();
                                 var productInClaim =
                                     productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
@@ -1448,8 +1496,12 @@ namespace TenderProcessing.Controllers
                                 messageMail.Append("Пользователь ");
                                 messageMail.Append(user.Name);
                                 messageMail.Append(" подтвердил Ваш расчет позиции по заявке № " + claim.Id + "<br/>");
-                                messageMail.Append("Заявка № " + claim.Id + ", Заказчик: " + claim.Customer + ", Срок сдачи: " +
-                                                   claim.ClaimDeadline.ToString("dd.MM.yyyy") + ".<br/>");
+                                messageMail.Append("Заявка № " + claim.Id + ", Менеджер: " +
+                                           UserHelper.GetUserById(claim.Manager.Id).ShortName +
+                                           ", Тип конкурса: " + dealTypes.First(x => x.Id == claim.DealType).Value +
+                                           ", Заказчик: " + claim.Customer +
+                                           ", Сумма: " + claim.Sum.ToString("N2") + ", Срок сдачи: "
+                                           + claim.ClaimDeadline.ToString("dd.MM.yyyy") + ".<br/>");
                                 messageMail.Append("Ссылка на заявку: ");
                                 messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
                                                    "/Calc/Index?claimId=" + claim.Id + "</a>");

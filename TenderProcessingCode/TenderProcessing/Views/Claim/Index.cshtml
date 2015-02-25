@@ -35,6 +35,14 @@
             alert("Произошла ошибка при загрузке");
             return;
         }
+        $.fn.datepicker.dates['ru'] = {
+            days: ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"],
+            daysShort: ["Вск", "Пнд", "Втр", "Срд", "Чтв", "Птн", "Суб", "Вск"],
+            daysMin: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
+            months: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+            monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+            today: "Сегодня"
+        };
         messageUi.initProgressImage();
         window.addEventListener("message", messageHandler, true);
         if (claim != null && claim.ClaimStatus == 1) {
@@ -47,17 +55,20 @@
         $("#tenderStart").datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
-            todayBtn: "linked"
+            todayBtn: "linked",
+            language: "ru"
         });
         $("#kPDeadline").datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
-            todayBtn: "linked"
+            todayBtn: "linked",
+            language: "ru"
         });
         $("#claimDeadline").datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
-            todayBtn: "linked"
+            todayBtn: "linked",
+            language: "ru"
         });
         $("#tenderStart").add("#kPDeadline").add("#claimDeadline").change(function(e) {
             var datepicker = $(e.currentTarget);
@@ -455,6 +466,24 @@
                 obj.message += message;
             }
         }
+        var manager = $(":selected", $("#listManagers")).val();
+        if (manager == "null") {
+            message = "Выберите менеджера";
+            if (obj.message.trim() != "") {
+                message = "\r" + message;
+            }
+            obj.isValid = false;
+            obj.message += message;
+        }
+        var dealType = $(":selected", $("#listDealTypes")).val();
+        if (dealType == "null") {
+            message = "Выберите тип сделки";
+            if (obj.message.trim() != "") {
+                message = "\r" + message;
+            }
+            obj.isValid = false;
+            obj.message += message;
+        }
         return obj;
     }
 
@@ -789,6 +818,11 @@
         $.each(positionsCb, function(i, element) {
             element.checked = state;
         });
+        var positionsRows = $("[type='positionRow']", $("#positionTable"));
+        $.each(positionsRows, function(index, element) {
+            element = $(element);
+            setRowSelect(element, !state);
+        });
     }
 
     function setInfoForPositionRows() {
@@ -902,9 +936,6 @@
         element.attr("selectState", "false");
         element.attr("initalColor", color);
         element.click(rowPositionClick);
-        $("[modetype='selectPositionElement']", element).click(function(e) {
-            e.stopImmediatePropagation();
-        });
         return element;
     }
 
@@ -1174,16 +1205,19 @@
     function initManagersList() {
         if (managers == null || managers.length == 0) return;
         var list = $("#listManagers");
+        var option = $("<option value='null'>--выберите запись--</option>");
+        list.append(option);
         var managersLength = managers.length;
         for (var i = 0; i < managersLength; i++) {
             var manager = managers[i];
-            var option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
+            option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
             list.append(option);
         }
         list.change(function() {
             var selElement = $(":selected", list);
             if (selElement != null) {
                 var id = selElement.val();
+                if (id == "null") return;
                 var selManager = getManagerById(id);
                 if (selManager != null) {
                     $("#managerSubDivision").text(selManager.SubDivision);
@@ -1196,10 +1230,12 @@
     function initDealTypesList() {
         if (dealTypes == null || dealTypes.length == 0) return;
         var list = $("#listDealTypes");
+        var option = $("<option value='null'>--выберите запись--</option>");
+        list.append(option);
         var dealTypesLength = dealTypes.length;
         for (var i = 0; i < dealTypesLength; i++) {
             var dealType = dealTypes[i];
-            var option = $("<option value='" + dealType.Id + "'>" + dealType.Value + "</option>");
+            option = $("<option value='" + dealType.Id + "'>" + dealType.Value + "</option>");
             list.append(option);
         }
     }

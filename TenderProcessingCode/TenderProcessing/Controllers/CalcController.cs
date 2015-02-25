@@ -21,7 +21,6 @@ namespace TenderProcessing.Controllers
     [Authorize]
     public class CalcController : Controller
     {
-        //>>>>Уведомления
         //Страница расчета позиций по заявке
         public ActionResult Index(int? claimId)
         {
@@ -46,6 +45,9 @@ namespace TenderProcessing.Controllers
             ViewBag.DealType = string.Empty;
             ViewBag.Status = string.Empty;
             ViewBag.StatusHistory = new List<ClaimStatusHistory>();
+            var newClaim = true;
+            if (!isController) newClaim = false;
+            ViewBag.NewClaim = newClaim.ToString().ToLower();
             try
             {
                 //получение инфы по заявке и сопутствующих справочников
@@ -91,26 +93,6 @@ namespace TenderProcessing.Controllers
                                     IdUser = user.Id
                                 };
                                 db.SaveClaimStatusHistory(statusHistory);
-                                //>>>>Уведомления
-                                var manager = UserHelper.GetUserById(claim.Manager.Id);
-                                if (manager != null)
-                                {
-                                    var host = string.Empty;
-                                    if (Request.Url != null) host = Request.Url.Host;
-                                    var message = new StringBuilder();
-                                    message.Append("Здравствуйте ");
-                                    message.Append(manager.Name);
-                                    message.Append(".<br/>");
-                                    message.Append("Пользователь ");
-                                    message.Append(user.Name);
-                                    message.Append(" приступил к работе на заявкой №" + claim.Id + ".<br/>");
-                                    message.Append("Ссылка на заявку: ");
-                                    message.Append("<a href='" + host + "/Claim/Index?claimId=" + claim.Id + "'>" + host +
-                                                   "/Claim/Index?claimId=" + claim.Id + "</a>");
-                                    message.Append("<br/>Сообщение от системы Спец расчет");
-                                    Notification.SendNotification(new List<UserBase>() {manager}, message.ToString(),
-                                        "Заявка №" + claim.Id + " принята работу в системе СпецРасчет");
-                                }
                             }
                             //менеджеры и снабженцы из ActiveDirectory
                             var managers = UserHelper.GetManagers();
@@ -758,12 +740,18 @@ namespace TenderProcessing.Controllers
                                     }
                                 }
                             }
+                            var errorPart = errorStringBuilder.ToString().Trim();
+                            if (string.IsNullOrEmpty(errorPart)) errorPart = "нет";
+                            else errorPart = "<br/>" + errorPart;
                             message = "Позиций расчитано: " + positionCalculate + "<br/>Строк расчета: " +
-                                      calculateCount + "<br/>Ошибки:<br/>" + errorStringBuilder;
+                                      calculateCount + "<br/>Ошибки: " + errorPart;
                         }
                         else
                         {
-                            message = "нет позиций для расчета<br/>Ошибки:<br/>" + errorStringBuilder;
+                            var errorPart = errorStringBuilder.ToString().Trim();
+                            if (string.IsNullOrEmpty(errorPart)) errorPart = "нет";
+                            else errorPart = "<br/>" + errorPart;
+                            message = "нет позиций для расчета<br/>Ошибки: " + errorPart;
                         }
                         //получение позиций и расчетов к ним для текущего юзера для передачи в ответ
                         var isController = UserHelper.IsController(user);
@@ -884,7 +872,7 @@ namespace TenderProcessing.Controllers
 
         //>>>>Уведомления
         //отправка позиций на подтверждение - изменение статуса позиции
-        public JsonResult SetPositionToConfirm(int idClaim)
+        public JsonResult SetPositionToConfirm(int idClaim, string comment)
         {
             var isComplete = false;
             var message = string.Empty;
@@ -933,10 +921,24 @@ namespace TenderProcessing.Controllers
                                 var statusHistory = new ClaimStatusHistory()
                                 {
                                     Date = DateTime.Now,
-                                    Comment = "",
+                                    Comment = comment,
                                     IdClaim = idClaim,
                                     IdUser = user.Id,
                                     Status = new ClaimStatus() {Id = claimStatus}
+                                };
+                                db.SaveClaimStatusHistory(statusHistory);
+                                statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
+                                model = statusHistory;
+                            }
+                            else
+                            {
+                                var statusHistory = new ClaimStatusHistory()
+                                {
+                                    Date = DateTime.Now,
+                                    Comment = comment,
+                                    IdClaim = idClaim,
+                                    IdUser = user.Id,
+                                    Status = new ClaimStatus() { Id = status }
                                 };
                                 db.SaveClaimStatusHistory(statusHistory);
                                 statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");

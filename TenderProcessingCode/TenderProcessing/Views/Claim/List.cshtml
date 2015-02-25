@@ -31,8 +31,17 @@
             alert("Произошла ошибка при загрузке");
             return;
         }
+        $.fn.datepicker.dates['ru'] = {
+            days: ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"],
+            daysShort: ["Вск", "Пнд", "Втр", "Срд", "Чтв", "Птн", "Суб", "Вск"],
+            daysMin: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
+            months: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+            monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+            today: "Сегодня"
+        };
         messageUi.initProgressImage();
         window.addEventListener("message", messageHandler, true);
+        if (settings.newClaim == "false") $("#newClaimNavButton").hide();
         initClaimsElements(claims);
         var managerId = (settings.filterManager != "") ? settings.filterManager : "";
         initFilterManagersList(managerId);
@@ -45,12 +54,14 @@
         $("#filterTenderStartFrom").datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
-            todayBtn: "linked"
+            todayBtn: "linked",
+            language: "ru"
         });
         $("#filterTenderStartTo").datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
-            todayBtn: "linked"
+            todayBtn: "linked",
+            language: "ru"
         });
         $("#filterTenderStartFrom").add("#filterTenderStartTo").change(function(e) {
             var datepicker = $(e.currentTarget);
@@ -398,14 +409,15 @@
         element.append("<td><span>" + claim.Customer + "</span></td>");
         var sum = "";
         if (claim.Sum > 0) {
-            sum = claim.Sum.toFixed(0);
+            sum = claim.Sum.toFixed(2);
         }
         element.append("<td><span>" + sum + "</span></td>");
-        element.append("<td><span>" + claim.Manager.Name + "</span></td>");
+        element.append("<td><span>" + claim.Manager.ShortName + "</span></td>");
         element.append("<td><span>" + getProductManagersString(claim.ProductManagers) + "</span></td>");
         element.append("<td><span>" + getDealTypeById(claim.DealType).Value + "</span></td>");
         element.append("<td><span>" + getClaimStatusById(claim.ClaimStatus).Value + "</span></td>");
-        element.append("<td><span>" + claim.RecordDateString + "<span/></td>");
+        element.append("<td><span>" + claim.RecordDateString.split(" ")[0] + "<span/></td>");
+        element.append("<td><span>" + claim.ClaimDeadlineString + "<span/></td>");
         var tenderStatusCell = $("<td></td>");
         var tenderStatusPanel = $("<div></div>");
         tenderStatusPanel.append("<strong modetype='tenderStatusLabel'>" + getTenderStatusById(claim.TenderStatus).Value + "</strong>");
@@ -427,9 +439,14 @@
         }
         var actionCell = $("<td class='min-width'></td>");
         element.append(actionCell);
-        var deleteButton = $("<button type='button' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить'><i class='fa fa-trash'></i></button>");
-        deleteButton.click(deleteButtonClick);
-        actionCell.append(deleteButton);
+        if (settings.deleteClaim != "none") {
+            if (settings.deleteClaim == "true" || ((settings.deleteClaim == "self" || settings.deleteClaim == "self&manager") && claim.Author == settings.userId)
+                || (settings.deleteClaim == "self&manager" && claim.Manager.Id == settings.userId)) {
+                var deleteButton = $("<button type='button' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить'><i class='fa fa-trash'></i></button>");
+                deleteButton.click(deleteButtonClick);
+                actionCell.append(deleteButton);
+            }
+        }
         if (settings.clickAction != "null") {
             element.dblclick(function(e) {
                 var row = $(e.currentTarget);
@@ -531,7 +548,7 @@
         var managersLength = managers.length;
         for (var i = 0; i < managersLength; i++) {
             var manager = managers[i];
-            result += manager.Name + "<br/>";
+            result += manager.ShortName + "<br/>";
         }
         if (result.length > 4) {
             result = result.substr(0, result.length - 5);
@@ -696,6 +713,7 @@
                 <th>Тип сделки</th>
                 <th>Статус</th>
                 <th>Создано</th>
+                <th>Срок сдачи</th>
                 <th>Статус<br />конкурса</th>
                 <th></th>
             </tr>

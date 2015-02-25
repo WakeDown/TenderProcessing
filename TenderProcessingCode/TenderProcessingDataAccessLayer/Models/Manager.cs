@@ -12,5 +12,7 @@ namespace TenderProcessingDataAccessLayer.Models
         public string SubDivision { get; set; }
 
         public string Chief { get; set; }
+
+        public string ChiefShortName { get; set; }
     }
 }
