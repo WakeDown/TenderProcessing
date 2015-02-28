@@ -30,6 +30,7 @@
     var protectFacts = @Html.Raw(serializer.Serialize(protectFacts));
     var histories = @Html.Raw(serializer.Serialize(ViewBag.StatusHistory));
     var claimStatus = @Html.Raw(serializer.Serialize(ViewBag.ClaimStatus));
+    var currencies = @Html.Raw(serializer.Serialize(ViewBag.Currencies));
     var errorLoad = @ViewBag.Error;
     var newClaim = @ViewBag.NewClaim;
 
@@ -46,6 +47,7 @@
         $("#butGetExcelFile").click(getExcelFileFromServer);
         $("#butUploadExcelFile").click(openFile);
         initProtectFactList();
+        initCurrencyList();
         $("#butSendComment").click(sendComment);
         if (claim == null) {
             alert("Заявка не найдена\rили у Вас нет доступа к ней");
@@ -58,7 +60,7 @@
             var positionsLength = claim.Positions.length;
             for (var i = 0; i < positionsLength; i++) {
                 var position = claim.Positions[i];
-                if (position.State == 1 || position.state == 3) {
+                if (position.State == 1 || position.State == 3) {
                     noAction = false;
                     break;
                 }
@@ -108,7 +110,7 @@
         button.hide();
         $("[modetype='deleteCalcButton']", row).hide();
         $("[type='editPositionActionPanel']", row).show();
-        var controlTypeNames = ["calculateCatalogNumber", "calculateName", "calculateReplace", "calculatePriceUsd", "calculateSumUsd", "calculatePriceRub", "calculateSumRub", "calculateProvider", "calculateProtectCondition", "calculateComment"];
+        var controlTypeNames = ["calculateCatalogNumber", "calculateName", "calculateReplace", "calculatePriceCurrency", "calculateSumCurrency", "calculatePriceRub", "calculateSumRub", "calculateProvider", "calculateProtectCondition", "calculateComment"];
         var controlTypeNamesLength = controlTypeNames.length;
         for (var i = 0; i < controlTypeNamesLength; i++) {
             var controlTypeName = controlTypeNames[i];
@@ -120,6 +122,9 @@
         var providerFact = $("[modetype='calculateProtectFact']", row);
         var providerFactValue = $("[modetype='calculateProtectFactValueLabel']", row).attr("val");
         $("[value='" + providerFactValue + "']", providerFact).attr("selected", "selected");
+        var currenciesList = $("[modetype='calculateCurrencyList']", row);
+        var currencyId = $("[modetype='calculatePriceCurrency']", row).attr("currency");
+        $("[value='" + currencyId + "']", currenciesList).attr("selected", "selected");
         $("[ type='readOnlyModeView']", row).hide();
         $("[ type='editModeView']", row).show();
 
@@ -145,15 +150,19 @@
                 success: function(data) {
                     messageUi.progressHide();
                     if (data.IsComplete) {
-                        if (model.PriceUsd == 0) {
-                            $("[modetype='calculatePriceUsdValueLabelPostix']", row).hide();
+                        var currency = getCurrencyById(model.Currency);
+                        $("[modetype='calculatePriceCurrency']", row).attr("currency", currency.Id);
+                        if (model.PriceCurrency == 0) {
+                            $("[modetype='calculatePriceCurrencyValueLabelPostix']", row).hide();
                         } else {
-                            $("[modetype='calculatePriceUsdValueLabelPostix']", row).show();
+                            $("[modetype='calculatePriceCurrencyValueLabelPostix']", row).show();
+                            $("[modetype='calculatePriceCurrencyValueLabelPostix']", row).text(currency.Value + " за ед.");
                         }
-                        if (model.SumUsd == 0) {
-                            $("[modetype='calculateSumUsdValueLabelPostix']", row).hide();
+                        if (model.SumCurrency == 0) {
+                            $("[modetype='calculateSumCurrencyValueLabelPostix']", row).hide();
                         } else {
-                            $("[modetype='calculateSumUsdValueLabelPostix']", row).show();
+                            $("[modetype='calculateSumCurrencyValueLabelPostix']", row).show();
+                            $("[modetype='calculateSumCurrencyValueLabelPostix']", row).text(currency.Value + " всего");
                         }
                         if (model.PriceRub == 0) {
                             $("[modetype='calculatePriceRubValueLabelPostix']", row).hide();
@@ -201,9 +210,9 @@
         var editCalculationButtonCancel = $("[modetype='editCalcButtonCancel']", calcRow);
         editCalculationButtonCancel.click(editCalculateCancel);
         deleteCalculationButton.hide();
-        $("[type='editPositionPanel']", row).hide();
+        $("[type='editPositionPanel']", calcRow).hide();
         var calcTable = $("[type='calculatePositionTable'][positionId='" + row.attr("positionId") + "']");
-        var children = $(":first-child", calcTable);
+        var children = calcTable.children().first();
         if (children.size() == 0) {
             calcTable.append(calcRow);
         } else {
@@ -235,15 +244,19 @@
                 success: function(data) {
                     messageUi.progressHide();
                     if (data.IsComplete) {
-                        if (model.PriceUsd == 0) {
-                            $("[modetype='calculatePriceUsdValueLabelPostix']", row).hide();
+                        var currency = getCurrencyById(model.Currency);
+                        $("[modetype='calculatePriceCurrency']", row).attr("currency", currency.Id);
+                        if (model.PriceCurrency == 0) {
+                            $("[modetype='calculatePriceCurrencyValueLabelPostix']", row).hide();
                         } else {
-                            $("[modetype='calculatePriceUsdValueLabelPostix']", row).show();
+                            $("[modetype='calculatePriceCurrencyValueLabelPostix']", row).show();
+                            $("[modetype='calculatePriceCurrencyValueLabelPostix']", row).text(currency.Value + " за ед.");
                         }
-                        if (model.SumUsd == 0) {
-                            $("[modetype='calculateSumUsdValueLabelPostix']", row).hide();
+                        if (model.SumCurrency == 0) {
+                            $("[modetype='calculateSumCurrencyValueLabelPostix']", row).hide();
                         } else {
-                            $("[modetype='calculateSumUsdValueLabelPostix']", row).show();
+                            $("[modetype='calculateSumCurrencyValueLabelPostix']", row).show();
+                            $("[modetype='calculateSumCurrencyValueLabelPostix']", row).text(currency.Value + " всего");
                         }
                         if (model.PriceRub == 0) {
                             $("[modetype='calculatePriceRubValueLabelPostix']", row).hide();
@@ -341,7 +354,7 @@
     }
 
     function setCalculatePositionReadOnly(row) {
-        var controlTypeNames = ["calculateCatalogNumber", "calculateName", "calculateReplace", "calculatePriceUsd", "calculateSumUsd", "calculatePriceRub", "calculateSumRub", "calculateProvider", "calculateProtectCondition", "calculateComment"];
+        var controlTypeNames = ["calculateCatalogNumber", "calculateName", "calculateReplace", "calculatePriceCurrency", "calculateSumCurrency", "calculatePriceRub", "calculateSumRub", "calculateProvider", "calculateProtectCondition", "calculateComment"];
         var controlTypeNamesLength = controlTypeNames.length;
         for (var i = 0; i < controlTypeNamesLength; i++) {
             var controlTypeName = controlTypeNames[i];
@@ -392,11 +405,11 @@
             obj.isValid = false;
             obj.message += message;
         }
-        var priceUsd = $("[modetype='calculatePriceUsd']", calcRow).val().trim();
-        priceUsd = priceUsd.replace(",", ".");
-        if (priceUsd != "") {
-            if (isNaN(priceUsd)) {
-                message = "Значение '" + priceUsd + "' в поле Цена за ед. USD не является числом";
+        var priceCurrency = $("[modetype='calculatePriceCurrency']", calcRow).val().trim();
+        priceCurrency = priceCurrency.replace(",", ".");
+        if (priceCurrency != "") {
+            if (isNaN(priceCurrency)) {
+                message = "Значение '" + priceCurrency + "' в поле Цена за ед. Валюта не является числом";
                 if (obj.message.trim() != "") {
                     message = "\r" + message;
                 }
@@ -404,11 +417,11 @@
                 obj.message += message;
             }
         }
-        var sumUsd = $("[modetype='calculateSumUsd']", calcRow).val().trim();
-        sumUsd = sumUsd.replace(",", ".");
-        if (sumUsd != "") {
-            if (isNaN(sumUsd)) {
-                message = "Значение '" + sumUsd + "' в поле Сумма вход USD не является числом";
+        var sumCurrency = $("[modetype='calculateSumCurrency']", calcRow).val().trim();
+        sumCurrency = sumCurrency.replace(",", ".");
+        if (sumCurrency != "") {
+            if (isNaN(sumCurrency)) {
+                message = "Значение '" + sumCurrency + "' в поле Сумма вход Валюта не является числом";
                 if (obj.message.trim() != "") {
                     message = "\r" + message;
                 }
@@ -439,14 +452,7 @@
                 obj.isValid = false;
                 obj.message += message;
             }
-        } else {
-            message = "Заполните обязательное поле Сумма вход руб";
-            if (obj.message.trim() != "") {
-                message = "\r" + message;
-            }
-            obj.isValid = false;
-            obj.message += message;
-        }
+        } 
         var protectCondition = $("[modetype='calculateProtectCondition']", calcRow).val().trim();
         var protectFact = $(":selected", $("[modetype='calculateProtectFact']", calcRow)).val().trim();
         if (protectFact == "null") {
@@ -471,17 +477,21 @@
                 CatalogNumber: catalogNumber,
                 Name: name,
                 SumRub: Number(sumRub),
-                ProtectFact: {Id: Number(protectFact)},
+                ProtectFact: { Id: Number(protectFact) },
                 ProtectCondition: protectCondition,
                 Comment: $("[modetype='calculateComment']", calcRow).val().trim(),
                 Provider: $("[modetype='calculateProvider']", calcRow).val().trim(),
-                Replace: $("[modetype='calculateReplace']", calcRow).val().trim()
+                Replace: $("[modetype='calculateReplace']", calcRow).val().trim(),
+                PriceCurrency: 0,
+                SumCurrency: 0,
+                PriceRub: 0,
+                Currency: Number($(":selected", $("[modetype='calculateCurrencyList']", calcRow)).val())
             };
-            if (priceUsd != "") {
-                model.PriceUsd = Number(priceUsd);
+            if (priceCurrency != "") {
+                model.PriceCurrency = Number(priceCurrency);
             }
-            if (sumUsd != "") {
-                model.SumUsd = Number(sumUsd);
+            if (sumCurrency != "") {
+                model.SumCurrency = Number(sumCurrency);
             }
             if (priceRub != "") {
                 model.PriceRub = Number(priceRub);
@@ -494,7 +504,7 @@
     //<<<<<<<Отображение инфы по заявке>>>>>>
     function showClaimInfo(model) {
         $("#claimId").text(model.Id);
-        $("#claimCustomer").text(model.Customer + "<br/>" + model.CustomerInn);
+        $("#claimCustomer").html(model.Customer + "<br/>" + model.CustomerInn);
         $("#claimTenderStart").text(model.TenderStartString);
         $("#claimDeadline").text(model.ClaimDeadlineString);
         $("#kPDeadline").text(model.KPDeadlineString);
@@ -559,7 +569,7 @@
                         lastElement = calcRow;
                     } else {
                         lastElement.after(calcRow);
-                        lastElement = calcRow;   
+                        lastElement = calcRow;
                     }
                     calcRow.show();
                     $("[modetype='saveCalcButton']", calcRow).show();
@@ -567,17 +577,21 @@
                     $("[modetype='calculateCatalogNumber']", calcRow).val(calculation.CatalogNumber);
                     $("[modetype='calculateName']", calcRow).val(calculation.Name);
                     $("[modetype='calculateReplace']", calcRow).val(calculation.Replace);
-                    $("[modetype='calculatePriceUsd']", calcRow).val(calculation.PriceUsd != 0 ? calculation.PriceUsd : "");
-                    if (calculation.PriceUsd == 0) {
-                        $("[modetype='calculatePriceUsdValueLabelPostix']", calcRow).hide();
+                    var currency = getCurrencyById(calculation.Currency);
+                    $("[modetype='calculatePriceCurrency']", calcRow).attr("currency", currency.Id);
+                    $("[modetype='calculatePriceCurrency']", calcRow).val(calculation.PriceCurrency != 0 ? calculation.PriceCurrency : "");
+                    if (calculation.PriceCurrency == 0) {
+                        $("[modetype='calculatePriceCurrencyValueLabelPostix']", calcRow).hide();
                     } else {
-                        $("[modetype='calculatePriceUsdValueLabelPostix']", calcRow).show();
+                        $("[modetype='calculatePriceCurrencyValueLabelPostix']", calcRow).show();
+                        $("[modetype='calculatePriceCurrencyValueLabelPostix']", calcRow).text(currency.Value + " за ед.");
                     }
-                    $("[modetype='calculateSumUsd']", calcRow).val(calculation.SumUsd ? calculation.SumUsd : "");
-                    if (calculation.SumUsd == 0) {
-                        $("[modetype='calculateSumUsdValueLabelPostix']", calcRow).hide();
+                    $("[modetype='calculateSumCurrency']", calcRow).val(calculation.SumCurrency ? calculation.SumCurrency : "");
+                    if (calculation.SumCurrency == 0) {
+                        $("[modetype='calculateSumCurrencyValueLabelPostix']", calcRow).hide();
                     } else {
-                        $("[modetype='calculateSumUsdValueLabelPostix']", calcRow).show();
+                        $("[modetype='calculateSumCurrencyValueLabelPostix']", calcRow).show();
+                        $("[modetype='calculateSumCurrencyValueLabelPostix']", calcRow).text(currency.Value + " всего");
                     }
                     $("[modetype='calculatePriceRub']", calcRow).val(calculation.PriceRub ? calculation.PriceRub : "");
                     if (calculation.PriceRub == 0) {
@@ -598,7 +612,7 @@
                     if (position.State != 1 && position.State != 3) {
                         $("[type='editPositionPanel']", calcRow).hide();
                         $("[modetype='deleteCalcButton']", calcRow).hide();
-                    } 
+                    }
                     setCalculatePositionReadOnly(calcRow);
                 }
             }
@@ -617,6 +631,7 @@
         $("[type='unitLabel']", element).text(getUnitString(position.Unit));
         $("[type='valueLabel']", element).text(position.Value);
         $("[type='commentLabel']", element).text(position.Comment);
+        var currency = getCurrencyById(position.Currency);
         var price = "";
         if (position.Price != 0) price = position.Price.toFixed(2);
         $("[type='priceLabel']", element).text(price);
@@ -624,6 +639,7 @@
             $("[type='priceLabelPostfix']", element).hide();
         } else {
             $("[type='priceLabelPostfix']", element).show();
+            $("[type='priceLabelPostfix']", element).text(currency.Value + " за ед. макс.");
         }
         var sum = "";
         if (position.Sum != 0) sum = position.Sum.toFixed(2);
@@ -632,6 +648,7 @@
             $("[type='sumLabelPostfix']", element).hide();
         } else {
             $("[type='sumLabelPostfix']", element).show();
+            $("[type='sumLabelPostfix']", element).text(currency.Value + " всего макс.");
         }
         var addCalculateButton = $("[modetype='addCalcButton']", element);
         if (position.State != 1 && position.State != 3) {
@@ -799,6 +816,17 @@
         }
     }
 
+    function initCurrencyList() {
+        var list = $("[modetype='calculateCurrencyList']", $("#calculatePositionTable"));
+        var currencyLength = currencies.length;
+        for (var i = 0; i < currencyLength; i++) {
+            var model = currencies[i];
+            if (model.Value.trim().toLowerCase() == "руб") continue;
+            var option = $("<option value='" + model.Id + "'>" + model.Value + "</option>");
+            list.append(option);
+        }
+    }
+
     function getProtectFactById(id) {
         var model = null;
         var protectLength = protectFacts.length;
@@ -811,6 +839,20 @@
         }
         return model;
     }   
+
+    function getCurrencyById(id) {
+        id = Number(id);
+        var currency = null;
+        var currenciesLength = currencies.length;
+        for (var i = 0; i < currenciesLength; i++) {
+            var model = currencies[i];
+            if (model.Id == id) {
+                currency = model;
+                break;
+            }
+        }
+        return currency;
+    }
 
     function getUnitString(unit) {
         var result = "";
@@ -835,67 +877,82 @@
         </div>
         <div class="panel-body">
             <div class="row">
-                <div class="col-sm-2">
-                    <div class="text-right">Дата начала:</div>
-                    <div class="text-right">Срок сдачи:</div>
-                    <div class="text-right">Срок подачи КП:</div>
-                    <div class="text-right">Менеджер:</div>
-                </div>
-                <div class="col-sm-2">
-                    <div>
-                        <strong id="claimTenderStart"></strong>
+                <div class="col-sm-4">
+                    <div class="col-sm-5">
+                        <div class="text-right">Дата начала:</div>
+                        <div class="text-right">Срок сдачи:</div>
+                        <div class="text-right">Срок подачи КП:</div>
+                        <div class="text-right">Менеджер:</div>
                     </div>
-                    <div>
-                        <strong id="claimDeadline"></strong>
-                    </div>
-                    <div>
-                        <strong id="kPDeadline"></strong>
-                    </div>
-                    <div>
-                        <strong id="claimManager"></strong>
-                    </div>
-                    <div>
-                        <small id="managerSubDivision"></small>
-                    </div>
-                    <div>
-                        <small id="managerChief"></small>
-                    </div>
-                </div>
-                <div class="col-sm-2">
-                    <div class="text-right">Тип сделки:</div>
-                    <div class="text-right">Сумма (с НДС):</div>
-                </div>
-                <div class="col-sm-2">
-                    <div>
-                        <strong id="claimDealType"></strong>
-                    </div>
-                    <div>
-                        <strong id="claimSum"></strong><strong id="claimSumPostfix">&nbsp;руб.</strong>
+                    <div class="col-sm-7">
+                        <div>
+                            <strong id="claimTenderStart"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimDeadline"></strong>
+                        </div>
+                        <div>
+                            <strong id="kPDeadline"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimManager"></strong>
+                        </div>
+                        <div>
+                            <small id="managerSubDivision"></small>
+                        </div>
+                        <div>
+                            <small id="managerChief"></small>
+                        </div>
                     </div>
                 </div>
-                <div class="col-sm-2">
-                    <div class="text-right">№ конкурса:</div>
-                    <div class="text-right">Статус конкурса:</div>
-                    <div class="text-right">Ссылка на закупки:</div>
+                <div class="col-sm-4">
+                    <div class="col-sm-6">
+                        <div class="text-right">Тип сделки:</div>
+                        <div class="text-right">Сумма (с НДС):</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div>
+                            <strong id="claimDealType"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimSum"></strong><strong id="claimSumPostfix">&nbsp;руб.</strong>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-sm-2">
-                    <div>
-                        <strong id="claimTenderNumber"></strong>
+                <div class="col-sm-4">
+                    <div class="col-sm-5">
+                        <div class="text-right">№ конкурса:</div>
+                        <div class="text-right">Статус конкурса:</div>
+                        <div class="text-right">Ссылка на закупки:</div>
                     </div>
-                    <div>
-                        <strong id="claimTenderStatus"></strong>
-                    </div>
-                    <div>
-                        <small id="claimTenderUrl"></small>
+                    <div class="col-sm-7">
+                        <div>
+                            <strong id="claimTenderNumber"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimTenderStatus"></strong>
+                        </div>
+                        <div>
+                            <small id="claimTenderUrl"></small>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div>
-                <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение</button>
-            </div>
-            <div id="commentPanel">
-                <textarea id="comment" rows="7" placeholder="Комментарий"></textarea><br/>
-                <button type="button" id="butSendComment">Отправить комментарий</button>
+            <div class="row">
+                <div class="col-sm-7">
+                    <div>
+                        @*<button type='button' class='btn btn-danger'><i class="fa fa-remove"></i> отклонить</button>*@
+                        <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение</button>
+                    </div>
+                    <div id="commentPanel">
+                        <textarea id="comment" rows="3" placeholder="Комментарий" class="form-control"></textarea><br />
+                        <button type="button" id="butSendComment">Отправить комментарий</button>
+                    </div>
+                </div>
+                <div class="col-sm-5">
+                    <h4>История изменения статусов</h4>
+                    <ul class="list-group small" id="claimStatusHistoryContainer"></ul>
+                </div>
             </div>
         </div>
     </div>
@@ -929,10 +986,10 @@
                         <strong type='valueLabel'></strong>&nbsp;<span type='unitLabel'></span>
                     </div>
                     <div>
-                        <strong type='priceLabel'></strong>&nbsp;<span type='priceLabelPostfix'>. за ед. макс.</span>
+                        <strong type='priceLabel'></strong>&nbsp;<span type='priceLabelPostfix'></span>
                     </div>
                     <div>
-                        <strong type='sumLabel'></strong>&nbsp;<span type='sumLabelPostfix'>руб. всего макс.</span>
+                        <strong type='sumLabel'></strong>&nbsp;<span type='sumLabelPostfix'></span>
                     </div>
                 </div>
                 <div class="col-sm-4">
@@ -969,9 +1026,10 @@
             </td>
             <td>
                 <div type="editModeView" class="col-sm-3">
-                    <input type='text' modetype="calculateCatalogNumber" class="form-control input-sm" placeholder="Каталожный номер" />
-                    <input type='text' modetype="calculatePriceUsd" class="form-control input-sm" placeholder="Цена за ед., $" />
-                    <input type='text' modetype="calculateSumUsd" class="form-control input-sm" placeholder="Сумма вход, $" />
+                    <input type='text' modetype="calculateCatalogNumber" class="form-control input-sm" placeholder="Каталожный номер *" />
+                    <select size="1" modetype="calculateCurrencyList" class="form-control input-sm"></select>
+                    <input type='text' modetype="calculatePriceCurrency" class="form-control input-sm" placeholder="Цена за ед. Валюта," />
+                    <input type='text' modetype="calculateSumCurrency" class="form-control input-sm" placeholder="Сумма вход, Валюта" />
                     <input type='text' modetype="calculatePriceRub" class="form-control input-sm" placeholder="Цена за ед., руб." />
                     <input type='text' modetype="calculateSumRub" class="form-control input-sm" placeholder="Сумма вход, руб." />
                 </div>
@@ -980,10 +1038,10 @@
                         <strong modetype="calculateCatalogNumberValueLabel"></strong>
                     </div>
                     <div>
-                        <strong modetype="calculatePriceUsdValueLabel"></strong>&nbsp;<span modetype="calculatePriceUsdValueLabelPostix">$ за ед</span>
+                        <strong modetype="calculatePriceCurrencyValueLabel"></strong>&nbsp;<span modetype="calculatePriceCurrencyValueLabelPostix"></span>
                     </div>
                     <div>
-                        <strong modetype="calculateSumUsdValueLabel"></strong>&nbsp;<span modetype="calculateSumUsdValueLabelPostix">$ всего</span>
+                        <strong modetype="calculateSumCurrencyValueLabel"></strong>&nbsp;<span modetype="calculateSumCurrencyValueLabelPostix"></span>
                     </div>
                     <div>
                         <strong modetype="calculatePriceRubValueLabel"></strong>&nbsp;<span modetype="calculatePriceRubValueLabelPostix">руб. за ед.</span>
@@ -993,7 +1051,7 @@
                     </div>
                 </div>
                 <div type="editModeView" class="col-sm-4">
-                    <textarea rows="3" modetype="calculateName" class="form-control input-sm" placeholder="Наименование"></textarea>
+                    <textarea rows="3" modetype="calculateName" class="form-control input-sm" placeholder="Наименование *"></textarea>
                     <textarea rows="3" modetype="calculateReplace" class="form-control input-sm" placeholder="Замена"></textarea>
                     <input type='text' modetype="calculateProvider" class="form-control input-sm" placeholder="Поставщик" />
                 </div>
@@ -1037,7 +1095,5 @@
             </td>
         </tr>
     </table>
-    <div>
-        <ul class="list-group small" id="claimStatusHistoryContainer"></ul>
-    </div>
+
 </div>

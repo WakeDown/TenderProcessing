@@ -38,6 +38,8 @@ namespace TenderProcessingDataAccessLayer.Models
 
         public string Author { get; set; }
 
+        public int Currency { get; set; }
+
         public List<CalculateSpecificationPosition> Calculations { get; set; } 
     }
 }

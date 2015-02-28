@@ -47,6 +47,7 @@
     <Compile Include="Models\ClaimStatus.cs" />
     <Compile Include="Models\ClaimStatusHistory.cs" />
     <Compile Include="Models\ControllerUser.cs" />
+    <Compile Include="Models\Currency.cs" />
     <Compile Include="Models\DealType.cs" />
     <Compile Include="Models\FilterTenderClaim.cs" />
     <Compile Include="Models\Manager.cs" />

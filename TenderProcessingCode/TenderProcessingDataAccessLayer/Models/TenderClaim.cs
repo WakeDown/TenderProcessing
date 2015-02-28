@@ -48,9 +48,13 @@ namespace TenderProcessingDataAccessLayer.Models
 
         public string RecordDateString { get; set; }
 
-        public string Author { get; set; }
+        public UserBase Author { get; set; }
 
         public bool Deleted { get; set; }
+
+        public int PositionsCount { get; set; }
+
+        public int CalculatesCount { get; set; }
 
         public List<ProductManager> ProductManagers { get; set; }
 

@@ -138,3 +138,15 @@ input[type="checkbox"] {
 .big {
     /*font-size: 1.5em;*/
 }
+
+a.success, a.success:hover, a.success:active {
+    color: #47a447;
+}
+
+a.warning, a.warning:hover, a.warning:active {
+    color: #f0ad4e;
+}
+
+a.danger, a.danger:hover, a.danger:active {
+    color: #d2322d;
+}

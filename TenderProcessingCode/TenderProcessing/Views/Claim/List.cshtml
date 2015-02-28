@@ -381,12 +381,12 @@
                 editCell.append(editButton);
             } else {
                 if (settings.author != "") {
-                    if (claim.Author == settings.author) {
+                    if (claim.Author.Id == settings.author) {
                         editCell.append(editButton);
                     }
                 }
                 if (settings.filterManager != "") {
-                    if (claim.Manager.Id == settings.filterManager || claim.Author == settings.filterManager) {
+                    if (claim.Manager.Id == settings.filterManager || claim.Author.Id == settings.filterManager) {
                         editCell.append(editButton);
                     }
                 }
@@ -413,6 +413,7 @@
         }
         element.append("<td><span>" + sum + "</span></td>");
         element.append("<td><span>" + claim.Manager.ShortName + "</span></td>");
+        element.append("<td><span>Всего: " + claim.PositionsCount + "<br/>Расчетов: " + claim.CalculatesCount + "</span></td>");
         element.append("<td><span>" + getProductManagersString(claim.ProductManagers) + "</span></td>");
         element.append("<td><span>" + getDealTypeById(claim.DealType).Value + "</span></td>");
         element.append("<td><span>" + getClaimStatusById(claim.ClaimStatus).Value + "</span></td>");
@@ -424,23 +425,24 @@
         element.append(tenderStatusCell);
         tenderStatusCell.append(tenderStatusPanel);
         if (settings.changeTenderStatus && claim.TenderStatus == 1) {
-            var butSetTenderStatusWin = $("<button type='button' statusValue='2' modetype='butSetTenderStatusWin'>Выигран</button>");
-            var butSetTenderStatusLose = $("<button type='button' statusValue='3' modetype='butSetTenderStatusLose'>Проигран</button>");
-            var butSetTenderStatusReject = $("<button type='button' statusValue='4' modetype='butSetTenderStatusReject'>Отказ</button>");
-            tenderStatusPanel.append("<br/>");
+            var butSetTenderStatusWin = $("<a type='button' statusValue='2' modetype='butSetTenderStatusWin' class='btn-link btn-sm success' title='Выигран' data-toggle='tooltip'><i class='fa fa-thumbs-o-up'></i></a>");
+            var butSetTenderStatusLose = $("<a type='button' statusValue='3' modetype='butSetTenderStatusLose' class='btn-link btn-sm danger' title='Проигран' data-toggle='tooltip'><i class='fa fa-thumbs-o-down'></i></a>");
+            var butSetTenderStatusReject = $("<a type='button' statusValue='4' modetype='butSetTenderStatusReject' class='btn-link btn-sm warning' title='Отказ' data-toggle='tooltip'><i class='fa fa-ban'></i></a>");
+            //tenderStatusPanel.append("<br/>");
             tenderStatusPanel.append(butSetTenderStatusWin);
-            tenderStatusPanel.append("<br/>");
+            //tenderStatusPanel.append("<br/>");
             tenderStatusPanel.append(butSetTenderStatusLose);
-            tenderStatusPanel.append("<br/>");
+            //tenderStatusPanel.append("<br/>");
             tenderStatusPanel.append(butSetTenderStatusReject);
             butSetTenderStatusWin.click(changeTenderStatus);
             butSetTenderStatusLose.click(changeTenderStatus);
             butSetTenderStatusReject.click(changeTenderStatus);
         }
+        element.append("<td><span>" + claim.Author.ShortName + "<span/></td>");
         var actionCell = $("<td class='min-width'></td>");
         element.append(actionCell);
         if (settings.deleteClaim != "none") {
-            if (settings.deleteClaim == "true" || ((settings.deleteClaim == "self" || settings.deleteClaim == "self&manager") && claim.Author == settings.userId)
+            if (settings.deleteClaim == "true" || ((settings.deleteClaim == "self" || settings.deleteClaim == "self&manager") && claim.Author.Id == settings.userId)
                 || (settings.deleteClaim == "self&manager" && claim.Manager.Id == settings.userId)) {
                 var deleteButton = $("<button type='button' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить'><i class='fa fa-trash'></i></button>");
                 deleteButton.click(deleteButtonClick);
@@ -548,7 +550,7 @@
         var managersLength = managers.length;
         for (var i = 0; i < managersLength; i++) {
             var manager = managers[i];
-            result += manager.ShortName + "<br/>";
+            result += manager.ShortName + " " + manager.PositionsCount + "/" + manager.CalculatesCount + "<br/>";
         }
         if (result.length > 4) {
             result = result.substr(0, result.length - 5);
@@ -695,7 +697,7 @@
                 <span id="claimCountLabel">@claimCount</span>
             </span>
             &nbsp;
-            <span class="label label-success">
+            <span class="label label-info">
                 из них показано:
                 <span id="showCountLabel"></span>
             </span>
@@ -709,12 +711,14 @@
                 <th>Контрагент</th>
                 <th>Сумма</th>
                 <th>Менеджер</th>
+                <th>Позиции</th>
                 <th>Снабженцы</th>
                 <th>Тип сделки</th>
                 <th>Статус</th>
                 <th>Создано</th>
                 <th>Срок сдачи</th>
                 <th>Статус<br />конкурса</th>
+                <th>Автор</th>
                 <th></th>
             </tr>
             </thead>

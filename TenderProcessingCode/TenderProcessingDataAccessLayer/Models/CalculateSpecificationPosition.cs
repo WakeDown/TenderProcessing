@@ -21,9 +21,11 @@ namespace TenderProcessingDataAccessLayer.Models
 
         public string Replace { get; set; }
 
-        public double PriceUsd { get; set; }
+        public double PriceCurrency { get; set; }
 
-        public double SumUsd { get; set; }
+        public double SumCurrency { get; set; }
+
+        public int Currency { get; set; }
 
         public double PriceRub { get; set; }
 

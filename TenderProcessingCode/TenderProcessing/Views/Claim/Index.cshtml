@@ -23,6 +23,7 @@
     var dateStart = "@ViewBag.DateStart.ToString()";
     var claim = @Html.Raw(serializer.Serialize(claim));
     var histories = @Html.Raw(serializer.Serialize(history));
+    var currencies = @Html.Raw(serializer.Serialize(ViewBag.Currencies));
     var facts = @Html.Raw(serializer.Serialize(facts));
     var hasTransmissedPosition = @ViewBag.HasTransmissedPosition;
     var initClaimIdNedded = false;
@@ -92,6 +93,8 @@
         $("#unitCell").append(unitList);
         var managersList = getProductManagersList(null);
         $("#managersCell").append(managersList);
+        var currenciesList = getCurrenciesList(null);
+        $("#currencyCell").append(currenciesList);
         $("#butAddPosition").click(addPositionButtonClick);
         $("[modetype='addPositionButtonOK']").click(addPosition);
         $("[modetype='addPositionButtonCancel']").click(addPositionCancel);
@@ -510,7 +513,7 @@
         var dealType = getDealTypeById(model.DealType);
         $("#listDealTypesLabel").text(dealType.Value);
         $("#tenderUrlLabel").text(model.TenderUrl != null ? model.TenderUrl : "");
-        $("#listManagersLabel").text(getManagerById(model.Manager.Id).Name);
+        $("#listManagersLabel").text(getManagerById(model.Manager.Id).ShortName);
         $("#managerSubDivisionLabel").text(model.Manager.SubDivision);
         var status = getClaimStatusById(model.ClaimStatus);
         if (status == null) {
@@ -590,6 +593,8 @@
                         if ($.inArray(positionId, arrIds) != -1) {
                             var color = getColorForPositionState(3);
                             element.css("backgroundColor", color);
+                            var initalColor = element.css("backgroundColor");
+                            element.attr("initalColor", initalColor);
                         }
                     });
                 } else {
@@ -686,6 +691,7 @@
     }
 
     function deleteButtonClick(e) {
+        e.stopImmediatePropagation();
         var button = $(e.currentTarget);
         var row = button.parent().parent();
         var id = Number(row.attr("positionId"));
@@ -713,8 +719,10 @@
     }
 
     function editModeButtonClick(e) {
+        e.stopImmediatePropagation();
         var button = $(e.currentTarget);
         var row = button.parent().parent().parent();
+        row.attr("editMode", "true");
         button.hide();
         $("[type='editPositionActionPanel']", row).show();
         var controls = ["rowNumber", "catalogNumber", "name", "replace", "value", "comment", "price", "sum"];
@@ -726,11 +734,14 @@
         $("[type='readOnlyModeView']", row).hide();
         selectListElement($("[type='unitsList']", row), $("[type='unitLabel']", row).attr("val"));
         selectListElement($("[type='productManagersList']", row), $("[type='productManagerLabel']", row).attr("val"));
+        selectListElement($("[type='currenciesList']", row), $("[type='priceLabel']", row).attr("currency"));
     }
 
     function editButtonCancelClick(e) {
+        e.stopImmediatePropagation();
         var button = $(e.currentTarget);
         var row = button.parent().parent().parent().parent();
+        row.attr("editMode", "false");
         button.parent().hide();
         $("[modeType='editButton']", row).show();
         $("[type='editModeView']", row).hide();
@@ -738,6 +749,7 @@
     }
 
     function editButtonOkClick(e) {
+        e.stopImmediatePropagation();
         var button = $(e.currentTarget);
         var row = button.parent().parent().parent().parent();
         var obj = getClaimPositionFromRow(row);
@@ -758,6 +770,7 @@
                 success: function(data) {
                     messageUi.progressHide();
                     if (data.IsComplete) {
+                        row.attr("editMode", "false");
                         $("[type='rowNumberLabel']", row).text(model.RowNumber != 0 ? model.RowNumber : "");
                         $("[type='catalogNumberLabel']", row).text(model.CatalogNumber);
                         $("[type='nameLabel']", row).text(model.Name);
@@ -768,17 +781,21 @@
                         $("[type='productManagerLabel']", row).text(model.ProductManager.Name);
                         $("[type='productManagerLabel']", row).attr("val", model.ProductManager.Id);
                         $("[type='commentLabel']", row).text(model.Comment);
+                        var currency = getCurrencyById(model.Currency);
+                        $("[type='priceLabel']", row).attr("currency", currency.Id);
                         $("[type='priceLabel']", row).text(model.Price != 0 ? model.Price.toFixed(2) : "");
                         if (model.Price == 0) {
                             $("[type='priceLabelPostfix']", row).hide();
                         } else {
                             $("[type='priceLabelPostfix']", row).show();
+                            $("[type='priceLabelPostfix']", row).text(currency.Value + " за ед. макс.");
                         }
                         $("[type='sumLabel']", row).text(model.Sum != 0 ? model.Sum.toFixed(2) : "");
                         if (model.Sum == 0) {
                             $("[type='sumLabelPostfix']", row).hide();
                         } else {
                             $("[type='sumLabelPostfix']", row).show();
+                            $("[type='sumLabelPostfix']", row).text(currency.Value + " всего макс.");
                         }
                         button.parent().hide();
                         $("[modeType='editButton']", row).show();
@@ -845,6 +862,8 @@
 
     function rowPositionClick(e) {
         var row = $(e.currentTarget);
+        var editMode = row.attr("editMode") == "true";
+        if (editMode) return;
         var state = row.attr("selectState") == "true";
         if (!state) {
             var selectedRows = $("[type='positionRow'][selectState='true']", $("#positionTable"));
@@ -866,7 +885,7 @@
             row.attr("selectState", "true");
             var initalColor = row.css("backgroundColor");
             row.attr("initalColor", initalColor);
-            row.css("backgroundColor", "aqua");
+            row.css("backgroundColor", "#EFD1A7");
             $("[modetype='selectPositionElement']", row).get(0).checked = true;
         }
     }
@@ -898,13 +917,17 @@
         $("option[value='" + position.ProductManager.Id + "']", $("[type='productManagersList']", element)).attr("selected", "selected");
         $("[type='commentLabel']", element).text(position.Comment);
         $("[modelType='commentValue']", element).val(position.Comment);
+        $("option[value='" + position.Currency + "']", $("[type='currenciesList']", element)).attr("selected", "selected");
+        var currency = getCurrencyById(position.Currency);
         var price = "";
         if (position.Price != 0) price = position.Price.toFixed(2);
         $("[type='priceLabel']", element).text(price);
+        $("[type='priceLabel']", element).attr("currency", currency.Id);
         if (price == "") {
             $("[type='priceLabelPostfix']", element).hide();
         } else {
             $("[type='priceLabelPostfix']", element).show();
+            $("[type='priceLabelPostfix']", element).text(currency.Value + " за ед. макс.");
         }
         $("[modelType='priceValue']", element).val(price);
         var sum = "";
@@ -914,6 +937,7 @@
             $("[type='sumLabelPostfix']", element).hide();
         } else {
             $("[type='sumLabelPostfix']", element).show();
+            $("[type='sumLabelPostfix']", element).text(currency.Value + " всего макс.");
         }
         $("[modelType='sumValue']", element).val(sum);
         $("[modetype='addPositionButtonOK']", element).hide();
@@ -934,6 +958,7 @@
         element.css("backgroundColor", color);
         element.css("cursor", "pointer");
         element.attr("selectState", "false");
+        element.attr("editMode", "false");
         element.attr("initalColor", color);
         element.click(rowPositionClick);
         return element;
@@ -1020,6 +1045,7 @@
             var unit = Number($(":selected", $("[type='unitsList']", row)).val());
             var productManager = getProductManagerById($(":selected", $("[type='productManagersList']", row)).val().trim());
             var comment = $("[modelType='commentValue']", row).val().trim();
+            var currency = Number($(":selected", $("[type='currenciesList']", row)).val());
             var model = {
                 CatalogNumber: catalogNumber,
                 Name: name,
@@ -1030,6 +1056,7 @@
                 Comment: comment,
                 Price: price,
                 Sum: sum,
+                Currency: currency
             };
             obj.model = model;
         }
@@ -1058,17 +1085,20 @@
         $("[modetype='calculateCatalogNumberValueLabel']", row).text(model.CatalogNumber);
         $("[modetype='calculateNameValueLabel']", row).text(model.Name);
         $("[modetype='calculateReplaceValueLabel']", row).text(model.Replace);
-        $("[modetype='calculatePriceUsdValueLabel']", row).text(model.PriceUsd != 0 ? model.PriceUsd : "");
-        if (model.PriceUsd == 0) {
-            $("[modetype='calculatePriceUsdValueLabelPostix']", row).hide();
+        var currency = getCurrencyById(model.Currency);
+        $("[modetype='calculatePriceCurrencyValueLabel']", row).text(model.PriceCurrency != 0 ? model.PriceCurrency : "");
+        if (model.PriceCurrency == 0) {
+            $("[modetype='calculatePriceCurrencyValueLabelPostix']", row).hide();
         } else {
-            $("[modetype='calculatePriceUsdValueLabelPostix']", row).show();
+            $("[modetype='calculatePriceCurrencyValueLabelPostix']", row).show();
+            $("[modetype='calculatePriceCurrencyValueLabelPostix']", row).text(currency.Value + " за ед.");
         }
-        $("[modetype='calculateSumUsdValueLabel']", row).text(model.SumUsd ? model.SumUsd : "");
-        if (model.SumUsd == 0) {
-            $("[modetype='calculateSumUsdValueLabelPostix']", row).hide();
+        $("[modetype='calculateSumCurrencyValueLabel']", row).text(model.SumCurrency ? model.SumCurrency : "");
+        if (model.SumCurrency == 0) {
+            $("[modetype='calculateSumCurrencyValueLabelPostix']", row).hide();
         } else {
-            $("[modetype='calculateSumUsdValueLabelPostix']", row).show();
+            $("[modetype='calculateSumCurrencyValueLabelPostix']", row).show();
+            $("[modetype='calculateSumCurrencyValueLabelPostix']", row).text(currency.Value + " всего");
         }
         $("[modetype='calculatePriceRubValueLabel']", row).text(model.PriceRub ? model.PriceRub : "");
         if (model.PriceRub == 0) {
@@ -1293,6 +1323,20 @@
         return dealType;
     }
 
+    function getCurrencyById(id) {
+        id = Number(id);
+        var currency = null;
+        var currenciesLength = currencies.length;
+        for (var i = 0; i < currenciesLength; i++) {
+            var model = currencies[i];
+            if (model.Id == id) {
+                currency = model;
+                break;
+            }
+        }
+        return currency;
+    }
+
     function getProtectFactById(id) {
         id = Number(id);
         var protectFact = null;
@@ -1323,7 +1367,7 @@
 
     function getProductManagersList(productManagerId) {
         var list = $("<select size='1' type='productManagersList'  class='form-control input-sm'></select>");
-        var option = $("<option value='null'>--Снабженец/Продакт--</option>");
+        var option = $("<option value='null'>--Снабженец/Продакт *--</option>");
         list.append(option);
         var productManagersLength = productManagers.length;
         for (var i = 0; i < productManagersLength; i++) {
@@ -1345,6 +1389,21 @@
             var model = units[i];
             var option = $("<option value='" + model.Id + "'>" + model.Value + "</option>");
             if (unit != null && model.Id == unit) {
+                option.attr("selected", "selected");
+            }
+            list.append(option);
+        }
+        return list;
+    }
+
+    function getCurrenciesList(currency) {
+        var units = currencies;
+        var list = $("<select size='1' type='currenciesList' class='form-control input-sm'></select>");
+        var unitsLength = units.length;
+        for (var i = 0; i < unitsLength; i++) {
+            var model = units[i];
+            var option = $("<option value='" + model.Id + "'>" + model.Value + "</option>");
+            if (currency != null && model.Id == unit) {
                 option.attr("selected", "selected");
             }
             list.append(option);
@@ -1445,7 +1504,7 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label">Подразделение</label>
                     <div class="col-sm-9">
-                        <span id="managerSubDivision"></span>
+                        <span id="managerSubDivision" class="form-control"></span>
                         <span id="managerSubDivisionLabel" style="display: none;" class="form-control"></span>
                     </div>
                 </div>
@@ -1509,7 +1568,7 @@
                                 <button id="butGetCalculateOnlyCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет(без позиций)</button>
                             </span>
                         </div>
-                        <div class="col-sm-2">Продакт/Снабженец</div>
+                        <div class="col-sm-2">Продакт/Снабженец *</div>
                     </div>
                 </th>
                 <th>
@@ -1538,12 +1597,13 @@
                 <td>
                         <div type="editModeView" class="col-sm-3">
                             <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" />
-                            <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество" />
+                            <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество *" />
                             <div id="unitCell"></div>
+                            <div id="currencyCell"></div>
                             <input type='text' modeltype='priceValue' class="form-control input-sm" placeholder="Цена за ед., макс." />
                             <input type='text' modeltype='sumValue' class="form-control input-sm" placeholder="Сумма, макс." />
                         </div>
-                        <div type="readOnlyModeView" style="display: none;" class="col-sm-2">
+                        <div type="readOnlyModeView" style="display: none;" class="col-sm-3">
                             <div>
                                 <strong type='catalogNumberLabel'></strong>
                             </div>
@@ -1551,14 +1611,14 @@
                                 <strong type='valueLabel'></strong>&nbsp;<span type='unitLabel'></span>
                             </div>
                             <div>
-                                <strong type='priceLabel'></strong>&nbsp;<span type='priceLabelPostfix'>руб. за ед. макс.</span>
+                                <strong type='priceLabel'></strong>&nbsp;<span type='priceLabelPostfix'></span>
                             </div>
                             <div>
-                                <strong type='sumLabel'></strong>&nbsp;<span type='sumLabelPostfix'>руб. всего макс.</span>
+                                <strong type='sumLabel'></strong>&nbsp;<span type='sumLabelPostfix'></span>
                             </div>
                         </div>
                         <div type="editModeView" class="col-sm-5">
-                            <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование"></textarea>
+                            <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
                             <textarea rows="3" class="form-control input-sm" modeltype='replaceValue' placeholder="Замена"></textarea>
                         </div>
                         <div type="readOnlyModeView" style="display: none;" class="col-sm-4">
@@ -1575,7 +1635,7 @@
                             <div id="managersCell"></div>
                             <textarea rows='4' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
                         </div>
-                        <div type="readOnlyModeView" style="display: none;" class="col-sm-4">
+                        <div type="readOnlyModeView" style="display: none;" class="col-sm-3">
                             <div class="form-group">
                                 <label>Комментарий</label>
                                 <div type="commentLabel"></div>
@@ -1604,10 +1664,10 @@
                         <strong modetype="calculateCatalogNumberValueLabel"></strong>
                     </div>
                     <div>
-                        <strong modetype="calculatePriceUsdValueLabel"></strong>&nbsp;<span modetype="calculatePriceUsdValueLabelPostix">$ за ед</span>
+                        <strong modetype="calculatePriceCurrencyValueLabel"></strong>&nbsp;<span modetype="calculatePriceCurrencyValueLabelPostix"></span>
                     </div>
                     <div>
-                        <strong modetype="calculateSumUsdValueLabel"></strong>&nbsp;<span modetype="calculateSumUsdValueLabelPostix">$ всего</span>
+                        <strong modetype="calculateSumCurrencyValueLabel"></strong>&nbsp;<span modetype="calculateSumCurrencyValueLabelPostix"></span>
                     </div>
                     <div>
                         <strong modetype="calculatePriceRubValueLabel"></strong>&nbsp;<span modetype="calculatePriceRubValueLabelPostix">руб. за ед.</span>
@@ -1655,7 +1715,7 @@
                     <h4 class="modal-title">Комментарий к отклонению</h4>
                 </div>
                 <div class="modal-body">
-                    <textarea id="rejectPositionComment" rows="7" placeholder="Комментарий"></textarea>
+                    <textarea id="rejectPositionComment" class="form-control" rows="7" placeholder="Комментарий"></textarea>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>

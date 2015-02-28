@@ -53,7 +53,7 @@ namespace TenderProcessingDataAccessLayer
                 cmd.Parameters.AddWithValue("@claimStatus", model.ClaimStatus);
                 cmd.Parameters.AddWithValue("@recordDate", model.RecordDate);
                 cmd.Parameters.AddWithValue("@deleted", model.Deleted);
-                cmd.Parameters.AddWithValue("@author", model.Author);
+                cmd.Parameters.AddWithValue("@author", model.Author.Id);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -139,7 +139,7 @@ namespace TenderProcessingDataAccessLayer
                             },
                             ClaimStatus = rd.GetInt32(14),
                             RecordDate = rd.GetDateTime(15),
-                            Author = rd.GetString(17),
+                            Author = new UserBase(){ Id = rd.GetString(17)},
                             ProductManagers = new List<ProductManager>()
                         };
                         if (model.Sum.Equals(-1)) model.Sum = 0;
@@ -190,7 +190,7 @@ namespace TenderProcessingDataAccessLayer
                         },
                         ClaimStatus = rd.GetInt32(14),
                         RecordDate = rd.GetDateTime(15),
-                        Author = rd.GetString(17),
+                        Author = new UserBase() { Id = rd.GetString(17)},
                         ProductManagers = new List<ProductManager>()
                     };
                     if (model.Sum.Equals(-1)) model.Sum = 0;
@@ -233,7 +233,7 @@ namespace TenderProcessingDataAccessLayer
             return count;
         }
 
-        public bool DeleteTenderClaim(int id)
+        public bool DeleteTenderClaim(int id, UserBase user)
         {
             var result = false;
             using (var conn = new SqlConnection(_connectionString))
@@ -242,6 +242,8 @@ namespace TenderProcessingDataAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "DeleteTenderClaims";
                 cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@deletedUser", user.Id);
+                cmd.Parameters.AddWithValue("@date", DateTime.Now);
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;
             }
@@ -283,7 +285,7 @@ namespace TenderProcessingDataAccessLayer
                             Comment = rd.GetString(5),
                             Customer = rd.GetString(6),
                             CustomerInn = rd.GetString(7),
-                            Sum = (double)rd.GetDecimal(8),
+                            Sum = (double) rd.GetDecimal(8),
                             DealType = rd.GetInt32(9),
                             TenderUrl = rd.GetString(10),
                             TenderStatus = rd.GetInt32(11),
@@ -294,7 +296,7 @@ namespace TenderProcessingDataAccessLayer
                             },
                             ClaimStatus = rd.GetInt32(14),
                             RecordDate = rd.GetDateTime(15),
-                            Author = rd.GetString(17),
+                            Author = new UserBase() {Id = rd.GetString(17)},
                             ProductManagers = new List<ProductManager>()
                         };
                         if (model.Sum.Equals(-1)) model.Sum = 0;
@@ -358,6 +360,66 @@ namespace TenderProcessingDataAccessLayer
             }
         }
 
+        public void SetStatisticsForClaims(List<TenderClaim> claims)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "GetClaimsPositionsStatistics";
+                cmd.Parameters.AddWithValue("@ids", string.Join(",", claims.Select(x => x.Id)));
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        var idClaim = rd.GetInt32(0);
+                        var product = rd.GetString(1);
+                        var count = rd.GetInt32(2);
+                        var claim = claims.FirstOrDefault(x => x.Id == idClaim);
+                        if (claim != null)
+                        {
+                            var productManager = claim.ProductManagers.FirstOrDefault(x => x.Id == product);
+                            if (productManager != null)
+                            {
+                                productManager.PositionsCount = count;
+                            }
+                        }
+                    }
+                }
+                rd.Dispose();
+                cmd.CommandText = "GetClaimsCalculatePositionsStatistics";
+                rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        var idClaim = rd.GetInt32(0);
+                        var product = rd.GetString(1);
+                        var count = rd.GetInt32(2);
+                        var claim = claims.FirstOrDefault(x => x.Id == idClaim);
+                        if (claim != null)
+                        {
+                            var productManager = claim.ProductManagers.FirstOrDefault(x => x.Id == product);
+                            if (productManager != null)
+                            {
+                                productManager.CalculatesCount = count;
+                            }
+                        }
+                    }
+                }
+                rd.Dispose();
+                claims.ForEach(x =>
+                {
+                    if (x.ProductManagers.Any())
+                    {
+                        x.PositionsCount = x.ProductManagers.Sum(y => y.PositionsCount);
+                        x.CalculatesCount = x.ProductManagers.Sum(y => y.CalculatesCount);
+                    }
+                });
+            }   
+        }
 
         #endregion
 
@@ -386,6 +448,7 @@ namespace TenderProcessingDataAccessLayer
                 cmd.Parameters.AddWithValue("@comment", model.Comment);
                 cmd.Parameters.AddWithValue("@positionState", model.State);
                 cmd.Parameters.AddWithValue("@author", model.Author);
+                cmd.Parameters.AddWithValue("@currency", model.Currency);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -426,6 +489,7 @@ namespace TenderProcessingDataAccessLayer
                 cmd.Parameters.AddWithValue("@comment", model.Comment);
                 cmd.Parameters.AddWithValue("@positionState", model.State);
                 cmd.Parameters.AddWithValue("@author", model.Author);
+                cmd.Parameters.AddWithValue("@currency", model.Currency);
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;
             }
@@ -454,6 +518,7 @@ namespace TenderProcessingDataAccessLayer
                 cmd.Parameters.AddWithValue("@productManager", model.ProductManager.Id);
                 cmd.Parameters.AddWithValue("@comment", model.Comment);
                 cmd.Parameters.AddWithValue("@positionState", model.State);
+                cmd.Parameters.AddWithValue("@currency", model.Currency);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -466,7 +531,7 @@ namespace TenderProcessingDataAccessLayer
             return result;
         }
 
-        public bool DeleteSpecificationPosition(int id)
+        public bool DeleteSpecificationPosition(int id, UserBase user)
         {
             var result = false;
             using (var conn = new SqlConnection(_connectionString))
@@ -475,6 +540,8 @@ namespace TenderProcessingDataAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "DeleteClaimPosition";
                 cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@deletedUser", user.Id);
+                cmd.Parameters.AddWithValue("@date", DateTime.Now);
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;
             }
@@ -510,7 +577,8 @@ namespace TenderProcessingDataAccessLayer
                             Price = (double)rd.GetDecimal(10),
                             Sum = (double)rd.GetDecimal(11),
                             State = rd.GetInt32(12),
-                            Author = rd.GetString(13)
+                            Author = rd.GetString(13),
+                            Currency = rd.GetInt32(17)
                         };
                         if (model.Sum.Equals(-1)) model.Sum = 0;
                         if (model.Price.Equals(-1)) model.Price = 0;
@@ -552,7 +620,8 @@ namespace TenderProcessingDataAccessLayer
                             Price = (double)rd.GetDecimal(10),
                             Sum = (double)rd.GetDecimal(11),
                             State = rd.GetInt32(12),
-                            Author = rd.GetString(13)
+                            Author = rd.GetString(13),
+                            Currency = rd.GetInt32(17)
                         };
                         if (model.Sum.Equals(-1)) model.Sum = 0;
                         if (model.Price.Equals(-1)) model.Price = 0;
@@ -595,7 +664,8 @@ namespace TenderProcessingDataAccessLayer
                             Price = (double)rd.GetDecimal(10),
                             Sum = (double)rd.GetDecimal(11),
                             State = rd.GetInt32(12),
-                            Author = rd.GetString(13)
+                            Author = rd.GetString(13),
+                            Currency = rd.GetInt32(17)
                         };
                         if (model.Sum.Equals(-1)) model.Sum = 0;
                         if (model.Price.Equals(-1)) model.Price = 0;
@@ -742,9 +812,9 @@ namespace TenderProcessingDataAccessLayer
                     cmd.Parameters.AddWithValue("@protectCondition", model.ProtectCondition);
                 if (!string.IsNullOrEmpty(model.Provider))
                     cmd.Parameters.AddWithValue("@provider", model.Provider);
-                if (!model.PriceUsd.Equals(0)) cmd.Parameters.AddWithValue("@priceUsd", model.PriceUsd);
+                if (!model.PriceCurrency.Equals(0)) cmd.Parameters.AddWithValue("@priceCurrency", model.PriceCurrency);
                 if (!model.PriceRub.Equals(0)) cmd.Parameters.AddWithValue("@priceRub", model.PriceRub);
-                if (!model.SumUsd.Equals(0)) cmd.Parameters.AddWithValue("@sumUsd", model.SumUsd);
+                if (!model.SumCurrency.Equals(0)) cmd.Parameters.AddWithValue("@sumCurrency", model.SumCurrency);
                 cmd.Parameters.AddWithValue("@idClaim", model.IdTenderClaim);
                 cmd.Parameters.AddWithValue("@idPosition", model.IdSpecificationPosition);
                 cmd.Parameters.AddWithValue("@name", model.Name);
@@ -752,6 +822,7 @@ namespace TenderProcessingDataAccessLayer
                 cmd.Parameters.AddWithValue("@protectFact", model.ProtectFact.Id);
                 cmd.Parameters.AddWithValue("@sumRub", model.SumRub);
                 cmd.Parameters.AddWithValue("@author", model.Author);
+                cmd.Parameters.AddWithValue("@currency", model.Currency);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -785,22 +856,23 @@ namespace TenderProcessingDataAccessLayer
                     cmd.Parameters.AddWithValue("@protectCondition", model.ProtectCondition);
                 if (!string.IsNullOrEmpty(model.Provider))
                     cmd.Parameters.AddWithValue("@provider", model.Provider);
-                if (!model.PriceUsd.Equals(0)) cmd.Parameters.AddWithValue("@priceUsd", model.PriceUsd);
+                if (!model.PriceCurrency.Equals(0)) cmd.Parameters.AddWithValue("@priceCurrency", model.PriceCurrency);
                 if (!model.PriceRub.Equals(0)) cmd.Parameters.AddWithValue("@priceRub", model.PriceRub);
-                if (!model.SumUsd.Equals(0)) cmd.Parameters.AddWithValue("@sumUsd", model.SumUsd);
+                if (!model.SumCurrency.Equals(0)) cmd.Parameters.AddWithValue("@sumCurrency", model.SumCurrency);
                 cmd.Parameters.AddWithValue("@id", model.Id);
                 cmd.Parameters.AddWithValue("@name", model.Name);
                 cmd.Parameters.AddWithValue("@catalogNumber", model.CatalogNumber);
                 cmd.Parameters.AddWithValue("@protectFact", model.ProtectFact.Id);
                 cmd.Parameters.AddWithValue("@sumRub", model.SumRub);
                 cmd.Parameters.AddWithValue("@author", model.Author);
+                cmd.Parameters.AddWithValue("@currency", model.Currency);
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;
             }
             return result;
         }
 
-        public bool DeleteCalculateSpecificationPosition(int id)
+        public bool DeleteCalculateSpecificationPosition(int id, UserBase user)
         {
             var result = false;
             using (var conn = new SqlConnection(_connectionString))
@@ -809,6 +881,8 @@ namespace TenderProcessingDataAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "DeleteCalculateClaimPosition";
                 cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@deletedUser", user.Id);
+                cmd.Parameters.AddWithValue("@date", DateTime.Now);
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;
             }
@@ -838,18 +912,19 @@ namespace TenderProcessingDataAccessLayer
                             CatalogNumber = rd.GetString(3),
                             Name = rd.GetString(4),
                             Replace = rd.GetString(5),
-                            PriceUsd = (double)rd.GetDecimal(6),
-                            SumUsd = (double)rd.GetDecimal(7),
+                            PriceCurrency = (double)rd.GetDecimal(6),
+                            SumCurrency = (double)rd.GetDecimal(7),
                             PriceRub = (double)rd.GetDecimal(8),
                             SumRub = (double)rd.GetDecimal(9),
                             Provider = rd.GetString(10),
                             ProtectFact = new ProtectFact() { Id = rd.GetInt32(11)},
                             ProtectCondition = rd.GetString(12),
                             Comment = rd.GetString(13),
-                            Author = rd.GetString(14)
+                            Author = rd.GetString(14),
+                            Currency = rd.GetInt32(18)
                         };
-                        if (model.PriceUsd.Equals(-1)) model.PriceUsd = 0;
-                        if (model.SumUsd.Equals(-1)) model.SumUsd = 0;
+                        if (model.PriceCurrency.Equals(-1)) model.PriceCurrency = 0;
+                        if (model.SumCurrency.Equals(-1)) model.SumCurrency = 0;
                         if (model.PriceRub.Equals(-1)) model.PriceRub = 0;
                         list.Add(model);
                     }
@@ -1080,6 +1155,33 @@ namespace TenderProcessingDataAccessLayer
                     while (rd.Read())
                     {
                         var model = new ProtectFact()
+                        {
+                            Id = rd.GetInt32(0),
+                            Value = rd.GetString(1)
+                        };
+                        list.Add(model);
+                    }
+                }
+                rd.Dispose();
+            }
+            return list;
+        }
+
+        public List<Currency> LoadCurrencies()
+        {
+            var list = new List<Currency>();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "LoadCurrencies";
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        var model = new Currency()
                         {
                             Id = rd.GetInt32(0),
                             Value = rd.GetString(1)

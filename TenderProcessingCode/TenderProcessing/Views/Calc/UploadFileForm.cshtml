@@ -30,7 +30,8 @@
             var file = $('#file').val().trim();
             if (file == "") return;
             var filex = $('#file')[0].files[0];
-            if (filex.type != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+            var extension = filex.name.substr(filex.name.length - 4, filex.name.length);
+            if (extension.toLowerCase() != "xlsx") {
                 var obj = {
                     type: "UploadExcel",
                     error: true,

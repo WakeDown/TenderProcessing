@@ -4,9 +4,11 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.DirectoryServices.AccountManagement;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +20,8 @@ namespace TenderProcessingClaimDeadLineMonitor
 {
     class Program
     {
+        private const string ApproachingTenderClaimsFileName = "ApproachingTenderClaims.dt";
+        private const string OverdieTenderClaimsFileName = "OverdieTenderClaims.dt";
         //Консольное приложение для отправки уведомлений по просроченным заявкам или у которых срок сдачи меньше чем 24 часа
         static void Main(string[] args)
         {
@@ -28,6 +32,7 @@ namespace TenderProcessingClaimDeadLineMonitor
                 var db = new DbEngine();
                 using (var conn = new SqlConnection(connectionString))
                 {
+                    var approachingClaimsList = LoadProcessedApproachingClaimsId();
                     //Обращение к БД за инфой о заявкам до срока сдачи которых осталось 24 часа и меньше
                     var cmd = conn.CreateCommand();
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -50,6 +55,7 @@ namespace TenderProcessingClaimDeadLineMonitor
                         cmd.CommandText = "GetProductsForClaim";
                         foreach (var id in claimsId)
                         {
+                            if (approachingClaimsList.Contains(id)) continue;
                             cmd.Parameters.Clear();
                             cmd.Parameters.AddWithValue("@id", id);
                             var products = new List<string>();
@@ -64,6 +70,7 @@ namespace TenderProcessingClaimDeadLineMonitor
                             rd.Dispose();
                             if (products.Any())
                             {
+                                approachingClaimsList.Add(id);
                                 //Отправка писем полученым снабженцам
                                 var claim = db.LoadTenderClaimById(id);
                                 var users = new List<UserBase>();
@@ -71,14 +78,13 @@ namespace TenderProcessingClaimDeadLineMonitor
                                 {
                                     users.Add(GetUserById(product));
                                 }
+                                
                                 var host = ConfigurationManager.AppSettings["AppHost"];
                                 var messageMail = new StringBuilder();
                                 messageMail.Append("Здравствуйте");
                                 messageMail.Append(".<br/>");
                                 messageMail.Append("Приближается срок сдачи по Заявке №" + claim.Id + ", у которой есть не подтверженные Вами позиции расчета<br/>");
-                                messageMail.Append("Заявка № " + claim.Id + ", Заказчик: " + claim.Customer +
-                                                   ", Срок сдачи: " + claim.ClaimDeadline.ToString("dd.MM.yyyy") +
-                                                   ".<br/>");
+                                messageMail.Append(GetClaimInfo(claim));
                                 messageMail.Append("Ссылка на заявку: ");
                                 messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
                                                    "/Calc/Index?claimId=" + claim.Id + "</a>");
@@ -87,8 +93,10 @@ namespace TenderProcessingClaimDeadLineMonitor
                                     "Приближение срока сдачи расчета в системе СпецРасчет");
                             }
                         }
+                        SaveProcessedApproachingClaimsId(approachingClaimsList);
                     }
                     //Обращение к БД за инфой о просроченных заявках
+                    var overdieClaimsList = LoadProcessedOverdieClaimsId();
                     var controllers = GetControllers();
                     var expiredNoteUsers = GetExpiredNoteUsers();
                     cmd.Parameters.Clear();
@@ -111,6 +119,7 @@ namespace TenderProcessingClaimDeadLineMonitor
                         cmd.CommandText = "GetProductsForClaim";
                         foreach (var id in claimsId)
                         {
+                            if (overdieClaimsList.Contains(id)) continue;
                             cmd.Parameters.Clear();
                             cmd.Parameters.AddWithValue("@id", id);
                             var products = new List<string>();
@@ -125,6 +134,7 @@ namespace TenderProcessingClaimDeadLineMonitor
                             rd.Dispose();
                             if (products.Any())
                             {
+                                overdieClaimsList.Add(id);
                                 //Отправка писем полученным снабженцам
                                 var claim = db.LoadTenderClaimById(id);
                                 var users = new List<UserBase>();
@@ -137,9 +147,7 @@ namespace TenderProcessingClaimDeadLineMonitor
                                 messageMail.Append("Здравствуйте");
                                 messageMail.Append(".<br/>");
                                 messageMail.Append("Cрок сдачи по Заявке №" + claim.Id + " истек, у Вас есть не подтверженные Вами позиции расчета в этой заявке<br/>");
-                                messageMail.Append("Заявка № " + claim.Id + ", Заказчик: " + claim.Customer +
-                                                   ", Срок сдачи: " + claim.ClaimDeadline.ToString("dd.MM.yyyy") +
-                                                   ".<br/>");
+                                messageMail.Append(GetClaimInfo(claim));
                                 messageMail.Append("Ссылка на заявку: ");
                                 messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
                                                    "/Calc/Index?claimId=" + claim.Id + "</a>");
@@ -154,9 +162,7 @@ namespace TenderProcessingClaimDeadLineMonitor
                                 messageMail.Append("Здравствуйте");
                                 messageMail.Append(".<br/>");
                                 messageMail.Append("Cрок сдачи по Заявке №" + claim.Id + " истек, у этой заявки есть неподтвержденные позиции расчета<br/>");
-                                messageMail.Append("Заявка № " + claim.Id + ", Заказчик: " + claim.Customer +
-                                                   ", Срок сдачи: " + claim.ClaimDeadline.ToString("dd.MM.yyyy") +
-                                                   ".<br/>");
+                                messageMail.Append(GetClaimInfo(claim));
                                 messageMail.Append("Ссылка на заявку: ");
                                 messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
                                                    "/Calc/Index?claimId=" + claim.Id + "</a>");
@@ -165,6 +171,7 @@ namespace TenderProcessingClaimDeadLineMonitor
                                     "Срока сдачи расчета по заявке истек. Система СпецРасчет");
                             }
                         }
+                        SaveProcessedOverdieClaimsId(overdieClaimsList);
                     }
                 }
             }
@@ -176,9 +183,8 @@ namespace TenderProcessingClaimDeadLineMonitor
         }
 
         //Получени инфы о юзере из ActiveDirectory
-        public static UserBase GetUserById(string id)
+        private static UserBase GetUserById(string id)
         {
-            Console.WriteLine(id);
             UserBase user = null;
             var domain = new PrincipalContext(ContextType.Domain);
             var userPrincipal = UserPrincipal.FindByIdentity(domain, IdentityType.Sid, id);
@@ -187,18 +193,37 @@ namespace TenderProcessingClaimDeadLineMonitor
                 var email = userPrincipal.EmailAddress;
                 var name = userPrincipal.DisplayName;
                 var sid = userPrincipal.Sid.Value;
+                var shortName = GetShortName(name);
                 user = new UserBase()
                 {
                     Id = sid,
                     Name = name,
-                    Email = email
+                    ShortName = shortName,
+                    Email = email,
+                    Roles = new List<Role>() { Role.Enter }
                 };
             }
             return user;
         }
 
+        private static string GetShortName(string name)
+        {
+            var shortName = new StringBuilder();
+            var partNames = name.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+            if (partNames.Count() > 2)
+            {
+                shortName.Append(partNames[0]);
+                shortName.Append(" ");
+                shortName.Append(partNames[1].Substring(0, 1));
+                shortName.Append(".");
+                shortName.Append(partNames[2].Substring(0, 1));
+                shortName.Append(".");
+            }
+            return shortName.ToString();
+        }
+
         //Отправка почты
-        public static void SendNotification(IEnumerable<UserBase> users, string message, string header)
+        private static void SendNotification(IEnumerable<UserBase> users, string message, string header)
         {
             try
             {
@@ -256,7 +281,7 @@ namespace TenderProcessingClaimDeadLineMonitor
         }
 
         //Получение контроллеров из ActiveDirectory
-        public static List<UserBase> GetControllers()
+        private static List<UserBase> GetControllers()
         {
             var db = new DbEngine();
             var roles = db.LoadRoles();
@@ -274,10 +299,12 @@ namespace TenderProcessingClaimDeadLineMonitor
                         var email = userPrincipal.EmailAddress;
                         var name = userPrincipal.DisplayName;
                         var sid = userPrincipal.Sid.Value;
+                        var shortName = GetShortName(name);
                         var user = new UserBase()
                         {
                             Id = sid,
                             Name = name,
+                            ShortName = shortName,
                             Email = email
                         };
                         list.Add(user);
@@ -288,7 +315,7 @@ namespace TenderProcessingClaimDeadLineMonitor
         }
 
         //Получение получателей извещений о просроченных заявках из ActiveDirectory
-        public static List<UserBase> GetExpiredNoteUsers()
+        private static List<UserBase> GetExpiredNoteUsers()
         {
             var db = new DbEngine();
             var roles = db.LoadRoles();
@@ -306,11 +333,13 @@ namespace TenderProcessingClaimDeadLineMonitor
                         var email = userPrincipal.EmailAddress;
                         var name = userPrincipal.DisplayName;
                         var sid = userPrincipal.Sid.Value;
+                        var shortName = GetShortName(name);
                         var user = new UserBase()
                         {
                             Id = sid,
                             Name = name,
                             Email = email,
+                            ShortName = shortName,
                             Roles = new List<Role>() { Role.ExpiredNote }
                         };
                         list.Add(user);
@@ -318,6 +347,102 @@ namespace TenderProcessingClaimDeadLineMonitor
                 }
             }
             return list;
+        }
+
+        private static string GetClaimInfo(TenderClaim claim)
+        {
+            var db = new DbEngine();
+            var dealTypes = db.LoadDealTypes();
+            return "Заявка № " + claim.Id + ", Автор: " + GetUserById(claim.Author.Id).ShortName +
+                   ", Номер конкурса: " + claim.TenderNumber + ", Дата начала" +
+                   claim.TenderStart.ToString("dd.MM.yyyy") + ", Срок сдачи: "
+                   + claim.ClaimDeadline.ToString("dd.MM.yyyy") + ", Менеджер: " +
+                   GetUserById(claim.Manager.Id).ShortName + ", Подразделение менеджера: " +
+                   claim.Manager.SubDivision +
+                   ", Заказчик: " + claim.Customer + " ИНН заказчика: " + claim.CustomerInn +
+                   ", Тип конкурса: " + dealTypes.First(x => x.Id == claim.DealType).Value + (claim.Sum > 0
+                       ? ", Сумма: " + claim.Sum.ToString("N2")
+                       : string.Empty) + (!string.IsNullOrEmpty(claim.TenderUrl)
+                           ? ", Сcылка на конкурс: <a href='" + claim.TenderUrl + "'>[Ссылка]</a>]"
+                           : string.Empty) + ".<br/>";
+        }
+
+        private static List<int> LoadProcessedApproachingClaimsId()
+        {
+            var list = new List<int>();
+            var assemblyLocation = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            if (assemblyLocation != null)
+            {
+                var filePath = Path.Combine(assemblyLocation, ApproachingTenderClaimsFileName);
+                if (File.Exists(filePath))
+                {
+                    var formatter = new BinaryFormatter();
+                    using (var stream = File.OpenRead(filePath))
+                    {
+                        list = (List<int>)formatter.Deserialize(stream);
+                    }
+                }
+            }
+            return list;
+        }
+
+        private static void SaveProcessedApproachingClaimsId(List<int> list)
+        {
+            var assemblyLocation = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            if (assemblyLocation != null)
+            {
+                var filePath = Path.Combine(assemblyLocation, ApproachingTenderClaimsFileName);
+                var fileMode = FileMode.Truncate;
+                if (!File.Exists(filePath))
+                {
+                    fileMode = FileMode.CreateNew;
+                }
+                var formatter = new BinaryFormatter();
+                using (var stream = File.Open(filePath, fileMode, FileAccess.Write))
+                {
+                    formatter.Serialize(stream, list);
+                    stream.Flush();
+                }
+            }
+        }
+
+        private static List<int> LoadProcessedOverdieClaimsId()
+        {
+            var list = new List<int>();
+            var assemblyLocation = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            if (assemblyLocation != null)
+            {
+                var filePath = Path.Combine(assemblyLocation, OverdieTenderClaimsFileName);
+                if (File.Exists(filePath))
+                {
+                    var formatter = new BinaryFormatter();
+                    using (var stream = File.OpenRead(filePath))
+                    {
+                        list = (List<int>)formatter.Deserialize(stream);
+                    }
+                }
+            }
+            return list;
+        }
+
+        private static void SaveProcessedOverdieClaimsId(List<int> list)
+        {
+            var assemblyLocation = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            if (assemblyLocation != null)
+            {
+                var filePath = Path.Combine(assemblyLocation, OverdieTenderClaimsFileName);
+                var fileMode = FileMode.Truncate;
+                if (!File.Exists(filePath))
+                {
+                    fileMode = FileMode.CreateNew;
+                }
+                var formatter = new BinaryFormatter();
+                using (var stream = File.Open(filePath, fileMode, FileAccess.Write))
+                {
+                    formatter.Serialize(stream, list);
+                    stream.Flush();
+                }
+            }
         }
     }
 }
