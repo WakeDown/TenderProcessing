@@ -1,4 +1,0 @@
-C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\bin\Debug\TenderProcessingDataAccessLayer.dll
-C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\bin\Debug\TenderProcessingDataAccessLayer.pdb
-C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\obj\Debug\TenderProcessingDataAccessLayer.dll
-C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\obj\Debug\TenderProcessingDataAccessLayer.pdb

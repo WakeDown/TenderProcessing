@@ -1,0 +1,41 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>GetSpecificationFile</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript">
+        $(init);
+
+
+        function init() {
+            var target = getTargetOrigin();
+            var obj = {
+                type: "DownloadExcelOnlyCalculate",
+                error: true
+            };
+            window.top.postMessage(JSON.stringify(obj), target);
+        }
+
+        function getTargetOrigin() {
+            var url = document.location.href;
+            url = url.replace("http://", "");
+            var index = url.indexOf("/");
+            url = url.substr(0, index);
+            url = "http://" + url;
+            return url;
+        }
+    </script>
+
+</head>
+<body>
+    <div> 
+    </div>
+</body>
+</html>

@@ -180,6 +180,7 @@ namespace TenderProcessing.Controllers
                     clickAction = "null";
                     posibleAction = "null";
                     newClaim = "false";
+                    if (isOperator || isManager) newClaim = "true";
                 }
                 if (isManager)
                 {
@@ -199,6 +200,7 @@ namespace TenderProcessing.Controllers
                     posibleAction = (isManager ? "all" : "calculateClaim");
                     userId = user.Id;
                     newClaim = "false";
+                    if (isOperator || isManager) newClaim = "true";
                     if (!isManager) filterClaimStatus.AddRange(new[] { 2, 3, 6, 7 });
                 }
                 if (isOperator)
@@ -262,7 +264,7 @@ namespace TenderProcessing.Controllers
                         var manager = managers.FirstOrDefault(x => x.Id == claim.Manager.Id);
                         if (manager != null)
                         {
-                            claim.Manager = manager;
+                            claim.Manager.ShortName = manager.ShortName;
                         }
                         claim.Author = UserHelper.GetUserById(claim.Author.Id);
                     }
@@ -443,18 +445,6 @@ namespace TenderProcessing.Controllers
                         {
                             foreach (var calculation in position.Calculations)
                             {
-                                workSheet.Cell(1, 1).Value = "Каталожный номер*";
-                                workSheet.Cell(1, 2).Value = "Наименование*";
-                                workSheet.Cell(1, 3).Value = "Замена";
-                                workSheet.Cell(1, 4).Value = "валюта";
-                                workSheet.Cell(1, 5).Value = "Цена за ед.";
-                                workSheet.Cell(1, 6).Value = "Сумма вход";
-                                workSheet.Cell(1, 7).Value = "Цена за ед. руб";
-                                workSheet.Cell(1, 8).Value = "Сумма вход руб*";
-                                workSheet.Cell(1, 9).Value = "Поставщик";
-                                workSheet.Cell(1, 10).Value = "Факт получ.защиты*";
-                                workSheet.Cell(1, 11).Value = "Условия защиты";
-                                workSheet.Cell(1, 12).Value = "Комментарий";
                                 workSheet.Cell(row, 1).Value = calculation.CatalogNumber;
                                 workSheet.Cell(row, 2).Value = calculation.Name;
                                 workSheet.Cell(row, 3).Value = calculation.Replace;
@@ -582,7 +572,8 @@ namespace TenderProcessing.Controllers
                     workSheet.Cell(1, 11).Value = "Срок сдачи";
                     workSheet.Cell(1, 12).Value = "Статус конкурса";
                     workSheet.Cell(1, 13).Value = "Автор";
-                    var headRange = workSheet.Range(workSheet.Cell(1, 1), workSheet.Cell(1, 13));
+                    workSheet.Cell(1, 14).Value = "Просроченна";
+                    var headRange = workSheet.Range(workSheet.Cell(1, 1), workSheet.Cell(1, 14));
                     headRange.Style.Font.SetBold(true);
                     headRange.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                     headRange.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
@@ -616,10 +607,19 @@ namespace TenderProcessing.Controllers
                         workSheet.Cell(row, 11).DataType = XLCellValues.DateTime;
                         workSheet.Cell(row, 12).Value = tenderStatus.First(x => x.Id == claim.TenderStatus).Value;
                         workSheet.Cell(row, 13).Value = UserHelper.GetUserById(claim.Author.Id).ShortName;
+                        var overDie = "Нет";
+                        if (claim.ClaimDeadline > DateTime.Now)
+                        {
+                            if (claim.ClaimStatus != 1 || claim.ClaimStatus != 8)
+                            {
+                                overDie = "Да";
+                            }
+                        }
+                        workSheet.Cell(row, 14).Value = overDie;
                         row++;
                     }
                     workSheet.Columns(6, 7).Style.Alignment.WrapText = true;
-                    workSheet.Columns(1, 13).AdjustToContents();
+                    workSheet.Columns(1, 14).AdjustToContents();
                     excBook.SaveAs(ms);
                     excBook.Dispose();
                     ms.Seek(0, SeekOrigin.Begin);
@@ -879,7 +879,8 @@ namespace TenderProcessing.Controllers
                                     }
                                 }
                             }
-                            if (currencyRange != null && currencyRange.Value != null)
+
+                            if (currencyRange != null && currencyRange.Value != null && !string.IsNullOrEmpty(currencyRange.Value.ToString()))
                             {
                                 var value = currencyRange.Value.ToString();
                                 var currency = currencies.FirstOrDefault(x => x.Value == value);
@@ -891,14 +892,21 @@ namespace TenderProcessing.Controllers
                                 {
                                     rowValid = false;
                                     errorStringBuilder.Append("Строка: " + row +
-                                                              ", не найдена Валюта: " + value + "<br/>");
+                                                          ", не найдена Валюта: " + value + "<br/>");
                                 }
                             }
                             else
                             {
-                                rowValid = false;
-                                errorStringBuilder.Append("Строка: " + row +
-                                                          ", не задано обязательное значение Валюта<br/>");
+                                if (!model.Sum.Equals(0) || !model.Price.Equals(0))
+                                {
+                                    rowValid = false;
+                                    errorStringBuilder.Append("Строка: " + row +
+                                                              ", не задано обязательное значение Валюта<br/>");
+                                }
+                                else
+                                {
+                                    model.Currency = 1;
+                                }
                             }
                             if (rowValid)
                             {
@@ -1127,6 +1135,7 @@ namespace TenderProcessing.Controllers
                         if (managerFromAD != null)
                         {
                             claimProductManager.Name = managerFromAD.Name;
+                            claimProductManager.ShortName = managerFromAD.ShortName;
                         }
                     }
                     foreach (var claim in list)
@@ -1134,8 +1143,9 @@ namespace TenderProcessing.Controllers
                         var manager = managers.FirstOrDefault(x => x.Id == claim.Manager.Id);
                         if (manager != null)
                         {
-                            claim.Manager.Name = manager.Name;
+                            claim.Manager.ShortName = manager.ShortName;
                         }
+                        claim.Author = UserHelper.GetUserById(claim.Author.Id);
                     }
                     db.SetStatisticsForClaims(list);
                 }
@@ -1206,8 +1216,8 @@ namespace TenderProcessing.Controllers
                         }
                         //истроия изменения статуса заявки
                         var user = GetUser();
-                        var comment = string.Join("\r", productManagers.Select(x => x.Name));
-                        comment += "\rАвтор: " + user.Name; 
+                        var comment = string.Join("\r", productManagers.Select(x => x.ShortName));
+                        comment += "\rАвтор: " + user.ShortName; 
                         model = new ClaimStatusHistory()
                         {
                             Date = DateTime.Now,
@@ -1645,7 +1655,7 @@ namespace TenderProcessing.Controllers
             var db = new DbEngine();
             var dealTypes = db.LoadDealTypes();
             return "Заявка № " + claim.Id + ", Автор: " + UserHelper.GetUserById(claim.Author.Id).ShortName +
-                   ", Номер конкурса: " + claim.TenderNumber + ", Дата начала" +
+                   ", Номер конкурса: " + claim.TenderNumber + ", Дата начала: " +
                    claim.TenderStart.ToString("dd.MM.yyyy") + ", Срок сдачи: "
                    + claim.ClaimDeadline.ToString("dd.MM.yyyy") + ", Менеджер: " +
                    UserHelper.GetUserById(claim.Manager.Id).ShortName + ", Подразделение менеджера: " +

@@ -194,7 +194,8 @@ namespace TenderProcessing.Controllers
                 }
                 if (positions.Any())
                 {
-                    positions = positions.Where(x => x.State == 1 || x.State == 3).ToList();
+                    if (forManager) positions = positions.Where(x => x.State == 2 || x.State == 4).ToList();
+                    else positions = positions.Where(x => x.State == 1 || x.State == 3).ToList();
                     if (positions.Any())
                     {
                         //расчет к позициям
@@ -648,28 +649,6 @@ namespace TenderProcessing.Controllers
                                             calculate.SumRub = doubleValue;
                                         }
                                     }
-                                    //проверка валюта
-                                    if (currencyValue != null && !string.IsNullOrEmpty(currencyValue.ToString().Trim()))
-                                    {
-                                        var currency =
-                                            currencies.FirstOrDefault(x => x.Value == currencyValue.ToString().Trim());
-                                        if (currency == null)
-                                        {
-                                            rowValid = false;
-                                            errorStringBuilder.Append("Строка: " + row +
-                                                                  ", Значение '" + currencyValue.ToString().Trim() + "' не является допустимым для Валюта<br/>");
-                                        }
-                                        else
-                                        {
-                                            calculate.Currency = currency.Id;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        rowValid = false;
-                                        errorStringBuilder.Append("Строка: " + row +
-                                                                  ", не задано обязательное значение Валюта<br/>");
-                                    }
                                     //проверка: Цена за ед. USD
                                     if (priceCurrencyValue != null && !string.IsNullOrEmpty(priceCurrencyValue.ToString().Trim()))
                                     {
@@ -700,6 +679,35 @@ namespace TenderProcessing.Controllers
                                         else
                                         {
                                             calculate.SumCurrency = doubleValue;
+                                        }
+                                    }
+                                    //проверка валюта
+                                    if (currencyValue != null && !string.IsNullOrEmpty(currencyValue.ToString().Trim()))
+                                    {
+                                        var currency =
+                                            currencies.FirstOrDefault(x => x.Value == currencyValue.ToString().Trim());
+                                        if (currency == null)
+                                        {
+                                            rowValid = false;
+                                            errorStringBuilder.Append("Строка: " + row +
+                                                                  ", Значение '" + currencyValue.ToString().Trim() + "' не является допустимым для Валюта<br/>");
+                                        }
+                                        else
+                                        {
+                                            calculate.Currency = currency.Id;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (!model.Price.Equals(0) || !model.Sum.Equals(0))
+                                        {
+                                            rowValid = false;
+                                            errorStringBuilder.Append("Строка: " + row +
+                                                                      ", не задано обязательное значение Валюта<br/>");
+                                        }
+                                        else
+                                        {
+                                            calculate.Currency = 2;
                                         }
                                     }
                                     //проверка: Цена за ед. руб
@@ -1086,7 +1094,7 @@ namespace TenderProcessing.Controllers
                 if (lastHistory != null)
                 {
                     lastHistory.Date = DateTime.Now;
-                    lastHistory.Comment = comment;
+                    lastHistory.Comment = user.ShortName + ": " + comment;
                     lastHistory.IdUser = user.Id;
                     isComplete = db.SaveClaimStatusHistory(lastHistory);
                     lastHistory.DateString = lastHistory.Date.ToString("dd.MM.yyyy HH:mm");

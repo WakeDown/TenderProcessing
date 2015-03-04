@@ -97,7 +97,6 @@ namespace TenderProcessingClaimDeadLineMonitor
                     }
                     //Обращение к БД за инфой о просроченных заявках
                     var overdieClaimsList = LoadProcessedOverdieClaimsId();
-                    var controllers = GetControllers();
                     var expiredNoteUsers = GetExpiredNoteUsers();
                     cmd.Parameters.Clear();
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -155,8 +154,9 @@ namespace TenderProcessingClaimDeadLineMonitor
                                 SendNotification(users, messageMail.ToString(),
                                     "Срока сдачи расчета по заявке истек. Система СпецРасчет");
                                 var userList = new List<UserBase>();
-                                userList.AddRange(controllers);
                                 userList.AddRange(expiredNoteUsers);
+                                var manager = GetUserById(claim.Manager.Id);
+                                if (manager != null) userList.Add(manager);
                                 //Отправка писем контроллерам
                                 messageMail = new StringBuilder();
                                 messageMail.Append("Здравствуйте");
