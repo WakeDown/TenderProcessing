@@ -1,4 +1,5 @@
-﻿
+﻿@using DocumentFormat.OpenXml.Wordprocessing
+
 @{
     Layout = null;
 }
@@ -11,6 +12,8 @@
     <title>GetSpecificationFile</title>
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
     <script type="text/javascript">
+        var message = "@Html.Raw(ViewBag.Message)";
+
         $(init);
 
 
@@ -18,6 +21,7 @@
             var target = getTargetOrigin();
             var obj = {
                 type: "DownloadExcelOnlyCalculate",
+                message: message,
                 error: true
             };
             window.top.postMessage(JSON.stringify(obj), target);

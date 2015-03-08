@@ -71,7 +71,19 @@
             todayBtn: "linked",
             language: "ru"
         });
-        $("#tenderStart").add("#kPDeadline").add("#claimDeadline").change(function(e) {
+        $("#deliveryDate").datepicker({
+            format: "dd.mm.yyyy",
+            autoclose: true,
+            todayBtn: "linked",
+            language: "ru"
+        });
+        $("#auctionDate").datepicker({
+            format: "dd.mm.yyyy",
+            autoclose: true,
+            todayBtn: "linked",
+            language: "ru"
+        });
+        $("#tenderStart").add("#kPDeadline").add("#claimDeadline").add("#deliveryDate").add("#auctionDate").change(function(e) {
             var datepicker = $(e.currentTarget);
             var dt = datepicker.datepicker("getDate");
             var dateString = getDateString(dt);
@@ -100,6 +112,7 @@
         $("[modetype='addPositionButtonCancel']").click(addPositionCancel);
         $("#butSetPositionReject").click(rejectPositions);
         $("#butSetPositionConfirm").click(setAllPositionConfirmed);
+        $("#butChangeCurrency").click(changeCurrency);
         if (claim != null) {
             $("#claimId").text("Заявка №" + claim.Id);
             if (claim.Positions != null) {
@@ -135,6 +148,7 @@
             $("#butSetClaimOnWork").show();
             $("#excelPanel").show(250);
             $("#positionPanel").show(250);
+            $("#butChangeCurrency").show();
             initClaimIdNedded = true;
             if (claim.ClaimStatus > 1) {
                 var status = getClaimStatusById(claim.ClaimStatus);
@@ -364,6 +378,13 @@
         var tenderUrl = $("#tenderUrl").val();
         var managerId = $(":selected", $("#listManagers")).val();
         var managerSubDivision = $("#managerSubDivision").text();
+        var usd = $("#currencyUsd").val().trim().replace(",", ".");
+        var eur = $("#currencyEur").val().trim().replace(",", ".");
+        var deliveryPlace = $("#deliveryPlace").val().trim();
+        var deliveryDate = $("#deliveryDate").val().trim();
+        var auctionDate = $("#auctionDate").val().trim();
+        if (usd == "") usd = 0;
+        if (eur == "") eur = 0;
         var model = {
             TenderNumber: tenderNumber,
             TenderStartString: tenderStart,
@@ -375,6 +396,11 @@
             Sum: sum,
             DealType: dealType,
             TenderUrl: tenderUrl,
+            CurrencyUsd: Number(usd),
+            CurrencyEur: Number(eur),
+            DeliveryDateString: deliveryDate,
+            DeliveryPlace: deliveryPlace,
+            AuctionDateString: auctionDate,
             Manager: { Id: managerId, SubDivision: managerSubDivision }
         };
         messageUi.progressShow();
@@ -399,6 +425,7 @@
             $("#butSetClaimOnWork").show();
             $("#excelPanel").show(250);
             $("#positionPanel").show(250);
+            $("#butChangeCurrency").show();
             if (data.StatusHistory != null) addClaimStatusHistoryElement(data.StatusHistory);
             var obj = {
                 type: "setClaimId",
@@ -412,6 +439,37 @@
         }
     }
 
+    function changeCurrency(e) {
+        var usd = $("#currencyUsd").val().trim().replace(",", ".");
+        var eur = $("#currencyEur").val().trim().replace(",", ".");
+        if (usd == "" && eur == "") {
+            alert("Введите значения валют");
+            return;
+        }
+        if (usd == "") usd = 0;
+        if (eur == "") eur = 0;
+        var model = {
+            Id: claim.Id,
+            CurrencyUsd: Number(usd),
+            CurrencyEur: Number(eur)
+        };
+        messageUi.progressShow();
+        $.ajax({
+            url: "/Claim/UpdateClaimCurrency",
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(model),
+            processData: false,
+            contentType: 'application/json; charset = utf-8 ',
+            success: function(data) {
+                messageUi.progressHide();
+                if (!data.IsComplete) {
+                    alert("Ошибка при изменении курса валют");
+                }
+            }
+        });
+    }
+
     //проверка валидности введенных значений по заявке
     function isValidClaim() {
         var obj = { isValid: true, message: "" };
@@ -422,6 +480,8 @@
         var customer = $("#customer").val();
         var customerInn = $("#innCustomer").val();
         var sum = $("#sum").val();
+        var usd = $("#currencyUsd").val();
+        var eur = $("#currencyEur").val(); 
         if (tenderStart.trim() == "") {
             obj.isValid = false;
             obj.message = "Заполните поле Дата начала";
@@ -461,7 +521,29 @@
         sum = sum.replace(",", ".");
         if (sum.trim() != "") {
             if (isNaN(Number(sum))) {
-                message = "Значение в поле Сумма с НДС не является числом";
+                message = "Значение '" + sum + "' в поле Сумма с НДС не является числом";
+                if (obj.message.trim() != "") {
+                    message = "\r" + message;
+                }
+                obj.isValid = false;
+                obj.message += message;
+            }
+        }
+        usd = usd.replace(",", ".");
+        if (usd.trim() != "") {
+            if (isNaN(Number(usd))) {
+                message = "Значение '" + usd + "' в поле Курс USD не является числом";
+                if (obj.message.trim() != "") {
+                    message = "\r" + message;
+                }
+                obj.isValid = false;
+                obj.message += message;
+            }
+        }
+        eur = eur.replace(",", ".");
+        if (eur.trim() != "") {
+            if (isNaN(Number(eur))) {
+                message = "Значение '" + eur + "' в поле Курс EUR не является числом";
                 if (obj.message.trim() != "") {
                     message = "\r" + message;
                 }
@@ -492,7 +574,7 @@
 
     //перевод заявки в режим просмотра
     function showClaimReadOnly(model) {
-        var controlNames = ["#tenderNumber", "#tenderStart", "#claimDeadline", "#kPDeadline", "#customer", "#innCustomer", "#sum", "#comment", "#listDealTypes", "#tenderUrl", "#listManagers", "#managerSubDivision"];
+        var controlNames = ["#tenderNumber", "#tenderStart", "#claimDeadline", "#kPDeadline", "#customer", "#innCustomer", "#sum", "#comment", "#listDealTypes", "#tenderUrl", "#listManagers", "#managerSubDivision", "#deliveryDate", "#deliveryPlace", "#auctionDate"];
         var controlsLength = controlNames.length;
         for (var i = 0; i < controlsLength; i++) {
             $(controlNames[i]).css("display", "none");
@@ -502,6 +584,9 @@
         $("#tenderStartLabel").text(model.TenderStartString);
         $("#claimDeadlineLabel").text(model.ClaimDeadlineString);
         $("#kPDeadlineLabel").text(model.KPDeadlineString);
+        $("#deliveryDateLabel").text(model.DeliveryDateString);
+        $("#auctionDateLabel").text(model.AuctionDateString);
+        $("#deliveryPlaceLabel").text(model.DeliveryPlace);
         $("#customerLabel").text(model.Customer);
         $("#innCustomerLabel").text(model.CustomerInn);
         var sum = "";
@@ -509,6 +594,16 @@
             sum = model.Sum.toFixed(2);
         }
         $("#sumLabel").text(sum);
+        var usd = "";
+        if (model.CurrencyUsd != 0) {
+            usd = model.CurrencyUsd.toFixed(2);
+        }
+        $("#currencyUsd").val(usd);
+        var eur = "";
+        if (model.CurrencyEur != 0) {
+            eur = model.CurrencyEur.toFixed(2);
+        }
+        $("#currencyEur").val(eur);
         $("#commentLabel").text(model.Comment != null ? model.Comment : "");
         var dealType = getDealTypeById(model.DealType);
         $("#listDealTypesLabel").text(dealType.Value);
@@ -664,6 +759,10 @@
                         $("[modeltype='commentValue']", row).val("");
                         $("[modeltype='priceValue']", row).val("");
                         $("[modeltype='sumValue']", row).val("");
+                        $("[modeltype='priceTzrValue']", row).val("");
+                        $("[modeltype='sumTzrValue']", row).val("");
+                        $("[modeltype='priceNdsValue']", row).val("");
+                        $("[modeltype='sumNdsValue']", row).val("");
                         $("#addPositionRow").hide();
                         var container = $("#positionTable");
                         var element = getPositionElement(data.Model);
@@ -687,6 +786,10 @@
         $("[modeltype='commentValuel']", row).val("");
         $("[modeltype='priceValue']", row).val("");
         $("[modeltype='sumValue']", row).val("");
+        $("[modeltype='priceTzrValue']", row).val("");
+        $("[modeltype='sumTzrValue']", row).val("");
+        $("[modeltype='priceNdsValue']", row).val("");
+        $("[modeltype='sumNdsValue']", row).val("");
         $("#addPositionRow").hide();
     }
 
@@ -725,7 +828,7 @@
         row.attr("editMode", "true");
         button.hide();
         $("[type='editPositionActionPanel']", row).show();
-        var controls = ["rowNumber", "catalogNumber", "name", "replace", "value", "comment", "price", "sum"];
+        var controls = ["rowNumber", "catalogNumber", "name", "replace", "value", "comment", "price", "sum", "priceTzr", "sumTzr", "priceNds", "sumNds"];
         var controlsLength = controls.length;
         for (var i = 0; i < controlsLength; i++) {
             $("[modelType='" + controls[i] + "Value']", row).val($("[type='" + controls[i] + "Label']", row).text());
@@ -796,6 +899,34 @@
                         } else {
                             $("[type='sumLabelPostfix']", row).show();
                             $("[type='sumLabelPostfix']", row).text(currency.Value + " всего макс.");
+                        }
+                        $("[type='priceTzrLabel']", row).text(model.PriceTzr != 0 ? model.PriceTzr.toFixed(2) : "");
+                        if (model.PriceTzr == 0) {
+                            $("[type='priceTzrLabelPostfix']", row).hide();
+                        } else {
+                            $("[type='priceTzrLabelPostfix']", row).show();
+                            $("[type='priceTzrLabelPostfix']", row).text(currency.Value + " за ед.");
+                        }
+                        $("[type='sumTzrLabel']", row).text(model.SumTzr != 0 ? model.SumTzr.toFixed(2) : "");
+                        if (model.SumTzr == 0) {
+                            $("[type='sumTzrLabelPostfix']", row).hide();
+                        } else {
+                            $("[type='sumTzrLabelPostfix']", row).show();
+                            $("[type='sumTzrLabelPostfix']", row).text(currency.Value + " всего");
+                        }
+                        $("[type='priceNdsLabel']", row).text(model.PriceNds != 0 ? model.PriceNds.toFixed(2) : "");
+                        if (model.PriceNds == 0) {
+                            $("[type='priceNdsLabelPostfix']", row).hide();
+                        } else {
+                            $("[type='priceNdsLabelPostfix']", row).show();
+                            $("[type='priceNdsLabelPostfix']", row).text(currency.Value + " за ед.");
+                        }
+                        $("[type='sumNdsLabel']", row).text(model.SumNds != 0 ? model.SumNds.toFixed(2) : "");
+                        if (model.SumNds == 0) {
+                            $("[type='sumNdsLabelPostfix']", row).hide();
+                        } else {
+                            $("[type='sumNdsLabelPostfix']", row).show();
+                            $("[type='sumNdsLabelPostfix']", row).text(currency.Value + " всего");
                         }
                         button.parent().hide();
                         $("[modeType='editButton']", row).show();
@@ -938,6 +1069,34 @@
             $("[type='sumLabelPostfix']", element).show();
             $("[type='sumLabelPostfix']", element).text(currency.Value + " всего макс.");
         }
+        $("[type='priceTzrLabel']", element).text(position.PriceTzr != 0 ? position.PriceTzr.toFixed(2) : "");
+        if (position.PriceTzr == 0) {
+            $("[type='priceTzrLabelPostfix']", element).hide();
+        } else {
+            $("[type='priceTzrLabelPostfix']", element).show();
+            $("[type='priceTzrLabelPostfix']", element).text(currency.Value + " за ед.");
+        }
+        $("[type='sumTzrLabel']", element).text(position.SumTzr != 0 ? position.SumTzr.toFixed(2) : "");
+        if (position.SumTzr == 0) {
+            $("[type='sumTzrLabelPostfix']", element).hide();
+        } else {
+            $("[type='sumTzrLabelPostfix']", element).show();
+            $("[type='sumTzrLabelPostfix']", element).text(currency.Value + " всего");
+        }
+        $("[type='priceNdsLabel']", element).text(position.PriceNds != 0 ? position.PriceNds.toFixed(2) : "");
+        if (position.PriceNds == 0) {
+            $("[type='priceNdsLabelPostfix']", element).hide();
+        } else {
+            $("[type='priceNdsLabelPostfix']", element).show();
+            $("[type='priceNdsLabelPostfix']", element).text(currency.Value + " за ед.");
+        }
+        $("[type='sumNdsLabel']", element).text(position.SumNds != 0 ? position.SumNds.toFixed(2) : "");
+        if (position.SumNds == 0) {
+            $("[type='sumNdsLabelPostfix']", element).hide();
+        } else {
+            $("[type='sumNdsLabelPostfix']", element).show();
+            $("[type='sumNdsLabelPostfix']", element).text(currency.Value + " всего");
+        }
         $("[modelType='sumValue']", element).val(sum);
         $("[modetype='addPositionButtonOK']", element).hide();
         $("[modetype='addPositionButtonCancel']", element).hide();
@@ -1024,6 +1183,54 @@
                 obj.message += message;
             }
         }
+        var priceTzr = $("[modelType='priceTzrValue']", row).val();
+        priceTzr = priceTzr.replace(",", ".");
+        if (priceTzr.trim() != "") {
+            if (isNaN(Number(priceTzr.trim())))  {
+                message = "Значение '" + priceTzr.trim() + "' в поле Цена с ТЗР не является числом";
+                if (obj.message.trim() != "") {
+                    message = "\r" + message;
+                }
+                obj.error = true;
+                obj.message += message;
+            }
+        }
+        var sumTzr = $("[modelType='sumTzrValue']", row).val();
+        sumTzr = sumTzr.replace(",", ".");
+        if (sumTzr.trim() != "") {
+            if (isNaN(Number(sumTzr.trim())))  {
+                message = "Значение '" + sumTzr.trim() + "' в поле Сумма с ТЗР максимум не является числом";
+                if (obj.message.trim() != "") {
+                    message = "\r" + message;
+                }
+                obj.error = true;
+                obj.message += message;
+            }
+        }
+        var priceNds = $("[modelType='priceNdsValue']", row).val();
+        priceNds = priceNds.replace(",", ".");
+        if (priceNds.trim() != "") {
+            if (isNaN(Number(priceNds.trim())))  {
+                message = "Значение '" + priceNds.trim() + "' в поле Цена с НДС максимум не является числом";
+                if (obj.message.trim() != "") {
+                    message = "\r" + message;
+                }
+                obj.error = true;
+                obj.message += message;
+            }
+        }
+        var sumNds = $("[modelType='sumNdsValue']", row).val();
+        sumNds = sumNds.replace(",", ".");
+        if (sumNds.trim() != "") {
+            if (isNaN(Number(sumNds.trim())))  {
+                message = "Значение '" + sumNds.trim() + "' в поле Сумма с НДС за единицу максимум не является числом";
+                if (obj.message.trim() != "") {
+                    message = "\r" + message;
+                }
+                obj.error = true;
+                obj.message += message;
+            }
+        }
         var productManagerId = $(":selected", $("[type='productManagersList']", row)).val().trim();
         if (productManagerId == "null") {
             message = "Выберите снабженца";
@@ -1039,6 +1246,14 @@
             else price = 0;
             if (sum.trim() != "") sum = Number(sum.trim());
             else sum = 0;
+            if (priceTzr.trim() != "") priceTzr = Number(priceTzr.trim());
+            else priceTzr = 0;
+            if (sumTzr.trim() != "") sumTzr = Number(sumTzr.trim());
+            else sumTzr = 0;
+            if (priceNds.trim() != "") priceNds = Number(priceNds.trim());
+            else priceNds = 0;
+            if (sumNds.trim() != "") sumNds = Number(sumNds.trim());
+            else sumNds = 0;
             var catalogNumber = $("[modelType='catalogNumberValue']", row).val().trim();
             var replace = $("[modelType='replaceValue']", row).val().trim();
             var unit = Number($(":selected", $("[type='unitsList']", row)).val());
@@ -1055,6 +1270,10 @@
                 Comment: comment,
                 Price: price,
                 Sum: sum,
+                PriceTzr: priceTzr,
+                SumTzr: sumTzr,
+                PriceNds: priceNds,
+                SumNds: sumNds,
                 Currency: currency
             };
             obj.model = model;
@@ -1138,7 +1357,7 @@
 
     //<<<<<<Получение excel файлов с сервера>>>>>>
     function getExcelFileFromServer() {
-        $("body").append("<iframe src='/Claim/GetSpecificationFile' width='0' height='0' style='display: none;' align='left'></iframe>");
+        $("body").append("<iframe src='/Claim/GetSpecificationFile?claimId="+ claim.Id + "' width='0' height='0' style='display: none;' align='left'></iframe>");
     }
 
     function getCalculateExcelFileFromServer() {
@@ -1190,12 +1409,20 @@
         }
         if (obj.type.trim() == "DownloadExcel") {
             if (obj.error == true) {
-                showMessage("Ошибка при скачивании файла!");
+                if (obj.message != "") {
+                    showMessage(obj.message);
+                } else {
+                    showMessage("Ошибка при скачивании файла!");   
+                }
             }
         }
         if (obj.type.trim() == "DownloadExcelOnlyCalculate") {
             if (obj.error == true) {
-                showMessage("Ошибка при скачивании файла!");
+                if (obj.message != "") {
+                    showMessage(obj.message);
+                } else {
+                    showMessage("Ошибка при скачивании файла!");   
+                }
             }
         }
         if (obj.type.trim() == "UploadExcel") {
@@ -1457,7 +1684,6 @@
                         <span id="kPDeadlineLabel" style="display: none;" class="form-control"></span>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label class="col-sm-3 control-label required-mark">Заказчик</label>
                     <div class="col-sm-9">
@@ -1505,6 +1731,37 @@
                     <div class="col-sm-9">
                         <span id="managerSubDivision" class="form-control"></span>
                         <span id="managerSubDivisionLabel" style="display: none;" class="form-control"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Срок поставки</label>
+                    <div class="col-sm-9">
+                        <input type="text" id="deliveryDate" style="cursor: pointer;" class="form-control datepicker-btn" />
+                        <span id="deliveryDateLabel" style="display: none;" class="form-control"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Место поставки</label>
+                    <div class="col-sm-9">
+                        <input type="text" id="deliveryPlace" class="form-control" />
+                        <span id="deliveryPlaceLabel" style="display: none;" class="form-control"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Дата аукциона</label>
+                    <div class="col-sm-9">
+                        <input type="text" id="auctionDate" style="cursor: pointer;" class="form-control datepicker-btn" />
+                        <span id="auctionDateLabel" style="display: none;" class="form-control"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Курсы валют</label>
+                    <div class="col-sm-9">
+                        <span>USD: </span><input type="text" id="currencyUsd" class="form-control" />
+                        <br/>
+                        <span>EUR: </span><input type="text" id="currencyEur" class="form-control" />
+                        <br />
+                        <button type="button" id="butChangeCurrency" style="display: none;" class="btn btn-default">Изменить курс</button>
                     </div>
                 </div>
                 <div class="form-group">
@@ -1601,6 +1858,10 @@
                             <div id="currencyCell"></div>
                             <input type='text' modeltype='priceValue' class="form-control input-sm" placeholder="Цена за ед., макс." />
                             <input type='text' modeltype='sumValue' class="form-control input-sm" placeholder="Сумма, макс." />
+                            <input type='text' modeltype='priceTzrValue' class="form-control input-sm" placeholder="Цена с ТЗР" />
+                            <input type='text' modeltype='sumTzrValue' class="form-control input-sm" placeholder="Сумма с ТЗР" />
+                            <input type='text' modeltype='priceNdsValue' class="form-control input-sm" placeholder="Цена с НДС" />
+                            <input type='text' modeltype='sumNdsValue' class="form-control input-sm" placeholder="Сумма с НДС" />
                         </div>
                         <div type="readOnlyModeView" style="display: none;" class="col-sm-3">
                             <div>
@@ -1614,6 +1875,18 @@
                             </div>
                             <div>
                                 <strong type='sumLabel'></strong>&nbsp;<span type='sumLabelPostfix'></span>
+                            </div>
+                            <div>
+                                <span>Цена с ТЗР:&nbsp;</span><strong type='priceTzrLabel'></strong>&nbsp;<span type='priceTzrLabelPostfix'></span>
+                            </div>
+                            <div>
+                                <span>Сумма с ТЗР:&nbsp;</span><strong type='sumTzrLabel'></strong>&nbsp;<span type='sumTzrLabelPostfix'></span>
+                            </div>
+                            <div>
+                                <span>Цена с НДС:&nbsp;</span><strong type='priceNdsLabel'></strong>&nbsp;<span type='priceNdsLabelPostfix'></span>
+                            </div>
+                            <div>
+                                <span>Сумма с НДС:&nbsp;</span><strong type='sumNdsLabel'></strong>&nbsp;<span type='sumNdsLabelPostfix'></span>
                             </div>
                         </div>
                         <div type="editModeView" class="col-sm-5">

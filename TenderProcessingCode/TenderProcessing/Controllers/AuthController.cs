@@ -40,6 +40,7 @@ namespace TenderProcessing.Controllers
 
         public ActionResult ErrorPage(string message)
         {
+            ViewBag.Message = message;
             return View();
         }
 	}

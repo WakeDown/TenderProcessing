@@ -286,13 +286,15 @@ namespace TenderProcessing.Controllers
         }
 
         //получение excel файла, для определения позиций по заявке 
-        public ActionResult GetSpecificationFile()
+        public ActionResult GetSpecificationFile(int claimId)
         {
             XLWorkbook excBook = null;
             var ms = new MemoryStream();
             var error = false;
             try
             {
+                var db = new DbEngine();
+                var claim = db.LoadTenderClaimById(claimId);
                 //получение файла-шаблона
                 var filePath = Path.Combine(Server.MapPath("~"), "App_Data", "Specification.xlsx");
                 using (var fs = System.IO.File.OpenRead(filePath))
@@ -305,21 +307,46 @@ namespace TenderProcessing.Controllers
                 //создание диапазона выбора снабженцев
                 var productManagers = UserHelper.GetProductManagers();
                 excBook = new XLWorkbook(ms);
-                var workSheet = excBook.Worksheet("Спецификации");
+                var workSheet = excBook.Worksheet("Лот");
                 var userRangeSheet = excBook.Worksheet(2);
                 if (workSheet != null && userRangeSheet != null)
                 {
+                    //Заполнение инфы о заявке
+                    workSheet.Cell(1, 4).Value = !claim.CurrencyUsd.Equals(0)
+                        ? claim.CurrencyUsd.ToString("N2")
+                        : string.Empty;
+                    workSheet.Cell(2, 4).Value = !claim.CurrencyEur.Equals(0)
+                        ? claim.CurrencyEur.ToString("N2")
+                        : string.Empty;
+                    workSheet.Cell(1, 4).DataType = XLCellValues.Number;
+                    workSheet.Cell(2, 4).DataType = XLCellValues.Number;
+                    var dealTypes = db.LoadDealTypes();
+                    workSheet.Cell(3, 4).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
+                    var manager = UserHelper.GetUserById(claim.Manager.Id);
+                    workSheet.Cell(4, 4).Value = manager != null ? manager.ShortName : string.Empty;
+                    workSheet.Cell(5, 4).Value = claim.Customer;
+                    workSheet.Cell(6, 4).Value = claim.ClaimDeadlineString;
+                    workSheet.Cell(6, 4).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(7, 4).Value = !claim.Sum.Equals(0) ? claim.Sum.ToString("N2") : string.Empty;
+                    workSheet.Cell(7, 4).DataType = XLCellValues.Number;
+                    workSheet.Cell(8, 4).Value = claim.DeliveryDateString;
+                    workSheet.Cell(8, 4).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(9, 4).Value = claim.DeliveryPlace;
+                    workSheet.Cell(10, 4).Value = claim.KPDeadlineString;
+                    workSheet.Cell(10, 4).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(11, 4).Value = claim.AuctionDateString;
+                    workSheet.Cell(11, 4).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(12, 4).Value = claim.Comment;
                     for (var i = 0; i < productManagers.Count(); i++)
                     {
-                        var manager = productManagers[i];
+                        var product = productManagers[i];
                         var cell = userRangeSheet.Cell(i + 1, 2);
                         if (cell != null)
                         {
-                            cell.Value = GetUniqueDisplayName(manager);
+                            cell.Value = GetUniqueDisplayName(product);
                         }
                     }
                     var namedRange = userRangeSheet.Range(userRangeSheet.Cell(1, 2), userRangeSheet.Cell(productManagers.Count(), 2));
-                    var db = new DbEngine();
                     var currencies = db.LoadCurrencies();
                     for (var i = 0; i < currencies.Count(); i++)
                     {
@@ -331,7 +358,7 @@ namespace TenderProcessing.Controllers
                         }
                     }
                     var currenciesRange = userRangeSheet.Range(userRangeSheet.Cell(1, 3), userRangeSheet.Cell(currencies.Count(), 3));
-                    var workRange = workSheet.Cell(2, 7);
+                    var workRange = workSheet.Cell(14, 7);
                     if (workRange != null)
                     {
                         var validation = workRange.SetDataValidation();
@@ -340,7 +367,7 @@ namespace TenderProcessing.Controllers
                         validation.Operator = XLOperator.Between;
                         validation.List(namedRange);
                     }
-                    workRange = workSheet.Cell(2, 11);
+                    workRange = workSheet.Cell(14, 8);
                     if (workRange != null)
                     {
                         var validation = workRange.SetDataValidation();
@@ -408,23 +435,59 @@ namespace TenderProcessing.Controllers
                                 calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
                         }
                     }
+                    var filePath = Path.Combine(Server.MapPath("~"), "App_Data", "Template.xlsx");
+                    using (var fs = System.IO.File.OpenRead(filePath))
+                    {
+                        var buffer = new byte[fs.Length];
+                        fs.Read(buffer, 0, buffer.Count());
+                        ms.Write(buffer, 0, buffer.Count());
+                        ms.Seek(0, SeekOrigin.Begin);
+                    }
                     //создание файла excel с инфой по расчетам
-                    excBook = new XLWorkbook();
+                    excBook = new XLWorkbook(ms);
+                    var workSheet = excBook.Worksheet("WorkSheet");
+                    workSheet.Name = "Расчет";
+                    var claim = db.LoadTenderClaimById(claimId);
+                    //Заполнение инфы о заявке
+                    workSheet.Cell(1, 3).Value = !claim.CurrencyUsd.Equals(0)
+                        ? claim.CurrencyUsd.ToString("N2")
+                        : string.Empty;
+                    workSheet.Cell(2, 3).Value = !claim.CurrencyEur.Equals(0)
+                        ? claim.CurrencyEur.ToString("N2")
+                        : string.Empty;
+                    workSheet.Cell(1, 3).DataType = XLCellValues.Number;
+                    workSheet.Cell(2, 3).DataType = XLCellValues.Number;
+                    var dealTypes = db.LoadDealTypes();
+                    workSheet.Cell(3, 3).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
+                    var manager = UserHelper.GetUserById(claim.Manager.Id);
+                    workSheet.Cell(4, 3).Value = manager != null ? manager.ShortName : string.Empty;
+                    workSheet.Cell(5, 3).Value = claim.Customer;
+                    workSheet.Cell(6, 3).Value = claim.ClaimDeadlineString;
+                    workSheet.Cell(6, 3).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(7, 3).Value = !claim.Sum.Equals(0) ? claim.Sum.ToString("N2") : string.Empty;
+                    workSheet.Cell(7, 3).DataType = XLCellValues.Number;
+                    workSheet.Cell(8, 3).Value = claim.DeliveryDateString;
+                    workSheet.Cell(8, 3).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(9, 3).Value = claim.DeliveryPlace;
+                    workSheet.Cell(10, 3).Value = claim.KPDeadlineString;
+                    workSheet.Cell(10, 3).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(11, 3).Value = claim.AuctionDateString;
+                    workSheet.Cell(11, 3).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(12, 3).Value = claim.Comment;
                     //заголовок
-                    var workSheet = excBook.AddWorksheet("Расчет");
-                    workSheet.Cell(1, 1).Value = "Каталожный номер*";
-                    workSheet.Cell(1, 2).Value = "Наименование*";
-                    workSheet.Cell(1, 3).Value = "Замена";
-                    workSheet.Cell(1, 4).Value = "Валюта";
-                    workSheet.Cell(1, 5).Value = "Цена за ед.";
-                    workSheet.Cell(1, 6).Value = "Сумма вход";
-                    workSheet.Cell(1, 7).Value = "Цена за ед. руб";
-                    workSheet.Cell(1, 8).Value = "Сумма вход руб*";
-                    workSheet.Cell(1, 9).Value = "Поставщик";
-                    workSheet.Cell(1, 10).Value = "Факт получ.защиты*";
-                    workSheet.Cell(1, 11).Value = "Условия защиты";
-                    workSheet.Cell(1, 12).Value = "Комментарий";
-                    var calcHeaderRange = workSheet.Range(workSheet.Cell(1, 1), workSheet.Cell(1, 12));
+                    workSheet.Cell(13, 1).Value = "Каталожный номер*";
+                    workSheet.Cell(13, 2).Value = "Наименование*";
+                    workSheet.Cell(13, 3).Value = "Замена";
+                    workSheet.Cell(13, 4).Value = "Валюта";
+                    workSheet.Cell(13, 5).Value = "Цена за ед.";
+                    workSheet.Cell(13, 6).Value = "Сумма вход";
+                    workSheet.Cell(13, 7).Value = "Цена за ед. руб";
+                    workSheet.Cell(13, 8).Value = "Сумма вход руб*";
+                    workSheet.Cell(13, 9).Value = "Поставщик";
+                    workSheet.Cell(13, 10).Value = "Факт получ.защиты*";
+                    workSheet.Cell(13, 11).Value = "Условия защиты";
+                    workSheet.Cell(13, 12).Value = "Комментарий";
+                    var calcHeaderRange = workSheet.Range(workSheet.Cell(13, 1), workSheet.Cell(13, 12));
                     calcHeaderRange.Style.Font.SetBold(true);
                     calcHeaderRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 204, 255, 209);
                     calcHeaderRange.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
@@ -437,7 +500,7 @@ namespace TenderProcessing.Controllers
                     calcHeaderRange.Style.Border.SetLeftBorder(XLBorderStyleValues.Thin);
                     calcHeaderRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
                     var currencies = db.LoadCurrencies();
-                    var row = 2;
+                    var row = 14;
                     //строки расчета
                     foreach (var position in positions)
                     {
@@ -690,12 +753,12 @@ namespace TenderProcessing.Controllers
                     inputStream.Seek(0, SeekOrigin.Begin);
                     excBook = new XLWorkbook(inputStream);
                     //разбор файла
-                    var workSheet = excBook.Worksheet("Спецификации");
+                    var workSheet = excBook.Worksheet("Лот");
                     if (workSheet != null)
                     {
                         var user = GetUser();
                         //назначение номера строки начала парсинга
-                        var row = 2;
+                        var row = 14;
                         var errorStringBuilder = new StringBuilder();
                         var repeatRowCount = 0;
                         var db = new DbEngine();
@@ -723,10 +786,14 @@ namespace TenderProcessing.Controllers
                             var unitRange = workSheet.Cell(row, 5);
                             var valueRange = workSheet.Cell(row, 6);
                             var managerRange = workSheet.Cell(row, 7);
-                            var commentRange = workSheet.Cell(row, 8);
+                            var currencyRange = workSheet.Cell(row, 8);
                             var priceRange = workSheet.Cell(row, 9);
                             var sumRange = workSheet.Cell(row, 10);
-                            var currencyRange = workSheet.Cell(row, 11);
+                            var priceTzrRange = workSheet.Cell(row, 11);
+                            var sumTzrRange = workSheet.Cell(row, 12);
+                            var priceNdsRange = workSheet.Cell(row, 13);
+                            var sumNdsRange = workSheet.Cell(row, 14);
+                            var commentRange = workSheet.Cell(row, 15);
                             //наименование
                             if (nameRange != null && nameRange.Value != null)
                             {
@@ -840,7 +907,7 @@ namespace TenderProcessing.Controllers
                             {
                                 model.Comment = commentRange.Value.ToString();
                             }
-                            //разбор инфы по Цена и Сумма
+                            //разбор инфы по Ценам и Суммам
                             if (priceRange != null && priceRange.Value != null)
                             {
                                 string priceValue = priceRange.Value.ToString();
@@ -879,7 +946,82 @@ namespace TenderProcessing.Controllers
                                     }
                                 }
                             }
-
+                            if (priceTzrRange != null && priceTzrRange.Value != null)
+                            {
+                                string priceTzrValue = priceTzrRange.Value.ToString();
+                                if (!string.IsNullOrEmpty(priceTzrValue))
+                                {
+                                    double doubleValue;
+                                    var isValidDouble = double.TryParse(priceTzrValue, out doubleValue);
+                                    if (!isValidDouble)
+                                    {
+                                        rowValid = false;
+                                        errorStringBuilder.Append("Строка: " + row +
+                                                                  ", значение '" + priceTzrValue + "' в поле Цена с ТЗР не является числом<br/>");
+                                    }
+                                    else
+                                    {
+                                        model.PriceTzr = doubleValue;
+                                    }
+                                }
+                            }
+                            if (sumTzrRange != null && sumTzrRange.Value != null)
+                            {
+                                string sumTzrValue = sumTzrRange.Value.ToString();
+                                if (!string.IsNullOrEmpty(sumTzrValue))
+                                {
+                                    double doubleValue;
+                                    var isValidDouble = double.TryParse(sumTzrValue, out doubleValue);
+                                    if (!isValidDouble)
+                                    {
+                                        rowValid = false;
+                                        errorStringBuilder.Append("Строка: " + row +
+                                                                  ", значение '" + sumTzrValue + "' в поле Сумма с ТЗР не является числом<br/>");
+                                    }
+                                    else
+                                    {
+                                        model.SumTzr = doubleValue;
+                                    }
+                                }
+                            }
+                            if (priceNdsRange != null && priceNdsRange.Value != null)
+                            {
+                                string priceNdsValue = priceNdsRange.Value.ToString();
+                                if (!string.IsNullOrEmpty(priceNdsValue))
+                                {
+                                    double doubleValue;
+                                    var isValidDouble = double.TryParse(priceNdsValue, out doubleValue);
+                                    if (!isValidDouble)
+                                    {
+                                        rowValid = false;
+                                        errorStringBuilder.Append("Строка: " + row +
+                                                                  ", значение '" + priceNdsValue + "' в поле Цена с НДС не является числом<br/>");
+                                    }
+                                    else
+                                    {
+                                        model.PriceNds = doubleValue;
+                                    }
+                                }
+                            }
+                            if (sumNdsRange != null && sumNdsRange.Value != null)
+                            {
+                                string sumNdsValue = sumNdsRange.Value.ToString();
+                                if (!string.IsNullOrEmpty(sumNdsValue))
+                                {
+                                    double doubleValue;
+                                    var isValidDouble = double.TryParse(sumNdsValue, out doubleValue);
+                                    if (!isValidDouble)
+                                    {
+                                        rowValid = false;
+                                        errorStringBuilder.Append("Строка: " + row +
+                                                                  ", значение '" + sumNdsValue + "' в поле Сумма с НДС числом<br/>");
+                                    }
+                                    else
+                                    {
+                                        model.SumNds = doubleValue;
+                                    }
+                                }
+                            }
                             if (currencyRange != null && currencyRange.Value != null && !string.IsNullOrEmpty(currencyRange.Value.ToString()))
                             {
                                 var value = currencyRange.Value.ToString();
@@ -897,7 +1039,7 @@ namespace TenderProcessing.Controllers
                             }
                             else
                             {
-                                if (!model.Sum.Equals(0) || !model.Price.Equals(0))
+                                if (!model.Sum.Equals(0) || !model.Price.Equals(0) || !model.PriceTzr.Equals(0) || !model.SumTzr.Equals(0) || !model.SumNds.Equals(0) || !model.PriceNds.Equals(0))
                                 {
                                     rowValid = false;
                                     errorStringBuilder.Append("Строка: " + row +
@@ -931,7 +1073,7 @@ namespace TenderProcessing.Controllers
                         {
                             db.SaveSpecificationPosition(position);
                         }
-                        message = "Получено строк: " + (row - 2);
+                        message = "Получено строк: " + (row - 14);
                         if (repeatRowCount > 0)
                         {
                             message += "<br/>Из них повторных: " + repeatRowCount;
@@ -991,6 +1133,10 @@ namespace TenderProcessing.Controllers
                 model.KPDeadline = DateTime.ParseExact(model.KPDeadlineString, "dd.MM.yyyy", CultureInfo.CurrentCulture);
                 model.ClaimDeadline = DateTime.ParseExact(model.ClaimDeadlineString, "dd.MM.yyyy", CultureInfo.CurrentCulture);
                 model.TenderStart = DateTime.ParseExact(model.TenderStartString, "dd.MM.yyyy", CultureInfo.CurrentCulture);
+                if (!string.IsNullOrEmpty(model.DeliveryDateString))
+                    model.DeliveryDate = DateTime.ParseExact(model.DeliveryDateString, "dd.MM.yyyy", CultureInfo.CurrentCulture);
+                if (!string.IsNullOrEmpty(model.AuctionDateString))
+                    model.AuctionDate = DateTime.ParseExact(model.AuctionDateString, "dd.MM.yyyy", CultureInfo.CurrentCulture);
                 var modelValid = true;
                 if (string.IsNullOrEmpty(model.Customer) || string.IsNullOrEmpty(model.CustomerInn)) modelValid = false;
                 if (modelValid)
@@ -1003,12 +1149,11 @@ namespace TenderProcessing.Controllers
                     model.RecordDate = DateTime.Now;
                     model.Author = UserHelper.GetUserById(user.Id);
                     isComplete = db.SaveTenderClaim(model);
+                    if (model.DeliveryDateString == null) model.DeliveryDateString = string.Empty;
+                    if (model.AuctionDateString == null) model.AuctionDateString = string.Empty;
                     if (isComplete)
                     {
                         //История изменения статуса
-                        model.ClaimDeadlineString = model.ClaimDeadline.ToString("dd.MM.yyyy");
-                        model.TenderStartString = model.TenderStart.ToString("dd.MM.yyyy");
-                        model.KPDeadlineString = model.KPDeadline.ToString("dd.MM.yyyy");
                         statusHistory = new ClaimStatusHistory()
                         {
                             Date = DateTime.Now,
@@ -1050,6 +1195,23 @@ namespace TenderProcessing.Controllers
                 isComplete = false;
             }
             return Json(new {IsComplete = isComplete, Model = model, StatusHistory = statusHistory});
+        }
+
+        //Изменение курса валют
+        [HttpPost]
+        public JsonResult UpdateClaimCurrency(TenderClaim model)
+        {
+            var isComplete = false;
+            try
+            {
+                var db = new DbEngine();
+                isComplete = db.UpdateClaimCurrency(model);
+            }
+            catch (Exception ex)
+            {
+                isComplete = false;
+            }
+            return Json(new { IsComplete = isComplete });
         }
 
         //Изменение позиции
@@ -1446,7 +1608,7 @@ namespace TenderProcessing.Controllers
                 var claimStatus = 3;
                 var isSameCalculate = allPositions.Any(x => x.State == 2 || x.State == 4);
                 if (isSameCalculate) claimStatus = 6;
-                var status = db.LoadLastStatusHistoryForClaim(idClaim).Id;
+                var status = db.LoadLastStatusHistoryForClaim(idClaim).Status.Id;
                 //изменение статуса заявки и истроиии изменения статусов
                 if (status != claimStatus)
                 {
@@ -1608,6 +1770,10 @@ namespace TenderProcessing.Controllers
                     model.Replace == position.Replace &&
                     model.RowNumber == position.RowNumber &&
                     model.Sum.Equals(position.Sum) &&
+                    model.PriceTzr.Equals(position.PriceTzr) &&
+                    model.SumTzr.Equals(position.SumTzr) &&
+                    model.PriceNds.Equals(position.PriceNds) &&
+                    model.SumNds.Equals(position.SumNds) &&
                     model.Unit == position.Unit &&
                     model.Value == position.Value)
                 {

@@ -34,6 +34,14 @@ namespace TenderProcessingDataAccessLayer.Models
 
         public double Sum { get; set; }
 
+        public double PriceTzr { get; set; }
+
+        public double SumTzr { get; set; }
+
+        public double PriceNds { get; set; }
+
+        public double SumNds { get; set; }
+
         public int State { get; set; }
 
         public string Author { get; set; }

@@ -1,5 +1,0 @@
-D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\bin\Release\TenderProcessingDataAccessLayer.dll
-D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\bin\Release\TenderProcessingDataAccessLayer.pdb
-D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\obj\Release\TenderProcessingDataAccessLayer.dll
-D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\obj\Release\TenderProcessingDataAccessLayer.pdb
-D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\obj\Release\TenderProcessingDataAccessLayer.csprojResolveAssemblyReference.cache

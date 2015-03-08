@@ -70,6 +70,11 @@
 --	Author nvarchar(150),
 --  DeletedUser nvarchar(150),
 --	DeleteDate datetime,
+--  CurrencyUsd decimal(18,2) not null,
+--	CurrencyEur decimal(18,2) not null,
+--	DeliveryDate datetime,
+--	DeliveryPlace nvarchar(1000) not null,
+--	AuctionDate datetime,
 --	primary key(Id),
 --	CONSTRAINT FK_TenderClaim_DealType FOREIGN KEY(DealType)
 --		REFERENCES DealType(Id)
@@ -105,6 +110,10 @@
 --  DeletedUser nvarchar(150),
 --	DeleteDate datetime,
 --  Currency int,
+--	PriceTzr decimal(18,2) not null,
+--	SumTzr decimal(18,2) not null,
+--	PriceNds decimal(18,2) not null,
+--	SumNds decimal(18,2) not null,
 --	primary key(Id),
 --	CONSTRAINT FK_ClaimPosition_TenderClaim FOREIGN KEY(IdClaim)
 --		REFERENCES TenderClaim(Id)
@@ -215,12 +224,18 @@
 --	@claimStatus int,
 --	@recordDate datetime,
 --	@author nvarchar(150),
+--	@currencyUsd decimal(18,2) = -1,
+--	@currencyEur decimal(18,2) = -1,
+--	@deliveryDate datetime = null,
+--	@deliveryPlace nvarchar(1000) = '',
+--	@auctionDate datetime = null,
 --	@deleted bit
 --)
 --as
 --declare @id int;
 --insert into TenderClaim values(@tenderNumber, @tenderStart, @claimDeadline, @kPDeadline, @comment, @customer, 
---	@customerInn, @totalSum, @dealType, @tenderUrl, @tenderStatus, @manager, @managerSubDivision, @claimStatus, @recordDate, @deleted, @author, null, null)
+--	@customerInn, @totalSum, @dealType, @tenderUrl, @tenderStatus, @manager, @managerSubDivision, @claimStatus, @recordDate, 
+--	@deleted, @author, null, null, @currencyUsd, @currencyEur, @deliveryDate, @deliveryPlace, @auctionDate)
 --set @id = @@IDENTITY;
 --select @id;
 --go
@@ -257,6 +272,26 @@
 --            else right(@value, len(@value) - @SplitLength - 1) end)
 --    end 
 --return  
+--end
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure UpdateTenderClaimCurrency
+--(
+--	@id int,
+--	@currencyUsd decimal(18,2) = -1,
+--	@currencyEur decimal(18,2) = -1
+--)
+--as
+--if @currencyUsd != -1
+--begin 
+--	update TenderClaim set CurrencyUsd = @currencyUsd where Id = @id
+--end
+--if @currencyEur != -1
+--begin 
+--	update TenderClaim set CurrencyEur = @currencyEur where Id = @id
 --end
 --go
 
@@ -345,7 +380,7 @@
 --and ((@author is null) or (@author is not null and Author = @author))
 --and ((@idProductManager is null) or (@idProductManager is not null and @idProductManager in (select ProductManager from ClaimPosition where IdClaim = [TenderClaim].Id)))
 --and ((@overdie is null) or (@overdie is not null and 
---((@overdie = 1 and GETDATE() > ClaimDeadline) or (@overdie = 0 and GETDATE() < ClaimDeadline))))
+--((@overdie = 1 and GETDATE() > ClaimDeadline and ClaimStatus not in(1,8)) or (@overdie = 0 and GETDATE() < ClaimDeadline  and ClaimStatus not in(1,8)))))
 --and ((@tenderStartFrom is null and @tenderStartTo is null) or (@tenderStartFrom is not null and @tenderStartTo is not null
 --and ClaimDeadline BETWEEN @tenderStartFrom AND @tenderStartTo) or (@tenderStartFrom is null and @tenderStartTo is not null
 --and ClaimDeadline <= @tenderStartTo) or (@tenderStartFrom is not null and @tenderStartTo is null
@@ -377,7 +412,7 @@
 --and ((@author is null) or (@author is not null and Author = @author))
 --and ((@idProductManager is null) or (@idProductManager is not null and @idProductManager in (select ProductManager from ClaimPosition where IdClaim = [TenderClaim].Id)))
 --and ((@overdie is null) or (@overdie is not null and 
---((@overdie = 1 and GETDATE() > ClaimDeadline) or (@overdie = 0 and GETDATE() < ClaimDeadline))))
+--((@overdie = 1 and GETDATE() > ClaimDeadline  and ClaimStatus not in(1,8)) or (@overdie = 0 and GETDATE() < ClaimDeadline  and ClaimStatus not in(1,8)))))
 --and ((@tenderStartFrom is null and @tenderStartTo is null) or (@tenderStartFrom is not null and @tenderStartTo is not null
 --and ClaimDeadline BETWEEN @tenderStartFrom AND @tenderStartTo) or (@tenderStartFrom is null and @tenderStartTo is not null
 --and ClaimDeadline <= @tenderStartTo) or (@tenderStartFrom is not null and @tenderStartTo is null
@@ -426,12 +461,17 @@
 --	@sumMax decimal(18,2) = -1,
 --	@positionState int,
 --	@author nvarchar(150),
---  @currency int
+--  @currency int,
+--	@priceTzr decimal(18,2) = -1,
+--	@sumTzr decimal(18,2) = -1,
+--	@priceNds decimal(18,2) = -1,
+--	@sumNds decimal(18,2) = -1
 --)
 --as
 --declare @id int;
 --insert into ClaimPosition values(@idClaim, @rowNumber, @catalogNumber, @name, @replaceValue, @unit,
---	@value, @productManager, @comment, @price, @sumMax, @positionState, @author, 0, null, null, @currency)
+--	@value, @productManager, @comment, @price, @sumMax, @positionState, @author, 0, null, null, @currency,
+--	@priceTzr, @sumTzr, @priceNds, @sumNds)
 --set @id = @@IDENTITY;
 --select @id;
 --go
@@ -454,13 +494,17 @@
 --	@sumMax decimal(18,2) = -1,
 --	@positionState int,
 --	@author nvarchar(150),
---  @currency int
+--  @currency int,
+--	@priceTzr decimal(18,2) = -1,
+--	@sumTzr decimal(18,2) = -1,
+--	@priceNds decimal(18,2) = -1,
+--	@sumNds decimal(18,2) = -1
 --)
 --as
 --update ClaimPosition set RowNumber = @rowNumber, CatalogNumber = @catalogNumber, Name = @name, 
 --	ReplaceValue = @replaceValue, Unit = @unit, Value = @value, ProductManager = @productManager, 
 --	Comment = @comment, Price = @price, SumMax = @sumMax, PositionState = @positionState, Author = @author,
---	Currency = @currency where Id = @id
+--	Currency = @currency, PriceTzr = @priceTzr, SumTzr = @sumTzr, PriceNds = @priceNds, SumNds = @sumNds where Id = @id
 --go
 
 --use tenderProcessing
@@ -576,7 +620,11 @@
 --	@price decimal(18,2) = -1,
 --	@sumMax decimal(18,2) = -1,
 --	@positionState int,
---  @currency int
+--  @currency int,
+--	@priceTzr decimal(18,2) = -1,
+--	@sumTzr decimal(18,2) = -1,
+--	@priceNds decimal(18,2) = -1,
+--	@sumNds decimal(18,2) = -1
 --)
 --as
 --declare @result int;
@@ -584,7 +632,8 @@
 --set @result = 0;
 --set @count = (select count(*) from ClaimPosition where Deleted = 0 and IdClaim = @idClaim and RowNumber = @rowNumber and CatalogNumber = @catalogNumber
 --	and Name = @name and ReplaceValue = @replaceValue and Unit = @unit and Value = @value and ProductManager = @productManager and
---	Comment = @comment and Price = @price and SumMax = @sumMax and PositionState = @positionState and Currency = @currency);
+--	Comment = @comment and Price = @price and SumMax = @sumMax and PositionState = @positionState and Currency = @currency
+--  and PriceTzr = @priceTzr and SumTzr = @sumTzr and PriceNds = @priceNds and SumNds = @sumNds);
 --if @count > 0
 --begin
 --	set @result = 1;
@@ -614,6 +663,18 @@
 --)
 --as
 --update ClaimPosition set PositionState = @state where Deleted = 0 and Id in (select * from dbo.Split(@ids,','));
+--go
+
+--use tenderProcessing
+--go
+
+--create procedure ChangePositionsProduct
+--(
+--	@ids nvarchar(max),
+--	@product nvarchar(500)
+--)
+--as
+--update ClaimPosition set ProductManager = @product where Deleted = 0 and Id in (select * from dbo.Split(@ids,','));
 --go
 
 --use tenderProcessing

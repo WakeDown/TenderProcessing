@@ -10,7 +10,6 @@ namespace TenderProcessingDataAccessLayer.Models
     //класс - пользователь из ActiveDirectory 
     public class UserBase
     {
-
         public string Id { get; set; }
 
         public string Name { get; set; }

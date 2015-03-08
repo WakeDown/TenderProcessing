@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,6 +52,20 @@ namespace TenderProcessingDataAccessLayer.Models
         public UserBase Author { get; set; }
 
         public bool Deleted { get; set; }
+
+        public double CurrencyUsd { get; set; }
+
+        public double CurrencyEur { get; set; }
+
+        public DateTime? DeliveryDate { get; set; }
+
+        public string DeliveryPlace { get; set; }
+
+        public DateTime? AuctionDate { get; set; }
+
+        public string DeliveryDateString { get; set; }
+
+        public string AuctionDateString { get; set; }
 
         public int PositionsCount { get; set; }
 

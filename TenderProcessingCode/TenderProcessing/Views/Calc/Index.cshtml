@@ -31,6 +31,7 @@
     var histories = @Html.Raw(serializer.Serialize(ViewBag.StatusHistory));
     var claimStatus = @Html.Raw(serializer.Serialize(ViewBag.ClaimStatus));
     var currencies = @Html.Raw(serializer.Serialize(ViewBag.Currencies));
+    var products = @Html.Raw(serializer.Serialize(ViewBag.ProductManagers));
     var errorLoad = @ViewBag.Error;
     var newClaim = @ViewBag.NewClaim;
 
@@ -48,7 +49,11 @@
         $("#butUploadExcelFile").click(openFile);
         initProtectFactList();
         initCurrencyList();
+        initProductsList();
         $("#butSendComment").click(sendComment);
+        $("#butChangeProduct").click(changePositionsProduct);
+        $("#selectAllPositions").change(selectAllPositions);
+        $("#butChangeCurrency").click(changeCurrency);
         if (claim == null) {
             alert("Заявка не найдена\rили у Вас нет доступа к ней");
         } else {
@@ -70,6 +75,8 @@
                 $("#butSendOnConfirm").hide();
                 $("#excelPanel").hide();
                 $("#commentPanel").hide();
+                $("#reassignmentPanel").hide();
+                $("#selectAllPositions").hide();
             }
             initStatusHistory();
         }
@@ -193,6 +200,7 @@
     }
 
     function addCalculateButtonClick(e) {
+        e.stopImmediatePropagation();
         var button = $(e.currentTarget);
         var row = button.parent().parent();
         var calcRow = getCalculatePositionElement();
@@ -302,6 +310,8 @@
                     $("#butSendOnConfirm").hide();
                     $("#butGetExcelFile").hide();
                     $("#butUploadExcelFile").hide();
+                    $("#reassignmentPanel").hide();
+                    $("#selectAllPositions").hide();
                     setPositionsToNoAction();
                 } else {
                     alert(data.Message);
@@ -333,10 +343,73 @@
         });
     }
 
+    function changePositionsProduct(e) {
+        var product = $(":selected", $("#productsList")).val();
+        if (product == "null") {
+            alert("Укажите снабженца");
+            return;
+        }
+        var ids = [];
+        var positionsRows = $("[type='positionRow']", $("#positionsTable"));
+        $.each(positionsRows, function(index, element) {
+            element = $(element);
+            var checked = $("[modetype='selectPosition']", element).get(0).checked;
+            if (checked) {
+                var idPosition = Number(element.attr("positionId"));
+                ids.push(idPosition);
+            }
+        });
+        if (ids.length == 0) {
+            alert("Выберите позиции для переназначения");
+            return;
+        }
+        messageUi.progressShow();
+        $.ajax({
+            url: "/Calc/ChangePositionsProduct?productId=" + product + "&idClaim=" + claim.Id,
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(ids),
+            processData: false,
+            contentType: 'application/json; charset = utf-8 ',
+            success: function(data) {
+                messageUi.progressHide();
+                if (data.IsComplete) {
+                    if (data.Deleted) {
+                        var table = $("#positionsTable");
+                        positionsRows = $("[type='positionRow']", table);
+                        $.each(positionsRows, function(index, element) {
+                            element = $(element);
+                            var idPosition = Number(element.attr("positionId"));
+                            if ($.inArray(idPosition, ids) != -1) {
+                                element.remove();
+                                var calcTable = $("[type='calculatePositionTable'][positionId='" + idPosition + "']", table);
+                                var row = calcTable.closest("tr");
+                                row.remove();
+                            }
+                        });
+                        positionsRows = $("[type='positionRow']", table);
+                        if (positionsRows.size() == 0) {
+                            $("#butSendOnConfirm").hide();
+                            $("#butGetExcelFile").hide();
+                            $("#butUploadExcelFile").hide();
+                            $("#reassignmentPanel").hide();
+                            $("#selectAllPositions").hide();
+                        }
+                    }
+                    if (data.Model != null) {
+                        addClaimStatusHistoryElement(data.Model);
+                    }
+                } else {
+                    alert("Ошибка при переназначении позиций");
+                }
+            }
+        });
+    }
+
     //отображение
     function getCalculateTableForPosition(position) {
         var element = $("<tr></tr>");
-        var cell = $("<td colspan='3'></td>");
+        var cell = $("<td colspan='4'></td>");
         element.append(cell);
         var table = $("<table style='width: 100%;'></table>");
         table.attr("positionId", position.Id);
@@ -375,6 +448,8 @@
         var table = $("#positionsTable");
         var addCalcButtons = $("[modetype='addCalcButton']", table);
         addCalcButtons.hide();
+        var selectElements = $("[modetype='selectPosition']", table);
+        selectElements.hide();
         var calcRows = $("[type='positionCalculate']", table);
         $.each(calcRows, function(index, elem) {
             if (elem.hasAttribute("calcId")) {
@@ -505,12 +580,15 @@
     function showClaimInfo(model) {
         $("#claimId").text(model.Id);
         $("#claimCustomer").html(model.Customer + "<br/>" + model.CustomerInn);
-        $("#claimTenderStart").text(model.TenderStartString);
-        $("#claimDeadline").text(model.ClaimDeadlineString);
-        $("#kPDeadline").text(model.KPDeadlineString);
-        $("#claimManager").text(model.Manager.ShortName);
-        $("#managerSubDivision").text(model.Manager.SubDivision);
-        $("#managerChief").text(model.Manager.ChiefShortName);
+        $("#claimTenderStart").html(model.TenderStartString != "" ? model.TenderStartString : "&nbsp;");
+        $("#claimDeadline").html(model.ClaimDeadlineString != "" ? model.ClaimDeadlineString : "&nbsp;");
+        $("#kPDeadline").html(model.KPDeadlineString != "" ? model.KPDeadlineString : "&nbsp;");
+        $("#claimDeliveryDate").html(model.DeliveryDateString != "" ? model.DeliveryDateString : "&nbsp;");
+        $("#claimDeliveryPlace").html(model.DeliveryPlace != "" ? model.DeliveryPlace : "&nbsp;");
+        $("#claimAuctionDate").html(model.AuctionDateString != "" ? model.AuctionDateString : "&nbsp;");
+        $("#claimManager").html(model.Manager.ShortName != "" ? model.Manager.ShortName : "&nbsp;");
+        $("#managerSubDivision").html(model.Manager.SubDivision != "" ? model.Manager.SubDivision : "&nbsp;");
+        $("#managerChief").html(model.Manager.ChiefShortName != "" ? model.Manager.ChiefShortName : "&nbsp;");
         $("#claimDealType").text(dealType);
         var sum = "";
         if (model.Sum > 0) {
@@ -522,12 +600,56 @@
         } else {
             $("#claimSumPostfix").show();
         }
-        $("#claimTenderNumber").text(model.TenderNumber);
+        var usd = "";
+        if (model.CurrencyUsd != 0) {
+            usd = model.CurrencyUsd.toFixed(2);
+        }
+        $("#claimCurrencyUsd").val(usd);
+        var eur = "";
+        if (model.CurrencyEur != 0) {
+            eur = model.CurrencyEur.toFixed(2);
+        }
+        $("#claimCurrencyEur").val(eur);
+        $("#claimTenderNumber").html(model.TenderNumber != "" ? model.TenderNumber : "&nbsp;");
         $("#claimTenderStatus").text(status);
         if (model.TenderUrl != "") {
             var link = $("<a href='" + model.TenderUrl + "' target='blank'>[ссылка]</a>");
             $("#claimTenderUrl").append(link);
+        } else {
+            $("#claimTenderUrl").html("&nbsp;");
         }
+    }
+
+    //<<<<<<<Изменение курсов валют>>>>>>
+    function changeCurrency(e) {
+        var usd = $("#claimCurrencyUsd").val().trim().replace(",", ".");
+        var eur = $("#claimCurrencyEur").val().trim().replace(",", ".");
+        if (usd == "" && eur == "") {
+            alert("Введите значения валют");
+            return;
+        }
+        if (usd == "") usd = 0;
+        if (eur == "") eur = 0;
+        var model = {
+            Id: claim.Id,
+            CurrencyUsd: Number(usd),
+            CurrencyEur: Number(eur)
+        };
+        messageUi.progressShow();
+        $.ajax({
+            url: "/Claim/UpdateClaimCurrency",
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(model),
+            processData: false,
+            contentType: 'application/json; charset = utf-8 ',
+            success: function(data) {
+                messageUi.progressHide();
+                if (!data.IsComplete) {
+                    alert("Ошибка при изменении курса валют");
+                }
+            }
+        });
     }
 
     //<<<<<<<Позиции заявки>>>>>>>
@@ -650,12 +772,46 @@
             $("[type='sumLabelPostfix']", element).show();
             $("[type='sumLabelPostfix']", element).text(currency.Value + " всего макс.");
         }
+        $("[type='priceTzrLabel']", element).text(position.PriceTzr != 0 ? position.PriceTzr.toFixed(2) : "");
+        if (position.PriceTzr == 0) {
+            $("[type='priceTzrLabelPostfix']", element).hide();
+        } else {
+            $("[type='priceTzrLabelPostfix']", element).show();
+            $("[type='priceTzrLabelPostfix']", element).text(currency.Value + " за ед.");
+        }
+        $("[type='sumTzrLabel']", element).text(position.SumTzr != 0 ? position.SumTzr.toFixed(2) : "");
+        if (position.SumTzr == 0) {
+            $("[type='sumTzrLabelPostfix']", element).hide();
+        } else {
+            $("[type='sumTzrLabelPostfix']", element).show();
+            $("[type='sumTzrLabelPostfix']", element).text(currency.Value + " всего");
+        }
+        $("[type='priceNdsLabel']", element).text(position.PriceNds != 0 ? position.PriceNds.toFixed(2) : "");
+        if (position.PriceNds == 0) {
+            $("[type='priceNdsLabelPostfix']", element).hide();
+        } else {
+            $("[type='priceNdsLabelPostfix']", element).show();
+            $("[type='priceNdsLabelPostfix']", element).text(currency.Value + " за ед.");
+        }
+        $("[type='sumNdsLabel']", element).text(position.SumNds != 0 ? position.SumNds.toFixed(2) : "");
+        if (position.SumNds == 0) {
+            $("[type='sumNdsLabelPostfix']", element).hide();
+        } else {
+            $("[type='sumNdsLabelPostfix']", element).show();
+            $("[type='sumNdsLabelPostfix']", element).text(currency.Value + " всего");
+        }
         var addCalculateButton = $("[modetype='addCalcButton']", element);
         if (position.State != 1 && position.State != 3) {
             addCalculateButton.hide();
         } else {
             addCalculateButton.click(addCalculateButtonClick);
         }
+        element.css("cursor", "pointer");
+        element.click(positionClick);
+        var selectElement = $("[modetype='selectPosition']", element);
+        selectElement.click(function(e) {
+            e.stopImmediatePropagation();
+        });
         return element;
     }
 
@@ -690,6 +846,20 @@
             }
         }
         return position;
+    }
+
+    function selectAllPositions(e) {
+        var state = e.currentTarget.checked;
+        var positionsCb = $("[modetype='selectPosition']", $("#positionsTable"));
+        $.each(positionsCb, function(i, element) {
+            element.checked = state;
+        });
+    }
+
+    function positionClick(e) {
+        var position = $(e.currentTarget);
+        var selectElement = $("[modetype='selectPosition']", position).get(0);
+        selectElement.checked = !selectElement.checked;
     }
 
     //<<<<<<История изменения статусов>>>>>>
@@ -827,6 +997,19 @@
         }
     }
 
+    function initProductsList() {
+        var list = $("#productsList");
+        var option = $("<option value='null'>---Выберите снабженца---</option>");
+        list.append(option);
+        var productsLength = products.length;
+        for (var i = 0; i < productsLength; i++) {
+            var model = products[i];
+            option = $("<option value='" + model.Id + "'>" + model.Name + "</option>");
+            list.append(option);
+        }
+        
+    }
+
     function getProtectFactById(id) {
         var model = null;
         var protectLength = protectFacts.length;
@@ -923,6 +1106,9 @@
                     <div class="col-sm-5">
                         <div class="text-right">№ конкурса:</div>
                         <div class="text-right">Статус конкурса:</div>
+                        <div class="text-right">Срок поставки:</div>
+                        <div class="text-right">Место поставки:</div>
+                        <div class="text-right">Дата аукциона:</div>
                         <div class="text-right">Ссылка на закупки:</div>
                     </div>
                     <div class="col-sm-7">
@@ -933,6 +1119,15 @@
                             <strong id="claimTenderStatus"></strong>
                         </div>
                         <div>
+                            <strong id="claimDeliveryDate"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimDeliveryPlace"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimAuctionDate"></strong>
+                        </div>
+                        <div>
                             <small id="claimTenderUrl"></small>
                         </div>
                     </div>
@@ -941,6 +1136,16 @@
             <div class="row">
                 <div class="col-sm-7">
                     <div>
+                        <strong>Курсы валют</strong>
+                        <br/>
+                        <span>USD: </span>
+                        <input type="text" id="claimCurrencyUsd"/>
+                        <span>EUR: </span>
+                        <input type="text" id="claimCurrencyEur" />
+                        <br/>
+                        <button type="button" id="butChangeCurrency" class="btn btn-default">Изменить курс</button>
+                    </div>
+                    <div>
                         @*<button type='button' class='btn btn-danger'><i class="fa fa-remove"></i> отклонить</button>*@
                         <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение</button>
                     </div>
@@ -948,6 +1153,10 @@
                     <div id="commentPanel">
                         <textarea id="comment" rows="3" placeholder="Комментарий" class="form-control"></textarea><br />
                         <button type="button" id="butSendComment" class="btn btn-default">Сохранить комментарий</button>
+                    </div>
+                    <div id="reassignmentPanel">
+                        <button type="button" id="butChangeProduct" class="btn btn-default">Переназначить отмеченные позиции</button>
+                        <select id="productsList" size="1"></select>
                     </div>
                 </div>
                 <div class="col-sm-5">
@@ -963,6 +1172,7 @@
             <span class="label label-default">всего&nbsp;<span id="positionCountLabel"></span></span>
             <span class="label label-info">из них рассчитано&nbsp;<span id="positionCalculateCountLabel"></span></span>
         </h5>
+        <input type="checkbox" id="selectAllPositions"/>
         <span id="excelPanel">
             <button id="butGetExcelFile" type='button' class='btn btn-default btn-sm'><i class="fa fa-download"></i> скачать спецификацию</button>
             <button id="butUploadExcelFile" type='button' class='btn btn-default btn-sm' style='margin: 4px;'><i class="fa fa-upload"></i> загрузить расчет</button>
@@ -974,6 +1184,9 @@
     </div>
     <table>
         <tr id="positionElementTemplate" style="display: none;">
+            <td>
+                <input type="checkbox" modetype="selectPosition"/>
+            </td>
             <td class="min-width">
                 <button type="button" modetype='addCalcButton' class="btn btn-primary btn-lg" data-toggle="tooltip" title="добавить расчет"><i class="fa fa-plus"></i> <i class="fa fa-calculator"></i></button>
             </td>
@@ -991,6 +1204,18 @@
                     </div>
                     <div>
                         <strong type='sumLabel'></strong>&nbsp;<span type='sumLabelPostfix'></span>
+                    </div>
+                    <div>
+                        <span>Цена с ТЗР:&nbsp;</span><strong type='priceTzrLabel'></strong>&nbsp;<span type='priceTzrLabelPostfix'></span>
+                    </div>
+                    <div>
+                        <span>Сумма с ТЗР:&nbsp;</span><strong type='sumTzrLabel'></strong>&nbsp;<span type='sumTzrLabelPostfix'></span>
+                    </div>
+                    <div>
+                        <span>Цена с НДС:&nbsp;</span><strong type='priceNdsLabel'></strong>&nbsp;<span type='priceNdsLabelPostfix'></span>
+                    </div>
+                    <div>
+                        <span>Сумма с НДС:&nbsp;</span><strong type='sumNdsLabel'></strong>&nbsp;<span type='sumNdsLabelPostfix'></span>
                     </div>
                 </div>
                 <div class="col-sm-4">
