@@ -373,7 +373,7 @@
         if (settings.clickAction != "null") {
             element.css("cursor", "pointer");
         }
-        var editCell = $("<td class='min-width text-nowrap'></td>");
+        var editCell = $("<td class='min-width text-nowrap'>&nbsp;</td>");
         element.append(editCell);
         if (settings.showEdit)  {
             var editButton = $("<a type='claimPage' href='/Claim/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></a>");
@@ -405,20 +405,30 @@
             }
         }
         element.append("<th><span>" + claim.Id + "</span></th>");
-        element.append("<td><span>" + claim.TenderNumber + "</span></td>");
-        element.append("<td><span>" + claim.Customer + "</span></td>");
+        
+        var claimInfoCell = $("<td></td>");
+
+        claimInfoCell.append("<div><strong>№ конкурса:</strong>&nbsp;" + claim.TenderNumber + "</div>");
+        claimInfoCell.append("<div><strong>Заказчик:</strong>&nbsp;" + claim.Customer + "</div>");
         var sum = "";
         if (claim.Sum > 0) {
             sum = claim.Sum.toFixed(2);
         }
-        element.append("<td><span>" + sum + "</span></td>");
-        element.append("<td><span class='text-nowrap'>" + claim.Manager.ShortName + "</span></td>");
-        element.append("<td><div class='text-nowrap'>Всего: " + claim.PositionsCount + "</div><div class='text-nowrap'>Расчетов: " + claim.CalculatesCount + "</div></td>");
-        element.append("<td>" + getProductManagersString(claim.ProductManagers) + "</td>");
-        element.append("<td><div>" + getDealTypeById(claim.DealType).Value + "</div>");
-        element.append("<div>" + getClaimStatusById(claim.ClaimStatus).Value + "</div>");
-        element.append("<div>" + claim.RecordDateString.split(" ")[0] + "</div>");
-        element.append("<div>" + claim.ClaimDeadlineString + "</div></td>");
+        claimInfoCell.append("<div><strong>Сумма:</strong>&nbsp;" + sum + "</div>");
+        claimInfoCell.append("<div class='text-nowrap'><strong>Менеджер:</strong>&nbsp;" + claim.Manager.ShortName + "</div>");
+       
+        element.append(claimInfoCell);
+
+        element.append("<td><div class='text-nowrap'><strong>Всего</strong>&nbsp;<span class='label label-default ligth'>" + claim.PositionsCount + "</span>/<span class='label label-success ligth'>" + claim.CalculatesCount + "</span></div>" + getProductManagersString(claim.ProductManagers) + "</td>");
+        
+        var claimStateCell = $("<td></td>");
+
+        claimStateCell.append("<div>" + getDealTypeById(claim.DealType).Value + "</div>");
+        claimStateCell.append("<div>" + getClaimStatusById(claim.ClaimStatus).Value + "</div>");
+        claimStateCell.append("<div>" + claim.RecordDateString.split(" ")[0] + "</div>");
+        claimStateCell.append("<div>" + claim.ClaimDeadlineString + "</div>");
+        element.append(claimStateCell);
+
         var tenderStatusCell = $("<td></td>");
         var tenderStatusPanel = $("<div></div>");
         tenderStatusPanel.append("<span  class='text-nowrap' modetype='tenderStatusLabel'>" + getTenderStatusById(claim.TenderStatus).Value + "</span>");
@@ -439,7 +449,7 @@
             butSetTenderStatusReject.click(changeTenderStatus);
         }
         element.append("<td><span class='text-nowrap'>" + claim.Author.ShortName + "<span/></td>");
-        var actionCell = $("<td class='min-width '></td>");
+        var actionCell = $("<td class='min-width'>&nbsp;</td>");
         element.append(actionCell);
         if (settings.deleteClaim != "none") {
             if (settings.deleteClaim == "true" || ((settings.deleteClaim == "self" || settings.deleteClaim == "self&manager") && claim.Author.Id == settings.userId)
@@ -705,23 +715,25 @@
         <table class="table table-striped small">
             <thead>
             <tr>
-                <th class="min-width text-nowrap"></th>
+                <th class="min-width text-nowrap">&nbsp;</th>
                 <th>ID</th>
-                <th class="text-nowrap">№ Конкурса</th>
+                @*<th class="text-nowrap">№ Конкурса</th>
                 <th>Контрагент</th>
                 <th>Сумма</th>
                 <th>Менеджер</th>
-                <th>Позиции</th>
+                <th>Позиции</th>*@
+                <th>&nbsp;</th>
                 <th class="text-nowrap">Снабженцы (Пер/Рас)</th>
-                <th class="text-nowrap">Тип сделки</th>
-                <th>
+                @*<th class="text-nowrap">Тип сделки</th>*@
+                <th class="min-width">
+                    <div class="text-nowrap">Тип сделки</div>
                     <div>Статус</div>
                     <div>Создано</div>
-                    <div>Срок сдачи</div>
+                    <div class="text-nowrap">Срок сдачи</div>
                 </th>
                 <th>Статус<br />конкурса</th>
                 <th>Автор</th>
-                <th></th>
+                <th>&nbsp;</th>
             </tr>
             </thead>
             <tbody id="claimTable">

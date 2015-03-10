@@ -460,7 +460,7 @@
             }
         });
     }
-    
+
     //получение данных по расчету позиции из эл. управления и проверка на валидность введенных значений
     function getCalculatePositionModelForPosition(row) {
         var obj = { isValid: true, message: "", model: null };
@@ -527,7 +527,7 @@
                 obj.isValid = false;
                 obj.message += message;
             }
-        } 
+        }
         var protectCondition = $("[modetype='calculateProtectCondition']", calcRow).val().trim();
         var protectFact = $(":selected", $("[modetype='calculateProtectFact']", calcRow)).val().trim();
         if (protectFact == "null") {
@@ -579,7 +579,7 @@
     //<<<<<<<Отображение инфы по заявке>>>>>>
     function showClaimInfo(model) {
         $("#claimId").text(model.Id);
-        $("#claimCustomer").html(model.Customer + "<br/>" + model.CustomerInn);
+        $("#claimCustomer").html(model.Customer + "<br/>ИНН " + model.CustomerInn);
         $("#claimTenderStart").html(model.TenderStartString != "" ? model.TenderStartString : "&nbsp;");
         $("#claimDeadline").html(model.ClaimDeadlineString != "" ? model.ClaimDeadlineString : "&nbsp;");
         $("#kPDeadline").html(model.KPDeadlineString != "" ? model.KPDeadlineString : "&nbsp;");
@@ -915,7 +915,7 @@
         var target = getTargetOrigin();
         document.getElementById("uploadFile").contentWindow.postMessage(message, target);
     }
- 
+
     function getTargetOrigin() {
         var url = document.location.href;
         url = url.replace("http://", "");
@@ -999,7 +999,7 @@
 
     function initProductsList() {
         var list = $("#productsList");
-        var option = $("<option value='null'>---Выберите снабженца---</option>");
+        var option = $("<option value='null'>-- выберите чтобы передать --</option>");
         list.append(option);
         var productsLength = products.length;
         for (var i = 0; i < productsLength; i++) {
@@ -1007,7 +1007,7 @@
             option = $("<option value='" + model.Id + "'>" + model.Name + "</option>");
             list.append(option);
         }
-        
+
     }
 
     function getProtectFactById(id) {
@@ -1021,7 +1021,7 @@
             }
         }
         return model;
-    }   
+    }
 
     function getCurrencyById(id) {
         id = Number(id);
@@ -1135,28 +1135,25 @@
             </div>
             <div class="row">
                 <div class="col-sm-7">
-                    <div>
-                        <strong>Курсы валют</strong>
-                        <br/>
-                        <span>USD: </span>
-                        <input type="text" id="claimCurrencyUsd"/>
-                        <span>EUR: </span>
-                        <input type="text" id="claimCurrencyEur" />
-                        <br/>
-                        <button type="button" id="butChangeCurrency" class="btn btn-default">Изменить курс</button>
-                    </div>
+                    @*<div>
+                            <strong>Курсы валют</strong>
+                            <br/>
+                            <span>USD: </span>
+                            <input type="text" id="claimCurrencyUsd"/>
+                            <span>EUR: </span>
+                            <input type="text" id="claimCurrencyEur" />
+                            <br/>
+                            <button type="button" id="butChangeCurrency" class="btn btn-default">Изменить курс</button>
+                        </div>*@
                     <div>
                         @*<button type='button' class='btn btn-danger'><i class="fa fa-remove"></i> отклонить</button>*@
                         <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение</button>
+                        <button type="button" id="butSendComment" class="btn btn-default"><i class="fa fa-comment"></i> сохранить комментарий</button>
                     </div>
                     @*<div id="commentPanel">*@
                     <div id="commentPanel">
-                        <textarea id="comment" rows="3" placeholder="Комментарий" class="form-control"></textarea><br />
-                        <button type="button" id="butSendComment" class="btn btn-default">Сохранить комментарий</button>
-                    </div>
-                    <div id="reassignmentPanel">
-                        <button type="button" id="butChangeProduct" class="btn btn-default">Переназначить отмеченные позиции</button>
-                        <select id="productsList" size="1"></select>
+                        <textarea id="comment" rows="5" placeholder="Комментарий" class="form-control"></textarea><br />
+
                     </div>
                 </div>
                 <div class="col-sm-5">
@@ -1172,20 +1169,40 @@
             <span class="label label-default">всего&nbsp;<span id="positionCountLabel"></span></span>
             <span class="label label-info">из них рассчитано&nbsp;<span id="positionCalculateCountLabel"></span></span>
         </h5>
-        <input type="checkbox" id="selectAllPositions"/>
-        <span id="excelPanel">
-            <button id="butGetExcelFile" type='button' class='btn btn-default btn-sm'><i class="fa fa-download"></i> скачать спецификацию</button>
-            <button id="butUploadExcelFile" type='button' class='btn btn-default btn-sm' style='margin: 4px;'><i class="fa fa-upload"></i> загрузить расчет</button>
-            <iframe id="uploadFile" src="/Calc/UploadFileForm?claimId=@claim.Id" style="display: none;"></iframe>
-        </span>
+
         <table class="table small">
+            <thead>
+                <tr>
+                    <th class="min-width center"><input type="checkbox" id="selectAllPositions" data-toggle="tooltip" title="все" /></th>
+                    <th colspan="3">
+                        <div class="form-inline">
+                            <div class="form-group">
+
+                                <span id="excelPanel">
+                                    <button id="butGetExcelFile" type='button' class='btn btn-default btn-sm'><i class="fa fa-download"></i> скачать спецификацию</button>
+                                    <button id="butUploadExcelFile" type='button' class='btn btn-default btn-sm' style='margin: 4px;'><i class="fa fa-upload"></i> загрузить расчет</button>
+                                    <iframe id="uploadFile" src="/Calc/UploadFileForm?claimId=@claim.Id" style="display: none;"></iframe>
+                                </span>
+                                <span id="reassignmentPanel">
+                                    <span class="btn-line">
+                                        <span class="input-group">
+                                            <select id="productsList" size="1" class="form-control input-sm"></select>
+                                            <span class="input-group-addon"><button type="button" id="butChangeProduct" class="btn btn-primary btn-sm" data-toggle='tooltip'><i class="fa fa-forward"></i> передать</button></span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
             <tbody id="positionsTable"></tbody>
         </table>
     </div>
     <table>
         <tr id="positionElementTemplate" style="display: none;">
-            <td>
-                <input type="checkbox" modetype="selectPosition"/>
+            <td class="center">
+                <input type="checkbox" modetype="selectPosition" />
             </td>
             <td class="min-width">
                 <button type="button" modetype='addCalcButton' class="btn btn-primary btn-lg" data-toggle="tooltip" title="добавить расчет"><i class="fa fa-plus"></i> <i class="fa fa-calculator"></i></button>
