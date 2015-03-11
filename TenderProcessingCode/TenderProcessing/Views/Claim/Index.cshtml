@@ -600,7 +600,7 @@
 
     //перевод заявки в режим просмотра
     function showClaimReadOnly(model) {
-        var controlNames = ["#tenderNumber", "#tenderStart", "#claimDeadline", "#kPDeadline", "#customer", "#innCustomer", "#sum", "#comment", "#listDealTypes", "#tenderUrl", "#listManagers", "#managerSubDivision", "#deliveryDate", "#deliveryPlace", "#auctionDate"];
+        var controlNames = ["#tenderNumber", "#tenderStart", "#claimDeadline", "#kPDeadline", "#customer", "#innCustomer", "#sum", "#comment", "#listDealTypes", "#tenderUrl", "#listManagers", "#managerSubDivision", "#deliveryDate", "#deliveryPlace", "#auctionDate", "#currencyUsd", "#currencyEur"];
         var controlsLength = controlNames.length;
         for (var i = 0; i < controlsLength; i++) {
             $(controlNames[i]).css("display", "none");
@@ -624,12 +624,12 @@
         if (model.CurrencyUsd != 0) {
             usd = model.CurrencyUsd.toFixed(2);
         }
-        $("#currencyUsd").val(usd);
+        $("#currencyUsdLabel").text(usd);
         var eur = "";
         if (model.CurrencyEur != 0) {
             eur = model.CurrencyEur.toFixed(2);
         }
-        $("#currencyEur").val(eur);
+        $("#currencyEurLabel").text(eur);
         $("#commentLabel").text(model.Comment != null ? model.Comment : "");
         var dealType = getDealTypeById(model.DealType);
         $("#listDealTypesLabel").text(dealType.Value);
@@ -1815,11 +1815,13 @@
                         <div class="input-group">
                             <span class="input-group-addon">$</span>
                             <input type="text" id="currencyUsd" class="form-control" />
+                            <span id="currencyUsdLabel" style="display: none;" class="form-control"></span>
                             <span class="input-group-addon">руб.</span>
                         </div>
                         <div class="input-group">
                             <span class="input-group-addon">&#8364;</span>
                             <input type="text" id="currencyEur" class="form-control" />
+                            <span id="currencyEurLabel" style="display: none;" class="form-control"></span>
                             <span class="input-group-addon">руб.</span>
                         </div>
                             @*<span>USD: </span><input type="text" id="currencyUsd" class="form-control" />
