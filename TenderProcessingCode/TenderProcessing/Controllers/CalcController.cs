@@ -169,6 +169,7 @@ namespace TenderProcessing.Controllers
             return View();
         }
 
+        //Excel
         //получение excel файла с инфой по позициям и расчетам к ним
         public ActionResult GetSpecificationFile(int claimId, bool forManager)
         {
@@ -223,10 +224,9 @@ namespace TenderProcessing.Controllers
                         var workSheet = excBook.Worksheet("WorkSheet");
                         workSheet.Name = "Расчет";
                         var claim = db.LoadTenderClaimById(claimId);
-                        //Заполнение инфы о заявке
+                        //>>>>>>>>Шапка - Заполнение инфы о заявке<<<<<<
                         var dealTypes = db.LoadDealTypes();
                         var manager = UserHelper.GetUserById(claim.Manager.Id);
-                        //Заполнение инфы о заявке
                         workSheet.Cell(1, 3).Value = !claim.CurrencyUsd.Equals(0)
                             ? claim.CurrencyUsd.ToString("N2")
                             : string.Empty;
@@ -284,6 +284,7 @@ namespace TenderProcessing.Controllers
                         var currenciesRange = directRangeSheet.Range(directRangeSheet.Cell(1, 2),
                             directRangeSheet.Cell(currencies.Count(), 2));
                         directRangeSheet.Visibility = XLWorksheetVisibility.Hidden;
+                        //>>>>>>>номер строки начало вывода инфы<<<<<<
                         var row = 18;
                         //вывод инфы по позициям
                         foreach (var position in positions)
@@ -466,6 +467,7 @@ namespace TenderProcessing.Controllers
             return View();
         }
 
+        //Excel
         //обработка загруженного файла excel, с расчетом по позициям
         [HttpPost]
         public ActionResult UploadFileForm(HttpPostedFileBase file, int claimId)
@@ -492,6 +494,7 @@ namespace TenderProcessing.Controllers
                     if (workSheet != null)
                     {
                         var user = GetUser();
+                        //<<<<<<<Номер строки - начало разбора инфы>>>>>>
                         var row = 17;
                         var errorStringBuilder = new StringBuilder();
                         var db = new DbEngine();

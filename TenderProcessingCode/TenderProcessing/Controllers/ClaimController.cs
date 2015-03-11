@@ -285,6 +285,7 @@ namespace TenderProcessing.Controllers
             return View();
         }
 
+        //Excel
         //получение excel файла, для определения позиций по заявке 
         public ActionResult GetSpecificationFile(int claimId)
         {
@@ -311,9 +312,9 @@ namespace TenderProcessing.Controllers
                 var userRangeSheet = excBook.Worksheet(2);
                 if (workSheet != null && userRangeSheet != null)
                 {
+                    //>>>>>>>>Шапка - Заполнение инфы о заявке<<<<<<
                     var dealTypes = db.LoadDealTypes();
                     var manager = UserHelper.GetUserById(claim.Manager.Id);
-                    //Заполнение инфы о заявке
                     workSheet.Cell(1, 3).Value = !claim.CurrencyUsd.Equals(0)
                         ? claim.CurrencyUsd.ToString("N2")
                         : string.Empty;
@@ -416,6 +417,7 @@ namespace TenderProcessing.Controllers
             }
         }
 
+        //Excel
         //получение excel файла, содержащем только расчет по заявке
         public ActionResult GetSpecificationFileOnlyCalculation(int claimId)
         {
@@ -454,10 +456,9 @@ namespace TenderProcessing.Controllers
                     var workSheet = excBook.Worksheet("WorkSheet");
                     workSheet.Name = "Расчет";
                     var claim = db.LoadTenderClaimById(claimId);
-                    //Заполнение инфы о заявке
+                    //>>>>>>>>Шапка - Заполнение инфы о заявке<<<<<<
                     var dealTypes = db.LoadDealTypes();
                     var manager = UserHelper.GetUserById(claim.Manager.Id);
-                    //Заполнение инфы о заявке
                     workSheet.Cell(1, 3).Value = !claim.CurrencyUsd.Equals(0)
                         ? claim.CurrencyUsd.ToString("N2")
                         : string.Empty;
@@ -486,7 +487,7 @@ namespace TenderProcessing.Controllers
                     workSheet.Cell(16, 3).Value = claim.AuctionDateString;
                     workSheet.Cell(16, 3).DataType = XLCellValues.DateTime;
                     workSheet.Cell(17, 3).Value = claim.Comment;
-                    //заголовок
+                    //заголовок для расчетов
                     workSheet.Cell(18, 1).Value = "№ пп";
                     workSheet.Cell(18, 2).Value = "Каталожный номер*";
                     workSheet.Cell(18, 3).Value = "Наименование*";
@@ -517,6 +518,7 @@ namespace TenderProcessing.Controllers
                     calcHeaderRange.Style.Border.SetLeftBorder(XLBorderStyleValues.Thin);
                     calcHeaderRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
                     var currencies = db.LoadCurrencies();
+                    //<<<<<<<Номер строки - начало вывода инфы>>>>>>
                     var row = 19;
                     var rowNumber = 1;
                     //строки расчета
@@ -750,6 +752,7 @@ namespace TenderProcessing.Controllers
             return View();
         }
 
+        //Excel
         //получение excel файла, с инфой по позициям заявки
         [HttpPost]
         public ActionResult UploadFileForm(HttpPostedFileBase file, int claimId)
@@ -777,7 +780,7 @@ namespace TenderProcessing.Controllers
                     if (workSheet != null)
                     {
                         var user = GetUser();
-                        //назначение номера строки начала парсинга
+                        //<<<<<<<Номер строки - начало разбора инфы>>>>>>
                         var row = 19;
                         var errorStringBuilder = new StringBuilder();
                         var repeatRowCount = 0;
