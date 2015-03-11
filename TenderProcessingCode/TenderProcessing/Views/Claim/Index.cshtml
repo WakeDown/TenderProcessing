@@ -663,7 +663,7 @@
                         $("#claimStatus").text(status.Value);
                         addClaimStatusHistoryElement(data.Model);
                     }
-                    var selectedRows = $("[type='positionRow'][selectState='true']", $("#positionTable"));
+                    var selectedRows = $("[type='positionRow']", $("#positionTable"));
                     $.each(selectedRows, function(index, element) {
                         element = $(element);
                         setRowSelect(element, false);
@@ -713,7 +713,7 @@
                         $("#claimStatus").text(status.Value);
                         addClaimStatusHistoryElement(data.Model);
                     }
-                    var selectedRows = $("[type='positionRow'][selectState='true']", $("#positionTable"));
+                    var selectedRows = $("[type='positionRow']", $("#positionTable"));
                     $.each(selectedRows, function(index, element) {
                         element = $(element);
                         setRowSelect(element, false);
@@ -998,14 +998,10 @@
 
     function selectAllPosition(e) {
         var state = e.currentTarget.checked;
-        var selectedRows = $("[type='positionRow'][selectState='true']", $("#positionTable"));
+        var selectedRows = $("[type='positionRow']", $("#positionTable"));
         $.each(selectedRows, function(index, element) {
             element = $(element);
-            setRowSelect(element, false);
-        });
-        var positionsCb = $("[modetype='selectPositionElement']", $("#positionTable"));
-        $.each(positionsCb, function(i, element) {
-            element.checked = state;
+            setRowSelect(element, state);
         });
     }
 
@@ -1032,32 +1028,15 @@
         var editMode = row.attr("editMode") == "true";
         if (editMode) return;
         var state = row.attr("selectState") == "true";
-        if (state) {
-            setRowSelect(row, false);
-        } else {
-            var selectedRows = $("[type='positionRow'][selectState='true']", $("#positionTable"));
-            $.each(selectedRows, function(index, element) {
-                element = $(element);
-                setRowSelect(element, false);
-            });
-            setRowSelect(row, true);
-        }
+        setRowSelect(row, !state);
     }
 
     function positionSelectElementClick(e) {
         e.stopImmediatePropagation();
         var checkbox = $(e.currentTarget);
         var row = checkbox.closest("tr");
-        var state = row.attr("selectState") == "true";
-        if (!state) {
-            var selectedRows = $("[type='positionRow'][selectState='true']", $("#positionTable"));
-            $.each(selectedRows, function(index, element) {
-                element = $(element);
-                setRowSelect(element, false);
-            });
-            row.attr("selectState", "true");
-            row.css("backgroundColor", "#EFD1A7");
-        }
+        var state = e.currentTarget.checked;
+        setRowSelect(row, state);
     }
 
     function setRowSelect(row, state) {
@@ -1071,6 +1050,7 @@
             row.attr("selectState", "false");
             var color = row.attr("initalColor");
             row.css("backgroundColor", color);
+            $("[modetype='selectPositionElement']", row).get(0).checked = false;
         }
     }
 
@@ -1922,9 +1902,9 @@
                             <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" />
                             <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество *" />
                             <div id="unitCell"></div>
-                            <div id="currencyCell"></div>
-                            <input type='text' modeltype='priceValue' class="form-control input-sm" placeholder="Цена за ед., макс." />
-                            <input type='text' modeltype='sumValue' class="form-control input-sm" placeholder="Сумма, макс." />
+                            <div id="currencyCell" style="display: none;"></div>
+                            <input type='text' modeltype='priceValue' class="form-control input-sm" placeholder="Цена за ед., макс." style="display: none;" />
+                            <input type='text' modeltype='sumValue' class="form-control input-sm" placeholder="Сумма, макс." style="display: none;" />
                             <input type='text' modeltype='priceTzrValue' class="form-control input-sm" placeholder="Цена с ТЗР" style="display: none;" />
                             <input type='text' modeltype='sumTzrValue' class="form-control input-sm" placeholder="Сумма с ТЗР" style="display: none;" />
                             <input type='text' modeltype='priceNdsValue' class="form-control input-sm" placeholder="Цена с НДС" style="display: none;" />
@@ -1937,10 +1917,10 @@
                             <div>
                                 <strong type='valueLabel'></strong>&nbsp;<span type='unitLabel'></span>
                             </div>
-                            <div>
+                            <div style="display: none;">
                                 <strong type='priceLabel'></strong>&nbsp;<span type='priceLabelPostfix'></span>
                             </div>
-                            <div>
+                            <div style="display: none;">
                                 <strong type='sumLabel'></strong>&nbsp;<span type='sumLabelPostfix'></span>
                             </div>
                             <div style="display: none;">
@@ -1958,14 +1938,14 @@
                         </div>
                         <div type="editModeView" class="col-sm-5">
                             <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
-                            <textarea rows="3" class="form-control input-sm" modeltype='replaceValue' placeholder="Замена"></textarea>
+                            <textarea rows="3" class="form-control input-sm" modeltype='replaceValue' placeholder="Замена" style="display: none;"></textarea>
                         </div>
                         <div type="readOnlyModeView" style="display: none;" class="col-sm-4">
                             <div>
                                 <strong>Наименование</strong>
                                 <div type='nameLabel'></div>
                             </div>
-                            <div>
+                            <div style="display: none;">
                                 <strong>Замена</strong>
                                 <div type='replaceLabel'></div>
                             </div>
@@ -2008,10 +1988,10 @@
                     <div>
                         <strong modetype="calculateSumCurrencyValueLabel"></strong>&nbsp;<span modetype="calculateSumCurrencyValueLabelPostix"></span>
                     </div>
-                    <div>
+                    <div style="display: none;">
                         <strong modetype="calculatePriceRubValueLabel"></strong>&nbsp;<span modetype="calculatePriceRubValueLabelPostix">руб. за ед.</span>
                     </div>
-                    <div>
+                    <div style="display: none;">
                         <strong modetype="calculateSumRubValueLabel"></strong>&nbsp;руб. всего
                     </div>
                 </div>

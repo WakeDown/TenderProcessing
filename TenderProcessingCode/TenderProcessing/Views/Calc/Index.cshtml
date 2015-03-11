@@ -991,7 +991,6 @@
         var currencyLength = currencies.length;
         for (var i = 0; i < currencyLength; i++) {
             var model = currencies[i];
-            if (model.Value.trim().toLowerCase() == "руб") continue;
             var option = $("<option value='" + model.Id + "'>" + model.Value + "</option>");
             list.append(option);
         }
@@ -1216,10 +1215,10 @@
                     <div>
                         <strong type='valueLabel'></strong>&nbsp;<span type='unitLabel'></span>
                     </div>
-                    <div>
+                    <div style="display: none;">
                         <strong type='priceLabel'></strong>&nbsp;<span type='priceLabelPostfix'></span>
                     </div>
-                    <div>
+                    <div style="display: none;">
                         <strong type='sumLabel'></strong>&nbsp;<span type='sumLabelPostfix'></span>
                     </div>
                     <div style="display: none;">
@@ -1240,7 +1239,7 @@
                         <strong>Наименование</strong>
                         <div type='nameLabel'></div>
                     </div>
-                    <div>
+                    <div style="display: none;">
                         <strong>Замена</strong>
                         <div type='replaceLabel'></div>
                     </div>
@@ -1273,8 +1272,8 @@
                     <select size="1" modetype="calculateCurrencyList" class="form-control input-sm"></select>
                     <input type='text' modetype="calculatePriceCurrency" class="form-control input-sm" placeholder="Цена за ед. Валюта," />
                     <input type='text' modetype="calculateSumCurrency" class="form-control input-sm" placeholder="Сумма вход, Валюта" />
-                    <input type='text' modetype="calculatePriceRub" class="form-control input-sm" placeholder="Цена за ед., руб." />
-                    <input type='text' modetype="calculateSumRub" class="form-control input-sm" placeholder="Сумма вход, руб." />
+                    <input type='text' modetype="calculatePriceRub" class="form-control input-sm" placeholder="Цена за ед., руб." style="display: none;" />
+                    <input type='text' modetype="calculateSumRub" class="form-control input-sm" placeholder="Сумма вход, руб." style="display: none;" />
                 </div>
                 <div type="readOnlyModeView" style="display: none;" class="col-sm-2">
                     <div>
@@ -1286,10 +1285,10 @@
                     <div>
                         <strong modetype="calculateSumCurrencyValueLabel"></strong>&nbsp;<span modetype="calculateSumCurrencyValueLabelPostix"></span>
                     </div>
-                    <div>
+                    <div style="display: none;">
                         <strong modetype="calculatePriceRubValueLabel"></strong>&nbsp;<span modetype="calculatePriceRubValueLabelPostix">руб. за ед.</span>
                     </div>
-                    <div>
+                    <div style="display: none;">
                         <strong modetype="calculateSumRubValueLabel"></strong>&nbsp;руб. всего
                     </div>
                 </div>

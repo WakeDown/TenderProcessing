@@ -799,7 +799,7 @@ namespace TenderProcessingDataAccessLayer
                 if (!string.IsNullOrEmpty(model.Replace))
                     cmd.Parameters.AddWithValue("@replaceValue", model.Replace);
                 if (!string.IsNullOrEmpty(model.Comment))
-                    cmd.Parameters.AddWithValue("@comment", model.CatalogNumber);
+                    cmd.Parameters.AddWithValue("@comment", model.Comment);
                 if (!string.IsNullOrEmpty(model.ProtectCondition))
                     cmd.Parameters.AddWithValue("@protectCondition", model.ProtectCondition);
                 if (!string.IsNullOrEmpty(model.Provider))

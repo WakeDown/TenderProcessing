@@ -311,32 +311,37 @@ namespace TenderProcessing.Controllers
                 var userRangeSheet = excBook.Worksheet(2);
                 if (workSheet != null && userRangeSheet != null)
                 {
+                    var dealTypes = db.LoadDealTypes();
+                    var manager = UserHelper.GetUserById(claim.Manager.Id);
                     //Заполнение инфы о заявке
-                    workSheet.Cell(1, 4).Value = !claim.CurrencyUsd.Equals(0)
+                    workSheet.Cell(1, 3).Value = !claim.CurrencyUsd.Equals(0)
                         ? claim.CurrencyUsd.ToString("N2")
                         : string.Empty;
-                    workSheet.Cell(2, 4).Value = !claim.CurrencyEur.Equals(0)
+                    workSheet.Cell(2, 3).Value = !claim.CurrencyEur.Equals(0)
                         ? claim.CurrencyEur.ToString("N2")
                         : string.Empty;
-                    workSheet.Cell(1, 4).DataType = XLCellValues.Number;
-                    workSheet.Cell(2, 4).DataType = XLCellValues.Number;
-                    var dealTypes = db.LoadDealTypes();
-                    workSheet.Cell(3, 4).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
-                    var manager = UserHelper.GetUserById(claim.Manager.Id);
-                    workSheet.Cell(4, 4).Value = manager != null ? manager.ShortName : string.Empty;
-                    workSheet.Cell(5, 4).Value = claim.Customer;
-                    workSheet.Cell(6, 4).Value = claim.ClaimDeadlineString;
-                    workSheet.Cell(6, 4).DataType = XLCellValues.DateTime;
-                    workSheet.Cell(7, 4).Value = !claim.Sum.Equals(0) ? claim.Sum.ToString("N2") : string.Empty;
-                    workSheet.Cell(7, 4).DataType = XLCellValues.Number;
-                    workSheet.Cell(8, 4).Value = claim.DeliveryDateString;
-                    workSheet.Cell(8, 4).DataType = XLCellValues.DateTime;
-                    workSheet.Cell(9, 4).Value = claim.DeliveryPlace;
-                    workSheet.Cell(10, 4).Value = claim.KPDeadlineString;
-                    workSheet.Cell(10, 4).DataType = XLCellValues.DateTime;
-                    workSheet.Cell(11, 4).Value = claim.AuctionDateString;
-                    workSheet.Cell(11, 4).DataType = XLCellValues.DateTime;
-                    workSheet.Cell(12, 4).Value = claim.Comment;
+                    workSheet.Cell(1, 3).DataType = XLCellValues.Number;
+                    workSheet.Cell(2, 3).DataType = XLCellValues.Number;
+                    workSheet.Cell(3, 3).Value = claim.TenderNumber;
+                    workSheet.Cell(4, 3).Value = claim.TenderStartString;
+                    workSheet.Cell(4, 3).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(5, 3).Value = claim.ClaimDeadlineString;
+                    workSheet.Cell(5, 3).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(6, 3).Value = claim.KPDeadlineString;
+                    workSheet.Cell(6, 3).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(7, 3).Value = claim.Customer;
+                    workSheet.Cell(8, 3).Value = claim.CustomerInn;
+                    workSheet.Cell(9, 3).Value = !claim.Sum.Equals(0) ? claim.Sum.ToString("N2") : string.Empty;
+                    workSheet.Cell(10, 3).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
+                    workSheet.Cell(11, 3).Value = claim.TenderUrl;
+                    workSheet.Cell(12, 3).Value = manager != null ? manager.ShortName : string.Empty;
+                    workSheet.Cell(13, 3).Value = claim.Manager.SubDivision;
+                    workSheet.Cell(14, 3).Value = claim.DeliveryDateString;
+                    workSheet.Cell(14, 3).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(15, 3).Value = claim.DeliveryPlace;
+                    workSheet.Cell(16, 3).Value = claim.AuctionDateString;
+                    workSheet.Cell(16, 3).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(17, 3).Value = claim.Comment;
                     for (var i = 0; i < productManagers.Count(); i++)
                     {
                         var product = productManagers[i];
@@ -347,18 +352,18 @@ namespace TenderProcessing.Controllers
                         }
                     }
                     var namedRange = userRangeSheet.Range(userRangeSheet.Cell(1, 2), userRangeSheet.Cell(productManagers.Count(), 2));
-                    var currencies = db.LoadCurrencies();
-                    for (var i = 0; i < currencies.Count(); i++)
-                    {
-                        var currency = currencies[i];
-                        var cell = userRangeSheet.Cell(i + 1, 3);
-                        if (cell != null)
-                        {
-                            cell.Value = currency.Value;
-                        }
-                    }
-                    var currenciesRange = userRangeSheet.Range(userRangeSheet.Cell(1, 3), userRangeSheet.Cell(currencies.Count(), 3));
-                    var workRange = workSheet.Cell(14, 7);
+                    //var currencies = db.LoadCurrencies();
+                    //for (var i = 0; i < currencies.Count(); i++)
+                    //{
+                    //    var currency = currencies[i];
+                    //    var cell = userRangeSheet.Cell(i + 1, 3);
+                    //    if (cell != null)
+                    //    {
+                    //        cell.Value = currency.Value;
+                    //    }
+                    //}
+                    //var currenciesRange = userRangeSheet.Range(userRangeSheet.Cell(1, 3), userRangeSheet.Cell(currencies.Count(), 3));
+                    var workRange = workSheet.Cell(19, 6);
                     if (workRange != null)
                     {
                         var validation = workRange.SetDataValidation();
@@ -367,18 +372,19 @@ namespace TenderProcessing.Controllers
                         validation.Operator = XLOperator.Between;
                         validation.List(namedRange);
                     }
-                    workRange = workSheet.Cell(14, 8);
-                    if (workRange != null)
-                    {
-                        var validation = workRange.SetDataValidation();
-                        validation.AllowedValues = XLAllowedValues.List;
-                        validation.InCellDropdown = true;
-                        validation.Operator = XLOperator.Between;
-                        validation.List(currenciesRange);
-                    }
+                    //workRange = workSheet.Cell(14, 8);
+                    //if (workRange != null)
+                    //{
+                    //    var validation = workRange.SetDataValidation();
+                    //    validation.AllowedValues = XLAllowedValues.List;
+                    //    validation.InCellDropdown = true;
+                    //    validation.Operator = XLOperator.Between;
+                    //    validation.List(currenciesRange);
+                    //}
                     userRangeSheet.Visibility = XLWorksheetVisibility.Hidden;
                     workSheet.Select();
-                    workSheet.Column(7).Style.Alignment.WrapText = true;
+                    workSheet.Column(3).AdjustToContents();
+                    workSheet.Column(6).Style.Alignment.WrapText = true;
                     excBook.SaveAs(ms);
                 }
                 excBook.Dispose();
@@ -449,6 +455,9 @@ namespace TenderProcessing.Controllers
                     workSheet.Name = "Расчет";
                     var claim = db.LoadTenderClaimById(claimId);
                     //Заполнение инфы о заявке
+                    var dealTypes = db.LoadDealTypes();
+                    var manager = UserHelper.GetUserById(claim.Manager.Id);
+                    //Заполнение инфы о заявке
                     workSheet.Cell(1, 3).Value = !claim.CurrencyUsd.Equals(0)
                         ? claim.CurrencyUsd.ToString("N2")
                         : string.Empty;
@@ -457,37 +466,45 @@ namespace TenderProcessing.Controllers
                         : string.Empty;
                     workSheet.Cell(1, 3).DataType = XLCellValues.Number;
                     workSheet.Cell(2, 3).DataType = XLCellValues.Number;
-                    var dealTypes = db.LoadDealTypes();
-                    workSheet.Cell(3, 3).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
-                    var manager = UserHelper.GetUserById(claim.Manager.Id);
-                    workSheet.Cell(4, 3).Value = manager != null ? manager.ShortName : string.Empty;
-                    workSheet.Cell(5, 3).Value = claim.Customer;
-                    workSheet.Cell(6, 3).Value = claim.ClaimDeadlineString;
+                    workSheet.Cell(3, 3).Value = claim.TenderNumber;
+                    workSheet.Cell(4, 3).Value = claim.TenderStartString;
+                    workSheet.Cell(4, 3).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(5, 3).Value = claim.ClaimDeadlineString;
+                    workSheet.Cell(5, 3).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(6, 3).Value = claim.KPDeadlineString;
                     workSheet.Cell(6, 3).DataType = XLCellValues.DateTime;
-                    workSheet.Cell(7, 3).Value = !claim.Sum.Equals(0) ? claim.Sum.ToString("N2") : string.Empty;
-                    workSheet.Cell(7, 3).DataType = XLCellValues.Number;
-                    workSheet.Cell(8, 3).Value = claim.DeliveryDateString;
-                    workSheet.Cell(8, 3).DataType = XLCellValues.DateTime;
-                    workSheet.Cell(9, 3).Value = claim.DeliveryPlace;
-                    workSheet.Cell(10, 3).Value = claim.KPDeadlineString;
-                    workSheet.Cell(10, 3).DataType = XLCellValues.DateTime;
-                    workSheet.Cell(11, 3).Value = claim.AuctionDateString;
-                    workSheet.Cell(11, 3).DataType = XLCellValues.DateTime;
-                    workSheet.Cell(12, 3).Value = claim.Comment;
+                    workSheet.Cell(7, 3).Value = claim.Customer;
+                    workSheet.Cell(8, 3).Value = claim.CustomerInn;
+                    workSheet.Cell(9, 3).Value = !claim.Sum.Equals(0) ? claim.Sum.ToString("N2") : string.Empty;
+                    workSheet.Cell(10, 3).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
+                    workSheet.Cell(11, 3).Value = claim.TenderUrl;
+                    workSheet.Cell(12, 3).Value = manager != null ? manager.ShortName : string.Empty;
+                    workSheet.Cell(13, 3).Value = claim.Manager.SubDivision;
+                    workSheet.Cell(14, 3).Value = claim.DeliveryDateString;
+                    workSheet.Cell(14, 3).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(15, 3).Value = claim.DeliveryPlace;
+                    workSheet.Cell(16, 3).Value = claim.AuctionDateString;
+                    workSheet.Cell(16, 3).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(17, 3).Value = claim.Comment;
                     //заголовок
-                    workSheet.Cell(13, 1).Value = "Каталожный номер*";
-                    workSheet.Cell(13, 2).Value = "Наименование*";
-                    workSheet.Cell(13, 3).Value = "Замена";
-                    workSheet.Cell(13, 4).Value = "Валюта";
-                    workSheet.Cell(13, 5).Value = "Цена за ед.";
-                    workSheet.Cell(13, 6).Value = "Сумма вход";
-                    workSheet.Cell(13, 7).Value = "Цена за ед. руб";
-                    workSheet.Cell(13, 8).Value = "Сумма вход руб*";
-                    workSheet.Cell(13, 9).Value = "Поставщик";
-                    workSheet.Cell(13, 10).Value = "Факт получ.защиты*";
-                    workSheet.Cell(13, 11).Value = "Условия защиты";
-                    workSheet.Cell(13, 12).Value = "Комментарий";
-                    var calcHeaderRange = workSheet.Range(workSheet.Cell(13, 1), workSheet.Cell(13, 12));
+                    workSheet.Cell(18, 1).Value = "№ пп";
+                    workSheet.Cell(18, 2).Value = "Каталожный номер*";
+                    workSheet.Cell(18, 3).Value = "Наименование*";
+                    workSheet.Cell(18, 4).Value = "Замена";
+                    workSheet.Cell(18, 5).Value = "Цена за ед.";
+                    workSheet.Cell(18, 6).Value = "Сумма вход";
+                    workSheet.Cell(18, 7).Value = "Валюта";
+                    //workSheet.Cell(13, 7).Value = "Цена за ед. руб";
+                    //workSheet.Cell(13, 8).Value = "Сумма вход руб*";
+                    workSheet.Cell(18, 8).Value = "Поставщик";
+                    workSheet.Cell(18, 9).Value = "Факт получ.защиты*";
+                    workSheet.Cell(18, 10).Value = "Условия защиты";
+                    workSheet.Cell(18, 11).Value = "Цена с ТЗР";
+                    workSheet.Cell(18, 12).Value = "Сумма с ТЗР";
+                    workSheet.Cell(18, 13).Value = "Цена с НДС";
+                    workSheet.Cell(18, 14).Value = "Сумма с НДС";
+                    workSheet.Cell(18, 15).Value = "Комментарий";
+                    var calcHeaderRange = workSheet.Range(workSheet.Cell(18, 1), workSheet.Cell(18, 15));
                     calcHeaderRange.Style.Font.SetBold(true);
                     calcHeaderRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 204, 255, 209);
                     calcHeaderRange.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
@@ -500,7 +517,8 @@ namespace TenderProcessing.Controllers
                     calcHeaderRange.Style.Border.SetLeftBorder(XLBorderStyleValues.Thin);
                     calcHeaderRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
                     var currencies = db.LoadCurrencies();
-                    var row = 14;
+                    var row = 19;
+                    var rowNumber = 1;
                     //строки расчета
                     foreach (var position in positions)
                     {
@@ -508,32 +526,34 @@ namespace TenderProcessing.Controllers
                         {
                             foreach (var calculation in position.Calculations)
                             {
-                                workSheet.Cell(row, 1).Value = calculation.CatalogNumber;
-                                workSheet.Cell(row, 2).Value = calculation.Name;
-                                workSheet.Cell(row, 3).Value = calculation.Replace;
-                                workSheet.Cell(row, 4).Value = currencies.First(x=>x.Id == calculation.Currency).Value;
+                                workSheet.Cell(row, 1).Value = rowNumber;
+                                workSheet.Cell(row, 2).Value = calculation.CatalogNumber;
+                                workSheet.Cell(row, 3).Value = calculation.Name;
+                                workSheet.Cell(row, 4).Value = calculation.Replace;
                                 workSheet.Cell(row, 5).Value = !calculation.PriceCurrency.Equals(0)
                                     ? calculation.PriceCurrency.ToString("N2")
                                     : string.Empty;
                                 workSheet.Cell(row, 6).Value = !calculation.SumCurrency.Equals(0)
                                     ? calculation.SumCurrency.ToString("N2")
                                     : string.Empty;
-                                workSheet.Cell(row, 7).Value = !calculation.PriceRub.Equals(0)
-                                    ? calculation.PriceRub.ToString("N2")
-                                    : string.Empty;
-                                workSheet.Cell(row, 8).Value = !calculation.SumRub.Equals(0)
-                                    ? calculation.SumRub.ToString("N2")
-                                    : string.Empty;
-                                workSheet.Cell(row, 9).Value = calculation.Provider;
-                                workSheet.Cell(row, 10).Value =
+                                workSheet.Cell(row, 7).Value = currencies.First(x => x.Id == calculation.Currency).Value;
+                                //workSheet.Cell(row, 7).Value = !calculation.PriceRub.Equals(0)
+                                //    ? calculation.PriceRub.ToString("N2")
+                                //    : string.Empty;
+                                //workSheet.Cell(row, 8).Value = !calculation.SumRub.Equals(0)
+                                //    ? calculation.SumRub.ToString("N2")
+                                //    : string.Empty;
+                                workSheet.Cell(row, 8).Value = calculation.Provider;
+                                workSheet.Cell(row, 9).Value =
                                     facts.First(x => x.Id == calculation.ProtectFact.Id).Value;
-                                workSheet.Cell(row, 11).Value = calculation.ProtectCondition;
-                                workSheet.Cell(row, 12).Value = calculation.Comment;
+                                workSheet.Cell(row, 10).Value = calculation.ProtectCondition;
+                                workSheet.Cell(row, 15).Value = calculation.Comment;
                                 row++;
+                                rowNumber++;
                             }
                         }
                     }
-                    workSheet.Columns(1, 12).AdjustToContents();
+                    workSheet.Columns(1, 15).AdjustToContents();
                     excBook.SaveAs(ms);
                     excBook.Dispose();
                     ms.Seek(0, SeekOrigin.Begin);
@@ -758,11 +778,11 @@ namespace TenderProcessing.Controllers
                     {
                         var user = GetUser();
                         //назначение номера строки начала парсинга
-                        var row = 14;
+                        var row = 19;
                         var errorStringBuilder = new StringBuilder();
                         var repeatRowCount = 0;
                         var db = new DbEngine();
-                        var currencies = db.LoadCurrencies();
+                        //var currencies = db.LoadCurrencies();
                         //проход по всем строкам
                         while (true)
                         {
@@ -776,24 +796,25 @@ namespace TenderProcessing.Controllers
                                 Replace = string.Empty,
                                 IdClaim = claimId, 
                                 State = 1,
-                                Author = user.Id
+                                Author = user.Id,
+                                Currency = 1,
                             };
                             //получение ячеек с инфой по позициям
                             var numberRange = workSheet.Cell(row, 1);
                             var catalogNumberRange = workSheet.Cell(row, 2);
                             var nameRange = workSheet.Cell(row, 3);
-                            var replaceRange = workSheet.Cell(row, 4);
-                            var unitRange = workSheet.Cell(row, 5);
-                            var valueRange = workSheet.Cell(row, 6);
-                            var managerRange = workSheet.Cell(row, 7);
-                            var currencyRange = workSheet.Cell(row, 8);
-                            var priceRange = workSheet.Cell(row, 9);
-                            var sumRange = workSheet.Cell(row, 10);
-                            var priceTzrRange = workSheet.Cell(row, 11);
-                            var sumTzrRange = workSheet.Cell(row, 12);
-                            var priceNdsRange = workSheet.Cell(row, 13);
-                            var sumNdsRange = workSheet.Cell(row, 14);
-                            var commentRange = workSheet.Cell(row, 15);
+                            //var replaceRange = workSheet.Cell(row, 4);
+                            var unitRange = workSheet.Cell(row, 4);
+                            var valueRange = workSheet.Cell(row, 5);
+                            var managerRange = workSheet.Cell(row, 6);
+                            //var currencyRange = workSheet.Cell(row, 8);
+                            //var priceRange = workSheet.Cell(row, 9);
+                            //var sumRange = workSheet.Cell(row, 10);
+                            //var priceTzrRange = workSheet.Cell(row, 11);
+                            //var sumTzrRange = workSheet.Cell(row, 12);
+                            //var priceNdsRange = workSheet.Cell(row, 13);
+                            //var sumNdsRange = workSheet.Cell(row, 14);
+                            var commentRange = workSheet.Cell(row, 7);
                             //наименование
                             if (nameRange != null && nameRange.Value != null)
                             {
@@ -833,10 +854,10 @@ namespace TenderProcessing.Controllers
                             {
                                 model.CatalogNumber = catalogNumberRange.Value.ToString();
                             }
-                            if (replaceRange != null && replaceRange.Value != null)
-                            {
-                                model.Replace = replaceRange.Value.ToString();
-                            }
+                            //if (replaceRange != null && replaceRange.Value != null)
+                            //{
+                            //    model.Replace = replaceRange.Value.ToString();
+                            //}
                             if (unitRange != null && unitRange.Value != null)
                             {
                                 var value = unitRange.Value.ToString();
@@ -908,148 +929,148 @@ namespace TenderProcessing.Controllers
                                 model.Comment = commentRange.Value.ToString();
                             }
                             //разбор инфы по Ценам и Суммам
-                            if (priceRange != null && priceRange.Value != null)
-                            {
-                                string priceValue = priceRange.Value.ToString();
-                                if (!string.IsNullOrEmpty(priceValue))
-                                {
-                                    double doubleValue;
-                                    var isValidDouble = double.TryParse(priceValue, out doubleValue);
-                                    if (!isValidDouble)
-                                    {
-                                        rowValid = false;
-                                        errorStringBuilder.Append("Строка: " + row +
-                                                                  ", значение '" + priceValue + "' в поле Цена за единицу не является числом<br/>");
-                                    }
-                                    else
-                                    {
-                                        model.Price = doubleValue;
-                                    }
-                                }
-                            }
-                            if (sumRange != null && sumRange.Value != null)
-                            {
-                                string sumValue = sumRange.Value.ToString();
-                                if (!string.IsNullOrEmpty(sumValue))
-                                {
-                                    double doubleValue;
-                                    var isValidDouble = double.TryParse(sumValue, out doubleValue);
-                                    if (!isValidDouble)
-                                    {
-                                        rowValid = false;
-                                        errorStringBuilder.Append("Строка: " + row +
-                                                                  ", значение '" + sumValue + "' в поле Сумма не является числом<br/>");
-                                    }
-                                    else
-                                    {
-                                        model.Sum = doubleValue;
-                                    }
-                                }
-                            }
-                            if (priceTzrRange != null && priceTzrRange.Value != null)
-                            {
-                                string priceTzrValue = priceTzrRange.Value.ToString();
-                                if (!string.IsNullOrEmpty(priceTzrValue))
-                                {
-                                    double doubleValue;
-                                    var isValidDouble = double.TryParse(priceTzrValue, out doubleValue);
-                                    if (!isValidDouble)
-                                    {
-                                        rowValid = false;
-                                        errorStringBuilder.Append("Строка: " + row +
-                                                                  ", значение '" + priceTzrValue + "' в поле Цена с ТЗР не является числом<br/>");
-                                    }
-                                    else
-                                    {
-                                        model.PriceTzr = doubleValue;
-                                    }
-                                }
-                            }
-                            if (sumTzrRange != null && sumTzrRange.Value != null)
-                            {
-                                string sumTzrValue = sumTzrRange.Value.ToString();
-                                if (!string.IsNullOrEmpty(sumTzrValue))
-                                {
-                                    double doubleValue;
-                                    var isValidDouble = double.TryParse(sumTzrValue, out doubleValue);
-                                    if (!isValidDouble)
-                                    {
-                                        rowValid = false;
-                                        errorStringBuilder.Append("Строка: " + row +
-                                                                  ", значение '" + sumTzrValue + "' в поле Сумма с ТЗР не является числом<br/>");
-                                    }
-                                    else
-                                    {
-                                        model.SumTzr = doubleValue;
-                                    }
-                                }
-                            }
-                            if (priceNdsRange != null && priceNdsRange.Value != null)
-                            {
-                                string priceNdsValue = priceNdsRange.Value.ToString();
-                                if (!string.IsNullOrEmpty(priceNdsValue))
-                                {
-                                    double doubleValue;
-                                    var isValidDouble = double.TryParse(priceNdsValue, out doubleValue);
-                                    if (!isValidDouble)
-                                    {
-                                        rowValid = false;
-                                        errorStringBuilder.Append("Строка: " + row +
-                                                                  ", значение '" + priceNdsValue + "' в поле Цена с НДС не является числом<br/>");
-                                    }
-                                    else
-                                    {
-                                        model.PriceNds = doubleValue;
-                                    }
-                                }
-                            }
-                            if (sumNdsRange != null && sumNdsRange.Value != null)
-                            {
-                                string sumNdsValue = sumNdsRange.Value.ToString();
-                                if (!string.IsNullOrEmpty(sumNdsValue))
-                                {
-                                    double doubleValue;
-                                    var isValidDouble = double.TryParse(sumNdsValue, out doubleValue);
-                                    if (!isValidDouble)
-                                    {
-                                        rowValid = false;
-                                        errorStringBuilder.Append("Строка: " + row +
-                                                                  ", значение '" + sumNdsValue + "' в поле Сумма с НДС числом<br/>");
-                                    }
-                                    else
-                                    {
-                                        model.SumNds = doubleValue;
-                                    }
-                                }
-                            }
-                            if (currencyRange != null && currencyRange.Value != null && !string.IsNullOrEmpty(currencyRange.Value.ToString()))
-                            {
-                                var value = currencyRange.Value.ToString();
-                                var currency = currencies.FirstOrDefault(x => x.Value == value);
-                                if (currency != null)
-                                {
-                                    model.Currency = currency.Id;
-                                }
-                                else
-                                {
-                                    rowValid = false;
-                                    errorStringBuilder.Append("Строка: " + row +
-                                                          ", не найдена Валюта: " + value + "<br/>");
-                                }
-                            }
-                            else
-                            {
-                                if (!model.Sum.Equals(0) || !model.Price.Equals(0) || !model.PriceTzr.Equals(0) || !model.SumTzr.Equals(0) || !model.SumNds.Equals(0) || !model.PriceNds.Equals(0))
-                                {
-                                    rowValid = false;
-                                    errorStringBuilder.Append("Строка: " + row +
-                                                              ", не задано обязательное значение Валюта<br/>");
-                                }
-                                else
-                                {
-                                    model.Currency = 1;
-                                }
-                            }
+                            //if (priceRange != null && priceRange.Value != null)
+                            //{
+                            //    string priceValue = priceRange.Value.ToString();
+                            //    if (!string.IsNullOrEmpty(priceValue))
+                            //    {
+                            //        double doubleValue;
+                            //        var isValidDouble = double.TryParse(priceValue, out doubleValue);
+                            //        if (!isValidDouble)
+                            //        {
+                            //            rowValid = false;
+                            //            errorStringBuilder.Append("Строка: " + row +
+                            //                                      ", значение '" + priceValue + "' в поле Цена за единицу не является числом<br/>");
+                            //        }
+                            //        else
+                            //        {
+                            //            model.Price = doubleValue;
+                            //        }
+                            //    }
+                            //}
+                            //if (sumRange != null && sumRange.Value != null)
+                            //{
+                            //    string sumValue = sumRange.Value.ToString();
+                            //    if (!string.IsNullOrEmpty(sumValue))
+                            //    {
+                            //        double doubleValue;
+                            //        var isValidDouble = double.TryParse(sumValue, out doubleValue);
+                            //        if (!isValidDouble)
+                            //        {
+                            //            rowValid = false;
+                            //            errorStringBuilder.Append("Строка: " + row +
+                            //                                      ", значение '" + sumValue + "' в поле Сумма не является числом<br/>");
+                            //        }
+                            //        else
+                            //        {
+                            //            model.Sum = doubleValue;
+                            //        }
+                            //    }
+                            //}
+                            //if (priceTzrRange != null && priceTzrRange.Value != null)
+                            //{
+                            //    string priceTzrValue = priceTzrRange.Value.ToString();
+                            //    if (!string.IsNullOrEmpty(priceTzrValue))
+                            //    {
+                            //        double doubleValue;
+                            //        var isValidDouble = double.TryParse(priceTzrValue, out doubleValue);
+                            //        if (!isValidDouble)
+                            //        {
+                            //            rowValid = false;
+                            //            errorStringBuilder.Append("Строка: " + row +
+                            //                                      ", значение '" + priceTzrValue + "' в поле Цена с ТЗР не является числом<br/>");
+                            //        }
+                            //        else
+                            //        {
+                            //            model.PriceTzr = doubleValue;
+                            //        }
+                            //    }
+                            //}
+                            //if (sumTzrRange != null && sumTzrRange.Value != null)
+                            //{
+                            //    string sumTzrValue = sumTzrRange.Value.ToString();
+                            //    if (!string.IsNullOrEmpty(sumTzrValue))
+                            //    {
+                            //        double doubleValue;
+                            //        var isValidDouble = double.TryParse(sumTzrValue, out doubleValue);
+                            //        if (!isValidDouble)
+                            //        {
+                            //            rowValid = false;
+                            //            errorStringBuilder.Append("Строка: " + row +
+                            //                                      ", значение '" + sumTzrValue + "' в поле Сумма с ТЗР не является числом<br/>");
+                            //        }
+                            //        else
+                            //        {
+                            //            model.SumTzr = doubleValue;
+                            //        }
+                            //    }
+                            //}
+                            //if (priceNdsRange != null && priceNdsRange.Value != null)
+                            //{
+                            //    string priceNdsValue = priceNdsRange.Value.ToString();
+                            //    if (!string.IsNullOrEmpty(priceNdsValue))
+                            //    {
+                            //        double doubleValue;
+                            //        var isValidDouble = double.TryParse(priceNdsValue, out doubleValue);
+                            //        if (!isValidDouble)
+                            //        {
+                            //            rowValid = false;
+                            //            errorStringBuilder.Append("Строка: " + row +
+                            //                                      ", значение '" + priceNdsValue + "' в поле Цена с НДС не является числом<br/>");
+                            //        }
+                            //        else
+                            //        {
+                            //            model.PriceNds = doubleValue;
+                            //        }
+                            //    }
+                            //}
+                            //if (sumNdsRange != null && sumNdsRange.Value != null)
+                            //{
+                            //    string sumNdsValue = sumNdsRange.Value.ToString();
+                            //    if (!string.IsNullOrEmpty(sumNdsValue))
+                            //    {
+                            //        double doubleValue;
+                            //        var isValidDouble = double.TryParse(sumNdsValue, out doubleValue);
+                            //        if (!isValidDouble)
+                            //        {
+                            //            rowValid = false;
+                            //            errorStringBuilder.Append("Строка: " + row +
+                            //                                      ", значение '" + sumNdsValue + "' в поле Сумма с НДС числом<br/>");
+                            //        }
+                            //        else
+                            //        {
+                            //            model.SumNds = doubleValue;
+                            //        }
+                            //    }
+                            //}
+                            //if (currencyRange != null && currencyRange.Value != null && !string.IsNullOrEmpty(currencyRange.Value.ToString()))
+                            //{
+                            //    var value = currencyRange.Value.ToString();
+                            //    var currency = currencies.FirstOrDefault(x => x.Value == value);
+                            //    if (currency != null)
+                            //    {
+                            //        model.Currency = currency.Id;
+                            //    }
+                            //    else
+                            //    {
+                            //        rowValid = false;
+                            //        errorStringBuilder.Append("Строка: " + row +
+                            //                              ", не найдена Валюта: " + value + "<br/>");
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!model.Sum.Equals(0) || !model.Price.Equals(0) || !model.PriceTzr.Equals(0) || !model.SumTzr.Equals(0) || !model.SumNds.Equals(0) || !model.PriceNds.Equals(0))
+                            //    {
+                            //        rowValid = false;
+                            //        errorStringBuilder.Append("Строка: " + row +
+                            //                                  ", не задано обязательное значение Валюта<br/>");
+                            //    }
+                            //    else
+                            //    {
+                            //        model.Currency = 1;
+                            //    }
+                            //}
                             if (rowValid)
                             {
                                 var isUnique = IsPositionUnique(model, positions);
@@ -1073,7 +1094,7 @@ namespace TenderProcessing.Controllers
                         {
                             db.SaveSpecificationPosition(position);
                         }
-                        message = "Получено строк: " + (row - 14);
+                        message = "Получено строк: " + (row - 19);
                         if (repeatRowCount > 0)
                         {
                             message += "<br/>Из них повторных: " + repeatRowCount;
@@ -1332,6 +1353,7 @@ namespace TenderProcessing.Controllers
                 var user = GetUser();
                 model.State = 1;
                 model.Author = user.Id;
+                model.Currency = 1;
                 var modelValid = true;
                 if (string.IsNullOrEmpty(model.Name)) modelValid = false;
                 if (modelValid)

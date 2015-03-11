@@ -224,6 +224,9 @@ namespace TenderProcessing.Controllers
                         workSheet.Name = "Расчет";
                         var claim = db.LoadTenderClaimById(claimId);
                         //Заполнение инфы о заявке
+                        var dealTypes = db.LoadDealTypes();
+                        var manager = UserHelper.GetUserById(claim.Manager.Id);
+                        //Заполнение инфы о заявке
                         workSheet.Cell(1, 3).Value = !claim.CurrencyUsd.Equals(0)
                             ? claim.CurrencyUsd.ToString("N2")
                             : string.Empty;
@@ -232,23 +235,26 @@ namespace TenderProcessing.Controllers
                             : string.Empty;
                         workSheet.Cell(1, 3).DataType = XLCellValues.Number;
                         workSheet.Cell(2, 3).DataType = XLCellValues.Number;
-                        var dealTypes = db.LoadDealTypes();
-                        workSheet.Cell(3, 3).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
-                        var manager = UserHelper.GetUserById(claim.Manager.Id);
-                        workSheet.Cell(4, 3).Value = manager != null ? manager.ShortName : string.Empty;
-                        workSheet.Cell(5, 3).Value = claim.Customer;
-                        workSheet.Cell(6, 3).Value = claim.ClaimDeadlineString;
+                        workSheet.Cell(3, 3).Value = claim.TenderNumber;
+                        workSheet.Cell(4, 3).Value = claim.TenderStartString;
+                        workSheet.Cell(4, 3).DataType = XLCellValues.DateTime;
+                        workSheet.Cell(5, 3).Value = claim.ClaimDeadlineString;
+                        workSheet.Cell(5, 3).DataType = XLCellValues.DateTime;
+                        workSheet.Cell(6, 3).Value = claim.KPDeadlineString;
                         workSheet.Cell(6, 3).DataType = XLCellValues.DateTime;
-                        workSheet.Cell(7, 3).Value = !claim.Sum.Equals(0) ? claim.Sum.ToString("N2") : string.Empty;
-                        workSheet.Cell(7, 3).DataType = XLCellValues.Number;
-                        workSheet.Cell(8, 3).Value = claim.DeliveryDateString;
-                        workSheet.Cell(8, 3).DataType = XLCellValues.DateTime;
-                        workSheet.Cell(9, 3).Value = claim.DeliveryPlace;
-                        workSheet.Cell(10, 3).Value = claim.KPDeadlineString;
-                        workSheet.Cell(10, 3).DataType = XLCellValues.DateTime;
-                        workSheet.Cell(11, 3).Value = claim.AuctionDateString;
-                        workSheet.Cell(11, 3).DataType = XLCellValues.DateTime;
-                        workSheet.Cell(12, 3).Value = claim.Comment;
+                        workSheet.Cell(7, 3).Value = claim.Customer;
+                        workSheet.Cell(8, 3).Value = claim.CustomerInn;
+                        workSheet.Cell(9, 3).Value = !claim.Sum.Equals(0) ? claim.Sum.ToString("N2") : string.Empty;
+                        workSheet.Cell(10, 3).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
+                        workSheet.Cell(11, 3).Value = claim.TenderUrl;
+                        workSheet.Cell(12, 3).Value = manager != null ? manager.ShortName : string.Empty;
+                        workSheet.Cell(13, 3).Value = claim.Manager.SubDivision;
+                        workSheet.Cell(14, 3).Value = claim.DeliveryDateString;
+                        workSheet.Cell(14, 3).DataType = XLCellValues.DateTime;
+                        workSheet.Cell(15, 3).Value = claim.DeliveryPlace;
+                        workSheet.Cell(16, 3).Value = claim.AuctionDateString;
+                        workSheet.Cell(16, 3).DataType = XLCellValues.DateTime;
+                        workSheet.Cell(17, 3).Value = claim.Comment;
                         var directRangeSheet = excBook.AddWorksheet("Справочники");
                         //создание дипазона выбора значений Факт получения защиты 
                         var facts = db.LoadProtectFacts();
@@ -263,10 +269,10 @@ namespace TenderProcessing.Controllers
                                 cell.Value = protectFact;
                             }
                         }
-                        var availableCurrencies = currencies.Where(x => x.Value.ToLowerInvariant() != "руб").ToList();
-                        for (var i = 0; i < availableCurrencies.Count(); i++)
+                        //var availableCurrencies = currencies.Where(x => x.Value.ToLowerInvariant() != "руб").ToList();
+                        for (var i = 0; i < currencies.Count(); i++)
                         {
-                            var currency = availableCurrencies[i];
+                            var currency = currencies[i];
                             var cell = directRangeSheet.Cell(i + 1, 2);
                             if (cell != null)
                             {
@@ -276,43 +282,43 @@ namespace TenderProcessing.Controllers
                         var protectFactRange = directRangeSheet.Range(directRangeSheet.Cell(1, 1),
                             directRangeSheet.Cell(protectFactList.Count(), 1));
                         var currenciesRange = directRangeSheet.Range(directRangeSheet.Cell(1, 2),
-                            directRangeSheet.Cell(availableCurrencies.Count(), 2));
+                            directRangeSheet.Cell(currencies.Count(), 2));
                         directRangeSheet.Visibility = XLWorksheetVisibility.Hidden;
-                        var row = 13;
+                        var row = 18;
                         //вывод инфы по позициям
                         foreach (var position in positions)
                         {
                             //заголовок и данные по позиции
                             workSheet.Cell(row, 1).Value = "Каталожный номер";
                             workSheet.Cell(row, 2).Value = "Наименование";
-                            workSheet.Cell(row, 3).Value = "Замена";
-                            workSheet.Cell(row, 4).Value = "Единица";
-                            workSheet.Cell(row, 5).Value = "Количество";
-                            workSheet.Cell(row, 6).Value = "Комментарий";
-                            workSheet.Cell(row, 7).Value = "Сумма, максимум";
+                            //workSheet.Cell(row, 3).Value = "Замена";
+                            workSheet.Cell(row, 3).Value = "Единица";
+                            workSheet.Cell(row, 4).Value = "Количество";
+                            workSheet.Cell(row, 5).Value = "Комментарий";
+                            //workSheet.Cell(row, 7).Value = "Сумма, максимум";
                             workSheet.Cell(row, 8).Value = "Id";
-                            workSheet.Cell(row, 9).Value = "Сумма с ТЗР";
-                            workSheet.Cell(row, 10).Value = "Сумма с НДС";
-                            workSheet.Range(workSheet.Cell(row, 1), workSheet.Cell(row, 10)).Style.Font.SetBold(true);
+                            //workSheet.Cell(row, 9).Value = "Сумма с ТЗР";
+                            //workSheet.Cell(row, 10).Value = "Сумма с НДС";
+                            workSheet.Range(workSheet.Cell(row, 1), workSheet.Cell(row, 5)).Style.Font.SetBold(true);
                             row++;
                             workSheet.Cell(row, 1).Value = position.CatalogNumber;
                             workSheet.Cell(row, 2).Value = position.Name;
-                            workSheet.Cell(row, 3).Value = position.Replace;
-                            workSheet.Cell(row, 4).Value = GetUnitString(position.Unit);
-                            workSheet.Cell(row, 5).Value = position.Value;
-                            workSheet.Cell(row, 6).Value = position.Comment;
-                            var currency = currencies.First(x => x.Id == position.Currency);
-                            workSheet.Cell(row, 7).Value = !position.Sum.Equals(0)
-                                ? position.Sum.ToString("N2") + " " + currency.Value
-                                : string.Empty;
-                            workSheet.Cell(row, 9).Value = !position.Sum.Equals(0)
-                                ? position.SumTzr.ToString("N2") + " " + currency.Value
-                                : string.Empty;
-                            workSheet.Cell(row, 10).Value = !position.Sum.Equals(0)
-                                ? position.SumNds.ToString("N2") + " " + currency.Value
-                                : string.Empty;
+                            //workSheet.Cell(row, 3).Value = position.Replace;
+                            workSheet.Cell(row, 3).Value = GetUnitString(position.Unit);
+                            workSheet.Cell(row, 4).Value = position.Value;
+                            workSheet.Cell(row, 5).Value = position.Comment;
+                            //var currency = currencies.First(x => x.Id == position.Currency);
+                            //workSheet.Cell(row, 7).Value = !position.Sum.Equals(0)
+                            //    ? position.Sum.ToString("N2") + " " + currency.Value
+                            //    : string.Empty;
+                            //workSheet.Cell(row, 9).Value = !position.Sum.Equals(0)
+                            //    ? position.SumTzr.ToString("N2") + " " + currency.Value
+                            //    : string.Empty;
+                            //workSheet.Cell(row, 10).Value = !position.Sum.Equals(0)
+                            //    ? position.SumNds.ToString("N2") + " " + currency.Value
+                            //    : string.Empty;
                             workSheet.Cell(row, 8).Value = position.Id;
-                            var positionRange = workSheet.Range(workSheet.Cell(row - 1, 1), workSheet.Cell(row, 10));
+                            var positionRange = workSheet.Range(workSheet.Cell(row - 1, 1), workSheet.Cell(row, 5));
                             positionRange.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                             positionRange.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
                             positionRange.Style.Border.SetBottomBorderColor(XLColor.Gray);
@@ -328,17 +334,17 @@ namespace TenderProcessing.Controllers
                             workSheet.Cell(row, 1).Value = "Каталожный номер*";
                             workSheet.Cell(row, 2).Value = "Наименование*";
                             workSheet.Cell(row, 3).Value = "Замена";
-                            workSheet.Cell(row, 4).Value = "Валюта";
-                            workSheet.Cell(row, 5).Value = "Цена за ед.";
-                            workSheet.Cell(row, 6).Value = "Сумма вход";
-                            workSheet.Cell(row, 7).Value = "Цена за ед. руб";
+                            workSheet.Cell(row, 4).Value = "Цена за ед.";
+                            workSheet.Cell(row, 5).Value = "Сумма вход";
+                            workSheet.Cell(row, 6).Value = "Валюта";
+                            //workSheet.Cell(row, 7).Value = "Цена за ед. руб";
+                            //workSheet.Cell(row, 9).Value = "Сумма вход руб*";
+                            workSheet.Cell(row, 7).Value = "Поставщик";
                             workSheet.Cell(row, 8).Value = "callHd";
-                            workSheet.Cell(row, 9).Value = "Сумма вход руб*";
-                            workSheet.Cell(row, 10).Value = "Поставщик";
-                            workSheet.Cell(row, 11).Value = "Факт получ.защиты*";
-                            workSheet.Cell(row, 12).Value = "Условия защиты";
-                            workSheet.Cell(row, 13).Value = "Комментарий";
-                            var calcHeaderRange = workSheet.Range(workSheet.Cell(row, 1), workSheet.Cell(row, 13));
+                            workSheet.Cell(row, 9).Value = "Факт получ.защиты*";
+                            workSheet.Cell(row, 10).Value = "Условия защиты";
+                            workSheet.Cell(row, 11).Value = "Комментарий";
+                            var calcHeaderRange = workSheet.Range(workSheet.Cell(row, 1), workSheet.Cell(row, 11));
                             calcHeaderRange.Style.Font.SetBold(true);
                             calcHeaderRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 204, 255, 209);
                             calcHeaderRange.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
@@ -359,46 +365,46 @@ namespace TenderProcessing.Controllers
                                     workSheet.Cell(row, 1).Value = calculation.CatalogNumber;
                                     workSheet.Cell(row, 2).Value = calculation.Name;
                                     workSheet.Cell(row, 3).Value = calculation.Replace;
-                                    var validation = workSheet.Cell(row, 4).SetDataValidation();
+                                    workSheet.Cell(row, 4).Value = !calculation.PriceCurrency.Equals(0)
+                                        ? calculation.PriceCurrency.ToString("N2")
+                                        : string.Empty;
+                                    workSheet.Cell(row, 5).Value = !calculation.SumCurrency.Equals(0)
+                                        ? calculation.SumCurrency.ToString("N2")
+                                        : string.Empty;
+                                    var validation = workSheet.Cell(row, 6).SetDataValidation();
                                     validation.AllowedValues = XLAllowedValues.List;
                                     validation.InCellDropdown = true;
                                     validation.Operator = XLOperator.Between;
                                     validation.List(currenciesRange);
-                                    workSheet.Cell(row, 4).Value =
-                                        availableCurrencies.First(x => x.Id == calculation.Currency).Value;
-                                    workSheet.Cell(row, 5).Value = !calculation.PriceCurrency.Equals(0)
-                                        ? calculation.PriceCurrency.ToString("N2")
-                                        : string.Empty;
-                                    workSheet.Cell(row, 6).Value = !calculation.SumCurrency.Equals(0)
-                                        ? calculation.SumCurrency.ToString("N2")
-                                        : string.Empty;
-                                    workSheet.Cell(row, 7).Value = !calculation.PriceRub.Equals(0)
-                                        ? calculation.PriceRub.ToString("N2")
-                                        : string.Empty;
-                                    workSheet.Cell(row, 9).Value = !calculation.SumRub.Equals(0)
-                                        ? calculation.SumRub.ToString("N2")
-                                        : string.Empty;
-                                    workSheet.Cell(row, 10).Value = calculation.Provider;
-                                    validation = workSheet.Cell(row, 11).SetDataValidation();
+                                    workSheet.Cell(row, 6).Value =
+                                        currencies.First(x => x.Id == calculation.Currency).Value;
+                                    //workSheet.Cell(row, 7).Value = !calculation.PriceRub.Equals(0)
+                                    //    ? calculation.PriceRub.ToString("N2")
+                                    //    : string.Empty;
+                                    //workSheet.Cell(row, 9).Value = !calculation.SumRub.Equals(0)
+                                    //    ? calculation.SumRub.ToString("N2")
+                                    //    : string.Empty;
+                                    workSheet.Cell(row, 7).Value = calculation.Provider;
+                                    validation = workSheet.Cell(row, 9).SetDataValidation();
                                     validation.AllowedValues = XLAllowedValues.List;
                                     validation.InCellDropdown = true;
                                     validation.Operator = XLOperator.Between;
                                     validation.List(protectFactRange);
-                                    workSheet.Cell(row, 11).Value =
+                                    workSheet.Cell(row, 9).Value =
                                         facts.First(x => x.Id == calculation.ProtectFact.Id).Value;
-                                    workSheet.Cell(row, 12).Value = calculation.ProtectCondition;
-                                    workSheet.Cell(row, 13).Value = calculation.Comment;
+                                    workSheet.Cell(row, 10).Value = calculation.ProtectCondition;
+                                    workSheet.Cell(row, 11).Value = calculation.Comment;
                                 }
                             }
                             else
                             {
                                 row++;
-                                var validation = workSheet.Cell(row, 4).SetDataValidation();
+                                var validation = workSheet.Cell(row, 6).SetDataValidation();
                                 validation.AllowedValues = XLAllowedValues.List;
                                 validation.InCellDropdown = true;
                                 validation.Operator = XLOperator.Between;
                                 validation.List(currenciesRange);
-                                validation = workSheet.Cell(row, 11).SetDataValidation();
+                                validation = workSheet.Cell(row, 9).SetDataValidation();
                                 validation.AllowedValues = XLAllowedValues.List;
                                 validation.InCellDropdown = true;
                                 validation.Operator = XLOperator.Between;
@@ -406,7 +412,7 @@ namespace TenderProcessing.Controllers
                             }
                             row++;
                         }
-                        workSheet.Columns(1, 13).AdjustToContents();
+                        workSheet.Columns(1, 11).AdjustToContents();
                         workSheet.Column(8).Hide();
                         excBook.SaveAs(ms);
                         excBook.Dispose();
@@ -486,7 +492,7 @@ namespace TenderProcessing.Controllers
                     if (workSheet != null)
                     {
                         var user = GetUser();
-                        var row = 12;
+                        var row = 17;
                         var errorStringBuilder = new StringBuilder();
                         var db = new DbEngine();
                         var emptyRowCount = 0;
@@ -613,15 +619,15 @@ namespace TenderProcessing.Controllers
                                     //получение значений расчета из ячеек
                                     var catalogValue = workSheet.Cell(row, 1).Value;
                                     var replaceValue = workSheet.Cell(row, 3).Value;
-                                    var currencyValue = workSheet.Cell(row, 4).Value;
-                                    var priceCurrencyValue = workSheet.Cell(row, 5).Value;
-                                    var sumCurrencyValue = workSheet.Cell(row, 6).Value;
-                                    var priceRubValue = workSheet.Cell(row, 7).Value;
-                                    var sumRubValue = workSheet.Cell(row, 9).Value;
-                                    var providerValue = workSheet.Cell(row, 10).Value;
-                                    var protectFactValue = workSheet.Cell(row, 11).Value;
-                                    var protectConditionValue = workSheet.Cell(row, 12).Value;
-                                    var commentValue = workSheet.Cell(row, 13).Value;
+                                    var priceCurrencyValue = workSheet.Cell(row, 4).Value;
+                                    var sumCurrencyValue = workSheet.Cell(row, 5).Value;
+                                    var currencyValue = workSheet.Cell(row, 6).Value;
+                                    //var priceRubValue = workSheet.Cell(row, 7).Value;
+                                    //var sumRubValue = workSheet.Cell(row, 9).Value;
+                                    var providerValue = workSheet.Cell(row, 7).Value;
+                                    var protectFactValue = workSheet.Cell(row, 9).Value;
+                                    var protectConditionValue = workSheet.Cell(row, 10).Value;
+                                    var commentValue = workSheet.Cell(row, 11).Value;
                                     //проверка: Каталожный номер
                                     if (catalogValue == null || string.IsNullOrEmpty(catalogValue.ToString().Trim()))
                                     {
@@ -679,21 +685,21 @@ namespace TenderProcessing.Controllers
                                         }
                                     }
                                     //проверка: Сумма вход руб
-                                    if (sumRubValue != null || !string.IsNullOrEmpty(sumRubValue.ToString().Trim()))
-                                    {
-                                        double doubleValue;
-                                        var isValidDouble = double.TryParse(sumRubValue.ToString().Trim(), out doubleValue);
-                                        if (!isValidDouble)
-                                        {
-                                            rowValid = false;
-                                            errorStringBuilder.Append("Строка: " + row +
-                                                                      ", значение '" + sumRubValue.ToString().Trim() + "' в поле Сумма вход руб не является числом<br/>");
-                                        }
-                                        else
-                                        {
-                                            calculate.SumRub = doubleValue;
-                                        }
-                                    }
+                                    //if (sumRubValue != null || !string.IsNullOrEmpty(sumRubValue.ToString().Trim()))
+                                    //{
+                                    //    double doubleValue;
+                                    //    var isValidDouble = double.TryParse(sumRubValue.ToString().Trim(), out doubleValue);
+                                    //    if (!isValidDouble)
+                                    //    {
+                                    //        rowValid = false;
+                                    //        errorStringBuilder.Append("Строка: " + row +
+                                    //                                  ", значение '" + sumRubValue.ToString().Trim() + "' в поле Сумма вход руб не является числом<br/>");
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        calculate.SumRub = doubleValue;
+                                    //    }
+                                    //}
                                     //проверка: Цена за ед. USD
                                     if (priceCurrencyValue != null && !string.IsNullOrEmpty(priceCurrencyValue.ToString().Trim()))
                                     {
@@ -752,25 +758,25 @@ namespace TenderProcessing.Controllers
                                         }
                                         else
                                         {
-                                            calculate.Currency = 2;
+                                            calculate.Currency = 1;
                                         }
                                     }
-                                    //проверка: Цена за ед. руб
-                                    if (priceRubValue != null && !string.IsNullOrEmpty(priceRubValue.ToString().Trim()))
-                                    {
-                                        double doubleValue;
-                                        var isValidDouble = double.TryParse(priceRubValue.ToString().Trim(), out doubleValue);
-                                        if (!isValidDouble)
-                                        {
-                                            rowValid = false;
-                                            errorStringBuilder.Append("Строка: " + row +
-                                                                      ", значение '" + priceRubValue.ToString().Trim() + "' в поле Цена за ед. руб не является числом<br/>");
-                                        }
-                                        else
-                                        {
-                                            calculate.PriceRub = doubleValue;
-                                        }
-                                    }
+                                    ////проверка: Цена за ед. руб
+                                    //if (priceRubValue != null && !string.IsNullOrEmpty(priceRubValue.ToString().Trim()))
+                                    //{
+                                    //    double doubleValue;
+                                    //    var isValidDouble = double.TryParse(priceRubValue.ToString().Trim(), out doubleValue);
+                                    //    if (!isValidDouble)
+                                    //    {
+                                    //        rowValid = false;
+                                    //        errorStringBuilder.Append("Строка: " + row +
+                                    //                                  ", значение '" + priceRubValue.ToString().Trim() + "' в поле Цена за ед. руб не является числом<br/>");
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        calculate.PriceRub = doubleValue;
+                                    //    }
+                                    //}
                                     //Замена, Поставщик и комментарий
                                     if (replaceValue != null && !string.IsNullOrEmpty(replaceValue.ToString().Trim()))
                                     {
