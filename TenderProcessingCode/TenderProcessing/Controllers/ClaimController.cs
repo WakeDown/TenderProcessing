@@ -1151,6 +1151,7 @@ namespace TenderProcessing.Controllers
                     isComplete = db.SaveTenderClaim(model);
                     if (model.DeliveryDateString == null) model.DeliveryDateString = string.Empty;
                     if (model.AuctionDateString == null) model.AuctionDateString = string.Empty;
+                    if (model.DeliveryPlace == null) model.DeliveryPlace = string.Empty;
                     if (isComplete)
                     {
                         //История изменения статуса
