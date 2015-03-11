@@ -12,5 +12,7 @@ namespace TenderProcessingDataAccessLayer.Models
         public int PositionsCount { get; set; }
 
         public int CalculatesCount { get; set; }
+
+        public int CalculatePositionsCount { get; set; }
     }
 }

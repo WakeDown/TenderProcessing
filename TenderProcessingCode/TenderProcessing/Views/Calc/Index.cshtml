@@ -604,12 +604,12 @@
         if (model.CurrencyUsd != 0) {
             usd = model.CurrencyUsd.toFixed(2);
         }
-        $("#claimCurrencyUsd").val(usd);
+        $("#claimCurrencyUsd").text(usd);
         var eur = "";
         if (model.CurrencyEur != 0) {
             eur = model.CurrencyEur.toFixed(2);
         }
-        $("#claimCurrencyEur").val(eur);
+        $("#claimCurrencyEur").text(eur);
         $("#claimTenderNumber").html(model.TenderNumber != "" ? model.TenderNumber : "&nbsp;");
         $("#claimTenderStatus").text(status);
         if (model.TenderUrl != "") {
@@ -1135,16 +1135,16 @@
             </div>
             <div class="row">
                 <div class="col-sm-7">
-                    @*<div>
+                    <div>
                             <strong>Курсы валют</strong>
                             <br/>
                             <span>USD: </span>
-                            <input type="text" id="claimCurrencyUsd"/>
+                            <span id="claimCurrencyUsd"></span>
                             <span>EUR: </span>
-                            <input type="text" id="claimCurrencyEur" />
-                            <br/>
-                            <button type="button" id="butChangeCurrency" class="btn btn-default">Изменить курс</button>
-                        </div>*@
+                            <span id="claimCurrencyEur"></span>
+                            @*<br/>
+                            <button type="button" id="butChangeCurrency" class="btn btn-default">Изменить курс</button>*@
+                        </div>
                     <div>
                         @*<button type='button' class='btn btn-danger'><i class="fa fa-remove"></i> отклонить</button>*@
                         <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение</button>
@@ -1222,16 +1222,16 @@
                     <div>
                         <strong type='sumLabel'></strong>&nbsp;<span type='sumLabelPostfix'></span>
                     </div>
-                    <div>
+                    <div style="display: none;">
                         <span>Цена с ТЗР:&nbsp;</span><strong type='priceTzrLabel'></strong>&nbsp;<span type='priceTzrLabelPostfix'></span>
                     </div>
-                    <div>
+                    <div style="display: none;">
                         <span>Сумма с ТЗР:&nbsp;</span><strong type='sumTzrLabel'></strong>&nbsp;<span type='sumTzrLabelPostfix'></span>
                     </div>
-                    <div>
+                    <div style="display: none;">
                         <span>Цена с НДС:&nbsp;</span><strong type='priceNdsLabel'></strong>&nbsp;<span type='priceNdsLabelPostfix'></span>
                     </div>
-                    <div>
+                    <div style="display: none;">
                         <span>Сумма с НДС:&nbsp;</span><strong type='sumNdsLabel'></strong>&nbsp;<span type='sumNdsLabelPostfix'></span>
                     </div>
                 </div>

@@ -419,7 +419,7 @@
        
         element.append(claimInfoCell);
 
-        element.append("<td><div class='text-nowrap'><strong>Всего</strong>&nbsp;<span class='label label-default ligth'>" + claim.PositionsCount + "</span>/<span class='label label-success ligth'>" + claim.CalculatesCount + "</span></div>" + getProductManagersString(claim.ProductManagers) + "</td>");
+        element.append("<td><div class='text-nowrap'><strong>Всего</strong>&nbsp;<span class='label label-default ligth'>" + claim.PositionsCount + "</span>/<span class='label label-success ligth'>" + claim.CalculatePositionsCount + "</span>/<span class='label label-success ligth'>" + claim.CalculatesCount + "</span></div>" + getProductManagersString(claim.ProductManagers) + "</td>");
         
         var claimStateCell = $("<td></td>");
 
@@ -560,7 +560,7 @@
         var managersLength = managers.length;
         for (var i = 0; i < managersLength; i++) {
             var manager = managers[i];
-            result += "<div class='text-nowrap'>" + manager.ShortName + " <span class='label label-default ligth'>" + manager.PositionsCount + "</span>/<span class='label label-success light'>" + manager.CalculatesCount + "</span></div>";
+            result += "<div class='text-nowrap'>" + manager.ShortName + " <span class='label label-default ligth'>" + manager.PositionsCount + "</span>/<span class='label label-success ligth'>" + manager.CalculatePositionsCount + "</span>/<span class='label label-success light'>" + manager.CalculatesCount + "</span></div>";
         }
         //if (result.length > 4) {
         //    result = result.substr(0, result.length - 6);

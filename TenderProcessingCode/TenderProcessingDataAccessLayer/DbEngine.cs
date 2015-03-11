@@ -328,6 +328,12 @@ namespace TenderProcessingDataAccessLayer
 
         public void SetStatisticsForClaims(List<TenderClaim> claims)
         {
+            claims.SelectMany(x=>x.ProductManagers).ToList().ForEach(x =>
+            {
+                x.CalculatePositionsCount = 0;
+                x.CalculatesCount = 0;
+                x.PositionsCount = 0;
+            });
             using (var conn = new SqlConnection(_connectionString))
             {
                 var cmd = conn.CreateCommand();
@@ -363,14 +369,15 @@ namespace TenderProcessingDataAccessLayer
                     {
                         var idClaim = rd.GetInt32(0);
                         var product = rd.GetString(1);
-                        var count = rd.GetInt32(2);
+                        var count = rd.GetInt32(3);
                         var claim = claims.FirstOrDefault(x => x.Id == idClaim);
                         if (claim != null)
                         {
                             var productManager = claim.ProductManagers.FirstOrDefault(x => x.Id == product);
                             if (productManager != null)
                             {
-                                productManager.CalculatesCount = count;
+                                productManager.CalculatesCount += count;
+                                productManager.CalculatePositionsCount++;
                             }
                         }
                     }
@@ -382,6 +389,7 @@ namespace TenderProcessingDataAccessLayer
                     {
                         x.PositionsCount = x.ProductManagers.Sum(y => y.PositionsCount);
                         x.CalculatesCount = x.ProductManagers.Sum(y => y.CalculatesCount);
+                        x.CalculatePositionsCount = x.ProductManagers.Sum(y => y.CalculatePositionsCount);
                     }
                 });
             }   

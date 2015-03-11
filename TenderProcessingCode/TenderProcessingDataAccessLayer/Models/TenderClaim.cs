@@ -71,6 +71,8 @@ namespace TenderProcessingDataAccessLayer.Models
 
         public int CalculatesCount { get; set; }
 
+        public int CalculatePositionsCount { get; set; }
+
         public List<ProductManager> ProductManagers { get; set; }
 
         public List<SpecificationPosition> Positions { get; set; } 

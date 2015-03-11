@@ -1373,7 +1373,7 @@ namespace TenderProcessing.Controllers
                                 productManagersFromAd.FirstOrDefault(x => x.Id == productManager.Id);
                             if (productManagerFromAd != null)
                             {
-                                productManager.Name = productManagerFromAd.Name;
+                                productManager.ShortName = productManagerFromAd.ShortName;
                             }
                         }
                         //истроия изменения статуса заявки
@@ -1754,6 +1754,53 @@ namespace TenderProcessing.Controllers
                 isComplete = false;
             }
             return Json(new { IsComplete = isComplete }, JsonRequestBehavior.AllowGet);
+        }
+
+        //>>>>Уведомления
+        //Добавление комментария
+        public JsonResult AddCommentToClaim(string comment, int idClaim)
+        {
+            var isComplete = false;
+            ClaimStatusHistory statusHistory = null;
+            try
+            {
+                var user = GetUser();
+                var db = new DbEngine();
+                statusHistory = db.LoadLastStatusHistoryForClaim(idClaim);
+                statusHistory.Date = DateTime.Now;
+                statusHistory.IdUser = user.Id;
+                statusHistory.Comment = comment;
+                statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
+                isComplete = db.SaveClaimStatusHistory(statusHistory);
+                if (isComplete)
+                {
+                    var productManagers = db.LoadProductManagersForClaim(idClaim);
+                    var productManagersFromAd = UserHelper.GetProductManagers();
+                    var productInClaim =
+                            productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
+                    var claim = db.LoadTenderClaimById(idClaim);
+                    var host = ConfigurationManager.AppSettings["AppHost"];
+                    var messageMail = new StringBuilder();
+                    messageMail.Append("Добрый день.");
+                    messageMail.Append(".<br/>");
+                    messageMail.Append("В заявке № " + idClaim + ", где Вам назначены позиции для расчета, пользователь ");
+                    messageMail.Append(user.Name);
+                    messageMail.Append(" создал комментарий: " + comment);
+                    messageMail.Append(".<br/>");
+                    messageMail.Append(GetClaimInfo(claim));
+                    messageMail.Append("Ссылка на заявку: ");
+                    messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
+                                   "/Calc/Index?claimId=" + claim.Id + "</a>");
+                    messageMail.Append("<br/>Сообщение от системы Спец расчет");
+                    Notification.SendNotification(productInClaim, messageMail.ToString(),
+                        "Комментарий к заявке в системе СпецРасчет");
+                }
+            }
+            catch (Exception)
+            {
+                isComplete = false;
+            }
+            return Json(new {IsComplete = isComplete, Model = statusHistory}, JsonRequestBehavior.AllowGet);
         }
 
         //Проверка позиции на уникальность по отношению к переданому массиву позиций
