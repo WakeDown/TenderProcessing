@@ -902,13 +902,7 @@
     //<<<<<<<Вспомагательные методы>>>>>>
     //Получение excel файлов с сервера и взаимодействия с фреймами с функ. загрузки/выгрузки файлов
     function openFile() {
-        var obj = {
-            type: "mainWindow",
-            error: false,
-            message: "openFile"
-        }
-        var message = JSON.stringify(obj);
-        sendMessage(message);
+        document.getElementById("uploadFile").contentWindow.document.getElementById("file").click();
     }
 
     function sendMessage(message) {

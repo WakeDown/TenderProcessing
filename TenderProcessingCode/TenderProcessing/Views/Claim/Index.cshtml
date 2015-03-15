@@ -1405,13 +1405,7 @@
 
     //методы взаимодейсвия с фреймами загрузки/выгрузки файлов
     function openFile() {
-        var obj = {
-            type: "mainWindow",
-            error: false,
-            message: "openFile"
-        }
-        var message = JSON.stringify(obj);
-        sendMessage(message);
+        document.getElementById("uploadFile").contentWindow.document.getElementById("file").click();
     }
 
     function sendMessage(message) {
@@ -1862,7 +1856,7 @@
                             <span id="excelPanel">
                                     <button id="butGetFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать спецификацию</button>
                                     <button id="butUploadFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-upload"></i> загрузить спецификацию</button>
-                                    <iframe id="uploadFile" src="/Claim/UploadFileForm" style="display: none;"></iframe>
+                                    <iframe id="uploadFile" src="/Claim/UploadFileForm" style="display: none;" ></iframe>
                                 </span>
                             <button id="butSetPositionReject" type="button" class="btn btn-danger btn-sm"><i class="fa fa-close"></i> отклонить отмеченные</button>
                             <button id="butSetPositionConfirm" type="button" class="btn btn-success btn-sm"><i class="fa fa-check"></i> принять все</button>
