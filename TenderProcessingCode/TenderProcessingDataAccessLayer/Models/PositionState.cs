@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //Класс - статус позиции
     public class PositionState : ServerDirectBase
     {
     }

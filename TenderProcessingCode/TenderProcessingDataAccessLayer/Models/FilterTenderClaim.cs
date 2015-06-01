@@ -5,6 +5,7 @@ using System.Web;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //класс - настройки фильтра
     public class FilterTenderClaim
     {
         public int RowCount { get; set; }
@@ -13,7 +14,7 @@ namespace TenderProcessingDataAccessLayer.Models
 
         public string TenderNumber { get; set; }
 
-        public int ClaimStatus { get; set; }
+        public List<int> ClaimStatus { get; set; }
 
         public string IdManager { get; set; }
 
@@ -24,6 +25,8 @@ namespace TenderProcessingDataAccessLayer.Models
         public string TenderStartFrom { get; set; }
 
         public string TenderStartTo { get; set; }
+
+        public string Author { get; set; }
 
         public bool? Overdie { get; set; }
     }

@@ -7,6 +7,7 @@ using TenderProcessingDataAccessLayer.Enums;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //класс - позиция заявки
     public class SpecificationPosition
     {
         public int Id { get; set; }
@@ -33,7 +34,19 @@ namespace TenderProcessingDataAccessLayer.Models
 
         public double Sum { get; set; }
 
+        public double PriceTzr { get; set; }
+
+        public double SumTzr { get; set; }
+
+        public double PriceNds { get; set; }
+
+        public double SumNds { get; set; }
+
         public int State { get; set; }
+
+        public string Author { get; set; }
+
+        public int Currency { get; set; }
 
         public List<CalculateSpecificationPosition> Calculations { get; set; } 
     }

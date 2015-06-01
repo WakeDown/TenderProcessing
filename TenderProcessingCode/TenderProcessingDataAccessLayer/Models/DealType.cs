@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //тпи сделки
     public class DealType : ServerDirectBase
     {
     }

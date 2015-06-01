@@ -6,8 +6,13 @@ using System.Threading.Tasks;
 
 namespace TenderProcessingDataAccessLayer.Models
 {
+    //Класс - юзер с ролью снабженец
     public class ProductManager : UserBase
     {
-        
+        public int PositionsCount { get; set; }
+
+        public int CalculatesCount { get; set; }
+
+        public int CalculatePositionsCount { get; set; }
     }
 }

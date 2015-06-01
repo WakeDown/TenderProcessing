@@ -1,7 +1,4 @@
-﻿body {
-    padding-top: 50px;
-    padding-bottom: 20px;
-}
+﻿
 
 /* Set padding to keep content from hitting the edges */
 .body-content {
@@ -10,11 +7,11 @@
 }
 
 /* Set width on the form input elements since they're 100% wide by default */
-input,
+/*input,
 select,
 textarea {
     max-width: 280px;
-}
+}*/
 
 /* styles for validation helpers */
 .field-validation-error {
@@ -39,4 +36,160 @@ input[type="checkbox"].input-validation-error {
 
 .validation-summary-valid {
     display: none;
+}
+
+
+
+body {
+   background: #B4B4B4 url(../Content/images/bg3.png) repeat left top;
+}
+
+.body-content {
+    background: #eee;
+    padding-top: 25px;
+}
+
+.body-content {
+    box-shadow: 0 0 10px #666;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.navbar {
+    box-shadow: 0 0 25px #333;
+    margin-bottom: 0px !important;
+}
+
+.navbar-brand {
+    padding-top: 3px;
+}
+
+.navbar-brand div {
+    padding: 3px 0 0 8px;
+    margin: 0;
+}
+
+.brand-prefix {
+    padding-top: 5px;
+}
+
+.headLogo {
+    display: block;
+    height: 25px;
+    padding-left: 10px;
+}
+
+.val-form .required-mark:before {
+    content: '* ';
+    color:  red;
+    font-size: 1.2em;
+}
+
+.datepicker-btn {
+    cursor: pointer !important; 
+}
+
+#filter .panel-heading {
+    cursor: pointer;
+}
+
+#filter .panel-title .title:after {
+    font-family: 'Glyphicons Halflings';
+    content: "\e113";
+    float: right;
+    color: #999;   
+}
+#filter .collapsed .title:after {
+    content: "\e114";
+}
+
+#filter .panel-title:after {
+    content: "скрыть фильтр";
+}
+
+#filter .collapsed:after {
+    content: "показать фильтр";
+}
+
+#filterPanel {
+    background: #eee;
+}
+
+
+.min-width {
+    min-width: 1px !important;
+    width: 1px !important;
+}
+
+input[type="checkbox"] {
+    margin: 0 !important;
+}
+
+.min-width .btn-link {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.center {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.big {
+    /*font-size: 1.5em;*/
+}
+
+a.success, a.success:hover, a.success:active {
+    color: #47a447;
+}
+
+a.warning, a.warning:hover, a.warning:active {
+    color: #f0ad4e;
+}
+
+a.danger, a.danger:hover, a.danger:active {
+    color: #d2322d;
+}
+
+.label.label-default.ligth {
+    background-color: #CCCCCC;
+    color: black;
+    font-weight: bold;
+}
+
+.label.label-success.light {
+    background-color: #47a447;
+    font-weight: bold;
+}
+
+.btn-line .input-group .input-group-addon {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.btn-line .input-group {
+    border: 0 !important;
+}
+
+.with-150 {
+    width: 150px;
+}
+
+.positionsPlaceHolder {
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+.claimStateHistory {
+    max-height: 250px;
+    overflow-y: scroll;
+}
+
+.claimStateHistoryBig {
+    max-height: 500px;
+    overflow-y: scroll;
+}
+
+.width-300 {
+    width: 300px;
 }
