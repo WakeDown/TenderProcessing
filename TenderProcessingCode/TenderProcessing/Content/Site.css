@@ -181,7 +181,7 @@ a.danger, a.danger:hover, a.danger:active {
     margin: 0 !important;
 }
 .claimStateHistory {
-    max-height: 250px;
+    max-height: 350px;
     overflow-y: scroll;
 }
 
@@ -192,4 +192,26 @@ a.danger, a.danger:hover, a.danger:active {
 
 .width-300 {
     width: 300px;
+}
+
+.prod-manager-table {
+    padding: 0;
+    margin: 0;
+}
+
+
+.prod-manager-table td.num {
+    width: 65px;   
+}
+
+blockquote.bg-warning {
+    border-color: #f0ad4e;
+}
+
+blockquote.bg-danger {
+    border-color: #d9534f;
+}
+
+blockquote.bg-success {
+    border-color: #3c763d;
 }

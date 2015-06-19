@@ -52,6 +52,7 @@
         //initCurrencyList();
         initDeliveryTimeList();
         initProductsList();
+        $('#btnSecondStateColumns').click(toglleSecondStateColumns);
         $("#butSendComment").click(sendComment);
         $("#butChangeProduct").click(changePositionsProduct);
         $("#selectAllPositions").change(selectAllPositions);
@@ -89,33 +90,45 @@
             }
             initStatusHistory();
         }
+        //$(document).ready(function() {
+        //    //alert($("[data-mask='float']").length);
+        //    $("[data-mask='float']").mask('0000000000000000,00');
+        //});
+    }
 
+    function toglleSecondStateColumns() {
+        var $list = $('[secstatecol="1"]');
+        if ($list.first().is(':visible')) {
+            $list.hide();
+        } else {
+            $list.show();
+        }
 
     }
 
     function editAllPositions() {
         calcEditMode(true);
     }
-    
+
     function editAllPositionsCancel() {
         calcEditMode(false);
     }
-    
+
     function calcEditMode(mode)
     {
         if (mode == true) {
             $("#editAllCalcButton").hide();
             $("#editAllCalcButtonCancel").show();
-            
+
             //Нажимаем кнопку редактирования
             $("#positionsTable").find("[modetype='editCalcButton']").click();
             //А если добавленных позиций нет то нажимаем кнопку добавления позиции
             var $positions = $("#positionsTable").find("[type='positionRow']");
-           
+
             for (var i = 0; i <= $positions.length; i++) {
                 var posRow = $($positions.get(i));
                 var posId = posRow.attr('positionid');
-                
+
                 if ($("[type='positionCalculate']").find("[calcpositionid='" + posId + "']").length == 0) {
                     posRow.find("[modetype='addCalcButton']").click();
                 }
@@ -434,9 +447,21 @@
     function sendOnConfirm() {
         messageUi.progressShow();
         var comment = $("#comment").val().trim();
+        var $checkedPosRows = $("[type='positionRow']", "#positionsTable").has("input:checked");
+        var posIds = [];
+        $checkedPosRows.each(function () {posIds.push($(this).attr('positionId'));});
+        //var strPosIds = posIds.join(',');
+        //alert(strPosIds);
+        //positionId
+        //var rejectPostionsId = $("#rejectPositionCommentBox").attr("rejectedId");
+        //var arrIds = rejectPostionsId.split(",");
+
         $.ajax({
             url: "/Calc/SetPositionToConfirm?idClaim=" + claim.Id + "&comment=" + comment,
-            type: 'GET',
+            type: 'POST',
+            datatype: 'json',
+            data: JSON.stringify(posIds),
+            processData: false,
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 messageUi.progressHide();
@@ -458,6 +483,7 @@
                 }
             }
         });
+        location.reload();
     }
 
     function sendComment() {
@@ -584,7 +610,7 @@
             var label = $("[modetype='" + controlTypeName + "ValueLabel']", row);
             label.text(value);
         }
-        
+
         var providerFact = $("[modetype='calculateProtectFact']", row);
         var providerFactValue = $(":selected", providerFact).text();
         if (providerFact.find(":selected").val() != 'null') {
@@ -593,7 +619,7 @@
         } else {
             $("[modetype='calculateProtectFactValueLabel']", row).text('');
         }
-        
+
 
         var calculateDeliveryTime = $("[modetype='calculateDeliveryTime']", row);
         var calculateDeliveryTimeValue = $(":selected", calculateDeliveryTime).text();
@@ -717,7 +743,7 @@
         //        obj.message += message;
         //    }
         //}
-        var priceUsd = $("[modetype='calculatePriceUsd']", calcRow).val().trim().replace(",", ".");
+        var priceUsd = $("[modetype='calculatePriceUsd']", calcRow).val().toString().trim().replace(",", ".");
         if (isNaN(priceUsd)) {
             message = "Значение '" + priceUsd + "' в поле Цена USD не является числом";
             if (obj.message.trim() != "") {
@@ -727,7 +753,7 @@
             obj.message += message;
         }
 
-        var priceEur = $("[modetype='calculatePriceEur']", calcRow).val().trim().replace(",", ".");
+        var priceEur = $("[modetype='calculatePriceEur']", calcRow).val().toString().trim().replace(",", ".");
         if (isNaN(priceEur)) {
             message = "Значение '" + priceEur + "' в поле Цена EUR не является числом";
             if (obj.message.trim() != "") {
@@ -737,7 +763,7 @@
             obj.message += message;
         }
 
-        var priceEurRicoh = $("[modetype='calculatePriceEurRicoh']", calcRow).val().trim().replace(",", ".");
+        var priceEurRicoh = $("[modetype='calculatePriceEurRicoh']", calcRow).val().toString().trim().replace(",", ".");
         if (isNaN(priceEurRicoh)) {
             message = "Значение '" + priceEurRicoh + "' в поле Цена EUR Ricoh не является числом";
             if (obj.message.trim() != "") {
@@ -746,7 +772,7 @@
             obj.isValid = false;
             obj.message += message;
         }
-        var priceRubl = $("[modetype='calculatePriceRubl']", calcRow).val().trim().replace(",", ".");
+        var priceRubl = $("[modetype='calculatePriceRubl']", calcRow).val().toString().trim().replace(",", ".");
         if (isNaN(priceRubl)) {
             message = "Значение '" + priceRubl + "' в поле Цена руб не является числом";
             if (obj.message.trim() != "") {
@@ -778,8 +804,8 @@
 
         if (obj.isValid) {
             var model = {
-                //CatalogNumber: catalogNumber,
-                Name: name,
+                CatalogNumber: $("[modetype='calculateCatalogNumber']", calcRow).val().trim(),
+                Name: $("[modetype='calculateName']", calcRow).val().trim(),
                 //SumRub: Number(sumRub),
                 //ProtectFact: { Id: Number(protectFact) },
                 //ProtectCondition: protectCondition,
@@ -791,10 +817,10 @@
                 PriceRub:  0,
 
                 //added by WakeDown
-                PriceUsd: $("[modetype='calculatePriceUsd']", calcRow).val().trim().replace(',', '.'),
-                PriceEur: $("[modetype='calculatePriceEur']", calcRow).val().trim().replace(',', '.'),
-                PriceEurRicoh: $("[modetype='calculatePriceEurRicoh']", calcRow).val().trim().replace(',', '.'),
-                PriceRubl: $("[modetype='calculatePriceRubl']", calcRow).val().trim().replace(',', '.'),
+                PriceUsd: parseFloat(priceUsd),
+                PriceEur: parseFloat(priceEur),
+                PriceEurRicoh: parseFloat(priceEurRicoh),
+                PriceRubl: parseFloat(priceRubl),
                 DeliveryTime: { Id: Number(calculateDeliveryTime) }
                 //>added by WakeDown
 
@@ -857,6 +883,10 @@
             $("#claimTenderUrl").append(link);
         } else {
             $("#claimTenderUrl").html("&nbsp;");
+        }
+        for (var i = 0; i < model.Certs.length;i++) {
+            var certCell = "<div><a class='btn btn-link' href='/Calc/GetCertFile/?guid=" + model.Certs[i].FileGuid + "'>" + model.Certs[i].FileName + "</a></div>";
+            $("#certList").append(certCell);
         }
     }
 
@@ -989,7 +1019,7 @@
                     $("[modetype='calculateComment']", calcRow).val(calculation.Comment);
 
                     var providerFact = $("[modetype='calculateProtectFact']", calcRow);
-                    
+
                     if (calculation.ProtectFact != null) {
                         $("[value='" + calculation.ProtectFact.Id + "']", providerFact).attr("selected", "selected");
                     } else {
@@ -1359,90 +1389,164 @@
                 Заявка №<span id="claimId"></span>
                 <div id="claimCustomer"></div>
                 <div>
-                    Сумма <span id="claimSum"></span><span id="claimSumPostfix"></span>
+                    Бюджет <span id="claimSum"></span><span id="claimSumPostfix"></span>
                 </div>
             </h4>
         </div>
         <div class="panel-body">
             @*<div class="row">*@
             <div class="col-sm-5">
-                <div class="col-sm-4">
-                    <div class="text-right">Тип сделки</div>
-                    <div class="text-right">Дата начала</div>
-                    <div class="text-right">Срок сдачи</div>
-                    <div class="text-right">Срок подачи КП</div>
-                    <div class="text-right">Менеджер</div>
-                    <div class="text-right"><small>Подразделение</small></div>
-                    <div class="text-right"><small>Руководитель</small></div>
+                <table class="table table-condensed">
+                    <tr>
+                        <td class="text-right">Тип сделки</td>
+                        <td><strong id="claimDealType"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Дата начала</td>
+                        <td><strong id="claimTenderStart"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Срок сдачи</td>
+                        <td><strong id="claimDeadline"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Срок подачи КП</td>
+                        <td><strong id="kPDeadline"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Менеджер</td>
+                        <td><strong id="claimManager"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right"><small>Подразделение</small></td>
+                        <td><small id="managerSubDivision"></small></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right"><small>Руководитель</small></td>
+                        <td><small id="managerChief"></small></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Файлы</td>
+                        <td>
+                            <div id="certList"> </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-right"></td>
+                        <td>
+                            @using (Html.BeginForm("SaveFile", "Calc", new { claimId = Request.QueryString["claimId"] }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                            {
+                                <input type="file" name="file" multiple="multiple" />
+                                <p>
+                                    <button class="btn btn-success" type="submit">сохранить файл</button>
+                                </p>
+                            }
+                        </td>
+                    </tr>
+                </table>
+                @*<div class="col-sm-4">
+                        <div class="text-right">Тип сделки</div>
+                        <div class="text-right">Дата начала</div>
+                        <div class="text-right">Срок сдачи</div>
+                        <div class="text-right">Срок подачи КП</div>
+                        <div class="text-right">Менеджер</div>
+                        <div class="text-right"><small>Подразделение</small></div>
+                        <div class="text-right"><small>Руководитель</small></div>
 
-                    @*<div class="text-right">Сумма</div>*@
-                </div>
-                <div class="col-sm-8">
-                    <div>
-                        <strong id="claimDealType"></strong>
                     </div>
-                    <div>
-                        <strong id="claimTenderStart"></strong>
-                    </div>
-                    <div>
-                        <strong id="claimDeadline"></strong>
-                    </div>
-                    <div>
-                        <strong id="kPDeadline"></strong>
-                    </div>
-                    <div>
-                        <strong id="claimManager"></strong>
-                    </div>
-                    <div>
-                        <small id="managerSubDivision"></small>
-                    </div>
-                    <div>
-                        <small id="managerChief"></small>
-                    </div>
+                    <div class="col-sm-8">
+                        <div>
+                            <strong id="claimDealType"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimTenderStart"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimDeadline"></strong>
+                        </div>
+                        <div>
+                            <strong id="kPDeadline"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimManager"></strong>
+                        </div>
+                        <div>
+                            <small id="managerSubDivision"></small>
+                        </div>
+                        <div>
+                            <small id="managerChief"></small>
+                        </div>
 
-                </div>
+                    </div>*@
 
                 @*<div id="commentPanel">*@
                 <div id="commentPanel">
                     <textarea id="comment" rows="5" placeholder="Комментарий" class="form-control"></textarea>
                     <div>
                         @*<button type='button' class='btn btn-danger'><i class="fa fa-remove"></i> отклонить</button>*@
-                        <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение</button>
+                        <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение отмеченные</button>
                         <button type="button" id="butSendComment" class="btn btn-default"><i class="fa fa-comment"></i> сохранить комментарий</button>
+
                     </div>
                 </div>
 
             </div>
 
             <div class="col-sm-3">
-                <div class="col-sm-5">
-                    <div class="text-right">№ конкурса</div>
-                    <div class="text-right">Статус конкурса</div>
-                    <div class="text-right">Срок поставки</div>
-                    <div class="text-right">Место поставки</div>
-                    <div class="text-right">Дата аукциона</div>
-                    <div class="text-right">Ссылка на закупки</div>
-                </div>
-                <div class="col-sm-7">
-                    <div>
-                        <strong id="claimTenderNumber"></strong>
+                <table class="table table-condensed">
+                    <tr>
+                        <td class="text-right">№ конкурса</td>
+                        <td><strong id="claimTenderNumber"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Статус конкурса</td>
+                        <td><strong id="claimTenderStatus"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Срок поставки</td>
+                        <td><strong id="claimDeliveryDate"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Место поставки</td>
+                        <td><strong id="claimDeliveryPlace"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Дата аукциона</td>
+                        <td><strong id="claimAuctionDate"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Ссылка на закупки</td>
+                        <td><small id="claimTenderUrl"></small></td>
+                    </tr>
+                </table>
+                @*<div class="col-sm-5">
+                        <div class="text-right">№ конкурса</div>
+                        <div class="text-right">Статус конкурса</div>
+                        <div class="text-right">Срок поставки</div>
+                        <div class="text-right">Место поставки</div>
+                        <div class="text-right">Дата аукциона</div>
+                        <div class="text-right">Ссылка на закупки</div>
                     </div>
-                    <div>
-                        <strong id="claimTenderStatus"></strong>
-                    </div>
-                    <div>
-                        <strong id="claimDeliveryDate"></strong>
-                    </div>
-                    <div>
-                        <strong id="claimDeliveryPlace"></strong>
-                    </div>
-                    <div>
-                        <strong id="claimAuctionDate"></strong>
-                    </div>
-                    <div>
-                        <small id="claimTenderUrl"></small>
-                    </div>
-                </div>
+                    <div class="col-sm-7">
+                        <div>
+                            <strong id="claimTenderNumber"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimTenderStatus"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimDeliveryDate"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimDeliveryPlace"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimAuctionDate"></strong>
+                        </div>
+                        <div>
+                            <small id="claimTenderUrl"></small>
+                        </div>
+                    </div>*@
             </div>
             <div class="col-sm-4">
                 <h4 class="text-center">История изменения статусов</h4>
@@ -1493,6 +1597,9 @@
                     </span>
                 </span>
             </span>
+            <span>
+                <button id="btnSecondStateColumns" type='button' class='btn btn-success btn-sm'><i class="fa fa-columns"></i> второстепенные столбцы</button>
+            </span>
             @*</div>
                     </div>
                 </div>*@
@@ -1503,32 +1610,33 @@
                 <tr>
                     <th class="min-width center"><input type="checkbox" id="selectAllPositions" data-toggle="tooltip" title="все" /></th>
                     <th></th>
-
-                    <th style="width: 300px; min-width: 300px;">
+                    <th>Каталожный №</th>
+                    <th style="width: 250px">
                         @*Каталожный номер<br />
                             Наименование<br />
                             Количество<br />
                             Единицы<br />
                             Комментарий*@
-                        Запрос
+                        Наименование
                     </th>
+                    <th>Количество</th>
                     <th></th>
                     <th>
                         <button type='button' id='editAllCalcButton' class='btn btn-primary btn-sm' data-toggle='tooltip' title='режим резактирования'><i class='fa fa-edit'></i></button>
-                        <button type='button' id='editAllCalcButtonCancel' class='btn btn-default btn-sm' data-toggle='tooltip' title='отмена резактирования'><i class='fa fa-undo'></i></button>
+                        <button type='button' id='editAllCalcButtonCancel' class='btn btn-default btn-sm' data-toggle='tooltip' title='отмена редактирования'><i class='fa fa-undo'></i></button>
                     </th>
-                    <th>Каталожный номер</th>
-                    <th>Наименование</th>
-                    <th>Замена</th>
-                    <th>Цена USD</th>
-                    <th>Цена EUR</th>
-                    <th>Цена EUR Ricoh</th>
-                    <th>Цена руб</th>
-                    <th>Поставщик</th>
-                    <th>Срок поставки</th>
-                    <th>Факт защиты</th>
-                    <th>Условия защиты</th>
-                    <th>Комментарий</th>
+                    <th style="width:150px;">Каталожный номер</th>
+                    <th style="width:300px;">Наименование</th>
+                    <th style="width:300px;">Замена</th>
+                    <th style="width:100px;">Цена USD</th>
+                    <th style="width:100px;">Цена EUR</th>
+                    <th style="width:100px;">Цена EUR Ricoh</th>
+                    <th style="width:100px;">Цена руб</th>
+                    <th secstatecol="1" style="display: none; width: 200px;">Поставщик</th>
+                    <th style="width:200px;">Срок поставки</th>
+                    <th secstatecol="1" style="display: none; width: 200px;">Факт защиты</th>
+                    <th secstatecol="1" style="display: none; width: 200px;">Условия защиты</th>
+                    <th secstatecol="1" style="display: none; width: 300px;">Комментарий</th>
                     <th></th>
                 </tr>
             </thead>
@@ -1545,9 +1653,14 @@
                 </td>
                 <td posdt='1' class="min-width" rowspan="1">
                     <div type='catalogNumberLabel'></div>
+                </td>
+                <td posdt='1' class="min-width" rowspan="1">
+
                     <div type='nameLabel'></div>
-                    <span type='valueLabel'></span>&nbsp;<span type='unitLabel'></span>
                     <div type="commentLabel"></div>
+                </td>
+                <td posdt='1' class="min-width" rowspan="1">
+                    <span type='valueLabel'></span>&nbsp;<span type='unitLabel'></span>
                 </td>
                 <td posdt='1' class="min-width" rowspan="1">
                     <button type="button" modetype='addCalcButton' class="btn btn-primary btn-sm" data-toggle="tooltip" title="добавить расчет"><i class="fa fa-plus"></i> <i class="fa fa-calculator"></i></button>
@@ -1576,30 +1689,30 @@
                     <div type="readOnlyModeView" style="display: none;"><span modetype="calculateCatalogNumberValueLabel"></span></div>
                 </td>
                 <td>
-                    <div type="editModeView"><textarea rows="1" modetype="calculateName" class="form-control input-sm" placeholder="Наименование"></textarea></div>
+                    <div type="editModeView"><textarea rows="3" modetype="calculateName" class="form-control input-sm" placeholder="Наименование"></textarea></div>
                     <div type="readOnlyModeView" style="display: none;"><span modetype="calculateNameValueLabel"></span></div>
                 </td>
                 <td>
-                    <div type="editModeView"><textarea rows="1" modetype="calculateReplace" class="form-control input-sm" placeholder="Замена"></textarea></div>
+                    <div type="editModeView"><textarea rows="3" modetype="calculateReplace" class="form-control input-sm" placeholder="Замена"></textarea></div>
                     <div type="readOnlyModeView" style="display: none;"><span modetype="calculateReplaceValueLabel"></span></div>
                 </td>
                 <td>
-                    <div type="editModeView"><input type='text' modetype="calculatePriceUsd" class="form-control input-sm" placeholder="Цена USD" /></div>
+                    <div type="editModeView"><input type='text' modetype="calculatePriceUsd" class="form-control input-sm" placeholder="Цена USD" data-mask="float" /></div>
                     <div type="readOnlyModeView" style="display: none;"><span modetype="calculatePriceUsdValueLabel"></span></div>
                 </td>
                 <td>
-                    <div type="editModeView"><input type='text' modetype="calculatePriceEur" class="form-control input-sm" placeholder="Цена EUR" /></div>
+                    <div type="editModeView"><input type='text' modetype="calculatePriceEur" class="form-control input-sm" placeholder="Цена EUR" data-mask="float" /></div>
                     <div type="readOnlyModeView" style="display: none;"><span modetype="calculatePriceEurValueLabel"></span></div>
                 </td>
                 <td>
-                    <div type="editModeView"><input type='text' modetype="calculatePriceEurRicoh" class="form-control input-sm" placeholder="Цена EUR Ricoh" /></div>
+                    <div type="editModeView"><input type='text' modetype="calculatePriceEurRicoh" class="form-control input-sm" placeholder="Цена EUR Ricoh" data-mask="float" /></div>
                     <div type="readOnlyModeView" style="display: none;"><span modetype="calculatePriceEurRicohValueLabel"></span></div>
                 </td>
                 <td>
-                    <div type="editModeView"><input type='text' modetype="calculatePriceRubl" class="form-control input-sm" placeholder="Цена руб" /></div>
+                    <div type="editModeView"><input type='text' modetype="calculatePriceRubl" class="form-control input-sm" placeholder="Цена руб" data-mask="float" /></div>
                     <div type="readOnlyModeView" style="display: none;"><span modetype="calculatePriceRublValueLabel"></span></div>
                 </td>
-                <td>
+                <td secstatecol="1" style="display:none;">
                     <div type="editModeView"><input type='text' modetype="calculateProvider" class="form-control input-sm" placeholder="Поставщик" /></div>
                     <div type="readOnlyModeView" style="display: none;"><div modetype="calculateProviderValueLabel"></div></div>
                 </td>
@@ -1607,18 +1720,17 @@
                     <div type="editModeView"><select size="1" modetype="calculateDeliveryTime" class="form-control input-sm" placeholder="Срок поставки"></select> </div>
                     <div type="readOnlyModeView" style="display: none;"><span modetype="calculateDeliveryTimeValueLabel"></span></div>
                 </td>
-
-                <td>
+                <td secstatecol="1" style="display:none;">
                     <div type="editModeView"><select size="1" modetype="calculateProtectFact" class="form-control input-sm"></select></div>
                     <div type="readOnlyModeView" style="display: none;"><span modetype="calculateProtectFactValueLabel"></span></div>
                 </td>
-                <td>
-                    <div type="editModeView"><textarea rows='1' class="form-control input-sm" modetype="calculateProtectCondition" placeholder="Условия защиты"></textarea></div>
+                <td secstatecol="1" style="display:none;">
+                    <div type="editModeView"><textarea rows='3' class="form-control input-sm" modetype="calculateProtectCondition" placeholder="Условия защиты"></textarea></div>
                     <div type="readOnlyModeView" style="display: none;"><span modetype="calculateProtectConditionValueLabel"></span></div>
                 </td>
 
-                <td>
-                    <div type="editModeView"><textarea rows='1' class="form-control input-sm" modetype="calculateComment" placeholder="Комментарий"></textarea></div>
+                <td secstatecol="1" style="display:none;">
+                    <div type="editModeView"><textarea rows='3' class="form-control input-sm" modetype="calculateComment" placeholder="Комментарий"></textarea></div>
                     <div type="readOnlyModeView" style="display: none;"><div modetype="calculateCommentValueLabel"></div></div>
                 </td>
                 <td class="min-width" class="text-center">

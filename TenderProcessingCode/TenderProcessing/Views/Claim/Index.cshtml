@@ -105,7 +105,7 @@
         $("#butСlaimStatusCanceled").click(setClaimCancelled);
         $("#butСlaimStatusStopped").click(setClaimStopped);
         $("#butСlaimStatusContined").click(setClaimContined);
-        $("#butGetCalculateFile").click(getCalculateExcelFileFromServer);
+        //$("#butGetCalculateFile").click(getCalculateExcelFileFromServer);
         $("#butGetCalculateOnlyCalculateFile").click(getCalculateOnlyCalculateExcelFileFromServer);
         $("#tenderStart").val(dateStart);
         $("#butGetFile").click(getExcelFileFromServer);
@@ -127,9 +127,11 @@
         $("#butSetPositionReject").click(rejectPositions);
         $("#butSetPositionConfirm").click(setAllPositionConfirmed);
         //$("#butChangeCurrency").click(changeCurrency);
+
         if (claim != null) {
+
             $("#claimId").text("Заявка №" + claim.Id);
-            if (claim.ClaimStatus <= 1) {
+            if (claim.ClaimStatus < 1) {
 
                 if (claim.Positions != null) {
                     var container = $("#positionTable");
@@ -161,12 +163,31 @@
                     }
                     showClaimReadOnly(claim);
                 }
-            } else {
+            } else if (claim.ClaimStatus == 1) {
                 $("#pnlClaimFormNoCalc").hide();
                 $("[type='pnlClaimFormWithCalc']").show();
                 $("#headNoCalc").hide();
                 $("#headWithCalc").show();
                 fillClaimInfoWithCalc(claim);
+
+                var container = $("#positionTable");
+                $("#tblPositionsNoCalc").show();
+                var positionsLength = claim.Positions.length;
+                for (var i = 0; i < positionsLength; i++) {
+                    var position = claim.Positions[i];
+                    var element = getPositionElement(position);
+                    container.append(element);
+                }
+            }
+            else {
+
+                $("#pnlClaimFormNoCalc").hide();
+                $("[type='pnlClaimFormWithCalc']").show();
+                $("#headNoCalc").hide();
+                $("#headWithCalc").show();
+
+                fillClaimInfoWithCalc(claim);
+
                 $("#tblPositionsWithCalc").show();
                 initPositionsWithCalc(claim.Positions);
             }
@@ -266,6 +287,11 @@
         } else {
             $("#claimTenderUrl", container).html("&nbsp;");
         }
+        
+        for (var i = 0; i < model.Certs.length;i++) {
+            var certCell = "<div><a class='btn btn-link' href='/Calc/GetCertFile/?guid=" + model.Certs[i].FileGuid + "'>" + model.Certs[i].FileName + "</a></div>";
+            $("#certList").append(certCell);
+        }
     }
 
     function getCalculatePositionElement() {
@@ -282,12 +308,12 @@
         element.attr("type", "positionRow");
         $("[type='catalogNumberLabel']", element).text(position.CatalogNumber);
         $("[type='nameLabel']", element).text(position.Name);
-        //$("[type='replaceLabel']", element).text(position.Replace);
+        //////$("[type='replaceLabel']", element).text(position.Replace);
         $("[type='unitLabel']", element).text(getUnitString(position.Unit));
         $("[type='valueLabel']", element).text(position.Value);
         if (position.ProductManager != null){
-            var prodVal = getProductManagerById(position.ProductManager.Id).ShortName;
-            $("[type='productManagerLabel']", element).text(prodVal == null ? '' : prodVal);
+            var prodVal = getProductManagerById(position.ProductManager.Id);
+            $("[type='productManagerLabel']", element).text(prodVal == null ? '' : prodVal.ShortName);
         }
         $("[type='commentLabel']", element).text(position.Comment);
         return element;
@@ -311,7 +337,6 @@
 
             if (position.Calculations != null) {
                 var calculationsLength = position.Calculations.length;
-
                 for (var j = 0; j < calculationsLength; j++) {
 
                     var calculation = position.Calculations[j];
@@ -357,7 +382,6 @@
                     $("[modetype='calculateProviderValueLabel']", calcRow).text(calculation.Provider ==null ? '' : calculation.Provider);
                     $("[modetype='calculateProtectConditionValueLabel']", calcRow).text(calculation.ProtectCondition ==null ? '' : calculation.ProtectCondition);
                     $("[modetype='calculateCommentValueLabel']", calcRow).text(calculation.Comment ==null ? '' : calculation.Comment);
-
                     if (calculation.ProtectFact != null) {
                         var pfVal = getProtectFactById(calculation.ProtectFact.Id).Value;
 
@@ -384,7 +408,7 @@
     //>>>>>работа с заявкой<<<<<
     //действия
     function setClaimContined(e) {
-        var comment = $("#claimStatusComment").val().trim();
+        var comment = $("#commentWithCalc").val().trim();
         var model = {
             Comment: comment,
             IdClaim: claim.Id
@@ -420,7 +444,7 @@
     }
 
     function setClaimCancelled(e) {
-        var comment = $("#claimStatusComment").val().trim();
+        var comment = $("#commentWithCalc").val().trim();
         var model = {
             Comment: comment,
             IdClaim: claim.Id
@@ -454,7 +478,7 @@
     }
 
     function setClaimStopped(e) {
-        var comment = $("#claimStatusComment").val().trim();
+        var comment = $("#commentWithCalc").val().trim();
         var model = {
             Comment: comment,
             IdClaim: claim.Id
@@ -598,12 +622,18 @@
             contentType: 'application/json; charset = utf-8 ',
             success: saveClaimComplete
         });
+
     }
 
     function saveClaimComplete (data) {
         messageUi.progressHide();
         if (data.IsComplete) {
             claim = data.Model;
+
+            var newLocation = window.location.toString() + '?claimId=' + claim.Id;
+            window.location =newLocation;
+
+
             showClaimReadOnly(claim);
             $("#claimId").text("Заявка № " + claim.Id);
             $("#butSaveClaim").hide();
@@ -713,7 +743,7 @@
         var customer = $("#customer").val();
         var customerInn = $("#innCustomer").val();
         var sum = $("#sum").val();
-       
+
         //var usd = $("#currencyUsd").val();
         //var eur = $("#currencyEur").val();
         //if (tenderStart.trim() == "") {
@@ -982,6 +1012,7 @@
     }
 
     function addPositionButtonClick(e) {
+
         var row = $("#addPositionRow");
         $("[modeltype='rowNumberValue']", row).val("");
         $("[modeltype='catalogNumberValue']", row).val("");
@@ -991,7 +1022,7 @@
         $("[modeltype='commentValuel']", row).val("");
         $("[modeltype='priceValue']", row).val("");
         $("[modeltype='sumValue']", row).val("");
-        $("#addPositionRow").toggle();
+        $("#addPositionRow").show();
     }
 
     function addPosition(e) {
@@ -1954,7 +1985,7 @@
                 Заявка №<span id="claimId"></span>
                 <div id="claimCustomer"></div>
                 <div>
-                    Сумма <span id="claimSum"></span><span id="claimSumCurrency"></span>
+                    Бюджет <span id="claimSum"></span><span id="claimSumCurrency"></span>
                 </div>
             </h4>
         </div>
@@ -2052,7 +2083,7 @@
                         <input type="text" id="deliveryDate" style="cursor: pointer;" class="form-control datepicker-btn" />
                         <span id="deliveryDateLabel" style="display: none;" class="form-control"></span>
                     </div>
-                    
+
                 </div>
                 <div class="form-group">
                     <label class="col-sm-3 control-label">Срок поставки окончание</label>
@@ -2104,61 +2135,99 @@
                     <div class="col-sm-offset-3 col-sm-8">
                         <button type="button" id="butSaveClaim" class="btn btn-primary"><i class="fa fa-save"></i> сохранить</button>
 
-                        <button type="button" id="butSetClaimOnWork" style="display: none;" class="btn btn-success"><i class="fa fa-mail-forward"></i> в работу</button>
-                        <div id="claimStatusPanel" style="display: none;">
-                            @*<button id="butСlaimStatusContined" type="button" class="btn btn-success"><i class="fa fa-play"></i> возобновить</button>
-                            <button id="butСlaimStatusStopped" type="button" class="btn btn-warning"><i class="fa fa-pause"></i> приостановить</button>
-                            <button id="butСlaimStatusCanceled" type="button" class="btn btn-danger"><i class="fa fa-stop"></i> отменить</button>*@
 
-                            <textarea rows="7" id="claimStatusComment" class="form-control" placeholder="Комментарий"></textarea>
-                            <button id="butSendComment" type='button' class='btn btn-default'>Сохранить комментарий</button>
-                        </div>
+                        @*<div id="claimStatusPanel" style="display: none;">
+                            <button id="butСlaimStatusContined" type="button" class="btn btn-success"><i class="fa fa-play"></i> возобновить</button>
+                            <button id="butСlaimStatusStopped" type="button" class="btn btn-warning"><i class="fa fa-pause"></i> приостановить</button>
+                            <button id="butСlaimStatusCanceled" type="button" class="btn btn-danger"><i class="fa fa-stop"></i> отменить</button>
+
+                                                    <textarea rows="7" id="claimStatusComment" class="form-control" placeholder="Комментарий"></textarea>
+                                                    <button id="butSendComment" type='button' class='btn btn-default'>Сохранить комментарий</button>
+                                                </div>*@
 
                     </div>
                 </div>
             </div>
-            <div type="pnlClaimFormWithCalc" class="col-sm-5" style="display:none;">
-                <div class="col-sm-4">
-                    <div class="text-right">Тип сделки</div>
-                    <div class="text-right">Дата начала</div>
-                    <div class="text-right">Срок сдачи</div>
-                    <div class="text-right">Срок подачи КП</div>
-                    <div class="text-right">Менеджер</div>
-                    <div class="text-right"><small>Подразделение</small></div>
-                    <div class="text-right"><small>Руководитель</small></div>
+            <div type="pnlClaimFormWithCalc" class="col-sm-4" style="display:none;">
+                <table class="table table-condensed">
+                    <tr>
+                        <td class="text-right">Тип сделки</td>
+                        <td><strong id="claimDealType"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Дата начала</td>
+                        <td><strong id="claimTenderStart"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Срок сдачи</td>
+                        <td><strong id="claimDeadline"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Срок подачи КП</td>
+                        <td><strong id="kPDeadline"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Менеджер</td>
+                        <td><strong id="claimManager"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right"><small>Подразделение</small></td>
+                        <td><small id="managerSubDivision"></small></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right"><small>Руководитель</small></td>
+                        <td><small id="managerChief"></small></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Файлы</td>
+                        <td>
+                            <div id="certList"> </div>
+                        </td>
+                    </tr>
+                </table>
+                @*<div class="col-sm-4">
+                        <div class="text-right">Тип сделки</div>
+                        <div class="text-right">Дата начала</div>
+                        <div class="text-right">Срок сдачи</div>
+                        <div class="text-right">Срок подачи КП</div>
+                        <div class="text-right">Менеджер</div>
+                        <div class="text-right"><small>Подразделение</small></div>
+                        <div class="text-right"><small>Руководитель</small></div>
+                    </div>
+                    <div class="col-sm-8">
+                        <div>
+                            <strong id="claimDealType"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimTenderStart"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimDeadline"></strong>
+                        </div>
+                        <div>
+                            <strong id="kPDeadline"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimManager"></strong>
+                        </div>
+                        <div>
+                            <small id="managerSubDivision"></small>
+                        </div>
+                        <div>
+                            <small id="managerChief"></small>
+                        </div>
 
-                    @*<div class="text-right">Сумма</div>*@
-                </div>
-                <div class="col-sm-8">
-                    <div>
-                        <strong id="claimDealType"></strong>
-                    </div>
-                    <div>
-                        <strong id="claimTenderStart"></strong>
-                    </div>
-                    <div>
-                        <strong id="claimDeadline"></strong>
-                    </div>
-                    <div>
-                        <strong id="kPDeadline"></strong>
-                    </div>
-                    <div>
-                        <strong id="claimManager"></strong>
-                    </div>
-                    <div>
-                        <small id="managerSubDivision"></small>
-                    </div>
-                    <div>
-                        <small id="managerChief"></small>
-                    </div>
-
-                </div>
+                    </div>*@
 
                 @*<div id="commentPanel">*@
+
                 <div id="commentPanel">
-                    <button id="butСlaimStatusContined" type="button" class="btn btn-success"><i class="fa fa-play"></i> возобновить</button>
-                    <button id="butСlaimStatusStopped" type="button" class="btn btn-warning"><i class="fa fa-pause"></i> приостановить</button>
-                    <button id="butСlaimStatusCanceled" type="button" class="btn btn-danger"><i class="fa fa-stop"></i> отменить</button>
+                    <button type="button" id="butSetClaimOnWork" style="display: none;" class="btn btn-success"><i class="fa fa-mail-forward"></i> в работу</button>
+                    <div id="claimStatusPanel" style="display: none;">
+                        <button id="butСlaimStatusContined" type="button" class="btn btn-success"><i class="fa fa-play"></i> возобновить</button>
+                        <button id="butСlaimStatusStopped" type="button" class="btn btn-warning"><i class="fa fa-pause"></i> приостановить</button>
+                        <button id="butСlaimStatusCanceled" type="button" class="btn btn-danger"><i class="fa fa-stop"></i> отменить</button>
+                    </div>
                     <textarea id="commentWithCalc" rows="5" placeholder="Комментарий" class="form-control"></textarea>
                     <div>
                         @*<button type='button' class='btn btn-danger'><i class="fa fa-remove"></i> отклонить</button>*@
@@ -2167,35 +2236,62 @@
                     </div>
                 </div>
             </div>
-            <div type="pnlClaimFormWithCalc" class="col-sm-3" style="display:none;">
-                <div class="col-sm-5">
-                    <div class="text-right">№ конкурса</div>
-                    <div class="text-right">Статус конкурса</div>
-                    <div class="text-right">Срок поставки</div>
-                    <div class="text-right">Место поставки</div>
-                    <div class="text-right">Дата аукциона</div>
-                    <div class="text-right">Ссылка на закупки</div>
-                </div>
-                <div class="col-sm-7">
-                    <div>
-                        <strong id="claimTenderNumber"></strong>
+            <div type="pnlClaimFormWithCalc" class="col-sm-4" style="display:none;">
+                <table class="table table-condensed">
+                    <tr>
+                        <td class="text-right">№ конкурса</td>
+                        <td><strong id="claimTenderNumber"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Статус конкурса</td>
+                        <td><strong id="claimTenderStatus"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Срок поставки</td>
+                        <td><strong id="claimDeliveryDate"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Место поставки</td>
+                        <td><strong id="claimDeliveryPlace"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Дата аукциона</td>
+                        <td><strong id="claimAuctionDate"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right text-nowrap">Ссылка на закупки</td>
+                        <td><small id="claimTenderUrl"></small></td>
+                    </tr>
+                </table>
+
+                @*<div class="col-sm-5">
+                        <div class="text-right">№ конкурса</div>
+                        <div class="text-right">Статус конкурса</div>
+                        <div class="text-right">Срок поставки</div>
+                        <div class="text-right">Место поставки</div>
+                        <div class="text-right">Дата аукциона</div>
+                        <div class="text-right">Ссылка на закупки</div>
                     </div>
-                    <div>
-                        <strong id="claimTenderStatus"></strong>
-                    </div>
-                    <div>
-                        <strong id="claimDeliveryDate"></strong>
-                    </div>
-                    <div>
-                        <strong id="claimDeliveryPlace"></strong>
-                    </div>
-                    <div>
-                        <strong id="claimAuctionDate"></strong>
-                    </div>
-                    <div>
-                        <small id="claimTenderUrl"></small>
-                    </div>
-                </div>
+                    <div class="col-sm-7">
+                        <div>
+                            <strong id="claimTenderNumber"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimTenderStatus"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimDeliveryDate"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimDeliveryPlace"></strong>
+                        </div>
+                        <div>
+                            <strong id="claimAuctionDate"></strong>
+                        </div>
+                        <div>
+                            <small id="claimTenderUrl"></small>
+                        </div>
+                    </div>*@
             </div>
             <div class="col-sm-4">
                 <h4 class="text-center">История изменения статуса</h4>
@@ -2206,6 +2302,11 @@
         </div>
     </div>
     <div id="positionPanel" style="display: none; margin-left: 4px; margin-right: 4px;">
+        <P>
+            <blockquote class="bg-warning">
+                Каждая номенклатурная позиция должны оформляться отдельной строкой!
+            </blockquote>
+        </P>
         <div>
             <span>
                 Список позиций
@@ -2246,7 +2347,6 @@
                                 <div class="col-sm-1">
                                     Единица
                                 </div>
-
                                 <div class="col-sm-2">
                                     Продакт/Снабженец
                                 </div>
@@ -2256,7 +2356,6 @@
                             </div>
                         </th>
                         <th>
-
                         </th>
                     </tr>
 
@@ -2413,10 +2512,12 @@
                 <tr>
                     <th class="min-width center"><input type="checkbox" id="selectAllPositionsWithCalc" data-toggle="tooltip" title="все" /></th>
                     <th></th>
-
-                    <th style="width: 300px; min-width: 300px;">
-                        Запрос
+                    <th>Каталожный №</th>
+                    <th style="width: 250px;">
+                        Наименование
                     </th>
+                    <th>Количество</th>
+                    <th>Продакт</th>
                     <th>Каталожный номер</th>
                     <th>Наименование</th>
                     <th>Замена</th>
@@ -2442,14 +2543,15 @@
                 <td posdt='1' class="min-width" rowspan="1">
                     <strong modetype="rowNumber"></strong>
                 </td>
+                <td posdt='1' class="min-width" rowspan="1"><div type='catalogNumberLabel'></div></td>
                 <td posdt='1' class="min-width" rowspan="1">
-                    <div type='catalogNumberLabel'></div>
                     <div type='nameLabel'></div>
-                    <span type='valueLabel'></span>&nbsp;<span type='unitLabel'></span>
-                    <div type='productManagerLabel'></div>
                     <div type="commentLabel"></div>
                 </td>
-
+                <td posdt='1' class="min-width" rowspan="1">
+                    <span type='valueLabel'></span>&nbsp;<span type='unitLabel'></span>
+                </td>
+                <td posdt='1'><div type='productManagerLabel'></div></td>
                 <td colspan="12" class="positionsPlaceHolder"></td>
             </tr>
         </table>

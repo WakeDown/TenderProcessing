@@ -5,6 +5,7 @@ using System.DirectoryServices.Protocols;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
@@ -23,6 +24,23 @@ namespace TenderProcessing.Controllers
     [Authorize]
     public class CalcController : Controller
     {
+        public ActionResult GetCertFile(string guid)
+        {
+            var cert = new DbEngine().GetCertFile(guid);
+
+            //var cd = new System.Net.Mime.ContentDisposition
+            //{
+            //    // for example foo.bak
+            //    FileName = guid,
+
+            //    // always prompt the user for downloading, set to true if you want 
+            //    // the browser to try to show the file inline
+            //    Inline = false,
+            //};
+            //Response.AppendHeader("Content-Disposition", cd.ToString());
+            return File(cert.File, "text/plain", cert.FileName);
+        }
+
         //Страница расчета позиций по заявке
         public ActionResult Index(int? claimId)
         {
@@ -63,6 +81,7 @@ namespace TenderProcessing.Controllers
                 if (claimId.HasValue)
                 {
                     claim = db.LoadTenderClaimById(claimId.Value);
+                    claim.Certs = db.LoadClaimCerts(claimId.Value);
                     var adProductsManager = UserHelper.GetProductManagers();
                     if (claim != null)
                     {
@@ -359,18 +378,22 @@ namespace TenderProcessing.Controllers
                             workSheet.Cell(row, 2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                             workSheet.Cell(row, 2).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
 
-                            var posCell = workSheet.Cell(row, 3);
-
-
-                            posCell.Value = String.Format("{1}\r\n{4} {3}\r\n{2}\r\n{5}", position.Id, position.CatalogNumber, position.Name, GetUnitString(position.Unit), position.Value, position.Comment);
+                            workSheet.Cell(row, 3).Value = position.CatalogNumber;
+                            var posCell = workSheet.Cell(row, 4);
+                            posCell.Value = String.Format("{2}\r\n{5}", position.Id, position.CatalogNumber, position.Name, GetUnitString(position.Unit), position.Value, position.Comment);
                             posCell.Style.Alignment.SetVertical(XLAlignmentVerticalValues.Top);
                             posCell.Style.Alignment.SetWrapText();
                             workSheet.Row(row).AdjustToContents();
+
+                            workSheet.Cell(row, 5).Value = String.Format("{1} {0}", GetUnitString(position.Unit),
+                                position.Value);
+
                             //Объединяем две ячейки чтобы удобнее было добавлять строки пользователям руками
                             workSheet.Range(workSheet.Cell(row, 1), workSheet.Cell(row + 1, 1)).Merge();
                             workSheet.Range(workSheet.Cell(row, 2), workSheet.Cell(row + 1, 2)).Merge();
                             workSheet.Range(workSheet.Cell(row, 3), workSheet.Cell(row + 1, 3)).Merge();
-
+                            workSheet.Range(workSheet.Cell(row, 4), workSheet.Cell(row + 1, 4)).Merge();
+                            workSheet.Range(workSheet.Cell(row, 5), workSheet.Cell(row + 1, 5)).Merge();
                             //workSheet.Rows(row, row+1).AdjustToContents();
 
 
@@ -450,30 +473,32 @@ namespace TenderProcessing.Controllers
                                         workSheet.Range(workSheet.Cell(firstPosRow, 1), workSheet.Cell(row, 1)).Merge();
                                         workSheet.Range(workSheet.Cell(firstPosRow, 2), workSheet.Cell(row, 2)).Merge();
                                         workSheet.Range(workSheet.Cell(firstPosRow, 3), workSheet.Cell(row, 3)).Merge();
+                                        workSheet.Range(workSheet.Cell(firstPosRow, 4), workSheet.Cell(row , 4)).Merge();
+                                        workSheet.Range(workSheet.Cell(firstPosRow, 5), workSheet.Cell(row, 5)).Merge();
                                     }
 
-                                    workSheet.Cell(row, 4).Value = calculation.CatalogNumber;
-                                    workSheet.Cell(row, 5).Value = calculation.Name;
-                                    workSheet.Cell(row, 5).Style.Alignment.SetWrapText();
-                                    workSheet.Cell(row, 6).Value = calculation.Replace;
-                                    workSheet.Cell(row, 6).Style.Alignment.SetWrapText();
+                                    workSheet.Cell(row, 6).Value = calculation.CatalogNumber;
+                                    workSheet.Cell(row, 7).Value = calculation.Name;
+                                    workSheet.Cell(row, 7).Style.Alignment.SetWrapText();
+                                    workSheet.Cell(row, 8).Value = calculation.Replace;
+                                    workSheet.Cell(row, 8).Style.Alignment.SetWrapText();
 
-                                    workSheet.Cell(row, 7).Value = calculation.PriceUsd;
-                                    workSheet.Cell(row, 8).Value = calculation.PriceEur;
-                                    workSheet.Cell(row, 9).Value = calculation.PriceEurRicoh;
-                                    workSheet.Cell(row, 10).Value = calculation.PriceRubl;
-                                    workSheet.Cell(row, 11).Value = calculation.Provider;
-                                    workSheet.Cell(row, 11).Style.Alignment.SetWrapText();
+                                    workSheet.Cell(row, 9).Value = calculation.PriceUsd;
+                                    workSheet.Cell(row, 10).Value = calculation.PriceEur;
+                                    workSheet.Cell(row, 11).Value = calculation.PriceEurRicoh;
+                                    workSheet.Cell(row, 12).Value = calculation.PriceRubl;
+                                    workSheet.Cell(row, 13).Value = calculation.Provider;
+                                    workSheet.Cell(row, 13).Style.Alignment.SetWrapText();
 
-                                    if (calculation.DeliveryTime != null) workSheet.Cell(row, 12).Value = deliveryTimes.First(x => x.Id == calculation.DeliveryTime.Id).Value;
-                                    workSheet.Cell(row, 12).Style.Alignment.SetWrapText();
-
-                                    if (calculation.ProtectFact != null) workSheet.Cell(row, 13).Value = facts.First(x => x.Id == calculation.ProtectFact.Id).Value;
-
-                                    workSheet.Cell(row, 14).Value = calculation.ProtectCondition;
+                                    if (calculation.DeliveryTime != null) workSheet.Cell(row, 14).Value = deliveryTimes.First(x => x.Id == calculation.DeliveryTime.Id).Value;
                                     workSheet.Cell(row, 14).Style.Alignment.SetWrapText();
-                                    workSheet.Cell(row, 15).Value = calculation.Comment;
-                                    workSheet.Cell(row, 15).Style.Alignment.SetWrapText();
+
+                                    if (calculation.ProtectFact != null) workSheet.Cell(row, 15).Value = facts.First(x => x.Id == calculation.ProtectFact.Id).Value;
+
+                                    workSheet.Cell(row, 16).Value = calculation.ProtectCondition;
+                                    workSheet.Cell(row, 16).Style.Alignment.SetWrapText();
+                                    workSheet.Cell(row, 17).Value = calculation.Comment;
+                                    workSheet.Cell(row, 17).Style.Alignment.SetWrapText();
 
                                     calcCount++;
                                 }
@@ -552,7 +577,7 @@ namespace TenderProcessing.Controllers
                             //row++;
                         }
 
-                        var list = workSheet.Range(workSheet.Cell(4, 1), workSheet.Cell(row, 15));
+                        var list = workSheet.Range(workSheet.Cell(4, 1), workSheet.Cell(row, 17));
 
                         list.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
                         list.Style.Border.SetBottomBorderColor(XLColor.Gray);
@@ -609,33 +634,33 @@ namespace TenderProcessing.Controllers
 
         public void ExcelDataFormatCalcRow(ref IXLWorksheet workSheet, int row, IXLRange deliveryTimeRange, IXLRange protectFactRange)
         {
-            workSheet.Cell(row, 7).DataType = XLCellValues.Number;
-            workSheet.Cell(row, 7).DataValidation.Decimal.GreaterThan(0);
-            workSheet.Cell(row, 7).DataValidation.ErrorTitle = "Введите число";
-            workSheet.Cell(row, 7).DataValidation.ErrorMessage = "Введите число";
-
-            workSheet.Cell(row, 8).DataType = XLCellValues.Number;
-            workSheet.Cell(row, 8).DataValidation.Decimal.GreaterThan(0);
-            workSheet.Cell(row, 8).DataValidation.ErrorTitle = "Введите число";
-            workSheet.Cell(row, 8).DataValidation.ErrorMessage = "Введите число";
-
             workSheet.Cell(row, 9).DataType = XLCellValues.Number;
             workSheet.Cell(row, 9).DataValidation.Decimal.GreaterThan(0);
             workSheet.Cell(row, 9).DataValidation.ErrorTitle = "Введите число";
             workSheet.Cell(row, 9).DataValidation.ErrorMessage = "Введите число";
+
             workSheet.Cell(row, 10).DataType = XLCellValues.Number;
             workSheet.Cell(row, 10).DataValidation.Decimal.GreaterThan(0);
             workSheet.Cell(row, 10).DataValidation.ErrorTitle = "Введите число";
             workSheet.Cell(row, 10).DataValidation.ErrorMessage = "Введите число";
 
-            var validation = workSheet.Cell(row, 12).SetDataValidation();
+            workSheet.Cell(row, 11).DataType = XLCellValues.Number;
+            workSheet.Cell(row, 11).DataValidation.Decimal.GreaterThan(0);
+            workSheet.Cell(row, 11).DataValidation.ErrorTitle = "Введите число";
+            workSheet.Cell(row, 11).DataValidation.ErrorMessage = "Введите число";
+            workSheet.Cell(row, 12).DataType = XLCellValues.Number;
+            workSheet.Cell(row, 12).DataValidation.Decimal.GreaterThan(0);
+            workSheet.Cell(row, 12).DataValidation.ErrorTitle = "Введите число";
+            workSheet.Cell(row, 12).DataValidation.ErrorMessage = "Введите число";
+
+            var validation = workSheet.Cell(row, 14).SetDataValidation();
             validation.AllowedValues = XLAllowedValues.List;
             validation.InCellDropdown = true;
             validation.Operator = XLOperator.Between;
             validation.List(deliveryTimeRange);
             validation.ErrorMessage = "Выберите из списка";
 
-            validation = workSheet.Cell(row, 13).SetDataValidation();
+            validation = workSheet.Cell(row, 15).SetDataValidation();
             validation.AllowedValues = XLAllowedValues.List;
             validation.InCellDropdown = true;
             validation.Operator = XLOperator.Between;
@@ -774,18 +799,18 @@ namespace TenderProcessing.Controllers
                                 };
 
                                 //получение значений расчета из ячеек
-                                var catalogValue = workSheet.Cell(row, 4).Value;
-                                var nameValue = workSheet.Cell(row, 5).Value;
-                                var replaceValue = workSheet.Cell(row, 6).Value;
-                                var priceUsd = workSheet.Cell(row, 7).Value;
-                                var priceEur = workSheet.Cell(row, 8).Value;
-                                var priceEurRicoh = workSheet.Cell(row, 9).Value;
-                                var priceRubl = workSheet.Cell(row, 10).Value;
-                                var providerValue = workSheet.Cell(row, 11).Value;
-                                var deliveryTimeValue = workSheet.Cell(row, 12).Value;
-                                var protectFactValue = workSheet.Cell(row, 13).Value;
-                                var protectConditionValue = workSheet.Cell(row, 14).Value;
-                                var commentValue = workSheet.Cell(row, 15).Value;
+                                var catalogValue = workSheet.Cell(row, 6).Value;
+                                var nameValue = workSheet.Cell(row, 7).Value;
+                                var replaceValue = workSheet.Cell(row, 8).Value;
+                                var priceUsd = workSheet.Cell(row, 9).Value;
+                                var priceEur = workSheet.Cell(row, 10).Value;
+                                var priceEurRicoh = workSheet.Cell(row, 11).Value;
+                                var priceRubl = workSheet.Cell(row, 12).Value;
+                                var providerValue = workSheet.Cell(row, 13).Value;
+                                var deliveryTimeValue = workSheet.Cell(row, 14).Value;
+                                var protectFactValue = workSheet.Cell(row, 15).Value;
+                                var protectConditionValue = workSheet.Cell(row, 16).Value;
+                                var commentValue = workSheet.Cell(row, 17).Value;
 
                                 //Проверка
                                 if (deliveryTimeValue != null && string.IsNullOrEmpty(deliveryTimeValue.ToString().Trim()))
@@ -1043,7 +1068,8 @@ namespace TenderProcessing.Controllers
 
         //>>>>Уведомления
         //отправка позиций на подтверждение - изменение статуса позиции
-        public JsonResult SetPositionToConfirm(int idClaim, string comment)
+        [HttpPost]
+        public JsonResult SetPositionToConfirm(List<int> posIds, int idClaim, string comment)
         {
             var isComplete = false;
             var message = string.Empty;
@@ -1065,8 +1091,17 @@ namespace TenderProcessing.Controllers
                         positions = db.LoadSpecificationPositionsForTenderClaimForProduct(idClaim, user.Id);
                     }
                 }
-                if (positions.Any())
+                //if (positions.Any())
+                if (posIds.Any())
                 {
+                    //Переделано для частичной передачи расчета
+                    positions = new List<SpecificationPosition>();
+                    foreach (int p in posIds)
+                    {
+                        positions.Add(new SpecificationPosition(){Id=p});
+                    }
+                    // /> частичная передача
+
                     //проверка наличия у позиций строк расчета
                     var isReady = db.IsPositionsReadyToConfirm(positions);
                     if (isReady)
@@ -1095,7 +1130,7 @@ namespace TenderProcessing.Controllers
                                     Comment = comment,
                                     IdClaim = idClaim,
                                     IdUser = user.Id,
-                                    Status = new ClaimStatus() { Id = claimStatus }
+                                    Status = new ClaimStatus() {Id = claimStatus}
                                 };
                                 db.SaveClaimStatusHistory(statusHistory);
                                 statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
@@ -1109,7 +1144,7 @@ namespace TenderProcessing.Controllers
                                     Comment = comment,
                                     IdClaim = idClaim,
                                     IdUser = user.Id,
-                                    Status = new ClaimStatus() { Id = status }
+                                    Status = new ClaimStatus() {Id = status}
                                 };
                                 db.SaveClaimStatusHistory(statusHistory);
                                 statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
@@ -1121,7 +1156,8 @@ namespace TenderProcessing.Controllers
                             var productManagersFromAd = UserHelper.GetProductManagers();
                             var productManagers = db.LoadProductManagersForClaim(claim.Id);
                             var productInClaim =
-                                productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
+                                productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id))
+                                    .ToList();
                             var manager = UserHelper.GetUserById(claim.Manager.Id);
                             var author = UserHelper.GetUserById(claim.Author.Id);
                             var to = new List<UserBase>();
@@ -1150,7 +1186,8 @@ namespace TenderProcessing.Controllers
                                                    "/Claim/Index?claimId=" + claim.Id + "</a>");
                                 //messageMail.Append("<br/>Сообщение от системы Спец расчет");
                                 Notification.SendNotification(to, messageMail.ToString(),
-                                    String.Format("{0} - {1} - Полный расчет заявки СпецРасчет", claim.TenderNumber, claim.Customer));
+                                    String.Format("{0} - {1} - Полный расчет заявки СпецРасчет", claim.TenderNumber,
+                                        claim.Customer));
                             }
                             //>>>>Уведомления
                             if (claimStatus == 6)
@@ -1162,7 +1199,9 @@ namespace TenderProcessing.Controllers
                                 if (noneCalculatePositionManagers.Any())
                                 {
                                     var products =
-                                        productManagersFromAd.Where(x => noneCalculatePositionManagers.Select(y => y.Id).Contains(x.Id)).ToList();
+                                        productManagersFromAd.Where(
+                                            x => noneCalculatePositionManagers.Select(y => y.Id).Contains(x.Id))
+                                            .ToList();
                                     var messageMail = new StringBuilder();
                                     messageMail.Append("Добрый день!");
                                     messageMail.Append("<br/>");
@@ -1177,11 +1216,13 @@ namespace TenderProcessing.Controllers
                                     //messageMail.Append("<br/>");
 
                                     messageMail.Append("Ссылка на заявку: ");
-                                    messageMail.Append("<a href='" + host + "/Claim/Index?claimId=" + claim.Id + "'>" + host +
+                                    messageMail.Append("<a href='" + host + "/Claim/Index?claimId=" + claim.Id + "'>" +
+                                                       host +
                                                        "/Claim/Index?claimId=" + claim.Id + "</a>");
                                     //messageMail.Append("<br/>Сообщение от системы Спец расчет");
                                     Notification.SendNotification(to, messageMail.ToString(),
-                                        String.Format("{0} - {1} - Частичный расчет заявки СпецРасчет", claim.TenderNumber, claim.Customer));
+                                        String.Format("{0} - {1} - Частичный расчет заявки СпецРасчет",
+                                            claim.TenderNumber, claim.Customer));
                                 }
                             }
                         }
@@ -1190,6 +1231,10 @@ namespace TenderProcessing.Controllers
                     {
                         message = "Невозможно отправить позиции на подтверждение\rНе все позиции имеют расчет";
                     }
+                }
+                else
+                {
+                    message = "Выберите хотябы одну позицию!";
                 }
             }
             catch (Exception)
@@ -1378,7 +1423,7 @@ namespace TenderProcessing.Controllers
                    UserHelper.GetUserById(claim.Manager.Id).ShortName + "<br /><br />Подразделение менеджера: " +
                    claim.Manager.SubDivision +
                    "<br /><br />Тип конкурса: " + dealTypes.First(x => x.Id == claim.DealType).Value + (claim.Sum > 0
-                       ? "<br /><br />Сумма: " + claim.Sum.ToString("N2")
+                       ? "<br /><br />Бюджет: " + claim.Sum.ToString("N2")
                        : string.Empty) + (!string.IsNullOrEmpty(claim.TenderUrl)
                            ? "<br /><br />Сcылка на конкурс: <a href='" + claim.TenderUrl + "'>[Ссылка]</a>]"
                            : "не указана");
@@ -1390,6 +1435,49 @@ namespace TenderProcessing.Controllers
             PositionRecord = 2,
             CalculateHeader = 3,
             CalculateRow = 4
+        }
+
+        [HttpPost]
+        public ActionResult SaveFile(string claimId)
+        {
+            if (Request.Files.Count > 0)
+            {
+                int? idClaim = null;
+
+                try
+                {
+                    idClaim = Convert.ToInt32(Request.QueryString["claimId"]);
+                    //idClaim = Convert.ToInt32(RouteData.Values["claimId"]);
+
+
+                }
+                catch (Exception ex)
+                {
+                    idClaim = null;
+                }
+
+
+                if (idClaim != null && idClaim > 0)
+                {
+                    //foreach (HttpPostedFileWrapper file in Request.Files)
+                    //{
+                    for(int i=0; i<Request.Files.Count; i++)
+                    {
+                        var file = Request.Files[i];
+                        byte[] fileData = null;
+                        using (var br = new BinaryReader(file.InputStream))
+                        {
+                            fileData = br.ReadBytes(file.ContentLength);
+                        }
+                        var db = new DbEngine();
+                        var cert = new ClaimCert() {IdClaim = idClaim.Value, File = fileData, FileName = file.FileName};
+                        db.SaveClaimCertFile(ref cert);
+                    }
+                    //}
+                }
+            }
+
+            return RedirectToAction("Index", "Calc", new { claimId = Request.QueryString["claimId"] });
         }
     }
 }

@@ -82,5 +82,7 @@ namespace TenderProcessingDataAccessLayer.Models
         public List<SpecificationPosition> Positions { get; set; }
 
         public string StrSum { get; set; }
+
+        public List<ClaimCert> Certs { get; set; }
     }
 }

@@ -112,6 +112,7 @@ namespace TenderProcessing.Controllers
                             tenderStatus = status.Value;
                         }
                         //получение позиций по заявке и расчета к ним
+                        claim.Certs = db.LoadClaimCerts(claimId.Value);
                         claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value);
                         if (claim.Positions != null && claim.Positions.Any())
                         {
@@ -208,7 +209,7 @@ namespace TenderProcessing.Controllers
                     clickAction = "editClaim";
                     posibleAction = "editClaim";
                     userId = user.Id;
-                    filterClaimStatus.AddRange(new [] { 1,2,3,6,7 });
+                    filterClaimStatus.AddRange(new[] { 1, 2, 3, 6, 7 });
                     deleteClaim = "self&manager";
                 }
                 if (isProduct)
@@ -271,7 +272,7 @@ namespace TenderProcessing.Controllers
                     var claimProductManagers = claims.SelectMany(x => x.ProductManagers).ToList();
                     foreach (var claimProductManager in claimProductManagers)
                     {
-                        var managerFromAD = adProductManagers.FirstOrDefault(x=>x.Id == claimProductManager.Id);
+                        var managerFromAD = adProductManagers.FirstOrDefault(x => x.Id == claimProductManager.Id);
                         if (managerFromAD != null)
                         {
                             claimProductManager.Name = managerFromAD.Name;
@@ -329,13 +330,13 @@ namespace TenderProcessing.Controllers
                 excBook = new XLWorkbook(ms);
                 var workSheet = excBook.Worksheet("Лот");
                 var userRangeSheet = excBook.Worksheet(2);
-                
+
                 if (workSheet != null && userRangeSheet != null)
                 {
                     userRangeSheet.Visibility = XLWorksheetVisibility.Hidden;
                     //>>>>>>>>Шапка - Заполнение инфы о заявке<<<<<<
                     var dealTypes = db.LoadDealTypes();
-                    
+
                     var manager = UserHelper.GetUserById(claim.Manager.Id);
                     //workSheet.Cell(1, 3).Value = !claim.CurrencyUsd.Equals(0)
                     //    ? claim.CurrencyUsd.ToString("N2")
@@ -413,7 +414,7 @@ namespace TenderProcessing.Controllers
                 excBook.Dispose();
                 excBook = null;
                 ms.Seek(0, SeekOrigin.Begin);
-                
+
             }
             catch (Exception)
             {
@@ -466,6 +467,8 @@ namespace TenderProcessing.Controllers
             var message = string.Empty;
             try
             {
+                
+
                 //получение позиций по заявке и расчетов к ним
                 var db = new DbEngine();
                 var positions = db.LoadSpecificationPositionsForTenderClaim(claimId);
@@ -496,31 +499,70 @@ namespace TenderProcessing.Controllers
                     workSheet.Name = "лот";
                     var claim = db.LoadTenderClaimById(claimId);
                     //>>>>>>>>Шапка - Заполнение инфы о заявке<<<<<<
+
+                    //Менеджер из Москвы
+                    bool managerIsMoscou = false;
+                    string managerSid = "";
+                    var dtUserIsMoscou = Db.CheckManagerIsMoscou(managerSid);
+                    if (dtUserIsMoscou.Rows.Count > 0)
+                    {
+                        managerIsMoscou = dtUserIsMoscou.Rows[0]["result"].ToString().Equals("1");
+                    }
+                    // />Менеджер из Москвы
+
                     var dealTypes = db.LoadDealTypes();
                     var deliveryTimes = db.LoadDeliveryTimes();
-                    var manager = UserHelper.GetUserById(claim.Manager.Id);
-                    //workSheet.Cell(1, 3).Value = !claim.CurrencyUsd.Equals(0)
-                    //    ? claim.CurrencyUsd.ToString("N2")
-                    //    : string.Empty;
-                    //workSheet.Cell(2, 3).Value = !claim.CurrencyEur.Equals(0)
-                    //    ? claim.CurrencyEur.ToString("N2")
-                    //    : string.Empty;
-                    //workSheet.Cell(1, 3).DataType = XLCellValues.Number;
-                    //workSheet.Cell(2, 3).DataType = XLCellValues.Number;
-                    
-                    workSheet.Cell(3, 4).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
-                    workSheet.Cell(4, 4).Value = manager != null ? manager.ShortName : string.Empty;
-                    workSheet.Cell(5, 4).Value = claim.Customer;
+                    UserBase manager;
+                    try
+                    {
+                        manager = UserHelper.GetUserById(claim.Manager.Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        manager = new UserBase();
+                    }
+                    var dt = Db.GetExchangeRatesOnDate(DateTime.Now);
+
+                    double? usdRate = null;
+                    double? eurRate = null;
+
+                    if (dt.Rows.Count >= 3)
+                    {
+                        usdRate = Convert.ToDouble(dt.Rows[1]["price"].ToString()) * 1.03;
+                        eurRate = Convert.ToDouble(dt.Rows[2]["price"].ToString()) * 1.03;
+                    }
+
+                    int rowHead = 1;
+
+                    var usdCell = workSheet.Cell(rowHead, 4);
+                    usdCell.Value =
+                        usdRate.HasValue
+                            ? usdRate.Value.ToString("N2")
+                            : string.Empty;
+                    workSheet.Cell(rowHead, 4).DataType = XLCellValues.Number;
+
+                    var eurCell = workSheet.Cell(++rowHead, 4);
+                    eurCell.Value = eurRate.HasValue
+                            ? eurRate.Value.ToString("N2")
+                            : string.Empty;
+                    workSheet.Cell(rowHead, 4).DataType = XLCellValues.Number;
+
+                    var eurRicohCell = workSheet.Cell(++rowHead, 4);
+
+                    workSheet.Cell(++rowHead, 4).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
+                    workSheet.Cell(++rowHead, 4).Value = manager != null ? manager.ShortName : string.Empty;
+                    workSheet.Cell(++rowHead, 4).Value = claim.Customer;
                     //срок готовности цен от снабжения???
-                    workSheet.Cell(7, 4).Value = claim.Sum;//Максимальная цена контракта???
-                    workSheet.Cell(8, 4).Value = claim.DeliveryDateString;
-                    workSheet.Cell(8, 4).DataType = XLCellValues.DateTime;
-                    workSheet.Cell(9, 4).Value = claim.DeliveryPlace;
-                    workSheet.Cell(10, 4).Value = claim.KPDeadlineString;
-                    workSheet.Cell(10, 4).DataType = XLCellValues.DateTime;
-                    workSheet.Cell(11, 4).Value = claim.AuctionDateString;
-                    workSheet.Cell(11, 4).DataType = XLCellValues.DateTime;
-                    workSheet.Cell(12, 4).Value = claim.Comment;
+                    rowHead++;
+                    workSheet.Cell(++rowHead, 4).Value = claim.Sum;//Максимальная цена контракта???
+                    workSheet.Cell(++rowHead, 4).Value = claim.DeliveryDateString;
+                    workSheet.Cell(rowHead, 4).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(++rowHead, 4).Value = claim.DeliveryPlace;
+                    workSheet.Cell(++rowHead, 4).Value = claim.KPDeadlineString;
+                    workSheet.Cell(rowHead, 4).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(++rowHead, 4).Value = claim.AuctionDateString;
+                    workSheet.Cell(rowHead, 4).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(++rowHead, 4).Value = claim.Comment;
 
 
                     //workSheet.Cell(3, 4).Value = claim.TenderNumber;
@@ -533,9 +575,9 @@ namespace TenderProcessing.Controllers
                     //workSheet.Cell(11, 4).Value = claim.TenderUrl;
                     //workSheet.Cell(13, 4).Value = claim.Manager.SubDivision;
                     //workSheet.Cell(14, 4).DataType = XLCellValues.DateTime;
-                    
-                    
-                    
+
+
+
                     //заголовок для расчетов
                     //workSheet.Cell(18, 1).Value = "№ пп";
                     //workSheet.Cell(18, 2).Value = "Каталожный номер*";
@@ -568,7 +610,7 @@ namespace TenderProcessing.Controllers
                     //calcHeaderRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
                     //var currencies = db.LoadCurrencies();
                     //<<<<<<<Номер строки - начало вывода инфы>>>>>>
-                    var row = 14;
+                    var row = 15;
                     var rowNumber = 1;
                     //строки расчета
                     foreach (var position in positions)
@@ -591,29 +633,87 @@ namespace TenderProcessing.Controllers
                                 workSheet.Cell(row, 4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
                                 workSheet.Cell(row, 5).Value = GetUnitStr(position.Unit);
                                 workSheet.Cell(row, 5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                                workSheet.Cell(row, 6).Value = position.Value;
-                                workSheet.Cell(row, 6).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                                workSheet.Cell(row, 7).Value =
-                                    UserHelper.GetUserById(position.ProductManager.Id).ShortName;
+                                var countCell = workSheet.Cell(row, 6);
+                                countCell.Value = position.Value;
+                                countCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                if (position.ProductManager != null)
+                                {
+                                    var prodManager = UserHelper.GetUserById(position.ProductManager.Id);
+                                    workSheet.Cell(row, 7).Value = prodManager == null
+                                        ? String.Empty
+                                        : prodManager.ShortName;
+                                }
                                 workSheet.Cell(row, 7).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                                workSheet.Cell(row, 8).Value =
-                                    deliveryTimes.First(x => x.Id == calculation.DeliveryTime.Id).Value;
+                                if (calculation.DeliveryTime != null)
+                                {
+                                    var delivTime = deliveryTimes.First(x => x.Id == calculation.DeliveryTime.Id);
+                                    workSheet.Cell(row, 8).Value = delivTime == null ? String.Empty : delivTime.Value;
+                                }
                                 workSheet.Cell(row, 8).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                                workSheet.Cell(row, 9).Value = calculation.PriceUsd;
-                                workSheet.Cell(row, 9).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                                workSheet.Cell(row, 9).Style.NumberFormat.Format = "$ #,###";
-                                workSheet.Cell(row, 10).Value = calculation.PriceEur;
-                                workSheet.Cell(row, 10)
-                                    .Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                                workSheet.Cell(row, 10).Style.NumberFormat.Format = "€ #,###";
-                                workSheet.Cell(row, 11).Value = calculation.PriceEurRicoh;
-                                workSheet.Cell(row, 11)
-                                    .Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                                workSheet.Cell(row, 11).Style.NumberFormat.Format = "€ #,###";
-                                workSheet.Cell(row, 12).Value = calculation.PriceRubl;
-                                workSheet.Cell(row, 12)
-                                    .Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                                workSheet.Cell(row, 12).Style.NumberFormat.Format = "₽ #,###";
+                                var priceUsdCell = workSheet.Cell(row, 9);
+                                priceUsdCell.Value = calculation.PriceUsd;
+                                priceUsdCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                                priceUsdCell.Style.NumberFormat.Format = "$ #,###";
+                                var priceEurCell = workSheet.Cell(row, 10);
+                                priceEurCell.Value = calculation.PriceEur;
+                                priceEurCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                                priceEurCell.Style.NumberFormat.Format = "€ #,###";
+                                var priceEurRicohCell = workSheet.Cell(row, 11);
+                                priceEurRicohCell.Value = calculation.PriceEurRicoh;
+                                priceEurRicohCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                                priceEurRicohCell.Style.NumberFormat.Format = "€ #,###";
+                                var priceRublCell = workSheet.Cell(row, 12);
+                                priceRublCell.Value = calculation.PriceRubl;
+                                priceRublCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+
+                                //Вход за ед
+                                if (String.IsNullOrEmpty(priceRublCell.Value.ToString().Trim()))
+                                {
+                                    if (!String.IsNullOrEmpty(priceEurRicohCell.Value.ToString().Trim()))
+                                    {
+                                        priceRublCell.FormulaR1C1 = String.Format("{0}*{1}", eurRicohCell.Address.ToStringFixed(), priceEurRicohCell.Address);
+                                    }
+                                    if (!String.IsNullOrEmpty(priceEurCell.Value.ToString().Trim()))
+                                    {
+                                        priceRublCell.FormulaR1C1 = String.Format("{0}*{1}", eurCell.Address.ToStringFixed(), priceEurCell.Address);
+                                    }
+                                    if (!String.IsNullOrEmpty(priceUsdCell.Value.ToString().Trim()))
+                                    {
+                                        priceRublCell.FormulaR1C1 = String.Format("{0}*{1}", usdCell.Address.ToStringFixed(), priceUsdCell.Address);
+                                    }
+
+                                }
+                                // />Вход за ед
+                                priceRublCell.Style.NumberFormat.Format = "₽ #,###";
+                                //Сумма
+                                var priceSumCell = workSheet.Cell(row, 13);
+                                priceSumCell.Style.NumberFormat.Format = "₽ #,###";
+                                priceSumCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                                priceSumCell.FormulaR1C1 = String.Format("{0}*{1}", countCell.Address,
+                                    priceRublCell.Address);
+                                // />Сумма
+
+                                //Цена с ТЗР
+                                var priceTzrCell = workSheet.Cell(row, 14);
+                                string formulaPriceTzrCell = String.Format("({0}*1.02)*1.02", priceRublCell.Address);
+                                if (managerIsMoscou)
+                                {
+                                    formulaPriceTzrCell = String.Format("{0}*1.02", priceRublCell.Address);
+                                }
+                                priceTzrCell.FormulaR1C1 = formulaPriceTzrCell;
+                                priceTzrCell.Style.NumberFormat.Format = "₽ #,###";
+                                priceTzrCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                                // /> Цена с ТЗР
+
+                                //Сумма с ТЗР
+                                var sumTzrCell = workSheet.Cell(row, 15);
+                                string formulaSumTzrCell = String.Format("{0}*{1}", countCell.Address,priceTzrCell.Address);
+                                sumTzrCell.FormulaR1C1 = formulaSumTzrCell;
+                                sumTzrCell.Style.NumberFormat.Format = "₽ #,###";
+                                sumTzrCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                                // /> Сумма с ТЗР
+
+
 
                                 //workSheet.Cell(row, 5).Value = !calculation.PriceCurrency.Equals(0)
                                 //    ? calculation.PriceCurrency.ToString("N2")
@@ -628,6 +728,7 @@ namespace TenderProcessing.Controllers
                                 //workSheet.Cell(row, 8).Value = !calculation.SumRub.Equals(0)
                                 //    ? calculation.SumRub.ToString("N2")
                                 //    : string.Empty;
+
                                 workSheet.Cell(row, 18).Value = calculation.Provider;
                                 workSheet.Cell(row, 18)
                                     .Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
@@ -654,7 +755,13 @@ namespace TenderProcessing.Controllers
                             workSheet.Cell(row, 5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                             workSheet.Cell(row, 6).Value = position.Value;
                             workSheet.Cell(row, 6).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                            workSheet.Cell(row, 7).Value = UserHelper.GetUserById(position.ProductManager.Id).ShortName;
+                            if (position.ProductManager != null)
+                            {
+                                var prodManager = UserHelper.GetUserById(position.ProductManager.Id);
+                                workSheet.Cell(row, 7).Value = prodManager == null
+                                    ? String.Empty
+                                    : prodManager.ShortName;
+                            }
                             workSheet.Cell(row, 7).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                             workSheet.Cell(row, 8).Value = String.Empty;
                             workSheet.Cell(row, 8).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
@@ -679,7 +786,7 @@ namespace TenderProcessing.Controllers
                     //workSheet.Cell(1, 1).SetActive();
                     //workSheet.Columns(1, 15).AdjustToContents();
 
-                    var range = workSheet.Range(workSheet.Cell(13, 1), workSheet.Cell(row-1, 18));
+                    var range = workSheet.Range(workSheet.Cell(14, 1), workSheet.Cell(row - 1, 18));
                     range.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
                     range.Style.Border.SetBottomBorderColor(XLColor.Gray);
                     range.Style.Border.SetTopBorder(XLBorderStyleValues.Thin);
@@ -699,10 +806,10 @@ namespace TenderProcessing.Controllers
                     message = "Нет позиций для расчета";
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 error = true;
-                message = "Ошибка сервера";
+                message = "Ошибка сервера " + ex.Message;
             }
             finally
             {
@@ -928,9 +1035,9 @@ namespace TenderProcessing.Controllers
                                 CatalogNumber = string.Empty,
                                 Comment = string.Empty,
                                 Name = string.Empty,
-                                ProductManager = new ProductManager(){Id = string.Empty, Name = string.Empty},
+                                ProductManager = new ProductManager() { Id = string.Empty, Name = string.Empty },
                                 Replace = string.Empty,
-                                IdClaim = claimId, 
+                                IdClaim = claimId,
                                 State = 1,
                                 Author = user.Id,
                                 Currency = 1,
@@ -1297,6 +1404,7 @@ namespace TenderProcessing.Controllers
         {
             var isComplete = false;
             ClaimStatusHistory statusHistory = null;
+            int? idClaim;
             try
             {
                 model.KPDeadline = DateTime.ParseExact(model.KPDeadlineString, "dd.MM.yyyy", CultureInfo.CurrentCulture);
@@ -1320,7 +1428,7 @@ namespace TenderProcessing.Controllers
                     model.Deleted = false;
                     model.RecordDate = DateTime.Now;
                     model.Author = UserHelper.GetUserById(user.Id);
-                    isComplete = db.SaveTenderClaim(model);
+                    isComplete = db.SaveTenderClaim(ref model);
                     if (model.DeliveryDateString == null) model.DeliveryDateString = string.Empty;
                     if (model.DeliveryDateEndString == null) model.DeliveryDateEndString = string.Empty;
                     if (model.AuctionDateString == null) model.AuctionDateString = string.Empty;
@@ -1333,7 +1441,7 @@ namespace TenderProcessing.Controllers
                             Date = DateTime.Now,
                             IdClaim = model.Id,
                             IdUser = user.Id,
-                            Status = new ClaimStatus() {Id = model.ClaimStatus},
+                            Status = new ClaimStatus() { Id = model.ClaimStatus },
                             Comment = "Автор: " + user.ShortName
                         };
                         db.SaveClaimStatusHistory(statusHistory);
@@ -1359,7 +1467,7 @@ namespace TenderProcessing.Controllers
                                 message.Append("<a href='" + host + "/Claim/Index?claimId=" + model.Id + "'>" + host +
                                                "/Claim/Index?claimId=" + model.Id + "</a>");
                                 //message.Append("<br/>Сообщение от системы Спец расчет");
-                                Notification.SendNotification(new List<UserBase>() {manager}, message.ToString(),
+                                Notification.SendNotification(new List<UserBase>() { manager }, message.ToString(),
                                     String.Format("{0} - {1} - Новая заявка СпецРасчет", model.TenderNumber, model.Customer));
                             }
                         }
@@ -1370,7 +1478,7 @@ namespace TenderProcessing.Controllers
             {
                 isComplete = false;
             }
-            return Json(new {IsComplete = isComplete, Model = model, StatusHistory = statusHistory});
+            return Json(new { IsComplete = isComplete, Model = model, StatusHistory = statusHistory });
         }
 
         //Изменение курса валют
@@ -1469,7 +1577,7 @@ namespace TenderProcessing.Controllers
                     var claimProductManagers = list.SelectMany(x => x.ProductManagers).ToList();
                     foreach (var claimProductManager in claimProductManagers)
                     {
-                        var managerFromAD = adProductManagers.FirstOrDefault(x=>x.Id == claimProductManager.Id);
+                        var managerFromAD = adProductManagers.FirstOrDefault(x => x.Id == claimProductManager.Id);
                         if (managerFromAD != null)
                         {
                             claimProductManager.Name = managerFromAD.Name;
@@ -1539,7 +1647,7 @@ namespace TenderProcessing.Controllers
                 var hasPosition = db.HasClaimPosition(id);
                 if (hasPosition)
                 {
-                    isComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() {Id = id, ClaimStatus = 2});
+                    isComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = id, ClaimStatus = 2 });
                     var productManagers = db.LoadProductManagersForClaim(id);
                     if (productManagers != null && productManagers.Any())
                     {
@@ -1556,8 +1664,8 @@ namespace TenderProcessing.Controllers
                         //истроия изменения статуса заявки
                         var user = GetUser();
                         var comment = "Продакты/снабженцы:<br />";
-                         comment += string.Join("<br />", productManagers.Select(x => x.ShortName));
-                        comment += "<br />Автор: " + user.ShortName; 
+                        comment += string.Join("<br />", productManagers.Select(x => x.ShortName));
+                        comment += "<br />Автор: " + user.ShortName;
                         model = new ClaimStatusHistory()
                         {
                             Date = DateTime.Now,
@@ -1591,7 +1699,7 @@ namespace TenderProcessing.Controllers
                             messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
                                            "/Calc/Index?claimId=" + claim.Id + "</a>");
                             //messageMail.Append("<br/>Сообщение от системы Спец расчет");
-                            Notification.SendNotification(new[] {productManager}, messageMail.ToString(),
+                            Notification.SendNotification(new[] { productManager }, messageMail.ToString(),
                                 String.Format("{0} - {1} - Новая заявка СпецРасчет", claim.TenderNumber, claim.Customer));
                         }
                     }
@@ -1623,7 +1731,7 @@ namespace TenderProcessing.Controllers
                 {
                     model.Date = DateTime.Now;
                     model.IdUser = GetUser().Id;
-                    model.Status = new ClaimStatus() {Id = 5};
+                    model.Status = new ClaimStatus() { Id = 5 };
                     db.SaveClaimStatusHistory(model);
                     model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
                     //>>>>Уведомления
@@ -1794,7 +1902,7 @@ namespace TenderProcessing.Controllers
                 //изменение статуса заявки и истроиии изменения статусов
                 if (status != claimStatus)
                 {
-                    var changeStatusComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() {Id = idClaim, ClaimStatus = claimStatus});
+                    var changeStatusComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = idClaim, ClaimStatus = claimStatus });
                     if (changeStatusComplete)
                     {
                         model = new ClaimStatusHistory()
@@ -1803,7 +1911,7 @@ namespace TenderProcessing.Controllers
                             IdUser = user.Id,
                             IdClaim = idClaim,
                             Comment = comment,
-                            Status = new ClaimStatus() {Id = claimStatus}
+                            Status = new ClaimStatus() { Id = claimStatus }
                         };
                         if (string.IsNullOrEmpty(model.Comment)) model.Comment = string.Empty;
                         db.SaveClaimStatusHistory(model);
@@ -1870,14 +1978,14 @@ namespace TenderProcessing.Controllers
                         isComplete = db.ChangePositionsState(positions.Select(x => x.Id).ToList(), 4);
                         if (isComplete)
                         {
-                            db.ChangeTenderClaimClaimStatus(new TenderClaim() {Id = idClaim, ClaimStatus = 8});
+                            db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = idClaim, ClaimStatus = 8 });
                             model = new ClaimStatusHistory()
                             {
                                 Date = DateTime.Now,
                                 IdUser = user.Id,
                                 IdClaim = idClaim,
                                 Comment = string.Empty,
-                                Status = new ClaimStatus() {Id = 8}
+                                Status = new ClaimStatus() { Id = 8 }
                             };
                             db.SaveClaimStatusHistory(model);
                             model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
@@ -1899,9 +2007,9 @@ namespace TenderProcessing.Controllers
                                 messageMail.Append("<br/><br/>");
                                 //messageMail.Append(GetClaimInfo(claim));
                                 //messageMail.Append("<br/>");
-                                messageMail.Append("Ссылка на заявку: ");
-                                messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
-                                                   "/Calc/Index?claimId=" + claim.Id + "</a>");
+                                //messageMail.Append("Ссылка на заявку: ");
+                                //messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
+                                //                   "/Calc/Index?claimId=" + claim.Id + "</a>");
                                 //messageMail.Append("<br/>Сообщение от системы Спец расчет");
                                 Notification.SendNotification(productInClaim, messageMail.ToString(),
                                      String.Format("{0} - {1} - Подтверждение расчета позиций заявки СпецРасчет", claim.TenderNumber, claim.Customer));
@@ -1987,7 +2095,7 @@ namespace TenderProcessing.Controllers
             {
                 isComplete = false;
             }
-            return Json(new {IsComplete = isComplete, Model = statusHistory}, JsonRequestBehavior.AllowGet);
+            return Json(new { IsComplete = isComplete, Model = statusHistory }, JsonRequestBehavior.AllowGet);
         }
 
         //Проверка позиции на уникальность по отношению к переданому массиву позиций
@@ -2029,7 +2137,7 @@ namespace TenderProcessing.Controllers
         {
             var result = new StringBuilder();
             var name = user.Name;
-            var nameArr = name.Split(new[] {" "}, StringSplitOptions.RemoveEmptyEntries);
+            var nameArr = name.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
             if (nameArr.Count() > 2)
             {
                 result.Append(nameArr[0]);

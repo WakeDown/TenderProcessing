@@ -26,7 +26,90 @@ namespace TenderProcessingDataAccessLayer
 
         #region TenderClaim
 
-        public bool SaveTenderClaim(TenderClaim model)
+        public ClaimCert GetCertFile(string guid)
+        {
+            byte[] file = null;
+            string name = String.Empty;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "GetCertFile";
+                cmd.Parameters.AddWithValue("@guid", guid);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    rd.Read();
+                    file = (byte[]) rd["fileDATA"];
+                    name = rd["fileName"].ToString();
+                }
+                rd.Dispose();
+            }
+            return new ClaimCert() { File = file, FileName = name };
+        }
+
+        public List<ClaimCert> LoadClaimCerts(int idClaim)
+        {
+            var list = new List<ClaimCert>();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "LoadClaimCertList";
+                cmd.Parameters.AddWithValue("@IdClaim", idClaim);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        list.Add(new ClaimCert()
+                        {
+                            Id = rd.GetInt32(0),
+                            FileUrl = rd.GetString(1),
+                            FileName = rd.GetString(2)
+                            ,
+                            FileGuid = rd["fileGUID"].ToString()
+                        });
+                    }
+
+                }
+                rd.Dispose();
+            }
+            return list;
+        }
+
+        public bool SaveClaimCertFile(ref ClaimCert model)
+        {
+            var result = false;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "SaveClaimCertFile";
+                cmd.Parameters.AddWithValue("@IdClaim", model.IdClaim);
+                cmd.Parameters.AddWithValue("@file", model.File);
+                cmd.Parameters.AddWithValue("@fileName", model.FileName);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    rd.Read();
+                    var id = rd.GetInt32(0);
+                    if (id != -1)
+                    {
+                        result = true;
+                        model.Id = id;
+                    }
+                }
+                rd.Dispose();
+            }
+
+            return result;
+        }
+
+        public bool SaveTenderClaim(ref TenderClaim model)
         {
             var result = false;
             using (var conn = new SqlConnection(_connectionString))
@@ -78,6 +161,7 @@ namespace TenderProcessingDataAccessLayer
                 }
                 rd.Dispose();
             }
+            
             return result;
         }
 

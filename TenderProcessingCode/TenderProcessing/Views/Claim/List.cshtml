@@ -32,6 +32,7 @@
             alert("Произошла ошибка при загрузке");
             return;
         }
+        
         $.fn.datepicker.dates['ru'] = {
             days: ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"],
             daysShort: ["Пнд", "Втр", "Срд", "Чтв", "Птн", "Суб", "Вск"],
@@ -40,18 +41,23 @@
             monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
             today: "Сегодня"
         };
+        
         messageUi.initProgressImage();
         window.addEventListener("message", messageHandler, true);
         if (settings.newClaim == "false") $("#newClaimNavButton").hide();
+        
         initClaimsElements(claims);
         var managerId = (settings.filterManager != "") ? settings.filterManager : "";
         initFilterManagersList(managerId);
+        
         var productId = (settings.filterProduct != "") ? settings.filterProduct : "";
         initFilterProductManagersList(productId);
+        
         initFilterManagerSubDivisionsList();
         if (settings.filterClaimStatus != null && settings.filterClaimStatus.length > 0) {
             initFilterClaimStatus(settings.filterClaimStatus);
         }
+        
         $("#filterTenderStartFrom").datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
@@ -74,6 +80,7 @@
             $("#filterTenderStartFrom").val("");
             $("#filterTenderStartTo").val("");
         });
+        
         $("#acceptFilter").click(filter);
         $("#clearFilter").click(clearFilter);
         $("#saveFilterInExcel").click(filterInExcel);
@@ -182,6 +189,7 @@
     }
 
     function getFilterObj() {
+        
         //получение настроек фильтра из формы и проверка валидности введенных значений
         var obj = { isValid: true, message: "", model: null };
         var model = {};
@@ -319,27 +327,46 @@
     function initFilterManagersList(id) {
         var managersLength = managers.length;
         var list = $("#filterManagers");
-        var option = $("<option value='-1'>---Все---</option>");
-        list.append(option);
+        if(id == null || id == ""){
+            var option = $("<option value='-1'>---Все---</option>");
+            list.append(option);
+        }
         for (var i = 0; i < managersLength; i++) {
             var manager = managers[i];
             option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
-            if (id != null && id != "" && manager.Id == id) option.attr("selected", "selected");
-            list.append(option);
+            if (id != null && id != "" && manager.Id == id){ option.attr("selected", "selected");
+                list.append(option);}
+            if(id == null || id == ""){
+                list.append(option);
+            }
         }
+        
+        //if (id!='') {
+        //    $(list).prop( "disabled", true );
+        //}
     }
 
     function initFilterProductManagersList(id) {
         var managersLength = productManagers.length;
         var list = $("#filterProductManagers");
-        var option = $("<option value='-1'>---Все---</option>");
-        list.append(option);
+        if(id == null || id == ""){
+            var option = $("<option value='-1'>---Все---</option>");
+            list.append(option);
+        }
+        
+
         for (var i = 0; i < managersLength; i++) {
             var manager = productManagers[i];
             option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
-            if (id != null && id != "" && manager.Id == id) option.attr("selected", "selected");
-            list.append(option);
+            if (id != null && id != "" && manager.Id == id){ option.attr("selected", "selected");list.append(option);}
+            if(id == null || id == ""){
+                list.append(option);
+            }
         }
+        
+        //if (id!='') {
+            //$(list).prop( "disabled", true );
+        //}
     }
 
     function initFilterManagerSubDivisionsList() {
@@ -347,11 +374,31 @@
         var list = $("#filterManagerSubDivisions");
         var option = $("<option value='-1'>---Все---</option>");
         list.append(option);
-        for (var i = 0; i < managersLength; i++) {
-            var manager = managers[i];
-            option = $("<option value='" + manager.SubDivision + "'>" + manager.SubDivision + "</option>");
+        var subDivArr = [];
+        $.each(managers, function(index) {
+            var manSubDiv = managers[index].SubDivision;
+            subDivArr.push(manSubDiv);
+        });
+        var filterArr = [];
+        $.each(subDivArr, function(index) {
+            var filtSubDiv = subDivArr[index];
+            //if (!$.inArray(filtSubDiv, filterArr))
+            if (filterArr.length == 0 || (filterArr.length > 0 && filterArr.indexOf(filtSubDiv) == -1))
+            {filterArr.push(filtSubDiv);}
+            //else
+            //{alert(filterArr.indexOf(filtSubDiv));}
+        });
+        filterArr.sort();
+        // = $(managers).SubDivision;
+        for (var i = 0; i < filterArr.length; i++) {
+            var subDiv = filterArr[i];
+            option = $("<option value='" + subDiv + "'>" + subDiv + "</option>");
             list.append(option);
         }
+        
+        //if (id != null && id > 0) {
+        //    $(list).prop( "disabled", true );
+        //}
     }
 
     //отображение списка заявок
@@ -432,7 +479,10 @@
         element.append("<td>" + claim.RecordDateString.split(" ")[0] + "</td>");
         element.append("<td>" + claim.ClaimDeadlineString + "</td>");
 
-        element.append("<td><div class='text-nowrap'><strong>Всего</strong>&nbsp;<span class='label label-default ligth'>" + claim.PositionsCount + "</span>/<span class='label label-success ligth'>" + claim.CalculatePositionsCount + "</span>/<span class='label label-info ligth'>" + claim.CalculatesCount + "</span></div>" + getProductManagersString(claim.ProductManagers) + "</td>");
+        //element.append("<td><div class='text-nowrap'><strong>Всего</strong>&nbsp;<span class='label label-default ligth'>" + claim.PositionsCount + "</span>/<span class='label label-success ligth'>" + claim.CalculatePositionsCount + "</span>/<span class='label label-info ligth'>" + claim.CalculatesCount + "</span></div>" + getProductManagersString(claim.ProductManagers) + "</td>");
+        element.append("<td>" +
+            "<table class='table table-bordered prod-manager-table'><tr><th>Всего</th><td class='bg-default ligth text-right num'>" + claim.PositionsCount + "</td><td class='bg-success ligth text-right num'>" + claim.CalculatePositionsCount + "</td><td class='bg-info ligth text-right num'>" + claim.CalculatesCount + "</td></tr>" + getProductManagersString(claim.ProductManagers) 
+            + "</table></td>");
         
         var claimStateCell = $("<td></td>");
         claimStateCell.append(getDealTypeById(claim.DealType).Value);
@@ -572,7 +622,9 @@
         var managersLength = managers.length;
         for (var i = 0; i < managersLength; i++) {
             var manager = managers[i];
-            result += "<div class='text-nowrap'>" + manager.ShortName + " <span class='label label-default ligth'>" + manager.PositionsCount + "</span>/<span class='label label-success ligth'>" + manager.CalculatePositionsCount + "</span>/<span class='label label-info light'>" + manager.CalculatesCount + "</span></div>";
+            result += "<tr><td>" + manager.ShortName + "</td><td class='bg-default ligth text-right num'>" + manager.PositionsCount + "</td><td class='bg-success ligth text-right num'>" + manager.CalculatePositionsCount + "</td><td class='bg-info light text-right num'>" + manager.CalculatesCount + "</td></tr>";
+
+            //result += "<div class='text-nowrap'>" + manager.ShortName + " <span class='pull-right'><span class='label label-default ligth'>" + manager.PositionsCount + "</span>/<span class='label label-success ligth'>" + manager.CalculatePositionsCount + "</span>/<span class='label label-info light'>" + manager.CalculatesCount + "</span></span></div>";
         }
         //if (result.length > 4) {
         //    result = result.substr(0, result.length - 6);
@@ -724,7 +776,7 @@
                 <span id="showCountLabel"></span>
             </span>
         </h5>
-        <table class="table table-striped small">
+        <table class="table table-bordered small">
             <thead>
             <tr>
                 <th class="min-width text-nowrap">&nbsp;</th>
@@ -753,7 +805,7 @@
                 <th>Статус заявки</th>
                 <th>Создано</th>
                 <th>Срок сдачи</th>
-                <th class="text-nowrap">Снабженцы (Пер/Рас)</th>
+                <th class="text-nowrap"><table class="table table-bordered prod-manager-table"><tr><td>Снабженец</td><td class="bg-default ligth num">запрос</td><td class="bg-success ligth num">расчет</td><td class="bg-info ligth num">позиций</td></tr></table></th>
                 @*<th class="text-nowrap">Тип сделки</th>*@
                 <th style="width: 150px;">
                     Тип сделки
