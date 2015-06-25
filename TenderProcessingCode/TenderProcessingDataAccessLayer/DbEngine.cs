@@ -127,7 +127,7 @@ namespace TenderProcessingDataAccessLayer
                 cmd.Parameters.AddWithValue("@customer", model.Customer);
                 if (!string.IsNullOrEmpty(model.CustomerInn))
                 cmd.Parameters.AddWithValue("@customerInn", model.CustomerInn);
-                if (!model.Sum.Equals(0)) cmd.Parameters.AddWithValue("@totalSum", model.Sum);
+                if (model.Sum >= 0) cmd.Parameters.AddWithValue("@totalSum", model.Sum);
                 cmd.Parameters.AddWithValue("@dealType", model.DealType);
                 if (!string.IsNullOrEmpty(model.TenderUrl))
                     cmd.Parameters.AddWithValue("@tenderUrl", model.TenderUrl);

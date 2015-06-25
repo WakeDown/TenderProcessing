@@ -4,7 +4,7 @@
 
 @{
     ViewBag.Title = "Список заявок";
-    Layout = "~/Views/Shared/_MasterPage.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
     var serializer = new JavaScriptSerializer();
     var dealTypes = (List<DealType>)ViewBag.DealTypes;
     var claimStatus = (List<ClaimStatus>)ViewBag.ClaimStatus;
@@ -14,7 +14,7 @@
     var claimCount = (int)ViewBag.ClaimCount;
 }
 <link href="~/Content/bootstrap-datepicker3.css" rel="stylesheet" />
-<script src="~/Scripts/bootstrap-datepicker.js"></script>
+@*<script src="~/Scripts/bootstrap-datepicker.js"></script>*@
 <script type="text/javascript">
     var dealTypes = @Html.Raw(serializer.Serialize(dealTypes));
     var claimStatus = @Html.Raw(serializer.Serialize(claimStatus));
@@ -27,20 +27,34 @@
 
     $(init);
 
+    //(function ($) {
+    //    $.fn.datepicker.dates['ru'] = {
+    //        days: ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"],
+    //        daysShort: ["Вск", "Пнд", "Втр", "Срд", "Чтв", "Птн", "Суб"],
+    //        daysMin: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+    //        months: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+    //        monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+    //        today: "Сегодня",
+    //        clear: "Очистить",
+    //        format: "dd.mm.yyyy",
+    //        weekStart: 1
+    //    };
+    //}(jQuery));
+
     function init() {
         if (errorLoad) {
             alert("Произошла ошибка при загрузке");
             return;
         }
         
-        $.fn.datepicker.dates['ru'] = {
-            days: ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"],
-            daysShort: ["Пнд", "Втр", "Срд", "Чтв", "Птн", "Суб", "Вск"],
-            daysMin: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
-            months: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
-            monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
-            today: "Сегодня"
-        };
+        //$.fn.datepicker.dates['ru'] = {
+        //    days: ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"],
+        //    daysShort: ["Вск", "Пнд", "Втр", "Срд", "Чтв", "Птн", "Суб", "Вск"],
+        //    daysMin: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
+        //    months: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+        //    monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+        //    today: "Сегодня"
+        //};
         
         messageUi.initProgressImage();
         window.addEventListener("message", messageHandler, true);

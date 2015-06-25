@@ -1,0 +1,132 @@
+﻿@using TenderProcessing.Controllers
+@using TenderProcessing.Models
+@using TenderProcessing.Objects
+@model TenderProcessing.Models.Question
+
+@{
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var list = Model.GetPositions().ToArray();
+
+}
+<table class="table table-condensed">
+    <colgroup>
+        <col class="col-lg-1" />
+        <col class="col-lg-4" />
+    </colgroup>
+    <tr>
+        <td class="text-right">Менеджер:</td>
+        <td>@Html.LabelFor(m => m, Model.Manager.DisplayName)</td>
+    </tr>
+    <tr>
+        <td class="text-right">Комментарий:</td>
+        <td>@Html.LabelFor(m => m, Model.Descr)</td>
+    </tr>
+    <tr>
+        <td class="text-right">Срок сдачи:</td>
+        <td>@Html.LabelFor(m => m, String.Format("{0:d}", Model.DateLimit))</td>
+    </tr>
+    <tr>
+        <td class="text-right"></td>
+        <td>
+            <a href="@Url.Action()"></a>
+        </td>
+    </tr>
+</table>
+@*@using (Html.BeginForm("Positions", "Question", FormMethod.Post))
+    {
+    @Html.HiddenFor(m=>m.Id)
+        <div class="row">
+            <div class="col-lg-1">
+                <button id="btnCreate" type="submit" class="btn btn-success"><i class="fa fa-save"></i>&nbsp;добавить</button>
+            </div>
+            <div class="col-lg-2">
+                @Html.DropDownListFor(m => m.NewPosition.User.AdSid,DbList.GetProductManagerSelectionList(), "--выберите--", new { @class = "form-control required-mark", @id = "newPosProdManager", required = "required", data_error = "Выберите Продакт/Снабженец" })
+                <span class="help-block with-errors"></span>
+            </div>
+            <div class="col-lg-9">
+                @Html.TextAreaFor(m => m.NewPosition.Descr, new { @class = "form-control required-mark", @id = "newPosQuestion", required = "required", data_error = "Заполните Вопрос", @rows = "3" })
+                <span class="help-block with-errors"></span>
+            </div>
+        </div>
+        <div>
+            <p class="text-danger">
+                @ViewData["ServerError"]
+            </p>
+        </div>
+*@
+@using (Html.BeginForm("Positions", "Question", FormMethod.Post))
+{
+    @Html.HiddenFor(m => m.Id)
+    <table class="table table-bordered">
+        <tr>
+            <th class="min-width">№</th>
+            <th class="min-width text-nowrap">Продакт/Снабженец</th>
+            <th>Вопрос</th>
+            <th class="min-width"></th>
+        </tr>
+        <tr>
+            <td class="min-width"><button id="btnCreate" type="submit" class="btn btn-success"><i class="fa fa-save"></i>&nbsp;добавить</button></td>
+            <td class="min-width text-nowrap">
+                @Html.DropDownListFor(m => m.NewPosition.User.AdSid, DbList.GetProductManagerSelectionList(), "--выберите--", new { @class = "form-control required-mark", @id = "newPosProdManager", required = "required", data_error = "Выберите Продакт/Снабженец" })
+                <span class="help-block with-errors"></span>
+            </td>
+            <td>
+                @Html.TextAreaFor(m => m.NewPosition.Descr, new { @class = "form-control required-mark", @id = "newPosQuestion", required = "required", data_error = "Заполните Вопрос", @rows = "3" })
+                <span class="help-block with-errors"></span>
+            </td>
+            <td></td>
+        </tr>
+        @if (list.Any())
+        {
+
+            int i = 0;
+
+            foreach (QuePosition pos in list)
+            {
+                i++;
+                <tr>
+                    <td>@i</td>
+                    <td class="text-nowrap">@pos.User.DisplayName</td>
+                    <td>@pos.Descr</td>
+                    <td>
+                        <button class="btn btn-link" name="delele-pos" posid="@pos.Id" data-toggle="tooltip" title="удалить"><i class="fa fa-trash"></i></button>
+                    </td>
+                </tr>
+            }
+
+        }
+
+    </table>
+
+
+}
+
+@section scripts
+{
+    <script type="text/javascript">
+
+        $(document).ready(init);
+
+        function init() {
+            $("[name='delele-pos']").click(deleteDepartment);
+        }
+
+        function deleteDepartment(e) {
+            if (!confirm('Вы действительно хотите удалить позицию?')) return;
+            var id = $(this).attr('posid');
+            $.ajax({
+                type: 'POST',
+                url: "@Url.Action("Delete", "Question")",
+                data: { id: id },
+                success: function(data) {
+                    if (data != null && data != '') {
+                        alert(data);
+                    } else {
+                        window.location.reload();
+                    }
+                }
+            });
+        }
+    </script>
+}

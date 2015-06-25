@@ -4,7 +4,7 @@
 
 @{
     ViewBag.Title = "Расчет заявки";
-    Layout = "~/Views/Shared/_MasterPage.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
     var serializer = new JavaScriptSerializer();
     var claim = (TenderClaim)ViewBag.Claim;
     var protectFacts = (List<ProtectFact>)ViewBag.ProtectFacts;
@@ -1611,7 +1611,7 @@
                     <th class="min-width center"><input type="checkbox" id="selectAllPositions" data-toggle="tooltip" title="все" /></th>
                     <th></th>
                     <th>Каталожный №</th>
-                    <th style="width: 250px">
+                    <th style="width: 500px">
                         @*Каталожный номер<br />
                             Наименование<br />
                             Количество<br />
@@ -1619,15 +1619,15 @@
                             Комментарий*@
                         Наименование
                     </th>
-                    <th>Количество</th>
+                    <th class="text-nowrap">Кол-во</th>
                     <th></th>
                     <th>
                         <button type='button' id='editAllCalcButton' class='btn btn-primary btn-sm' data-toggle='tooltip' title='режим резактирования'><i class='fa fa-edit'></i></button>
                         <button type='button' id='editAllCalcButtonCancel' class='btn btn-default btn-sm' data-toggle='tooltip' title='отмена редактирования'><i class='fa fa-undo'></i></button>
                     </th>
                     <th style="width:150px;">Каталожный номер</th>
-                    <th style="width:300px;">Наименование</th>
-                    <th style="width:300px;">Замена</th>
+                    <th style="width:250px;">Наименование</th>
+                    <th style="width:200px;">Замена</th>
                     <th style="width:100px;">Цена USD</th>
                     <th style="width:100px;">Цена EUR</th>
                     <th style="width:100px;">Цена EUR Ricoh</th>

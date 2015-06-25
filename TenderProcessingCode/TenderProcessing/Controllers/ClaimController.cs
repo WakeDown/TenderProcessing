@@ -12,6 +12,7 @@ using System.Web.Script.Serialization;
 using System.Web.UI.WebControls;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Newtonsoft.Json;
 using TenderProcessing.Helpers;
 using TenderProcessingDataAccessLayer;
@@ -502,7 +503,7 @@ namespace TenderProcessing.Controllers
 
                     //Менеджер из Москвы
                     bool managerIsMoscou = false;
-                    string managerSid = "";
+                    string managerSid = GetUser().Id;
                     var dtUserIsMoscou = Db.CheckManagerIsMoscou(managerSid);
                     if (dtUserIsMoscou.Rows.Count > 0)
                     {
@@ -1837,7 +1838,7 @@ namespace TenderProcessing.Controllers
                     var lastValueValid = statusHistory.Last().Status.Id == 4;
                     if (lastValueValid)
                     {
-                        var actualStatus = statusHistory[statusHistory.Count() - 2];
+                        var actualStatus = new ClaimStatusHistory() {Status = new ClaimStatus(){Id = 3}};//statusHistory[statusHistory.Count() - 2];
                         isComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = model.IdClaim, ClaimStatus = actualStatus.Status.Id });
                         if (isComplete)
                         {
@@ -1895,8 +1896,8 @@ namespace TenderProcessing.Controllers
                 var db = new DbEngine();
                 isComplete = db.ChangePositionsState(positionsId, 3);
                 var allPositions = db.LoadSpecificationPositionsForTenderClaim(idClaim);
-                var claimStatus = 3;
-                var isSameCalculate = allPositions.Any(x => x.State == 2 || x.State == 4);
+                int claimStatus = 3;
+                bool isSameCalculate = allPositions.Any(x => x.State == 2 || x.State == 4);
                 if (isSameCalculate) claimStatus = 6;
                 var status = db.LoadLastStatusHistoryForClaim(idClaim).Status.Id;
                 //изменение статуса заявки и истроиии изменения статусов

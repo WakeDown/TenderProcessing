@@ -141,6 +141,8 @@ namespace TenderProcessing.Helpers
                     }
                 }
             }
+
+            list = list.OrderBy(m => m.ShortName).ToList();
             return list;
         }
 
@@ -201,6 +203,8 @@ namespace TenderProcessing.Helpers
                     }
                 }
             }
+            list = list.OrderBy(m => m.ShortName).ToList();
+
             return list;
         }
 
