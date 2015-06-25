@@ -83,7 +83,7 @@ namespace TenderProcessing.Models
             return pos;
         }
 
-        public bool SetQuestion2Work(int id, out ResponseMessage responseMessage)
+        public static bool SetQuestion2Work(int id, out ResponseMessage responseMessage)
         {
             Uri uri = new Uri(String.Format("{0}/Question/Close?id={1}", OdataServiceUri, id));
             string json = String.Empty;//String.Format("{{\"id\":{0}}}",id);
