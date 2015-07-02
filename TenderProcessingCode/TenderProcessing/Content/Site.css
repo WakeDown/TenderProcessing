@@ -215,3 +215,20 @@ blockquote.bg-danger {
 blockquote.bg-success {
     border-color: #3c763d;
 }
+
+.question-row:hover {
+    cursor: pointer;
+    background-color: #fcf8e3;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.no-pad {
+    padding: 0;
+    margin: 0;
+}
+input.required-mark,textarea.required-mark, select.required-mark, span.required-mark {
+    background-color: #fcf8e3;
+}

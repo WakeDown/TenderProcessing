@@ -19,6 +19,7 @@ namespace TenderProcessing.Models
 
             foreach (UserBase manager in UserHelper.GetManagers())
             {
+                if (!String.IsNullOrEmpty(manager.ShortName))
                 managers.Add(new Employee(){AdSid = manager.Id, DisplayName = manager.ShortName});
             }
 
@@ -33,6 +34,7 @@ namespace TenderProcessing.Models
 
             foreach (UserBase manager in UserHelper.GetProductManagers())
             {
+                if (!String.IsNullOrEmpty(manager.ShortName))
                 managers.Add(new Employee() { AdSid = manager.Id, DisplayName = manager.ShortName });
             }
 

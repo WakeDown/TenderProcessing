@@ -11,13 +11,23 @@ namespace TenderProcessing
     {
         public static void RegisterRoutes(RouteCollection routes)
         {
+            
+
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+
+            routes.MapRoute(
+                name: "ChromeOnly",
+                url: "{controller}/{action}/url={url}",
+                defaults: new { controller = "Error", action = "ChromeOnly" }
+            );
 
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Claim", action = "List", id = UrlParameter.Optional }
             );
+
+            
         }
     }
 }

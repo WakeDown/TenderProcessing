@@ -15,7 +15,6 @@ namespace TenderProcessing.Models
         public string Descr { get; set; }
         public Employee Creator { get; set; }
 
-
         public QuePosAnswer() { }
 
         public QuePosAnswer(int id)

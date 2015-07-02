@@ -16,6 +16,8 @@ namespace TenderProcessing.Models
         public string Descr { get; set; }
         public Employee Creator { get; set; }
 
+        public IEnumerable<QuePosAnswer> QuePosAnswers { get; set; } 
+
         public QuePosition() { }
 
         public QuePosition(int id)
@@ -32,6 +34,7 @@ namespace TenderProcessing.Models
             Question = model.Question;
             User = model.User;
             Descr = model.Descr;
+            QuePosAnswers = model.QuePosAnswers;
         }
 
         public bool Save(out ResponseMessage responseMessage)

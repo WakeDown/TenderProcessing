@@ -7,6 +7,7 @@ using System.Web.Routing;
 using Stuff.Objects;
 using TenderProcessing.Helpers;
 using TenderProcessing.Models;
+using TenderProcessing.Objects;
 using TenderProcessingDataAccessLayer.Models;
 
 namespace TenderProcessing.Controllers
@@ -28,6 +29,7 @@ namespace TenderProcessing.Controllers
                 RedirectToAction("ErrorPage", "Auth", dict);
             }
             ViewBag.UserName = user.Name;
+            ViewBag.AdUser = user;
         }
         
         [HttpGet]
@@ -48,43 +50,41 @@ namespace TenderProcessing.Controllers
                 bool complete = que.Save(out responseMessage);
                 if (!complete) throw new Exception(responseMessage.ErrorMessage);
 
-                return RedirectToAction("Positions", "Question", new { id = responseMessage.Id });
+                return RedirectToAction("Index", "Question", new { id = responseMessage.Id });
             }
             catch (Exception ex)
             {
                 ViewData["ServerError"] = ex.Message;
                 return View("New", que);
             }
-
-            return View();
         }
 
-        [HttpPost]
-        public ActionResult Positions(Question que)
-        {
+        //[HttpPost]
+        //public ActionResult Index(Question que)
+        //{
             
 
-            try
-            {
-                ResponseMessage responseMessage;
-                que.NewPosition.Creator = new Employee() { AdSid = GetCurUser().Id };
-                que.NewPosition.Question = new Question(que.Id);
-                bool complete = que.NewPosition.Save(out responseMessage);
-                if (!complete) throw new Exception(responseMessage.ErrorMessage);
+        //    try
+        //    {
+        //        ResponseMessage responseMessage;
+        //        que.NewPosition.Creator = new Employee() { AdSid = GetCurUser().Id };
+        //        que.NewPosition.Question = new Question(que.Id);
+        //        bool complete = que.NewPosition.Save(out responseMessage);
+        //        if (!complete) throw new Exception(responseMessage.ErrorMessage);
 
-                return RedirectToAction("Positions", new { id = que.Id });
-            }
-            catch (Exception ex)
-            {
-                ViewData["ServerError"] = ex.Message;
-                return RedirectToAction("Positions", que.NewPosition.Question);
-            }
+        //        return RedirectToAction("Index", new { id = que.Id });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        TempData["ServerError"] = ex.Message;
+        //        return RedirectToAction("Index", que.NewPosition.Question);
+        //    }
 
-            return View();
-        }
+        //    return View();
+        //}
 
         [HttpGet]
-        public ActionResult Positions(int? id)
+        public ActionResult Index(int? id)
         {
             DisplayCurUser();
             Question que = new Question();
@@ -101,7 +101,7 @@ namespace TenderProcessing.Controllers
         }
 
         [HttpPost]
-        public JsonResult Delete(int id)
+        public JsonResult DeletePos(int id)
         {
             DisplayCurUser();
 
@@ -118,24 +118,170 @@ namespace TenderProcessing.Controllers
             return null;
         }
 
+        
+            [HttpPost]
+            [MultipleButton(Name = "action", Argument = "SetQuestionAnswered")]
+        public ActionResult SetQuestionAnswered(Question que)
+        {
+            try
+            {
+                ResponseMessage responseMessage;
+                bool complete = Question.SetQuestionAnswered(que.Id, out responseMessage);
+                if (!complete) throw new Exception(responseMessage.ErrorMessage);
+
+                return RedirectToAction("List", "Question");
+            }
+            catch (Exception ex)
+            {
+                TempData["ServerError"] = ex.Message;
+                return RedirectToAction("Index", que);
+            }
+        }
+        
         [HttpPost]
-        public ActionResult SetQuestion2Work(int? id)
+        [MultipleButton(Name = "action", Argument = "SetQuestionSent")]
+        public ActionResult SetQuestionSent(Question que)
         {
             try
             {
                 ResponseMessage responseMessage;
                 //que.Creator = new Employee() { AdSid = GetCurUser().Id };
                 //que.NewPosition.Question = new Question(que.Id);
-                bool complete = Question.SetQuestion2Work(id.Value, out responseMessage);
+                bool complete = Question.SetQuestionSent(que.Id, out responseMessage);
                 if (!complete) throw new Exception(responseMessage.ErrorMessage);
 
-                return RedirectToAction("Index", "Claim");
+                return RedirectToAction("List", "Question");
             }
             catch (Exception ex)
             {
-                ViewData["ServerError"] = ex.Message;
-                return RedirectToAction("Positions", new { id = id.Value });
+                TempData["ServerError"] = ex.Message;
+                return RedirectToAction("Index", que);
             }
+        }
+
+        public ActionResult PositionList(int? id)
+        {
+            if (!id.HasValue) return HttpNotFound();
+
+
+
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult AddPosition(int? idQuestion)
+        {
+            //if (!idQuestion.HasValue) return HttpNotFound();
+
+            //ViewData["idQuestion"] = idQuestion;
+
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult AddPosition(QuePosition pos)
+        {
+            try
+            {
+                ResponseMessage responseMessage;
+                bool complete = pos.Save(out responseMessage);
+                if (!complete) throw new Exception(responseMessage.ErrorMessage);
+
+                return RedirectToAction("Index", new { id = pos.Question.Id });
+            }
+            catch (Exception ex)
+            {
+                TempData["ServerError"] = ex.Message;
+                return RedirectToAction("AddPosition", pos);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult AddPosAnswer(int? idQuePosition)
+        {
+            //if (!idQuePosition.HasValue) return HttpNotFound();
+
+            //ViewData["idQuePosition"] = idQuePosition;
+
+            return View();
+        }
+
+         [HttpPost]
+        public ActionResult AddPosAnswer(QuePosAnswer ans)
+        {
+            try
+            {
+                ResponseMessage responseMessage;
+                bool complete = ans.Save(out responseMessage);
+                if (!complete) throw new Exception(responseMessage.ErrorMessage);
+
+                return RedirectToAction("Index", new { id = ans.QuePosition.Question.Id });
+                //return RedirectToAction("Index", new { id = new QuePosition(ans.QuePosition.Id).Question.Id }); //RedirectToAction("Index", new { id = ans.QuePosition.Question.Id });
+            }
+            catch (Exception ex)
+            {
+                TempData["ServerError"] = ex.Message;
+                return View("AddPosAnswer", ans);
+            }
+        }
+
+         [HttpPost]
+         public JsonResult DeleteAns(int id)
+         {
+             DisplayCurUser();
+
+             try
+             {
+                 ResponseMessage responseMessage;
+                 bool complete = QuePosAnswer.Delete(id, out responseMessage);
+                 if (!complete) throw new Exception(responseMessage.ErrorMessage);
+             }
+             catch (Exception ex)
+             {
+                 return Json(ex.Message);
+             }
+             return null;
+         }
+
+         [HttpPost]
+         public JsonResult DeleteQue(int id)
+         {
+             DisplayCurUser();
+
+             try
+             {
+                 ResponseMessage responseMessage;
+                 bool complete = Question.Delete(id, out responseMessage);
+                 if (!complete) throw new Exception(responseMessage.ErrorMessage);
+             }
+             catch (Exception ex)
+             {
+                 return Json(ex.Message);
+             }
+             return null;
+         }
+
+        public ActionResult List()
+        {
+            //var list = Question.GetList();
+            var filter = new QuestionFilter();
+
+            return View(filter);
+        }
+
+        [HttpPost]
+        [MultipleButton(Name = "action", Argument = "QueFilter")]
+        public ActionResult QueFilter(QuestionFilter qFilter)
+        {
+            return View("List", qFilter);
+        }
+
+        [HttpPost]
+        [MultipleButton(Name = "action", Argument = "QueFilterClear")]
+        public ActionResult QueFilterClear(QuestionFilter qFilter)
+        {
+            var filter = new QuestionFilter();
+            return View("List", filter);
         }
 	}
 }

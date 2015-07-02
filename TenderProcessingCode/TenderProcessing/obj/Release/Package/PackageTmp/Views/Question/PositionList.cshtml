@@ -1,0 +1,92 @@
+﻿@using System.Activities.Expressions
+@using TenderProcessing.Helpers
+@using TenderProcessing.Models
+@using TenderProcessing.Objects
+@using WebGrease.Css.Extensions
+@model IEnumerable<TenderProcessing.Models.QuePosition>
+
+
+@if (Model.Any())
+{
+
+    int i = 0;
+    <table class="table table-bordered">
+        <tr class="bg-info">
+            <th class="min-width">№</th>
+            <th class="min-width text-nowrap">Продакт/Снабженец</th>
+            <th>Вопрос</th>
+            <th>Ответ</th>
+            <th class="min-width"></th>
+        </tr>
+        @foreach (QuePosition pos in Model)
+        {
+            i++;
+            <tr class="@(pos.QuePosAnswers.Any()?"bg-success":"bg-warning")">
+                <td>@i</td>
+                <td class="text-nowrap">@pos.User.DisplayName</td>
+                <td>@pos.Descr</td>
+                <td>
+                    @{ int queState = Question.GetQuestionCurrState(pos.Question.Id).OrderNum;}
+                    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcProduct) && (queState == 2 || queState == 3))
+                    {<div>
+                        @Html.Partial("AddPosAnswer", new QuePosAnswer() { QuePosition = new QuePosition() { Id = pos.Id, Question = new Question() { Id = pos.Question.Id } } })
+                    </div>
+                    }
+                    <div>
+                        @Html.Partial("PosAnswerList", pos.QuePosAnswers)
+                    </div>
+                </td>
+                <td>
+                    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager) && queState == 1)
+                    {
+                        <button class="btn btn-link" name="delele-pos" posid="@pos.Id" data-toggle="tooltip" title="удалить вопрос"><i class="fa fa-trash"></i></button>
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+}
+
+<script type="text/javascript">
+
+    $(document).ready(init);
+
+    function init() {
+        $("[name='delele-pos']").click(deletePosition);
+        $("[name='delele-ans']").click(deleteAnswer);
+    }
+
+    function deletePosition() {
+        if (!confirm('Вы действительно хотите удалить позицию?')) return;
+        var id = $(this).attr('posid');
+        $.ajax({
+            type: 'POST',
+            url: "@Url.Action("DeletePos", "Question")",
+            data: { id: id },
+            success: function (data) {
+                if (data != null && data != '') {
+                    alert(data);
+                } else {
+                    window.location.reload();
+                }
+            }
+        });
+    }
+
+    function deleteAnswer(e) {
+        if (!confirm('Вы действительно хотите удалить ответ?')) return;
+        var id = $(this).attr('ansid');
+        $.ajax({
+            type: 'POST',
+            url: "@Url.Action("DeleteAns", "Question")",
+            data: { id: id },
+            success: function (data) {
+                if (data != null && data != '') {
+                    alert(data);
+                } else {
+                    window.location.reload();
+                }
+            }
+        });
+    }
+</script>

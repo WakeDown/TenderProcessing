@@ -994,6 +994,7 @@
     function rejectPositions() {
         var positionsId = [];
         var positionsRows = $("[type='positionRow']", $("#positionsTableWithCalc"));
+        
         $.each(positionsRows, function(index, element) {
             element = $(element);
             var isChecked = $("[modetype='selectPositionElement']", element).get(0).checked;
@@ -2307,6 +2308,11 @@
                 Каждая номенклатурная позиция должны оформляться отдельной строкой!
             </blockquote>
         </P>
+        <p>
+            <blockquote class="bg-warning">
+               При загрузке спецификации удостоверьтесь, что в ячейках нет формул!
+            </blockquote>
+        </p>
         <div>
             <span>
                 Список позиций

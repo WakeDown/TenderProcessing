@@ -1,0 +1,93 @@
+﻿@using System.Activities.Statements
+@using TenderProcessing.Helpers
+@using TenderProcessing.Models
+@using TenderProcessing.Objects
+@model IEnumerable<TenderProcessing.Models.Question>
+
+@if (Model.Any())
+{
+    <table class="table table-bordered">
+        <tr class="bg-primary">
+            <th class="min-width">№</th>
+            <th class="min-width">Создано</th>
+            <th class="min-width text-nowrap">Срок сдачи</th>
+            <th class="min-width">Статус</th>
+            <th class="min-width text-nowrap">Менеджер</th>
+            <th>Вопрос</th>
+@if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager))
+{
+    <th  class="min-width"></th>
+}
+        </tr>
+        @{ int i = 0;}
+        @foreach (Question que in Model)
+{
+    i++;
+    <tr name="que-row" queid="@que.Id" class="question-row">
+        <th>@i</th>
+        <td>@que.DateCreate.ToShortDateString()</td>
+        <td>@que.DateLimit.ToShortDateString()</td>
+        <td class="text-nowrap">@que.State.Name</td>
+        <td class="text-nowrap">@que.Manager.DisplayName</td>
+        <td>
+            @*@if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager))
+                {
+                    @Html.ActionLink("карточка", "Index", new { id = que.Id }, new { @class = "btn btn-primary btn-xs" })
+                }*@
+            
+                @que.Descr
+            
+
+            @*@if (AdHelper.UserInGroup(User, AdGroup.SpeCalcProduct) && (que.State.OrderNum == 2 || que.State.OrderNum == 3))
+            {
+                @Html.ActionLink("ответить", "Index", new { id = que.Id }, new { @class = "btn btn-primary btn-xs" })
+            }*@
+        </td>
+        @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager) && que.State.OrderNum == 1)
+        {
+            <td>
+                <button class="btn btn-link no-pad" name="delele-que" queid="@que.Id" data-toggle="tooltip" title="удалить"><i class="fa fa-trash"></i></button>
+            </td>
+        }
+    </tr>
+}
+    </table>
+}
+else
+{
+    <p>
+        По вашему запросу ничего не найдено
+    </p>
+}
+
+    <script type="text/javascript">
+
+        $(document).ready(init);
+
+        function init() {
+            $("[name='delele-que']").click(deletePosition);
+            $("[name='que-row']").click(showQuestion);
+        }
+
+        function showQuestion() {
+            var id = $(this).attr('queid');
+            window.open("/Question/Index/" + id);
+        }
+
+        function deletePosition() {
+            if (!confirm('Вы действительно хотите удалить вопрос?')) return;
+            var id = $(this).attr('queid');
+            $.ajax({
+                type: 'POST',
+                url: "@Url.Action("DeleteQue", "Question")",
+                data: { id: id },
+                success: function(data) {
+                    if (data != null && data != '') {
+                        alert(data);
+                    } else {
+                        window.location.reload();
+                    }
+                }
+            });
+        }
+    </script>

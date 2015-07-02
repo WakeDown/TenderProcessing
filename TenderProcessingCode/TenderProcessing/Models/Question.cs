@@ -15,9 +15,10 @@ namespace TenderProcessing.Models
         public DateTime DateLimit { get; set; }
         public string Descr { get; set; }
         public Employee Creator { get; set; }
+        public QueState State { get; set; }
+        public DateTime DateCreate { get; set; }
 
         public IEnumerable<QuePosition> Positions { get; set; }
-        public QuePosition NewPosition { get; set; }
 
         public Question() { }
 
@@ -25,8 +26,8 @@ namespace TenderProcessing.Models
         {
             Uri uri = new Uri(String.Format("{0}/Question/Get?id={1}", OdataServiceUri, id));
             string jsonString = GetJson(uri);
-            var dep = JsonConvert.DeserializeObject<Question>(jsonString);
-            FillSelf(dep);
+            var model = JsonConvert.DeserializeObject<Question>(jsonString);
+            FillSelf(model);
         }
 
         public Question(int id, bool getPositions = false): this(id)
@@ -40,6 +41,8 @@ namespace TenderProcessing.Models
             Manager = model.Manager;
             DateLimit = model.DateLimit;
             Descr = model.Descr;
+            State = model.State;
+            DateCreate = model.DateCreate;
             //NewPosition = new QuePosition(){Question = new Question(){}};
         }
 
@@ -51,9 +54,16 @@ namespace TenderProcessing.Models
             return result;
         }
 
-        public static IEnumerable<Question> GetList()
+        public static IEnumerable<Question> GetList(QuestionFilter filter= null)
         {
-            Uri uri = new Uri(String.Format("{0}/Question/GetList", OdataServiceUri));
+            string filterStr = null;
+            if (filter != null && !(!filter.Id.HasValue && filter.Manager == null && filter.Product == null && !filter.States.Any(s => s.Checked) && !filter.Top.HasValue))
+            {
+                filterStr = String.Format("?id={0}&managerSid={1}&queStates={2}&top={3}&prodSid={4}",
+                    filter.Id.HasValue ? filter.Id.Value.ToString() : null, filter.Manager != null && !String.IsNullOrEmpty(filter.Manager.AdSid) ? filter.Manager.AdSid : null, String.Join(",", filter.States.Where(s => s.Checked).Select(s => s.Id)), filter.Top.HasValue ? filter.Top.Value.ToString() : null, filter.Product != null && !String.IsNullOrEmpty(filter.Product.AdSid) ? filter.Product.AdSid : null);
+            }
+
+            Uri uri = new Uri(String.Format("{0}/Question/GetList{1}", OdataServiceUri, filterStr));
             string jsonString = GetJson(uri);
             var model = JsonConvert.DeserializeObject<IEnumerable<Question>>(jsonString);
             return model;
@@ -83,12 +93,43 @@ namespace TenderProcessing.Models
             return pos;
         }
 
-        public static bool SetQuestion2Work(int id, out ResponseMessage responseMessage)
+        public IEnumerable<HistoryQueState> GetStateHistory()
         {
-            Uri uri = new Uri(String.Format("{0}/Question/Close?id={1}", OdataServiceUri, id));
+            Uri uri = new Uri(String.Format("{0}/Question/GetStateHistory?idQuestion={1}", OdataServiceUri, Id));
+            string jsonString = GetJson(uri);
+            var model = JsonConvert.DeserializeObject<IEnumerable<HistoryQueState>>(jsonString);
+            return model;
+        }
+
+        public static bool SetQuestionSent(int id, out ResponseMessage responseMessage)
+        {
+            Uri uri = new Uri(String.Format("{0}/Question/SetQuestionSent?id={1}", OdataServiceUri, id));
             string json = String.Empty;//String.Format("{{\"id\":{0}}}",id);
             bool result = PostJson(uri, json, out responseMessage);
             return result;
+        }
+
+        public static bool SetQuestionAnswered(int id, out ResponseMessage responseMessage)
+        {
+            Uri uri = new Uri(String.Format("{0}/Question/SetQuestionAnswered?id={1}", OdataServiceUri, id));
+            string json = String.Empty;//String.Format("{{\"id\":{0}}}",id);
+            bool result = PostJson(uri, json, out responseMessage);
+            return result;
+        }
+
+        public static bool SetQuestionAproved(int id, out ResponseMessage responseMessage)
+        {
+            Uri uri = new Uri(String.Format("{0}/Question/SetQuestionAproved?id={1}", OdataServiceUri, id));
+            string json = String.Empty;//String.Format("{{\"id\":{0}}}",id);
+            bool result = PostJson(uri, json, out responseMessage);
+            return result;
+        }
+        public static QueState GetQuestionCurrState(int idQuestion)
+        {
+            Uri uri = new Uri(String.Format("{0}/Question/GetQuestionCurrState?idQuestion={1}", OdataServiceUri, idQuestion));
+            string jsonString = GetJson(uri);
+            var model = JsonConvert.DeserializeObject<QueState>(jsonString);
+            return model;
         }
     }
 }

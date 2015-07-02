@@ -549,8 +549,7 @@ namespace TenderProcessing.Controllers
                     workSheet.Cell(rowHead, 4).DataType = XLCellValues.Number;
 
                     var eurRicohCell = workSheet.Cell(++rowHead, 4);
-                    var profitCell = workSheet.Cell(++rowHead, 4);//Рентабельность
-                    var ndsCell = workSheet.Cell(++rowHead, 4);//НДС
+
                     workSheet.Cell(++rowHead, 4).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
                     workSheet.Cell(++rowHead, 4).Value = manager != null ? manager.ShortName : string.Empty;
                     workSheet.Cell(++rowHead, 4).Value = claim.Customer;
@@ -612,8 +611,7 @@ namespace TenderProcessing.Controllers
                     //calcHeaderRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
                     //var currencies = db.LoadCurrencies();
                     //<<<<<<<Номер строки - начало вывода инфы>>>>>>
-                    var row = rowHead+2;
-                    int firstRow = row;
+                    var row = 15;
                     var rowNumber = 1;
                     //строки расчета
                     foreach (var position in positions)
@@ -632,14 +630,10 @@ namespace TenderProcessing.Controllers
                                     ? position.Name
                                     : calculation.Name;
                                 workSheet.Cell(row, 3).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                workSheet.Cell(row, 3).Style.Alignment.SetWrapText();
+                                workSheet.Row(row).Height = 30;
                                 workSheet.Cell(row, 4).Value = calculation.Replace;
                                 workSheet.Cell(row, 4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
-
-                                double hPos = GetCellHeight(workSheet.Cell(row, 3).Value.ToString().Length);
-                                double hZam = GetCellHeight(workSheet.Cell(row, 4).Value.ToString().Length);
-
-                                workSheet.Row(row).Height = hPos > hZam ? hPos : hZam;
-
                                 workSheet.Cell(row, 5).Value = GetUnitStr(position.Unit);
                                 workSheet.Cell(row, 5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                                 var countCell = workSheet.Cell(row, 6);
@@ -704,10 +698,10 @@ namespace TenderProcessing.Controllers
 
                                 //Цена с ТЗР
                                 var priceTzrCell = workSheet.Cell(row, 14);
-                                string formulaPriceTzrCell = String.Format("(({0}*1.02)*1.02)*(1+({1}/100))", priceRublCell.Address, profitCell.Address);
+                                string formulaPriceTzrCell = String.Format("({0}*1.02)*1.02", priceRublCell.Address);
                                 if (managerIsMoscou)
                                 {
-                                    formulaPriceTzrCell = String.Format("({0}*1.02)*(1+({1}/100))", priceRublCell.Address, profitCell.Address);
+                                    formulaPriceTzrCell = String.Format("{0}*1.02", priceRublCell.Address);
                                 }
                                 priceTzrCell.FormulaR1C1 = formulaPriceTzrCell;
                                 priceTzrCell.Style.NumberFormat.Format = "₽ #,###";
@@ -722,21 +716,7 @@ namespace TenderProcessing.Controllers
                                 sumTzrCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
                                 // /> Сумма с ТЗР
 
-                                //Цена С НДС
-                                var priceNdsCell = workSheet.Cell(row, 16);
-                                string formulaPriceNdsCell = String.Format("({0})*(1+({1}/100))", formulaPriceTzrCell,ndsCell.Address);
-                                priceNdsCell.FormulaR1C1 = formulaPriceNdsCell;
-                                priceNdsCell.Style.NumberFormat.Format = "₽ #,###";
-                                priceNdsCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
-                                // /> Цена с НДС
 
-                                //Сумма с НДС
-                                var sumNdsCell = workSheet.Cell(row, 17);
-                                string formulaSumNdsCell = String.Format("{0}*{1}", countCell.Address, priceNdsCell.Address);
-                                sumNdsCell.FormulaR1C1 = formulaSumNdsCell;
-                                sumNdsCell.Style.NumberFormat.Format = "₽ #,###";
-                                sumNdsCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
-                                // /> Сумма с НДС
 
                                 //workSheet.Cell(row, 5).Value = !calculation.PriceCurrency.Equals(0)
                                 //    ? calculation.PriceCurrency.ToString("N2")
@@ -770,11 +750,10 @@ namespace TenderProcessing.Controllers
                             workSheet.Cell(row, 1).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                             workSheet.Cell(row, 2).Value = position.CatalogNumber;
                             workSheet.Cell(row, 2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                            workSheet.Cell(row, 3).SetValue(position.Name);
+                            workSheet.Cell(row, 3).Value = position.Name;
                             workSheet.Cell(row, 3).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
-
-                            workSheet.Row(row).Height = GetCellHeight(position.Name.Length);
-
+                            workSheet.Cell(row, 3).Style.Alignment.SetWrapText();
+                            workSheet.Row(row).Height = 30;
                             workSheet.Cell(row, 4).Value = String.Empty;
                             workSheet.Cell(row, 4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
                             workSheet.Cell(row, 5).Value = GetUnitStr(position.Unit);
@@ -809,9 +788,13 @@ namespace TenderProcessing.Controllers
                             rowNumber++;
                         }
                     }
+                    //workSheet.Cell(1, 1).SetActive();
+                    //workSheet.Columns(3, 3).AdjustToContents();
+                    //workSheet.Rows().Height = 50;
+                    workSheet.Column(3).Width = 40;
+                    //workSheet.Rows().AdjustToContents();
 
-
-                    var range = workSheet.Range(workSheet.Cell(firstRow, 1), workSheet.Cell(row - 1, 18));
+                    var range = workSheet.Range(workSheet.Cell(14, 1), workSheet.Cell(row - 1, 18));
                     range.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
                     range.Style.Border.SetBottomBorderColor(XLColor.Gray);
                     range.Style.Border.SetTopBorder(XLBorderStyleValues.Thin);
@@ -855,13 +838,6 @@ namespace TenderProcessing.Controllers
                 ViewBag.Message = message;
                 return View();
             }
-        }
-
-        public double GetCellHeight(int contentLength)
-        {
-            double res = Math.Ceiling((double)contentLength / (double)40) * 15.75;
-            if (res < 15.75) res = 15.75;
-            return res;
         }
 
         //загрузка списка заявок в excel файл, с учетом фильтра - фильтр передается

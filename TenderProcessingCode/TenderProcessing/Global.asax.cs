@@ -17,6 +17,16 @@ namespace TenderProcessing
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            
+        }
+
+        protected void Application_BeginRequest(Object sender, EventArgs e)
+        {
+            if (!Request.Url.ToString().Contains("ChromeOnly") && Request.UserAgent != null && !Request.UserAgent.Contains("Chrome"))
+            {
+                Response.RedirectToRoute("ChromeOnly", new { url = Request.Path.Replace("/", "|") });
+            }
         }
     }
 }

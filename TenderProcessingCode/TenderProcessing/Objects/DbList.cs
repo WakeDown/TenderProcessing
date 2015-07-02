@@ -18,5 +18,10 @@ namespace TenderProcessing.Objects
         {
             return new SelectList(Employee.GetProductManagerSelectionList(), "AdSid", "DisplayName");
         }
+
+        public static SelectList GetQueStateCheckedList()
+        {
+            return new SelectList(QueState.GetList(), "Id", "Name");
+        }
     }
 }
