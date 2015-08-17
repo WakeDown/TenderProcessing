@@ -1,0 +1,34 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Только Google Chrome</title>
+</head>
+    <body>
+        <div>
+            <div style="text-align: center; width: 1000px">
+                По техническим причинам используйте для работы с программой СпецРасчет браузер Google Chrome. <br />Для установки обратитесь в <a href='http://support.unitgroup.ru' target="_blank">Техподдержку</a>.
+
+                Ссылка по которой вы перешли:
+                <br />
+                <br />
+                <input id="url" style="width: 100%" type="text" onfocus="this.select()" value="@TempData["url"]" />
+
+                @*Request.QueryString["url"].ToString()*@
+            </div>
+            <script type="text/javascript">
+                window.onload = function () {
+                    var text_input = document.getElementById('url');
+                    text_input.focus();
+                    text_input.select();
+                }
+            </script>
+        </div>
+    </body>
+</html>

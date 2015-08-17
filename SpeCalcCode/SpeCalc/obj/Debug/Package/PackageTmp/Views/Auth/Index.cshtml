@@ -1,0 +1,82 @@
+﻿@using System.Web.Script.Serialization
+
+@{
+    Layout = null;
+    var serializer = new JavaScriptSerializer();
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript">
+        var users = @Html.Raw(serializer.Serialize(ViewBag.Users));
+
+        $(init);
+
+        function init() {
+            var usersLength = users.length;
+            var list = $("#usersList");
+            for (var i = 0; i < usersLength; i++) {
+                var user = users[i];
+                var option = $("<option value='" + user.Name + "'>" + user.Name + " " + getRolesMappedString(user.Roles) + "</option>");
+                list.append(option);
+            }
+            list.change(function() {
+                var name = $(":selected", list).val().trim();
+                $("#userName").val(name);
+            });
+            list.change();
+        }
+
+        function getRolesMappedString(roles) {
+            var arr = [];
+            var rolesLength = roles.length;
+            for (var i = 0; i < rolesLength; i++) {
+                var role = roles[i];
+                var mapString = roleToString(role);
+                if (mapString != "") arr.push(mapString);
+            }
+            return arr.join("/");
+        }
+
+        function roleToString(role) {
+            var result = "";
+            switch (role) {
+                case 1:
+                    result = "Оператор";
+                    break;
+                case 2:
+                    result = "Менеджер";
+                    break;
+                case 3:
+                    result = "Снабженец";
+                    break;
+                case 4:
+                    result = "Контроллер";
+                    break;
+                case 5:
+                    result = "Статус конкурса";
+                    break;
+            }
+            return result;
+        }
+    </script>
+</head>
+<body>
+    <div style="text-align: center; width: 100%;">
+        <div style="display: inline-block;">
+            <strong>Юзеры</strong>
+            <select size="1" id="usersList"></select><br/>
+            @using (Html.BeginForm())
+            {
+                <input type="hidden" id="userName" name="userName"/>
+                <button type="submit" id="butSubmit">Вход</button>
+            }
+        </div> 
+    </div>
+</body>
+</html>

@@ -1,0 +1,90 @@
+﻿@using SpeCalc.Controllers
+@using SpeCalc.Helpers
+@using SpeCalc.Models
+@using SpeCalc.Objects
+@model SpeCalc.Models.Question
+
+@{
+
+    Layout = "~/Views/Question/Container.cshtml";
+}
+
+@section head
+{
+    Вопрос №@Model.Id
+}
+
+@section content
+{
+    <div class="row">
+        <div class="col-lg-9">
+            @using (Html.BeginForm("SetQuestionSent", "Question", FormMethod.Post))
+            {
+                @Html.HiddenFor(m => m.Id)
+                <table class="table table-condensed table-hover">
+                    <colgroup>
+                        <col class="col-lg-1" />
+                        <col class="col-lg-4" />
+                    </colgroup>
+                    <tr>
+                        <td class="text-right">Менеджер:</td>
+                        <td>@Html.LabelFor(m => m, Model.Manager.DisplayName)</td>
+                    </tr>
+                    @*<tr>
+                        <td class="text-right">Комментарий:</td>
+                        <td>@Html.LabelFor(m => m, Model.Descr)</td>
+                    </tr>*@
+                    <tr>
+                        <td class="text-right">Срок сдачи:</td>
+                        <td>@Html.LabelFor(m => m, String.Format("{0:d}", Model.DateLimit))</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right"></td>
+                        <td>
+                            @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager) && (Model.State == null || Model.State.OrderNum == 1))
+{
+    <button class="btn btn-success" name="action:SetQuestionSent">В работу</button>
+}
+                            @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcProduct) && Model.State != null && (Model.State.OrderNum == 2 || Model.State.OrderNum == 3))
+{
+    <button class="btn btn-success" name="action:SetQuestionAnswered">Передать</button>
+}
+                        </td>
+                    </tr>
+
+                </table>
+            }
+            <p class="text-danger">
+                @TempData["ServerError"]
+            </p>
+        </div>
+        <div class="col-lg-3">
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h5>
+                        История изменений статусов
+                    </h5>
+                </div>
+                <div class="panel-body claimStateHistory">
+                    @Html.Partial("StateHistory", Model.GetStateHistory())
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager) && Model.State.OrderNum == 1)
+    {
+        @Html.Partial("AddPosition", new QuePosition() { Question = new Question() { Id = Model.Id } });
+    }
+
+    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager, AdGroup.SpeCalcProduct))
+    {
+        @Html.Partial("PositionList", Model.GetPositions());
+    }
+}
+
+
+@section scripts
+    {
+    
+}

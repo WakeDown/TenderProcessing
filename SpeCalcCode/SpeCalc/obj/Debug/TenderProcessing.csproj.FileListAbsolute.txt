@@ -1,0 +1,317 @@
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\TenderProcessing.dll.config
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\TenderProcessing.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\TenderProcessing.pdb
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\Antlr3.Runtime.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\Microsoft.Web.Infrastructure.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\Newtonsoft.Json.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\System.Web.Helpers.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\System.Web.Mvc.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\System.Web.Optimization.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\System.Web.Razor.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\System.Web.WebPages.Deployment.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\System.Web.WebPages.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\System.Web.WebPages.Razor.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\TenderProcessingDataAccessLayer.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\WebGrease.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\TenderProcessingDataAccessLayer.pdb
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\System.Web.Helpers.xml
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\System.Web.Mvc.xml
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\System.Web.Optimization.xml
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\System.Web.Razor.xml
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\System.Web.WebPages.xml
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\System.Web.WebPages.Deployment.xml
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\System.Web.WebPages.Razor.xml
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\Newtonsoft.Json.xml
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\Antlr3.Runtime.pdb
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\ru\System.Web.Helpers.resources.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\ru\System.Web.Mvc.resources.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\ru\System.Web.Optimization.resources.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\ru\System.Web.Razor.resources.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\ru\System.Web.WebPages.resources.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\ru\System.Web.WebPages.Deployment.resources.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\ru\System.Web.WebPages.Razor.resources.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\obj\Debug\TenderProcessing.csprojResolveAssemblyReference.cache
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\obj\Debug\TenderProcessing.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\obj\Debug\TenderProcessing.pdb
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\obj\Debug\TenderProcessing.csproj.ResolveComReference.cache
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\ClosedXML.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\ClosedXML.xml
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\DocumentFormat.OpenXml.dll
+C:\Users\Tim452\Desktop\Work\Freelance\UN1T\TenderProcessing\TenderProcessing\bin\DocumentFormat.OpenXml.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessing.dll.config
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessing.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessing.pdb
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\DocumentFormat.OpenXml.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\Microsoft.Web.Infrastructure.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\Newtonsoft.Json.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Helpers.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Mvc.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Optimization.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Razor.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.Deployment.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.Razor.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessingDataAccessLayer.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\WebGrease.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessingDataAccessLayer.pdb
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\DocumentFormat.OpenXml.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Helpers.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Mvc.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Optimization.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Razor.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.Deployment.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.Razor.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\Newtonsoft.Json.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.Helpers.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.Mvc.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.Optimization.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.Razor.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.WebPages.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.WebPages.Deployment.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.WebPages.Razor.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.csprojResolveAssemblyReference.cache
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.csproj.ResolveComReference.cache
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.pdb
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\Antlr3.Runtime.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\Antlr3.Runtime.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.csprojFakesResolveAssemblyReference.cache
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ClosedXML.Fakes.fakesconfig
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ClosedXML.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\Microsoft.QualityTools.Testing.Fakes.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ClosedXML.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\Microsoft.QualityTools.Testing.Fakes.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.Fakes.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.Fakes.fakesconfig
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.Fakes.pdb
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.Fakes.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\Microsoft.QualityTools.Testing.Fakes.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\Newtonsoft.Json.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\Newtonsoft.Json.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\Microsoft.QualityTools.Testing.Fakes.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\System.Web.Helpers.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\System.Web.Mvc.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\System.Web.Optimization.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\System.Web.Razor.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\System.Web.WebPages.Deployment.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\System.Web.WebPages.Razor.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\System.Web.WebPages.resources.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Helpers.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Helpers.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Mvc.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Mvc.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Optimization.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Optimization.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Razor.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Razor.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.Deployment.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.Deployment.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.Razor.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.Razor.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\TenderProcessingDataAccessLayer.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\TenderProcessingDataAccessLayer.pdb
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\WebGrease.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.ah
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.ch
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.cs
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.csproj
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.fakes
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.fakesconfig
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.snk
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\o\ClosedXML.Fakes.dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\o\ClosedXML.Fakes.pdb
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\o\f.csproj.FileListAbsolute.txt
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\o\f.csprojResolveAssemblyReference.cache
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\fakes.args
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML (1).dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.Fakes (1).xml
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\Newtonsoft.Json (1).dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Helpers (1).dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Mvc (1).dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Optimization (1).dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Razor (1).dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages (1).dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.Deployment (1).dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.Razor (1).dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\TenderProcessingDataAccessLayer (1).dll
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\o\ClosedXML.Fakes (1).pdb
+D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\o\f.csprojResolveAssemblyReference (1).cache
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessing.dll.config
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessing.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessing.pdb
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ClosedXML.Fakes.fakesconfig
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\DocumentFormat.OpenXml.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\Microsoft.QualityTools.Testing.Fakes.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\Microsoft.Web.Infrastructure.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\Newtonsoft.Json.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Helpers.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Mvc.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Optimization.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Razor.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.Deployment.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.Razor.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessingDataAccessLayer.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\WebGrease.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessingDataAccessLayer.pdb
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\DocumentFormat.OpenXml.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Helpers.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Mvc.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Optimization.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Razor.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.Deployment.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.Razor.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\Newtonsoft.Json.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\Microsoft.QualityTools.Testing.Fakes.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.Helpers.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.Mvc.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.Optimization.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.Razor.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.WebPages.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.WebPages.Deployment.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.WebPages.Razor.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.csprojFakesResolveAssemblyReference.cache
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML (1).dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.Fakes (1).xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.Fakes.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.Fakes.fakesconfig
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.Fakes.pdb
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.Fakes.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\Microsoft.QualityTools.Testing.Fakes.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\Newtonsoft.Json (1).dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\Newtonsoft.Json.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\Newtonsoft.Json.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\Microsoft.QualityTools.Testing.Fakes.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\System.Web.Helpers.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\System.Web.Mvc.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\System.Web.Optimization.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\System.Web.Razor.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\System.Web.WebPages.Deployment.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\System.Web.WebPages.Razor.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ru\System.Web.WebPages.resources.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Helpers (1).dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Helpers.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Helpers.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Mvc (1).dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Mvc.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Mvc.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Optimization (1).dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Optimization.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Optimization.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Razor (1).dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Razor.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Razor.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages (1).dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.Deployment (1).dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.Deployment.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.Deployment.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.Razor (1).dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.Razor.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.Razor.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.xml
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\TenderProcessingDataAccessLayer (1).dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\TenderProcessingDataAccessLayer.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\TenderProcessingDataAccessLayer.pdb
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\WebGrease.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.ah
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.ch
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.cs
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.csproj
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.fakes
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.fakesconfig
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.snk
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\o\ClosedXML.Fakes (1).pdb
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\o\ClosedXML.Fakes.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\o\ClosedXML.Fakes.pdb
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\o\f.csproj.FileListAbsolute.txt
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\o\f.csprojResolveAssemblyReference (1).cache
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\o\f.csprojResolveAssemblyReference.cache
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\fakes.args
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.csprojResolveAssemblyReference.cache
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.csproj.ResolveComReference.cache
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.dll
+D:\Google Диск\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.pdb
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\App_Data\Specification.xlsx
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\App_Data\Specification_fin.xlsx
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessing.dll.config
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessing.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessing.pdb
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ClosedXML.Fakes.fakesconfig
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ActionMailer.Net.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ActionMailer.Net.Mvc.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\DocumentFormat.OpenXml.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\Microsoft.Web.Infrastructure.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\Newtonsoft.Json.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Net.Http.Formatting.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Helpers.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Http.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Http.WebHost.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Mvc.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Optimization.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Razor.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.Deployment.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.Razor.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessingDataAccessLayer.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\WebGrease.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\TenderProcessingDataAccessLayer.pdb
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ActionMailer.Net.pdb
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ActionMailer.Net.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ActionMailer.Net.Mvc.pdb
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ActionMailer.Net.Mvc.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ClosedXML.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\DocumentFormat.OpenXml.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Net.Http.Formatting.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Http.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Http.WebHost.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Helpers.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Mvc.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Optimization.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.Razor.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.Deployment.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\System.Web.WebPages.Razor.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\Newtonsoft.Json.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\Microsoft.QualityTools.Testing.Fakes.resources.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.Helpers.resources.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.Mvc.resources.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.Optimization.resources.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.Razor.resources.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.WebPages.resources.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.WebPages.Deployment.resources.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\bin\ru\System.Web.WebPages.Razor.resources.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.csprojFakesResolveAssemblyReference.cache
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.Fakes (1).xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.Fakes.fakesconfig
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.Fakes.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\ClosedXML.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\Newtonsoft.Json.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Helpers.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Mvc.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Optimization.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.Razor.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.Deployment.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.Razor.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\b\System.Web.WebPages.xml
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.ah
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.ch
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.cs
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.csproj
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.fakes
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.fakesconfig
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\f.snk
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\cxml\o\f.csproj.FileListAbsolute.txt
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\Fakes\fakes.args
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.csprojResolveAssemblyReference.cache
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.csproj.ResolveComReference.cache
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessing\obj\Debug\TenderProcessing.pdb

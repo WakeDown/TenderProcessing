@@ -1,1 +1,0 @@
-D:\GoogleDrive\Дела\Проекты\GitHub\SpeClac\TenderProcessing\TenderProcessingCode\TenderProcessingClaimDeadLineMonitor\bin\Release\TenderProcessingClaimDeadLineMonitor.exe.config

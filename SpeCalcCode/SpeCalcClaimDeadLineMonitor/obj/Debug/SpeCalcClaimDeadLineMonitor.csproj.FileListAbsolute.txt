@@ -1,0 +1,2 @@
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessingClaimDeadLineMonitor\bin\Debug\TenderProcessingClaimDeadLineMonitor.exe.config
+D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessingClaimDeadLineMonitor\bin\Debug\SpeCalcClaimDeadLineMonitor.exe.config

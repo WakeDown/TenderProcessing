@@ -1,0 +1,66 @@
+﻿@using SpeCalc.Objects
+@model SpeCalc.Models.QuePosition
+
+@*@using (Html.BeginForm("AddPosition", "Question", FormMethod.Post, new { @class = "form-inline", data_toggle = "validator", role = "form" }))*@
+@using (Html.BeginForm("AddPosition", "Question", FormMethod.Post, new { @class = "form-inline", data_toggle = "validator", role = "form" }))
+{
+    @Html.HiddenFor(m=>m.Question.Id)
+    <div class="form-group">
+        <div class="col-lg-6">
+            @Html.TextAreaFor(m => m.Descr, new { @class = "form-control required-mark", @id = "newPosQuestion", required = "required", data_error = "Заполните Вопрос", @rows = "2", @placeholder = "Текст вопроса", @style = "width: 800px" })
+            <span class="help-block with-errors"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-lg-2">
+            @Html.DropDownListFor(m => m.User.AdSid, DbList.GetProductManagerSelectionList(), "--выберите продакта/снабженца--", new { @class = "form-control required-mark", @id = "newPosProdManager", required = "required", data_error = "Выберите Продакт/Снабженец" })
+            <span class="help-block with-errors"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-lg-2">
+            <button id="btnCreate" type="submit" class="btn btn-success"><i class="fa fa-save"></i>&nbsp;добавить</button>
+        </div>
+    </div>
+    @*<tr>
+            <td class="min-width">
+                <button id="btnCreate" type="submit" class="btn btn-success"><i class="fa fa-save"></i>&nbsp;добавить</button>
+            </td>
+            <td class="min-width text-nowrap">
+                @Html.DropDownListFor(m => m.NewPosition.User.AdSid, DbList.GetProductManagerSelectionList(), "--выберите--", new { @class = "form-control required-mark", @id = "newPosProdManager", required = "required", data_error = "Выберите Продакт/Снабженец" })
+                <span class="help-block with-errors"></span>
+            </td>
+            <td>
+                @Html.TextAreaFor(m => m.NewPosition.Descr, new { @class = "form-control required-mark", @id = "newPosQuestion", required = "required", data_error = "Заполните Вопрос", @rows = "3", @placeholder = "Текст вопроса" })
+                <span class="help-block with-errors"></span>
+            </td>
+            <td></td>
+        </tr>*@
+}
+
+<script type="text/javascript">
+
+    $(document).ready(init);
+
+    function init() {
+        $("[name='delele-pos']").click(deleteDepartment);
+    }
+
+    function deleteDepartment(e) {
+        if (!confirm('Вы действительно хотите удалить позицию?')) return;
+        var id = $(this).attr('posid');
+        $.ajax({
+            type: 'POST',
+            url: "@Url.Action("DeletePos", "Question")",
+            data: { id: id },
+            success: function (data) {
+                if (data != null && data != '') {
+                    alert(data);
+                } else {
+                    window.location.reload();
+                }
+            }
+        });
+    }
+</script>

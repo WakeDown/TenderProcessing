@@ -1,0 +1,5 @@
+D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Release\SpeCalcDataAccessLayer.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Release\SpeCalcDataAccessLayer.pdb
+D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Release\SpeCalcDataAccessLayer.csprojResolveAssemblyReference.cache
+D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Release\SpeCalcDataAccessLayer.dll
+D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Release\SpeCalcDataAccessLayer.pdb
