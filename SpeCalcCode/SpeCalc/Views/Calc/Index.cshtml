@@ -345,6 +345,9 @@
             row.find('[posdt="1"]').attr('rowspan', 1);
         } else {
             row.find('[posdt="1"]').attr('rowspan', ++rsp);
+            for (var i = 1; i < rsp-1; i++) {
+                row = row.next();
+            }
             row.after(calcRow);
         }
         calcRow.show();
