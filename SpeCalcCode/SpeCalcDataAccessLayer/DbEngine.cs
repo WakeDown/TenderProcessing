@@ -26,6 +26,21 @@ namespace SpeCalcDataAccessLayer
 
         #region TenderClaim
 
+        public void UpdateClaimDeadline(int idClaim, DateTime claimDeadline)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "UpdateClaimDeadline";
+                cmd.Parameters.AddWithValue("@IdClaim", idClaim);
+                cmd.Parameters.AddWithValue("@ClaimDeadline", claimDeadline);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                rd.Dispose();
+            }
+        }
+
         public ClaimCert GetCertFile(string guid)
         {
             byte[] file = null;
