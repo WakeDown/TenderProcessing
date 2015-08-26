@@ -2402,7 +2402,8 @@
                При загрузке спецификации удостоверьтесь, что в ячейках нет формул!
             </blockquote>
         </p>
-        <div>
+    <div>
+        <p>
             <span>
                 Список позиций
                 <span class="label label-default">всего&nbsp;<span class="big" id="positionCountLabel">0</span></span>
@@ -2421,52 +2422,53 @@
                     @*<button id="butGetCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет (с позициями)</button>*@
                     <button id="butGetCalculateOnlyCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</button>
                 </span>
-                <span id="delPanel">
-                    <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить выбранное</button>
+                <span id="delPanel" class="pull-right">
+                    <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить отмеченные</button>
                 </span>
             </span>
-            <table id="tblPositionsNoCalc" class="table table-bordered small" style="display: none;">
-                <thead>
-                    <tr>
-                        <th class="min-width center"><input type="checkbox" id="cbSelectAllPosition" data-toggle="tooltip" title="все" /></th>
-                        <th>№</th>
-                        <th></th>
-                        <th>
-                            <div class="row">
-                                <div class="col-sm-2">
-                                    Каталожный номер
-                                </div>
-                                <div class="col-sm-3">
-                                    Наименование
-                                </div>
-                                <div class="col-sm-1">
-                                    Количество
-                                </div>
-                                <div class="col-sm-1">
-                                    Единица
-                                </div>
-                                <div class="col-sm-2">
-                                    Продакт/Снабженец
-                                </div>
-                                <div class="col-sm-3">
-                                    Комментарий
-                                </div>
-                            </div>
-                        </th>
-                        
-                    </tr>
+        </p>
+    <table id="tblPositionsNoCalc" class="table table-bordered small" style="display: none;">
+        <thead>
+        <tr>
+            <th class="min-width center"><input type="checkbox" id="cbSelectAllPosition" data-toggle="tooltip" title="все"/></th>
+            <th>№</th>
+            <th></th>
+            <th>
+                <div class="row">
+                    <div class="col-sm-2">
+                        Каталожный номер
+                    </div>
+                    <div class="col-sm-3">
+                        Наименование
+                    </div>
+                    <div class="col-sm-1">
+                        Количество
+                    </div>
+                    <div class="col-sm-1">
+                        Единица
+                    </div>
+                    <div class="col-sm-2">
+                        Продакт/Снабженец
+                    </div>
+                    <div class="col-sm-3">
+                        Комментарий
+                    </div>
+                </div>
+            </th>
 
-                </thead>
-                <tbody id="positionTable">
-                    <tr id="addPositionRow" style="display: none;">
-                        <td class="min-width center">
-                            <input type="checkbox" modetype="selectPositionElement" />
-                        </td>
-                        <td class="min-width center"><strong modetype="claimRowNumber"></strong></td>
-                        <td class="min-width">
-                            <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
-                            <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
-                            <span type="editPositionPanel" style="display: none;">
+        </tr>
+
+        </thead>
+        <tbody id="positionTable">
+        <tr id="addPositionRow" style="display: none;">
+            <td class="min-width center">
+                <input type="checkbox" modetype="selectPositionElement"/>
+            </td>
+            <td class="min-width center"><strong modetype="claimRowNumber"></strong></td>
+            <td class="min-width">
+                <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br/>
+                <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                <span type="editPositionPanel" style="display: none;">
 
                                 <button type='button' modetype='editButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></button>
                                 <span type="editPositionActionPanel" style="display: none;">
@@ -2474,23 +2476,23 @@
                                     <button type='button' modetype='editPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
                                 </span>
                             </span>
-                        </td>
-                        <td>
-                            <div type="editModeView" class="row">
-                                <div class="form-group col-sm-2">
-                                    <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" />
-                                </div>
-                                <div class="form-group col-sm-3">
-                                    <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
-                                </div>
-                                <div class="form-group col-sm-1">
-                                    <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество *" />
-                                </div>
-                                <div class="form-group col-sm-1">
-                                    <div id="unitCell"></div>
-                                </div>
+            </td>
+            <td>
+                <div type="editModeView" class="row">
+                    <div class="form-group col-sm-2">
+                        <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер"/>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
+                    </div>
+                    <div class="form-group col-sm-1">
+                        <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество *"/>
+                    </div>
+                    <div class="form-group col-sm-1">
+                        <div id="unitCell"></div>
+                    </div>
 
-                                @*<div class="form-group col-sm-1">
+                    @*<div class="form-group col-sm-1">
                                         <textarea rows="3" class="form-control input-sm" modeltype='replaceValue' placeholder="Замена" style="display: none;"></textarea>
                                     </div>
                                     <div class="form-group">
@@ -2514,14 +2516,14 @@
                                     <div class="form-group col-sm-1">
                                         <input type='text' modeltype='sumNdsValue' class="form-control input-sm" placeholder="Сумма с НДС" style="display: none;" />
                                     </div>*@
-                                <div class="form-group col-sm-2">
-                                    <div id="managersCell"></div>
-                                </div>
-                                <div class="form-group col-sm-3">
-                                    <textarea rows='3' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
-                                </div>
-                            </div>
-                            @*<div type="editModeView" class="col-sm-5">
+                    <div class="form-group col-sm-2">
+                        <div id="managersCell"></div>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <textarea rows='3' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
+                    </div>
+                </div>
+                @*<div type="editModeView" class="col-sm-5">
                                     <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
                                     <textarea rows="3" class="form-control input-sm" modeltype='replaceValue' placeholder="Замена" style="display: none;"></textarea>
                                 </div>
@@ -2530,20 +2532,20 @@
                                     <textarea rows='4' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
                                 </div>*@
 
-                            <div type="readOnlyModeView" style="display: none;" class="row">
-                                <div class="col-sm-2">
-                                    <span type='catalogNumberLabel'></span>
-                                </div>
-                                <div class="col-sm-3">
-                                    <div type='nameLabel'></div>
-                                </div>
-                                <div class="col-sm-1">
-                                    <span type='valueLabel'></span>
-                                </div>
-                                <div class="col-sm-1">
-                                    <span type='unitLabel'></span>
-                                </div>
-                                @*<div style="display: none;">
+                <div type="readOnlyModeView" style="display: none;" class="row">
+                    <div class="col-sm-2">
+                        <span type='catalogNumberLabel'></span>
+                    </div>
+                    <div class="col-sm-3">
+                        <div type='nameLabel'></div>
+                    </div>
+                    <div class="col-sm-1">
+                        <span type='valueLabel'></span>
+                    </div>
+                    <div class="col-sm-1">
+                        <span type='unitLabel'></span>
+                    </div>
+                    @*<div style="display: none;">
                                         <strong type='priceLabel'></strong>&nbsp;<span type='priceLabelPostfix'></span>
                                     </div>
                                     <div style="display: none;">
@@ -2563,15 +2565,15 @@
                                     </div>*@
 
 
-                                <div class="col-sm-2">
-                                    <span type='productManagerLabel'></span>
-                                </div>
-                                <div class="col-sm-3">
-                                    <div type="commentLabel"></div>
-                                </div>
-                            </div>
+                    <div class="col-sm-2">
+                        <span type='productManagerLabel'></span>
+                    </div>
+                    <div class="col-sm-3">
+                        <div type="commentLabel"></div>
+                    </div>
+                </div>
 
-                            @*<div type="readOnlyModeView" style="display: none;" class="col-sm-4">
+                @*<div type="readOnlyModeView" style="display: none;" class="col-sm-4">
                                     <div>
                                         <strong>Наименование</strong>
                                         <div type='nameLabel'></div>
@@ -2593,16 +2595,16 @@
                                         <span type='productManagerLabel'></span>
                                     </div>
                                 </div>*@
-                        </td>
-                        <td class="min-width">
-                            <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
-                            <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
-                            <button type='button' modetype='deleteButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+            </td>
+            <td class="min-width">
+                <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br/>
+                <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                <button type='button' modetype='deleteButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    </div>
 
         <table id="tblPositionsWithCalc" class="table small table-bordered" style="display:none">
             <thead>
