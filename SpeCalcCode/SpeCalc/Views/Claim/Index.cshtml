@@ -110,12 +110,14 @@
         $("#butСlaimStatusContined").click(setClaimContined);
         //$("#butGetCalculateFile").click(getCalculateExcelFileFromServer);
         $("#butGetCalculateOnlyCalculateFile").click(getCalculateOnlyCalculateExcelFileFromServer);
+        $("#butDeleteSelected").click(deleteSelectedPositions);
         $("#tenderStart").val(dateStart);
         $("#butGetFile").click(getExcelFileFromServer);
         $("#butUploadFile").click(openFile);
         $("#butSaveClaim").click(saveClaim);
         $("#butSetClaimOnWork").click(setClaimOnWork);
         $("#cbSelectAllPosition").change(selectAllPosition);
+        $("#btnDeleteSelected").click(deleteSelectedPositions);
         $("#selectAllPositionsWithCalc").change(selectAllPositionWithCalc);
         $("#butRejectPositionOk").click(rejectPositionOk);
         var unitList = getUnitsList(null);
@@ -240,6 +242,7 @@
                     $("#butSetPositionConfirm").hide();
                     $("[modetype='selectPositionElement']", $("#positionTable")).hide();
                     $("#cbSelectAllPosition").hide();
+                    $("btnDeleteSelected").hide;
                     $("#butSendComment").hide();
                 }
                 $("#excelCalculatePanel").show();
@@ -963,6 +966,7 @@
                     $("#claimStatusPanel").hide();
                     $("[modetype='selectPositionElement']", $("#positionsTableWithCalc")).hide();
                     $("#cbSelectAllPosition").hide();
+                    $("btnDeleteSelected").hide;
                 } else {
                     if (data.Message != "") {
                         showMessage(data.Message);
@@ -1305,6 +1309,44 @@
             element = $(element);
             setRowSelect(element, state);
         });
+    }
+    function deleteSelectedPositions() {
+        var selectedRows = $("[type='positionRow']", $("#positionTable"));
+        
+        var checked = false;
+        $.each(selectedRows, function(index, element) {
+            element = $(element);
+            var isChecked = element.attr("selectState") == "true";
+            if (isChecked) {
+               // element.css("backgroundColor", "#EAA4A4");
+                checked = true;
+            }})
+        if (checked) {
+            var sure = confirm("Вы уверены, что хотите удалить выделенные записи?");
+            if (sure) {messageUi.progressShow();
+                $.each(selectedRows, function(index, element) {element = $(element);
+                    var isChecked = element.attr("selectState") == "true";
+                    if (isChecked) {var id = Number(element.attr("positionId"));
+                        var initalBackGround = element.css("background-color");
+                  
+                        $.ajax({url: "/Claim/DeleteClaimPosition?id=" + id,
+                            type: 'GET',
+                            contentType: 'application/json; charset = utf-8 ',
+                            success: function(data) 
+                            {if (data.IsComplete) 
+                                {element.remove();
+                                    setInfoForPositionRows();
+                               } 
+                                else {showMessage("Запись не удалена из БД");}
+                            }
+                        });
+                    }  
+            
+                });
+            }
+        } else {
+            showMessage("Записи не выбраны")
+        }messageUi.progressHide();
     }
 
     function setInfoForPositionRows() {
@@ -1723,8 +1765,9 @@
     }
 
     function sendMessage(message) {
-        var target = getTargetOrigin();
-        document.getElementById("uploadFile").contentWindow.postMessage(message, target);
+       var target = getTargetOrigin();
+        document.getElementById("upl" +
+            "oadFile").contentWindow.postMessage(message, target);
     }
 
     function getTargetOrigin() {
@@ -1778,13 +1821,27 @@
         }
         if (obj.type.trim() == "UploadExcelResult") {
             messageUi.progressHide();
-            showMessage(obj.message);
-            if (!obj.error) {
+            var save = confirm(obj.message);
+            if (!obj.error && save) {
                 var positions = obj.positions;
                 var container = $("#positionTable");
                 if (positions != null) {
+                    $.ajax({
+                        url: "/Claim/AddClaimPositions",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: JSON.stringify(positions),
+                        processData: false,
+                        contentType: 'application/json; charset = utf-8 ',
+                        success: function(data) {
+                            messageUi.progressHide();
+                            if (!data) {showMessage("Ошибка при добавлении позиции спецификации");
+                            }
+                        }
+                    });
                     var positionsLength = positions.length;
                     for (var i = 0; i < positionsLength; i++) {
+
                         var position = positions[i];
                         var element = getPositionElement(position);
                         container.append(element);
@@ -2364,6 +2421,9 @@
                     @*<button id="butGetCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет (с позициями)</button>*@
                     <button id="butGetCalculateOnlyCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</button>
                 </span>
+                <span id="delPanel">
+                    <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить выбранное</button>
+                </span>
             </span>
             <table id="tblPositionsNoCalc" class="table table-bordered small" style="display: none;">
                 <thead>
@@ -2393,8 +2453,7 @@
                                 </div>
                             </div>
                         </th>
-                        <th>
-                        </th>
+                        
                     </tr>
 
                 </thead>
