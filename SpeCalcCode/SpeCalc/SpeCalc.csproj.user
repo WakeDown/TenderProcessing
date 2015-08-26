@@ -23,7 +23,7 @@
           <SQLDebugging>False</SQLDebugging>
           <ExternalProgram>
           </ExternalProgram>
-          <StartExternalURL>http://localhost:31340/Claim/Index?claimId=349</StartExternalURL>
+          <StartExternalURL>http://localhost:31340/</StartExternalURL>
           <StartCmdLineArguments>
           </StartCmdLineArguments>
           <StartWorkingDirectory>
