@@ -13,6 +13,7 @@ using System.Web.UI.WebControls;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json;
 using SpeCalc.Helpers;
 using SpeCalc.Models;
@@ -143,6 +144,7 @@ namespace SpeCalc.Controllers
                                     if (position.State == 1) continue;
                                     position.Calculations =
                                         calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
+                                    position.Calculations.Reverse();
                                 }
                             }
                         }
@@ -1416,10 +1418,7 @@ namespace SpeCalc.Controllers
                             row++;
                         }
                         //сохранение полученых позиций в БД
-                        foreach (var position in positions)
-                        {
-                            db.SaveSpecificationPosition(position);
-                        }
+                        
                         message = "Получено строк:    " + (row - 5);
                         if (repeatRowCount > 0)
                         {
@@ -1719,6 +1718,25 @@ namespace SpeCalc.Controllers
             return Json(new { IsComplete = isComplete, Model = model });
         }
 
+        public bool AddClaimPositions(List<SpecificationPosition> modelList)
+        {
+            var isComplete = modelList.Count>0;
+            try
+            {
+                var db = new DbEngine();
+                foreach (var model in modelList)
+                {
+                    
+                    isComplete = isComplete && db.SaveSpecificationPosition(model);
+                }
+                return isComplete;
+            }
+            catch (Exception)
+            {
+                
+                return false;
+            }
+        }
         //>>>>Уведомления
         //передача заявки в работу
         public JsonResult SetClaimOnWork(int id)
