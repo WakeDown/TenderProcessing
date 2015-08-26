@@ -153,6 +153,7 @@ namespace SpeCalc.Controllers
                                 {
                                     position.Calculations =
                                         calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
+                                    position.Calculations.Reverse();
                                 }
                             }
                         }
