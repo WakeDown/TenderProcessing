@@ -1640,7 +1640,27 @@ namespace SpeCalc.Controllers
             }
             return Json(new { IsComplete = isComplete }, JsonRequestBehavior.AllowGet);
         }
-
+        [HttpPost]
+        public JsonResult EditClaimDeadline(TenderClaim claim)
+        {
+            var isComplete = false;
+            try
+            {
+                var dateValid = true;
+                if (string.IsNullOrEmpty(claim.ClaimDeadline.ToShortDateString())) dateValid = false;
+                if (dateValid)
+                {
+                    var db = new DbEngine();
+                    db.UpdateClaimDeadline(claim.Id, claim.ClaimDeadline);
+                    isComplete = true;
+                }
+            }
+            catch (Exception)
+            {
+                isComplete = false;
+            }
+            return Json(new { IsComplete = isComplete });
+        }
         //фильтрация списка заявок
         [HttpPost]
         public JsonResult FilterClaim(FilterTenderClaim model)
@@ -1726,7 +1746,7 @@ namespace SpeCalc.Controllers
                 var db = new DbEngine();
                 foreach (var model in modelList)
                 {
-                    
+                    //updatec
                     isComplete = isComplete && db.SaveSpecificationPosition(model);
                 }
                 return isComplete;
