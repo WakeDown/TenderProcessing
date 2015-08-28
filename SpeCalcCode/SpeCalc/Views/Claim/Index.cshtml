@@ -1019,9 +1019,10 @@
     }
 
         $.ajax({
-            url: "/Claim/EditClaimDeadline",
+            url: '@Url.Action("EditClaimDeadline", "Claim")',//"/Claim/EditClaimDeadline",
             type: 'POST',
             dataType: 'json',
+            //data: {idClaim=id, comment: comment},
             data: JSON.stringify(model),
             processData: false,
             contentType: 'application/json; charset = utf-8 ',

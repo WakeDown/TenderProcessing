@@ -1253,7 +1253,182 @@ namespace SpeCalc.Controllers
             }
             return Json(new { IsComplete = isComplete, Message = message, Model = model }, JsonRequestBehavior.AllowGet);
         }
+        [HttpPost]
+        public JsonResult SetPositionRejected(List<int> posIds, int idClaim, string comment)
+        {
+            var isComplete = false;
+            var message = string.Empty;
+            ClaimStatusHistory model = null;
+            try
+            {
+                var user = GetUser();
+                var db = new DbEngine();
+                //получение позиций для текущего юзера
+                var positions = new List<SpecificationPosition>();
+                if (UserHelper.IsController(user))
+                {
+                    positions = db.LoadSpecificationPositionsForTenderClaim(idClaim);
+                }
+                else
+                {
+                    if (UserHelper.IsProductManager(user))
+                    {
+                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(idClaim, user.Id);
+                    }
+                }
+                //if (positions.Any())
+               /* if (posIds.Any())
+                {
+                    //Переделано для частичной передачи расчета
+                    positions = new List<SpecificationPosition>();
+                    foreach (int p in posIds)
+                    {
+                        positions.Add(new SpecificationPosition() { Id = p });
+                    }
+                    // /> частичная передача
 
+                    //проверка наличия у позиций строк расчета
+                    var isReady = db.IsPositionsReadyToConfirm(positions);
+                    if (isReady)
+                    {*/
+                        //изменения статуса позиций на - отправлено
+                        isComplete = db.SetPositionsToConfirm(positions);
+                        if (!isComplete) message = "Позиции не отправлены";
+                        else
+                        {
+                            var allPositions = db.LoadSpecificationPositionsForTenderClaim(idClaim);
+                            var isAllCalculate = allPositions.Count() ==
+                                                 allPositions.Count(x => x.State == 2 || x.State == 4);
+                            var claimStatus = isAllCalculate ? 7 : 6;
+                            //Изменение статуса заявки и истроии изменения статусов
+                            var status = db.LoadLastStatusHistoryForClaim(idClaim).Status.Id;
+                            if (status != claimStatus)
+                            {
+                                db.ChangeTenderClaimClaimStatus(new TenderClaim()
+                                {
+                                    Id = idClaim,
+                                    ClaimStatus = claimStatus
+                                });
+                                var statusHistory = new ClaimStatusHistory()
+                                {
+                                    Date = DateTime.Now,
+                                    Comment = comment,
+                                    IdClaim = idClaim,
+                                    IdUser = user.Id,
+                                    Status = new ClaimStatus() { Id = claimStatus }
+                                };
+                                db.SaveClaimStatusHistory(statusHistory);
+                                statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
+                                model = statusHistory;
+                            }
+                            else
+                            {
+                                var statusHistory = new ClaimStatusHistory()
+                                {
+                                    Date = DateTime.Now,
+                                    Comment = comment,
+                                    IdClaim = idClaim,
+                                    IdUser = user.Id,
+                                    Status = new ClaimStatus() { Id = status }
+                                };
+                                db.SaveClaimStatusHistory(statusHistory);
+                                statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
+                                model = statusHistory;
+                            }
+                            //инфа для уведомления
+                            var claim = db.LoadTenderClaimById(idClaim);
+                            var host = ConfigurationManager.AppSettings["AppHost"];
+                            var productManagersFromAd = UserHelper.GetProductManagers();
+                            var productManagers = db.LoadProductManagersForClaim(claim.Id);
+                            var productInClaim =
+                                productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id))
+                                    .ToList();
+                            var manager = UserHelper.GetUserById(claim.Manager.Id);
+                            var author = UserHelper.GetUserById(claim.Author.Id);
+                            var to = new List<UserBase>();
+                            to.Add(manager);
+                            if (author.Id != manager.Id)
+                            {
+                                to.Add(author);
+                            }
+                            //>>>>Уведомления
+                            if (claimStatus == 7)
+                            {
+                                var messageMail = new StringBuilder();
+                                messageMail.Append("Добрый день!");
+                                messageMail.Append("<br/>");
+                                messageMail.Append("Заявка №" + claim.Id + " полностью расчитана.");
+                                //messageMail.Append("<br/><br />");
+                                //messageMail.Append(GetClaimInfo(claim));
+                                messageMail.Append("<br/>");
+                                //messageMail.Append("Продакты/Снабженцы: <br/>");
+                                //foreach (var productManager in productInClaim)
+                                //{
+                                //    messageMail.Append(productManager.Name + "<br/>");
+                                //}
+                                messageMail.Append("Ссылка на заявку: ");
+                                messageMail.Append("<a href='" + host + "/Claim/Index?claimId=" + claim.Id + "'>" + host +
+                                                   "/Claim/Index?claimId=" + claim.Id + "</a>");
+                                //messageMail.Append("<br/>Сообщение от системы Спец расчет");
+                                Notification.SendNotification(to, messageMail.ToString(),
+                                    String.Format("{0} - {1} - Полный расчет заявки СпецРасчет", claim.TenderNumber,
+                                        claim.Customer));
+                            }
+                            //>>>>Уведомления
+                            if (claimStatus == 6)
+                            {
+                                var noneCalculatePositionManagers =
+                                    allPositions.Where(x => x.State == 1 || x.State == 3)
+                                        .Select(x => x.ProductManager)
+                                        .ToList();
+                                if (noneCalculatePositionManagers.Any())
+                                {
+                                    var products =
+                                        productManagersFromAd.Where(
+                                            x => noneCalculatePositionManagers.Select(y => y.Id).Contains(x.Id))
+                                            .ToList();
+                                    var messageMail = new StringBuilder();
+                                    messageMail.Append("Добрый день!");
+                                    messageMail.Append("<br/>");
+                                    messageMail.Append("Заявка №" + claim.Id + " частично расчитана.");
+                                    messageMail.Append("Продакты/Снабженцы, у которых расчет еще в работе: <br/>");
+                                    foreach (var productManager in products)
+                                    {
+                                        messageMail.Append(productManager.Name + "<br/>");
+                                    }
+                                    //messageMail.Append("<br/>");
+                                    //messageMail.Append(GetClaimInfo(claim));
+                                    //messageMail.Append("<br/>");
+
+                                    messageMail.Append("Ссылка на заявку: ");
+                                    messageMail.Append("<a href='" + host + "/Claim/Index?claimId=" + claim.Id + "'>" +
+                                                       host +
+                                                       "/Claim/Index?claimId=" + claim.Id + "</a>");
+                                    //messageMail.Append("<br/>Сообщение от системы Спец расчет");
+                                    Notification.SendNotification(to, messageMail.ToString(),
+                                        String.Format("{0} - {1} - Частичный расчет заявки СпецРасчет",
+                                            claim.TenderNumber, claim.Customer));
+                                }
+                            }
+                        }
+                  /*   }
+                    else
+                    {
+                        message = "Невозможно отправить позиции на подтверждение\rНе все позиции имеют расчет";
+                   }
+              }
+                else
+                {
+                    message = "Выберите хотябы одну позицию!";
+                }*/
+            }
+            catch (Exception)
+            {
+                isComplete = false;
+                message = "Ошибка сервера";
+            }
+            return Json(new { IsComplete = isComplete, Message = message, Model = model }, JsonRequestBehavior.AllowGet);
+        }
         //>>>>Уведомления
         //переназначение позиций другому снабженцу
         [HttpPost]

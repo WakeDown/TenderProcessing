@@ -1842,6 +1842,7 @@ namespace SpeCalc.Controllers
 
         //>>>>Уведомления
         //отмена заявки
+        
         [HttpPost]
         public JsonResult SetClaimCancelled(ClaimStatusHistory model)
         {
@@ -2004,10 +2005,11 @@ namespace SpeCalc.Controllers
             }
             return Json(new { IsComplete = isComplete, Model = model });
         }
-
+        [HttpPost]
+        
         //>>>>Уведомления
         //Отклонение позиций
-        [HttpPost]
+       
         public JsonResult SetPositonRejected(List<int> positionsId, string comment, int idClaim)
         {
             var isComplete = false;

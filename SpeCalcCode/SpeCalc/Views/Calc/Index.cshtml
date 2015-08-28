@@ -54,6 +54,7 @@
         initDeliveryTimeList();
         initProductsList();
         $('#btnSecondStateColumns').click(toglleSecondStateColumns);
+        $("#butrejectClaim").click(rejectTenderClaim);
         $("#butSendComment").click(sendComment);
         $("#butChangeProduct").click(changePositionsProduct);
         $("#selectAllPositions").change(selectAllPositions);
@@ -61,6 +62,7 @@
         $("#editAllCalcButtonCancel").click(editAllPositionsCancel);
         $("#editAllCalcButton").show();
         $("#editAllCalcButtonCancel").hide();
+        $
         //$("#butChangeCurrency").click(changeCurrency);
 
         if (claim == null) {
@@ -117,7 +119,48 @@
                 }
             });
     }
-
+    function rejectTenderClaim() {
+        var comment = $("#comment").val().trim();
+         if (comment == "")
+             alert("Прокоментируйте отказ!");
+         else {
+             var model = {
+                 Comment: comment,
+                 IdClaim: claim.Id
+             }
+             messageUi.progressShow();
+             $.ajax({
+                 url: '/Calc/SetClaimRejected',
+                 type: 'POST',
+                 dataType: 'json',
+                 data: JSON.stringify(model),
+                 processData: false,
+                 contentType: 'application/json; charset = utf-8 ',
+                 success: function(data) {
+                     messageUi.progressHide();
+                     if (data.IsComplete) {
+                         if (data.Model != null) {
+                             claim.ClaimStatus = data.Model.Status.Value;
+                             var status = getClaimStatusById(claim.ClaimStatus);
+                             if (status == null) {
+                                 status = { Value: "Неопределен" };
+                             }
+                             $("#claimStatus").text(status.Value);
+                             addClaimStatusHistoryElement(data.Model);
+                         }
+                         $("#claimStatusPanel").remove();
+                     } else {
+                         showMessage("Ошибка");
+                     }
+                 }
+             });
+ 
+         }
+     }
+    
+        // var comment = $("#commentWithCalc").val().trim();
+          
+    
     function toglleSecondStateColumns() {
         var $list = $('[secstatecol="1"]');
         if ($list.first().is(':visible')) {
@@ -1523,7 +1566,7 @@
                 <div id="commentPanel">
                     <textarea id="comment" rows="5" placeholder="Комментарий" class="form-control"></textarea>
                     <div>
-                        @*<button type='button' class='btn btn-danger'><i class="fa fa-remove"></i> отклонить</button>*@
+                        <button type='button' id="butrejectClaim" class='btn btn-danger'><i class="fa fa-remove"></i> отклонить</button>
                         <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение отмеченные</button>
                         <button type="button" id="butSendComment" class="btn btn-default"><i class="fa fa-comment"></i> сохранить комментарий</button>
                     </div>
