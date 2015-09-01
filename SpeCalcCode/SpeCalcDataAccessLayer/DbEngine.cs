@@ -25,7 +25,6 @@ namespace SpeCalcDataAccessLayer
         }
 
         #region TenderClaim
-
         public void UpdateClaimDeadline(int idClaim, DateTime claimDeadline)
         {
             using (var conn = new SqlConnection(_connectionString))
@@ -40,7 +39,6 @@ namespace SpeCalcDataAccessLayer
                 rd.Dispose();
             }
         }
-
         public ClaimCert GetCertFile(string guid)
         {
             byte[] file = null;
