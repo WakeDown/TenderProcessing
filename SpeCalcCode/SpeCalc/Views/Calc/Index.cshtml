@@ -124,36 +124,45 @@
          if (comment == "")
              alert("Прокоментируйте отказ!");
          else {
-             var model = {
-                 Comment: comment,
-                 IdClaim: claim.Id
-             }
              messageUi.progressShow();
+             var $checkedPosRows = $("[type='positionRow']", "#positionsTable").has("input:checked");
+             var posIds = [];
+             $checkedPosRows.each(function () {posIds.push($(this).attr('positionId'));});
+             //var strPosIds = posIds.join(',');
+             //alert(strPosIds);
+             //positionId
+             //var rejectPostionsId = $("#rejectPositionCommentBox").attr("rejectedId");
+             //var arrIds = rejectPostionsId.split(",");
+
              $.ajax({
-                 url: '/Calc/SetClaimRejected',
+                 url: "/Calc/SetPositionRejected?idClaim=" + claim.Id + "&comment=" + comment,
                  type: 'POST',
-                 dataType: 'json',
-                 data: JSON.stringify(model),
+                 datatype: 'json',
+                 data: JSON.stringify(posIds),
                  processData: false,
                  contentType: 'application/json; charset = utf-8 ',
                  success: function(data) {
                      messageUi.progressHide();
                      if (data.IsComplete) {
                          if (data.Model != null) {
-                             claim.ClaimStatus = data.Model.Status.Value;
-                             var status = getClaimStatusById(claim.ClaimStatus);
-                             if (status == null) {
-                                 status = { Value: "Неопределен" };
-                             }
-                             $("#claimStatus").text(status.Value);
+                             claim.ClaimStatus = data.Model.Status.Id;
                              addClaimStatusHistoryElement(data.Model);
                          }
-                         $("#claimStatusPanel").remove();
+                         $("#butSendOnConfirm").hide();
+                         $("#butGetExcelFile").hide();
+                         $("#butUploadExcelFile").hide();
+                         $("#reassignmentPanel").hide();
+                         $("#selectAllPositions").hide();
+                         $("#editAllCalcButton").hide();
+                         $("#editAllCalcButtonCancel").hide();
+                         setPositionsToNoAction();
                      } else {
-                         showMessage("Ошибка");
+                         alert(data.Message);
                      }
                  }
              });
+             location.reload();
+         
  
          }
      }
@@ -577,7 +586,7 @@
                     }
                     $("#comment").val("");
                 } else {
-                    alert("Ошибка с добавления комментария");
+                    alert("Ошиб/*к*/а с добавления комментария");
                 }
             }
         });
@@ -1202,8 +1211,11 @@
         //    $("[type='sumNdsLabelPostfix']", element).text(currency.Value + " всего");
         //}
         var addCalculateButton = $("[modetype='addCalcButton']", element);
+        var selectPosition = $("[modetype='selectPosition']", element);
         if (position.State != 1 && position.State != 3) {
             addCalculateButton.hide();
+            selectPosition.hide();
+        
         } else {
             addCalculateButton.click(addCalculateButtonClick);
         }
@@ -1254,6 +1266,7 @@
         var positionsCb = $("[modetype='selectPosition']", $("#positionsTable"));
         $.each(positionsCb, function(i, element) {
             element.checked = state;
+            if (element.offsetParent === null) element.checked = false;
         });
     }
 

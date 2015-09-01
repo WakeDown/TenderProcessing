@@ -223,7 +223,7 @@ D:\Projects\TenderProcessing\SpeCalcCode\SpeCalc\bin\ru\System.Web.WebPages.reso
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalc\bin\ru\System.Web.WebPages.Deployment.resources.dll
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalc\bin\ru\System.Web.WebPages.Razor.resources.dll
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.csprojFakesResolveAssemblyReference.cache
-D:\Projects\TenderProcessing\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.csprojResolveAssemblyReference.cache
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.csproj.ResolveComReference.cache
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.dll
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.pdb
+D:\Projects\TenderProcessing\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.csprojResolveAssemblyReference.cache

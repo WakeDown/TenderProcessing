@@ -1259,8 +1259,8 @@ namespace SpeCalc.Controllers
             var isComplete = false;
             var message = string.Empty;
             ClaimStatusHistory model = null;
-            try
-            {
+           /* try
+            {*/
                 var user = GetUser();
                 var db = new DbEngine();
                 //получение позиций для текущего юзера
@@ -1276,33 +1276,33 @@ namespace SpeCalc.Controllers
                         positions = db.LoadSpecificationPositionsForTenderClaimForProduct(idClaim, user.Id);
                     }
                 }
+                var positionIds = new List<int>();
                 //if (positions.Any())
-               /* if (posIds.Any())
+                if (posIds.Any())
                 {
                     //Переделано для частичной передачи расчета
-                    positions = new List<SpecificationPosition>();
-                    foreach (int p in posIds)
+                    positionIds = posIds;
+                }
+                //изменения статуса позиций на - отправлено
+                else
+                {
+                    foreach (var position in positions)
                     {
-                        positions.Add(new SpecificationPosition() { Id = p });
+                        positionIds.Add(position.Id);
                     }
-                    // /> частичная передача
-
-                    //проверка наличия у позиций строк расчета
-                    var isReady = db.IsPositionsReadyToConfirm(positions);
-                    if (isReady)
-                    {*/
-                        //изменения статуса позиций на - отправлено
-                        isComplete = db.SetPositionsToConfirm(positions);
-                        if (!isComplete) message = "Позиции не отправлены";
-                        else
+                }       
+                
+                isComplete = db.ChangePositionsState(positionIds,5);
+                if (!isComplete) message = "Позиции не отклонены";
+                else
                         {
                             var allPositions = db.LoadSpecificationPositionsForTenderClaim(idClaim);
-                            var isAllCalculate = allPositions.Count() ==
-                                                 allPositions.Count(x => x.State == 2 || x.State == 4);
-                            var claimStatus = isAllCalculate ? 7 : 6;
+                            var isAllRejected = allPositions.Count() ==
+                                                 allPositions.Count(x => x.State == 5);
+                            var lastClaimStatus = db.LoadLastStatusHistoryForClaim(idClaim).Status.Id;
+                    var claimStatus = isAllRejected ? 9 : lastClaimStatus;
                             //Изменение статуса заявки и истроии изменения статусов
-                            var status = db.LoadLastStatusHistoryForClaim(idClaim).Status.Id;
-                            if (status != claimStatus)
+                            if (lastClaimStatus != claimStatus)
                             {
                                 db.ChangeTenderClaimClaimStatus(new TenderClaim()
                                 {
@@ -1312,7 +1312,7 @@ namespace SpeCalc.Controllers
                                 var statusHistory = new ClaimStatusHistory()
                                 {
                                     Date = DateTime.Now,
-                                    Comment = comment,
+                                    Comment = String.Format("Пользователь {0} отклонил свои позиции.<br/>{0}: {1} ",user.ShortName,comment),
                                     IdClaim = idClaim,
                                     IdUser = user.Id,
                                     Status = new ClaimStatus() { Id = claimStatus }
@@ -1326,10 +1326,10 @@ namespace SpeCalc.Controllers
                                 var statusHistory = new ClaimStatusHistory()
                                 {
                                     Date = DateTime.Now,
-                                    Comment = comment,
+                                    Comment = String.Format("Пользователь {0} отклонил свои позиции.<br />{0}: {1}", user.ShortName, comment),
                                     IdClaim = idClaim,
                                     IdUser = user.Id,
-                                    Status = new ClaimStatus() { Id = status }
+                                    Status = new ClaimStatus() { Id = lastClaimStatus }
                                 };
                                 db.SaveClaimStatusHistory(statusHistory);
                                 statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
@@ -1352,15 +1352,14 @@ namespace SpeCalc.Controllers
                                 to.Add(author);
                             }
                             //>>>>Уведомления
-                            if (claimStatus == 7)
+                            if (claimStatus == 9)
                             {
                                 var messageMail = new StringBuilder();
-                                messageMail.Append("Добрый день!");
-                                messageMail.Append("<br/>");
-                                messageMail.Append("Заявка №" + claim.Id + " полностью расчитана.");
-                                //messageMail.Append("<br/><br />");
-                                //messageMail.Append(GetClaimInfo(claim));
-                                messageMail.Append("<br/>");
+                                messageMail.Append("Добрый день!<br/>");
+                                messageMail.Append("Позиции в заявке №" + claim.Id + " отклонены пользователем " + user.Name + ".<br/>");
+                                messageMail.Append("Отклонены все позиции.<br/>");
+                                messageMail.Append("Комментарий:<br/>");
+                                messageMail.Append(comment+"<br/>");
                                 //messageMail.Append("Продакты/Снабженцы: <br/>");
                                 //foreach (var productManager in productInClaim)
                                 //{
@@ -1371,31 +1370,27 @@ namespace SpeCalc.Controllers
                                                    "/Claim/Index?claimId=" + claim.Id + "</a>");
                                 //messageMail.Append("<br/>Сообщение от системы Спец расчет");
                                 Notification.SendNotification(to, messageMail.ToString(),
-                                    String.Format("{0} - {1} - Полный расчет заявки СпецРасчет", claim.TenderNumber,
+                                    String.Format("{0} - {1} - Полное отклонение заявки СпецРасчет", claim.TenderNumber,
                                         claim.Customer));
                             }
                             //>>>>Уведомления
-                            if (claimStatus == 6)
+                            if (claimStatus == lastClaimStatus)
                             {
-                                var noneCalculatePositionManagers =
+                                var noneRejectedPositionManagers =
                                     allPositions.Where(x => x.State == 1 || x.State == 3)
                                         .Select(x => x.ProductManager)
                                         .ToList();
-                                if (noneCalculatePositionManagers.Any())
+                                if (noneRejectedPositionManagers.Any())
                                 {
                                     var products =
                                         productManagersFromAd.Where(
-                                            x => noneCalculatePositionManagers.Select(y => y.Id).Contains(x.Id))
+                                            x => noneRejectedPositionManagers.Select(y => y.Id).Contains(x.Id))
                                             .ToList();
                                     var messageMail = new StringBuilder();
-                                    messageMail.Append("Добрый день!");
-                                    messageMail.Append("<br/>");
-                                    messageMail.Append("Заявка №" + claim.Id + " частично расчитана.");
-                                    messageMail.Append("Продакты/Снабженцы, у которых расчет еще в работе: <br/>");
-                                    foreach (var productManager in products)
-                                    {
-                                        messageMail.Append(productManager.Name + "<br/>");
-                                    }
+                                    messageMail.Append("Добрый день!<br/>");
+                                    messageMail.Append("Позиции в заявке №" + claim.Id + " отклонены пльзователем "+             user.Name+".<br/>");
+                                    messageMail.Append("Отклонено позиций "+allPositions.Count(x => x.State==5)+" из "+allPositions.Count+".<br/>");
+                                    
                                     //messageMail.Append("<br/>");
                                     //messageMail.Append(GetClaimInfo(claim));
                                     //messageMail.Append("<br/>");
@@ -1406,7 +1401,7 @@ namespace SpeCalc.Controllers
                                                        "/Claim/Index?claimId=" + claim.Id + "</a>");
                                     //messageMail.Append("<br/>Сообщение от системы Спец расчет");
                                     Notification.SendNotification(to, messageMail.ToString(),
-                                        String.Format("{0} - {1} - Частичный расчет заявки СпецРасчет",
+                                        String.Format("{0} - {1} - Частичное отклонение заявки СпецРасчет",
                                             claim.TenderNumber, claim.Customer));
                                 }
                             }
@@ -1421,12 +1416,12 @@ namespace SpeCalc.Controllers
                 {
                     message = "Выберите хотябы одну позицию!";
                 }*/
-            }
+      /*      }
             catch (Exception)
             {
                 isComplete = false;
                 message = "Ошибка сервера";
-            }
+            }*/
             return Json(new { IsComplete = isComplete, Message = message, Model = model }, JsonRequestBehavior.AllowGet);
         }
         //>>>>Уведомления

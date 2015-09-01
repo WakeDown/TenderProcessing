@@ -16,6 +16,7 @@
     var history = (List<ClaimStatusHistory>)ViewBag.StatusHistory;
     var facts = (List<ProtectFact>)ViewBag.Facts;
     var deliveryTimes = (List<DeliveryTime>)ViewBag.DeliveryTimes;
+    var editableposIds = (List<int>) ViewBag.EditablePositions;
 }
 @*<link href="~/Content/bootstrap-datepicker3.css" rel="stylesheet" />*@
 @*<script src="~/Scripts/bootstrap-datepicker.js"></script>*@
@@ -35,7 +36,7 @@
     var errorLoad = @ViewBag.Error;
     var dealType = "@ViewBag.DealType";
     var status = "@ViewBag.Status";
-
+    var editablePosIds = @Html.Raw(serializer.Serialize(editableposIds));
     $(init);
 
     function init() {
@@ -71,7 +72,7 @@
             autoclose: true,
             todayBtn: "linked",
             language: "ru",
-           // startDate: '@DateTime.Now.AddDays(2).ToShortDateString()'
+            // startDate: '@DateTime.Now.AddDays(2).ToShortDateString()'
         });
         $("#kPDeadline").datepicker({
             format: "dd.mm.yyyy",
@@ -128,6 +129,7 @@
         $("#selectAllPositionsWithCalc").change(selectAllPositionWithCalc);
         $("#butDeadLineCorrect").click(correctDeadLine);
         $("#butRejectPositionOk").click(rejectPositionOk);
+        $("#butSetPositionOnWork").click(sendPositionOnWork);
         var unitList = getUnitsList(null);
         $("#unitCell").append(unitList);
         var managersList = getProductManagersList(null);
@@ -142,7 +144,7 @@
         //$("#butChangeCurrency").click(changeCurrency);
 
         if (claim != null) {
-
+            $("#butSetPositionOnWork").hide();
             $("#claimId").text("Заявка №" + claim.Id);
             if (claim.ClaimStatus < 1) {
 
@@ -225,15 +227,15 @@
                 });
                 var editButtons = $("[modeType='editButton']", $("#positionTable"));
                 $.each(editButtons, function(index, elem) {
-                    $(elem).remove();
+                    //$(elem).remove();
                 });
                 var editPanels = $("[type='editActionPanel']", $("#positionTable"));
                 $.each(editPanels, function(index, elem) {
-                    $(elem).remove();
+                    //$(elem).remove();
                 });
                 var deleteButtons = $("[modeType='deleteButton']", $("#positionTable"));
                 $.each(deleteButtons, function(index, elem) {
-                    $(elem).remove();
+                    // $(elem).remove();
                 });
                 $("#excelPanel").hide();
                 if (claim.ClaimStatus == 2 || claim.ClaimStatus == 3 || claim.ClaimStatus == 4 || claim.ClaimStatus == 6 || claim.ClaimStatus == 7) {
@@ -355,13 +357,30 @@
     }
 
     function initPositionsWithCalc(positions) {
+        if (editablePosIds.length > 0) {
+            var container = $("#positionTable");
+            $("#butSetPositionOnWork").show();
+            $("#tblPositionsNoCalc").show();
+            var positionsLength = claim.Positions.length;
+            // if (positionsLength == editablePosIds.length())$("#positionsTableWithCalc").hide();
+            for (var i = 0; i < positionsLength; i++) {
+                var position = claim.Positions[i];
+                if (editablePosIds.indexOf(position.Id) != -1) {
+                    var element = getPositionElement(position);
+                    container.append(element);
+                }
+            }
+        }
+
         if (positions == null) return;
         var container = $("#positionsTableWithCalc");
         var positionsLength = positions.length;
+
         for (var i = 0; i < positionsLength; i++) {
             var position = positions[i];
             var element = getPositionElementWithCalc(position);
             $("[modetype='rowNumber']", element).text(i + 1);
+            if(editablePosIds.indexOf(position.Id)==-1)
             container.append(element);
 
             //var calculateRowTable = getCalculateTableForPosition(position);
@@ -461,41 +480,41 @@
         }
 
         else {
-        var comment = $("#commentWithCalc").val().trim();
-        var model = {
-            Comment: comment,
-            IdClaim: claim.Id
-        }
-        messageUi.progressShow();
-        $.ajax({
-            url: "/Claim/SetClaimContinued",
-            type: 'POST',
-            dataType: 'json',
-            data: JSON.stringify(model),
-            processData: false,
-            contentType: 'application/json; charset = utf-8 ',
-            success: function(data) {
-                messageUi.progressHide();
-                if (data.IsComplete) {
-                    if (data.Model != null) {
-                        claim.ClaimStatus = data.Model.Status.Id;
-                        var status = getClaimStatusById(claim.ClaimStatus);
-                        if (status == null) {
-                            status = { Value: "Неопределен" };
-                        }
-                        $("#claimStatus").text(status.Value);
-                        addClaimStatusHistoryElement(data.Model);
-                    }
-                    $("#butСlaimStatusStopped").show();
-                    $("#butСlaimStatusContined").hide();
-
-                } else {
-                    showMessage("Ошибка");
-                }
+            var comment = $("#commentWithCalc").val().trim();
+            var model = {
+                Comment: comment,
+                IdClaim: claim.Id
             }
-        });
+            messageUi.progressShow();
+            $.ajax({
+                url: "/Claim/SetClaimContinued",
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify(model),
+                processData: false,
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    messageUi.progressHide();
+                    if (data.IsComplete) {
+                        if (data.Model != null) {
+                            claim.ClaimStatus = data.Model.Status.Id;
+                            var status = getClaimStatusById(claim.ClaimStatus);
+                            if (status == null) {
+                                status = { Value: "Неопределен" };
+                            }
+                            $("#claimStatus").text(status.Value);
+                            addClaimStatusHistoryElement(data.Model);
+                        }
+                        $("#butСlaimStatusStopped").show();
+                        $("#butСlaimStatusContined").hide();
+
+                    } else {
+                        showMessage("Ошибка");
+                    }
+                }
+            });
+        }
     }
-}
     function setClaimCancelled(e) {
         var comment = $("#commentWithCalc").val().trim();
         var model = {
@@ -574,7 +593,7 @@
         var curDate=Date.parse(split[2]+'/'+split[1]+'/'+split[0]);
         if (curDate < minDate) {
             $('#deadLineCorrectorBox').modal("show");
-            
+
         }
 
         else {
@@ -1016,7 +1035,7 @@
         var model = {
             Id: claim.Id,
             ClaimDeadline: $("#deadlineCorrector").val()
-    }
+        }
 
         $.ajax({
             url: '@Url.Action("EditClaimDeadline", "Claim")',//"/Claim/EditClaimDeadline",
@@ -1041,7 +1060,7 @@
             }
         });
 
-      // $("#claimManager").val("asasa");
+        // $("#claimManager").val("asasa");
     }
     function rejectPositionOk(e) {
         $('#rejectPositionCommentBox').modal("hide");
@@ -1090,7 +1109,67 @@
         });
         location.reload();
     }
+    function sendPositionOnWork() {
+        var positionsId = [];
+        var positionsRows = $("[type='positionRow']", $("#tblPositionsNoCalc"));
 
+        $.each(positionsRows, function(index, element) {
+            element = $(element);
+            var isChecked = $("[modetype='selectPositionElement']", element).get(0).checked;
+            if (isChecked) {
+                positionsId.push(Number(element.attr("positionId")));
+            }
+        });
+        if (positionsId.length == 0) {
+            alert("Не отмечено ни одной позиции");
+        } else  {
+            
+            var comment = $("#commentWithCalc").val().trim();
+            messageUi.progressShow();
+            $.ajax({
+                url: "/Claim/SendPositonOnWork?comment=" + encodeURI(comment) + "&idClaim=" + claim.Id,
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify(positionsId),
+                processData: false,
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    messageUi.progressHide();
+                    if (data.IsComplete) {
+                        if (data.Model != null) {
+                            claim.ClaimStatus = data.Model.Status.Id;
+                            var status = getClaimStatusById(claim.ClaimStatus);
+                            if (status == null) {
+                                status = { Value: "Неопределен" };
+                            }
+                            $("#claimStatus").text(status.Value);
+                            addClaimStatusHistoryElement(data.Model);
+                        }
+                        var selectedRows = $("[type='positionRow']", $("#positionTable"));
+                        $.each(selectedRows, function(index, element) {
+                            element = $(element);
+                            setRowSelect(element, false);
+                        });
+                        var positionsRows = $("[type='positionRow']", $("#positionTable"));
+                        $.each(positionsRows, function(index, element) {
+                            element = $(element);
+                            var positionId = element.attr("positionId");
+                            if ($.inArray(positionId, arrIds) != -1) {
+                                var color = getColorForPositionState(3);
+                                element.css("backgroundColor", color);
+                                element.attr("initalColor", color);
+                            }
+                        });
+                    } else {
+                        showMessage("Ошибка");
+                    }
+                }
+            });
+            location.reload();
+        }
+            
+        
+    }
     function rejectPositions() {
         var positionsId = [];
         var positionsRows = $("[type='positionRow']", $("#positionsTableWithCalc"));
@@ -1382,7 +1461,7 @@
             element = $(element);
             var isChecked = element.attr("selectState") == "true";
             if (isChecked) {
-               // element.css("backgroundColor", "#EAA4A4");
+                // element.css("backgroundColor", "#EAA4A4");
                 checked = true;
             }})
         if (checked) {
@@ -1398,10 +1477,10 @@
                             contentType: 'application/json; charset = utf-8 ',
                             success: function(data)
                             {if (data.IsComplete)
-                                {element.remove();
-                                    setInfoForPositionRows();
-                               }
-                                else {showMessage("Запись не удалена из БД");}
+                            {element.remove();
+                                setInfoForPositionRows();
+                            }
+                            else {showMessage("Запись не удалена из БД");}
                             }
                         });
                     }
@@ -1829,7 +1908,7 @@
     }
 
     function sendMessage(message) {
-       var target = getTargetOrigin();
+        var target = getTargetOrigin();
         document.getElementById("upl" +
             "oadFile").contentWindow.postMessage(message, target);
     }
@@ -2481,6 +2560,7 @@
                 </span>
                 <button id="butSetPositionReject" type="button" class="btn btn-danger btn-sm"><i class="fa fa-close"></i> отклонить отмеченные</button>
                 <button id="butSetPositionConfirm" type="button" class="btn btn-success btn-sm"><i class="fa fa-check"></i> принять все</button>
+                <button id="butSetPositionOnWork" type="button" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> Отправить позиции в работу</button>
                 <span id="excelCalculatePanel">
                     @*<button id="butGetCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет (с позициями)</button>*@
                     <button id="butGetCalculateOnlyCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</button>

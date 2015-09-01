@@ -14,6 +14,5 @@ D:\Pojects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalc
 D:\Pojects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.pdb
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\SpeCalcDataAccessLayer.dll
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\SpeCalcDataAccessLayer.pdb
-D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.csprojResolveAssemblyReference.cache
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.dll
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.pdb
