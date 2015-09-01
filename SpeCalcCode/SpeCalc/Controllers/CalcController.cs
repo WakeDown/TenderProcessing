@@ -1253,7 +1253,177 @@ namespace SpeCalc.Controllers
             }
             return Json(new { IsComplete = isComplete, Message = message, Model = model }, JsonRequestBehavior.AllowGet);
         }
+        [HttpPost]
+        public JsonResult SetPositionRejected(List<int> posIds, int idClaim, string comment)
+        {
+            var isComplete = false;
+            var message = string.Empty;
+            ClaimStatusHistory model = null;
+           /* try
+            {*/
+                var user = GetUser();
+                var db = new DbEngine();
+                //получение позиций для текущего юзера
+                var positions = new List<SpecificationPosition>();
+                if (UserHelper.IsController(user))
+                {
+                    positions = db.LoadSpecificationPositionsForTenderClaim(idClaim);
+                }
+                else
+                {
+                    if (UserHelper.IsProductManager(user))
+                    {
+                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(idClaim, user.Id);
+                    }
+                }
+                var positionIds = new List<int>();
+                //if (positions.Any())
+                if (posIds.Any())
+                {
+                    //Переделано для частичной передачи расчета
+                    positionIds = posIds;
+                }
+                //изменения статуса позиций на - отправлено
+                else
+                {
+                    foreach (var position in positions)
+                    {
+                        positionIds.Add(position.Id);
+                    }
+                }       
+                
+                isComplete = db.ChangePositionsState(positionIds,5);
+                if (!isComplete) message = "Позиции не отклонены";
+                else
+                        {
+                            var allPositions = db.LoadSpecificationPositionsForTenderClaim(idClaim);
+                            var isAllRejected = allPositions.Count() ==
+                                                 allPositions.Count(x => x.State == 5);
+                            var lastClaimStatus = db.LoadLastStatusHistoryForClaim(idClaim).Status.Id;
+                    var claimStatus = isAllRejected ? 9 : lastClaimStatus;
+                            //Изменение статуса заявки и истроии изменения статусов
+                            if (lastClaimStatus != claimStatus)
+                            {
+                                db.ChangeTenderClaimClaimStatus(new TenderClaim()
+                                {
+                                    Id = idClaim,
+                                    ClaimStatus = claimStatus
+                                });
+                                var statusHistory = new ClaimStatusHistory()
+                                {
+                                    Date = DateTime.Now,
+                                    Comment = String.Format("Пользователь {0} отклонил свои позиции.<br/>{0}: {1} ",user.ShortName,comment),
+                                    IdClaim = idClaim,
+                                    IdUser = user.Id,
+                                    Status = new ClaimStatus() { Id = claimStatus }
+                                };
+                                db.SaveClaimStatusHistory(statusHistory);
+                                statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
+                                model = statusHistory;
+                            }
+                            else
+                            {
+                                var statusHistory = new ClaimStatusHistory()
+                                {
+                                    Date = DateTime.Now,
+                                    Comment = String.Format("Пользователь {0} отклонил свои позиции.<br />{0}: {1}", user.ShortName, comment),
+                                    IdClaim = idClaim,
+                                    IdUser = user.Id,
+                                    Status = new ClaimStatus() { Id = lastClaimStatus }
+                                };
+                                db.SaveClaimStatusHistory(statusHistory);
+                                statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
+                                model = statusHistory;
+                            }
+                            //инфа для уведомления
+                            var claim = db.LoadTenderClaimById(idClaim);
+                            var host = ConfigurationManager.AppSettings["AppHost"];
+                            var productManagersFromAd = UserHelper.GetProductManagers();
+                            var productManagers = db.LoadProductManagersForClaim(claim.Id);
+                            var productInClaim =
+                                productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id))
+                                    .ToList();
+                            var manager = UserHelper.GetUserById(claim.Manager.Id);
+                            var author = UserHelper.GetUserById(claim.Author.Id);
+                            var to = new List<UserBase>();
+                            to.Add(manager);
+                            if (author.Id != manager.Id)
+                            {
+                                to.Add(author);
+                            }
+                            //>>>>Уведомления
+                            if (claimStatus == 9)
+                            {
+                                var messageMail = new StringBuilder();
+                                messageMail.Append("Добрый день!<br/>");
+                                messageMail.Append("Позиции в заявке №" + claim.Id + " отклонены пользователем " + user.Name + ".<br/>");
+                                messageMail.Append("Отклонены все позиции.<br/>");
+                                messageMail.Append("Комментарий:<br/>");
+                                messageMail.Append(comment+"<br/>");
+                                //messageMail.Append("Продакты/Снабженцы: <br/>");
+                                //foreach (var productManager in productInClaim)
+                                //{
+                                //    messageMail.Append(productManager.Name + "<br/>");
+                                //}
+                                messageMail.Append("Ссылка на заявку: ");
+                                messageMail.Append("<a href='" + host + "/Claim/Index?claimId=" + claim.Id + "'>" + host +
+                                                   "/Claim/Index?claimId=" + claim.Id + "</a>");
+                                //messageMail.Append("<br/>Сообщение от системы Спец расчет");
+                                Notification.SendNotification(to, messageMail.ToString(),
+                                    String.Format("{0} - {1} - Полное отклонение заявки СпецРасчет", claim.TenderNumber,
+                                        claim.Customer));
+                            }
+                            //>>>>Уведомления
+                            if (claimStatus == lastClaimStatus)
+                            {
+                                var noneRejectedPositionManagers =
+                                    allPositions.Where(x => x.State == 1 || x.State == 3)
+                                        .Select(x => x.ProductManager)
+                                        .ToList();
+                                if (noneRejectedPositionManagers.Any())
+                                {
+                                    var products =
+                                        productManagersFromAd.Where(
+                                            x => noneRejectedPositionManagers.Select(y => y.Id).Contains(x.Id))
+                                            .ToList();
+                                    var messageMail = new StringBuilder();
+                                    messageMail.Append("Добрый день!<br/>");
+                                    messageMail.Append("Позиции в заявке №" + claim.Id + " отклонены пльзователем "+             user.Name+".<br/>");
+                                    messageMail.Append("Отклонено позиций "+allPositions.Count(x => x.State==5)+" из "+allPositions.Count+".<br/>");
+                                    
+                                    //messageMail.Append("<br/>");
+                                    //messageMail.Append(GetClaimInfo(claim));
+                                    //messageMail.Append("<br/>");
 
+                                    messageMail.Append("Ссылка на заявку: ");
+                                    messageMail.Append("<a href='" + host + "/Claim/Index?claimId=" + claim.Id + "'>" +
+                                                       host +
+                                                       "/Claim/Index?claimId=" + claim.Id + "</a>");
+                                    //messageMail.Append("<br/>Сообщение от системы Спец расчет");
+                                    Notification.SendNotification(to, messageMail.ToString(),
+                                        String.Format("{0} - {1} - Частичное отклонение заявки СпецРасчет",
+                                            claim.TenderNumber, claim.Customer));
+                                }
+                            }
+                        }
+                  /*   }
+                    else
+                    {
+                        message = "Невозможно отправить позиции на подтверждение\rНе все позиции имеют расчет";
+                   }
+              }
+                else
+                {
+                    message = "Выберите хотябы одну позицию!";
+                }*/
+      /*      }
+            catch (Exception)
+            {
+                isComplete = false;
+                message = "Ошибка сервера";
+            }*/
+            return Json(new { IsComplete = isComplete, Message = message, Model = model }, JsonRequestBehavior.AllowGet);
+        }
         //>>>>Уведомления
         //переназначение позиций другому снабженцу
         [HttpPost]
