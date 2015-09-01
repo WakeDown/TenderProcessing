@@ -121,8 +121,8 @@
     }
     function rejectTenderClaim() {
         var comment = $("#comment").val().trim();
-         if (comment == "")
-             alert("Прокоментируйте отказ!");
+         if (comment === "")
+             alert("Необходимо заполнить комментарий!");
          else {
              messageUi.progressShow();
              var $checkedPosRows = $("[type='positionRow']", "#positionsTable").has("input:checked");
@@ -1579,7 +1579,7 @@
                 <div id="commentPanel">
                     <textarea id="comment" rows="5" placeholder="Комментарий" class="form-control"></textarea>
                     <div>
-                        <button type='button' id="butrejectClaim" class='btn btn-danger'><i class="fa fa-remove"></i> отклонить</button>
+                        <button type='button' id="butrejectClaim" class='btn btn-danger'><i class="fa fa-remove"></i> отклонить отмеченные</button>
                         <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение отмеченные</button>
                         <button type="button" id="butSendComment" class="btn btn-default"><i class="fa fa-comment"></i> сохранить комментарий</button>
                     </div>

@@ -72,11 +72,7 @@
             autoclose: true,
             todayBtn: "linked",
             language: "ru",
-<<<<<<< remotes/origin/work
-            // startDate: '@DateTime.Now.AddDays(2).ToShortDateString()'
-=======
             startDate: '@DateTime.Now.AddDays(2).ToShortDateString()'
->>>>>>> local
         });
         $("#kPDeadline").datepicker({
             format: "dd.mm.yyyy",
@@ -1040,7 +1036,7 @@
             Id: claim.Id,
             ClaimDeadline: $("#deadlineCorrector").val()
         }
-<<<<<<< remotes/origin/work
+@*<<<<<<< remotes/origin/work
 
         $.ajax({
             url: '@Url.Action("EditClaimDeadline", "Claim")',//"/Claim/EditClaimDeadline",
@@ -1060,7 +1056,7 @@
                     else {setClaimContined(e);}
                 } else {
 
-=======
+=======*@
 
         $.ajax({
             url: '@Url.Action("EditClaimDeadline", "Claim")',//"/Claim/EditClaimDeadline",
@@ -1080,7 +1076,7 @@
                     else {setClaimContined(e);}
                 } else {
 
->>>>>>> local
+
                     showMessage("Ошибка при изменении срока сдачи");
                 }
             }
@@ -2591,13 +2587,9 @@
                     @*<button id="butGetCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет (с позициями)</button>*@
                     <button id="butGetCalculateOnlyCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</button>
                 </span>
-<<<<<<< remotes/origin/work
-                <span id="delPanel">
-                    <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить выбранное</button>
-=======
-                <span id="delPanel" class="pull-right">
-                    <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить омеченные</button>
->>>>>>> local
+                <span id="delPanel" class="right">
+                    <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить отмеченные</button>
+
                 </span>
             </span>
             <table id="tblPositionsNoCalc" class="table table-bordered small" style="display: none;">
