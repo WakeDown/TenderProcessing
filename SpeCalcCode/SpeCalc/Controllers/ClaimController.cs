@@ -2153,6 +2153,7 @@ namespace SpeCalc.Controllers
             return Json(new { IsComplete = isComplete }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
         //>>>>Уведомления
         //Добавление комментария
         public JsonResult AddCommentToClaim(string comment, int idClaim)

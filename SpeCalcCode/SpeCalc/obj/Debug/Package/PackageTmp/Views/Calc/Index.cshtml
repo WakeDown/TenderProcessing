@@ -13,7 +13,7 @@
 <style type="text/css">
     .claimInfoLabel {
         font-weight: bold;
-        color: blue;
+        color: ;
     }
 
     .claimInfoValueLabel {
@@ -50,7 +50,7 @@
         $("#butGetExcelFile").click(getExcelFileFromServer);
         $("#butUploadExcelFile").click(openFile);
         initProtectFactList();
-        //initCurrencyList();
+        initCurrencyList();
         initDeliveryTimeList();
         initProductsList();
         $('#btnSecondStateColumns').click(toglleSecondStateColumns);
@@ -343,9 +343,14 @@
         if (rsp == undefined) {
             row.append(calcRow);
             row.find('[posdt="1"]').attr('rowspan', 1);
+            row = row.next();
         } else {
             row.find('[posdt="1"]').attr('rowspan', ++rsp);
+            for (var i = 1; i < rsp-1; i++) {
+                row = row.next();
+            }
             row.after(calcRow);
+            
         }
         calcRow.show();
 
@@ -516,10 +521,16 @@
         var comment = $("#comment").val().trim();
         if (comment == "") return;
         messageUi.progressShow();
+        //alert(comment);
+        //comment = encodeURI(comment);
+        
         $.ajax({
-            url: "/Calc/AddComment?idClaim=" + claim.Id +"&comment=" + encodeURI(comment),
-            type: 'GET',
-            contentType: 'application/json; charset = utf-8 ',
+            //url: "/Calc/AddComment?idClaim=" + claim.Id +"&comment=" + comment,
+            url: '@Url.Action("AddComment")',//"/Calc/AddComment",
+            type: 'POST',
+            dataType: 'json',
+            data: {idClaim: claim.Id, comment: comment },
+            //contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 messageUi.progressHide();
                 if (data.IsComplete) {
@@ -531,6 +542,9 @@
                 } else {
                     alert("Ошибка с добавления комментария");
                 }
+            },
+            error:function(data) {
+                alert("Ошибка с добавления комментария");
             }
         });
     }
@@ -1024,7 +1038,7 @@
                     //    answer += "\r\nЗамена: \r\n" + calculation.Replace;
                     //}
                     $("[modetype='calculateName']", calcRow).val(answer);
-                    $("[modetype='calculateReplaceValueLabel']", calcRow).text("Замена: " + calculation.Replace);
+                    $("[modetype='calculateReplaceValueLabel']", calcRow).text(calculation.Replace === '' || calculation.Replace === null ? '' : "Замена: " + calculation.Replace);
 
                     //var currency = getCurrencyById(calculation.Currency);
                     //$("[modetype='calculatePriceCurrency']", calcRow).attr("currency", currency.Id);

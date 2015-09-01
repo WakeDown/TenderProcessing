@@ -1,8 +1,8 @@
-﻿@using TenderProcessing.Controllers
-@using TenderProcessing.Helpers
-@using TenderProcessing.Models
-@using TenderProcessing.Objects
-@model TenderProcessing.Models.Question
+﻿@using SpeCalc.Controllers
+@using SpeCalc.Helpers
+@using SpeCalc.Models
+@using SpeCalc.Objects
+@model SpeCalc.Models.Question
 
 @{
 
@@ -30,10 +30,10 @@
                         <td class="text-right">Менеджер:</td>
                         <td>@Html.LabelFor(m => m, Model.Manager.DisplayName)</td>
                     </tr>
-                    <tr>
+                    @*<tr>
                         <td class="text-right">Комментарий:</td>
                         <td>@Html.LabelFor(m => m, Model.Descr)</td>
-                    </tr>
+                    </tr>*@
                     <tr>
                         <td class="text-right">Срок сдачи:</td>
                         <td>@Html.LabelFor(m => m, String.Format("{0:d}", Model.DateLimit))</td>
@@ -77,7 +77,7 @@
         @Html.Partial("AddPosition", new QuePosition() { Question = new Question() { Id = Model.Id } });
     }
 
-    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager))
+    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager, AdGroup.SpeCalcProduct))
     {
         @Html.Partial("PositionList", Model.GetPositions());
     }

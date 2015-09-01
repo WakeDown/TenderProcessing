@@ -315,7 +315,7 @@
         } else {
             $("#claimTenderUrl", container).html("&nbsp;");
         }
-        
+
         for (var i = 0; i < model.Certs.length;i++) {
             var certCell = "<div><a class='btn btn-link' href='/Calc/GetCertFile/?guid=" + model.Certs[i].FileGuid + "'>" + model.Certs[i].FileName + "</a></div>";
             $("#certList").append(certCell);
@@ -721,14 +721,19 @@
     }
 
     function sendCommentWithCalc(e) {
+        //alert(1);
         var comment = $("#commentWithCalc").val().trim();
         if (comment == "") return;
         messageUi.progressShow();
-        comment = encodeURI(comment);
+        //alert(comment);
+        //comment = encodeURI(comment);
+        //alert(comment);
         $.ajax({
-            url: "/Claim/AddCommentToClaim?comment=" + comment + "&idClaim=" + claim.Id,
-            type: 'GET',
-            contentType: 'application/json; charset = utf-8 ',
+            url: '@Url.Action("AddCommentToClaim")',//"/Claim/AddCommentToClaim?comment=" + comment + "&idClaim=" + claim.Id,
+            type: 'POST',
+            dataType: 'json',
+            data: {idClaim: claim.Id, comment: comment },
+            //contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 messageUi.progressHide();
                 if (data.IsComplete) {
@@ -740,19 +745,26 @@
                 } else {
                     showMessage("Ошибка при добавлении комментария");
                 }
+            },
+            error:function(data) {
+                alert("Ошибка с добавления комментария");
             }
         });
     }
 
     function sendComment(e) {
+
         var comment = $("#claimStatusComment").val().trim();
         if (comment == "") return;
         messageUi.progressShow();
+        //alert(comment);
         comment = encodeURI(comment);
+        //alert(comment);
         $.ajax({
-            url: "/Claim/AddCommentToClaim?comment=" + comment + "&idClaim=" + claim.Id,
-            type: 'GET',
-            contentType: 'application/json; charset = utf-8 ',
+            url: '@Url.Action("AddCommentToClaim")',//"/Claim/AddCommentToClaim?comment=" + comment + "&idClaim=" + claim.Id,
+            type: 'POST',
+            data: {idClaim: claim.Id, comment: comment },
+            //contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 messageUi.progressHide();
                 if (data.IsComplete) {
@@ -764,6 +776,9 @@
                 } else {
                     showMessage("Ошибка при добавлении комментария");
                 }
+            },
+            error:function(data) {
+                alert("Ошибка с добавления комментария");
             }
         });
     }
@@ -1030,7 +1045,7 @@
     function rejectPositions() {
         var positionsId = [];
         var positionsRows = $("[type='positionRow']", $("#positionsTableWithCalc"));
-        
+
         $.each(positionsRows, function(index, element) {
             element = $(element);
             var isChecked = $("[modetype='selectPositionElement']", element).get(0).checked;
@@ -1312,7 +1327,7 @@
     }
     function deleteSelectedPositions() {
         var selectedRows = $("[type='positionRow']", $("#positionTable"));
-        
+
         var checked = false;
         $.each(selectedRows, function(index, element) {
             element = $(element);
@@ -1328,20 +1343,20 @@
                     var isChecked = element.attr("selectState") == "true";
                     if (isChecked) {var id = Number(element.attr("positionId"));
                         var initalBackGround = element.css("background-color");
-                  
+
                         $.ajax({url: "/Claim/DeleteClaimPosition?id=" + id,
                             type: 'GET',
                             contentType: 'application/json; charset = utf-8 ',
-                            success: function(data) 
-                            {if (data.IsComplete) 
+                            success: function(data)
+                            {if (data.IsComplete)
                                 {element.remove();
                                     setInfoForPositionRows();
-                               } 
+                               }
                                 else {showMessage("Запись не удалена из БД");}
                             }
                         });
-                    }  
-            
+                    }
+
                 });
             }
         } else {

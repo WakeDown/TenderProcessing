@@ -1,6 +1,7 @@
-﻿@using System.Web.Script.Serialization
+﻿@using System.Collections.Generic
+@using System.Web.Script.Serialization
 @using DocumentFormat.OpenXml.Wordprocessing
-@using TenderProcessingDataAccessLayer.Models
+@using SpeCalcDataAccessLayer.Models
 
 @{
     ViewBag.Title = "Расчет заявки";
@@ -12,7 +13,7 @@
 <style type="text/css">
     .claimInfoLabel {
         font-weight: bold;
-        color: blue;
+        color: ;
     }
 
     .claimInfoValueLabel {
@@ -49,7 +50,7 @@
         $("#butGetExcelFile").click(getExcelFileFromServer);
         $("#butUploadExcelFile").click(openFile);
         initProtectFactList();
-        //initCurrencyList();
+        initCurrencyList();
         initDeliveryTimeList();
         initProductsList();
         $('#btnSecondStateColumns').click(toglleSecondStateColumns);
@@ -94,6 +95,27 @@
         //    //alert($("[data-mask='float']").length);
         //    $("[data-mask='float']").mask('0000000000000000,00');
         //});
+    }
+
+    function setPrice(partNum, calcId) {
+        //return;
+        //var partNum = $('[calcPositionId="' + calcPositionId +'"] [modetype="calculateCatalogNumber"]').val();
+        if (partNum === '') return;
+        var minPriceOnline = '';
+        //alert(calcId);
+        $.ajax({
+                url: '/Calc/GetMinPrice',
+                method: 'POST',
+                data: {partNum:partNum},
+                success: function (data) {
+                    minPriceOnline = data.priceStr;
+                    var pnl = $('tr[calcid="' + calcId + '"]').find('[name="priceOnlineInfo"]');
+                    pnl.get(0).innerText = minPriceOnline;
+                },
+                error: function () {
+                    var error = 'Не удалось получить цену!';
+                }
+            });
     }
 
     function toglleSecondStateColumns() {
@@ -198,7 +220,9 @@
         $("[modetype='deleteCalcButton']", row).hide();
         $("[type='editPositionActionPanel']", row).show();
 
-        var controlTypeNames = ["calculateCatalogNumber", "calculateName", "calculateReplace", "calculateProvider", "calculateProtectCondition", "calculateComment", "calculatePriceUsd", "calculatePriceEur", "calculatePriceEurRicoh", "calculatePriceRubl"];
+        var controlTypeNames = ["calculateCatalogNumber", "calculateName",
+            //"calculateReplace",
+            "calculateProvider", "calculateProtectCondition", "calculateComment", "calculatePriceUsd", "calculatePriceEur", "calculatePriceEurRicoh", "calculatePriceRubl"];
         var controlTypeNamesLength = controlTypeNames.length;
         for (var i = 0; i < controlTypeNamesLength; i++) {
             var controlTypeName = controlTypeNames[i];
@@ -319,9 +343,14 @@
         if (rsp == undefined) {
             row.append(calcRow);
             row.find('[posdt="1"]').attr('rowspan', 1);
+            row = row.next();
         } else {
             row.find('[posdt="1"]').attr('rowspan', ++rsp);
+            for (var i = 1; i < rsp-1; i++) {
+                row = row.next();
+            }
             row.after(calcRow);
+            
         }
         calcRow.show();
 
@@ -346,7 +375,9 @@
     }
 
     function clearCalcRowValues(calcRow) {
-        var controlTypeNames = ["calculateCatalogNumber", "calculateName", "calculateReplace", "calculateProvider", "calculateProtectCondition", "calculateComment", "calculatePriceUsd", "calculatePriceEur", "calculatePriceEurRicoh", "calculatePriceRubl"];
+        var controlTypeNames = ["calculateCatalogNumber", "calculateName",
+            //"calculateReplace",
+            "calculateProvider", "calculateProtectCondition", "calculateComment", "calculatePriceUsd", "calculatePriceEur", "calculatePriceEurRicoh", "calculatePriceRubl"];
         var controlTypeNamesLength = controlTypeNames.length;
         for (var i = 0; i < controlTypeNamesLength; i++) {
             var controlTypeName = controlTypeNames[i];
@@ -490,10 +521,16 @@
         var comment = $("#comment").val().trim();
         if (comment == "") return;
         messageUi.progressShow();
+        //alert(comment);
+        //comment = encodeURI(comment);
+        
         $.ajax({
-            url: "/Calc/AddComment?idClaim=" + claim.Id +"&comment=" + encodeURI(comment),
-            type: 'GET',
-            contentType: 'application/json; charset = utf-8 ',
+            //url: "/Calc/AddComment?idClaim=" + claim.Id +"&comment=" + comment,
+            url: '@Url.Action("AddComment")',//"/Calc/AddComment",
+            type: 'POST',
+            dataType: 'json',
+            data: {idClaim: claim.Id, comment: comment },
+            //contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 messageUi.progressHide();
                 if (data.IsComplete) {
@@ -505,6 +542,9 @@
                 } else {
                     alert("Ошибка с добавления комментария");
                 }
+            },
+            error:function(data) {
+                alert("Ошибка с добавления комментария");
             }
         });
     }
@@ -601,7 +641,9 @@
     }
 
     function setCalculatePositionReadOnly(row) {
-        var controlTypeNames = ["calculateCatalogNumber", "calculateName", "calculateReplace", "calculateProvider", "calculateProtectCondition", "calculateComment", "calculatePriceUsd", "calculatePriceEur", "calculatePriceEurRicoh", "calculatePriceRubl"];
+        var controlTypeNames = ["calculateCatalogNumber", "calculateName",
+            //"calculateReplace",
+            "calculateProvider", "calculateProtectCondition", "calculateComment", "calculatePriceUsd", "calculatePriceEur", "calculatePriceEurRicoh", "calculatePriceRubl"];
         var controlTypeNamesLength = controlTypeNames.length;
         for (var i = 0; i < controlTypeNamesLength; i++) {
             var controlTypeName = controlTypeNames[i];
@@ -811,7 +853,7 @@
                 //ProtectCondition: protectCondition,
                 Comment: $("[modetype='calculateComment']", calcRow).val().trim(),
                 Provider: $("[modetype='calculateProvider']", calcRow).val().trim(),
-                Replace: $("[modetype='calculateReplace']", calcRow).val().trim(),
+                // Replace: $("[modetype='calculateReplace']", calcRow).val().trim(),
                 PriceCurrency: 0,
                 SumCurrency: 0,
                 PriceRub:  0,
@@ -988,8 +1030,15 @@
                     $("[modetype='saveCalcButton']", calcRow).show();
                     $("[modetype='cancelCalcButton']", calcRow).show();
                     $("[modetype='calculateCatalogNumber']", calcRow).val(calculation.CatalogNumber);
-                    $("[modetype='calculateName']", calcRow).val(calculation.Name);
-                    $("[modetype='calculateReplace']", calcRow).val(calculation.Replace);
+
+                    setPrice(calculation.CatalogNumber, calculation.Id);
+
+                    var answer = calculation.Name;
+                    //if (calculation.Replace != null && calculation.Replace !== '') {
+                    //    answer += "\r\nЗамена: \r\n" + calculation.Replace;
+                    //}
+                    $("[modetype='calculateName']", calcRow).val(answer);
+                    $("[modetype='calculateReplaceValueLabel']", calcRow).text(calculation.Replace === '' || calculation.Replace === null ? '' : "Замена: " + calculation.Replace);
 
                     //var currency = getCurrencyById(calculation.Currency);
                     //$("[modetype='calculatePriceCurrency']", calcRow).attr("currency", currency.Id);
@@ -1385,13 +1434,13 @@
 <div>
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h4>
+            <div class="h4">
                 Заявка №<span id="claimId"></span>
                 <div id="claimCustomer"></div>
                 <div>
                     Бюджет <span id="claimSum"></span><span id="claimSumPostfix"></span>
                 </div>
-            </h4>
+            </div>
         </div>
         <div class="panel-body">
             @*<div class="row">*@
@@ -1486,10 +1535,8 @@
                         @*<button type='button' class='btn btn-danger'><i class="fa fa-remove"></i> отклонить</button>*@
                         <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение отмеченные</button>
                         <button type="button" id="butSendComment" class="btn btn-default"><i class="fa fa-comment"></i> сохранить комментарий</button>
-
                     </div>
                 </div>
-
             </div>
 
             <div class="col-sm-3">
@@ -1610,14 +1657,14 @@
                 <tr>
                     <th class="min-width center"><input type="checkbox" id="selectAllPositions" data-toggle="tooltip" title="все" /></th>
                     <th></th>
-                    <th>Каталожный №</th>
+                    <th>Каталожный номер</th>
                     <th style="width: 500px">
                         @*Каталожный номер<br />
                             Наименование<br />
                             Количество<br />
                             Единицы<br />
                             Комментарий*@
-                        Наименование
+                        Запрос
                     </th>
                     <th class="text-nowrap">Кол-во</th>
                     <th></th>
@@ -1626,8 +1673,9 @@
                         <button type='button' id='editAllCalcButtonCancel' class='btn btn-default btn-sm' data-toggle='tooltip' title='отмена редактирования'><i class='fa fa-undo'></i></button>
                     </th>
                     <th style="width:150px;">Каталожный номер</th>
-                    <th style="width:250px;">Наименование</th>
-                    <th style="width:200px;">Замена</th>
+                    <th style="width:250px;">Ответ</th>
+                    @*<th style="width:200px;">Замена</th>*@
+                    <th style="width:100px;">Цена B2B</th>
                     <th style="width:100px;">Цена USD</th>
                     <th style="width:100px;">Цена EUR</th>
                     <th style="width:100px;">Цена EUR Ricoh</th>
@@ -1655,9 +1703,8 @@
                     <div type='catalogNumberLabel'></div>
                 </td>
                 <td posdt='1' class="min-width" rowspan="1">
-
                     <div type='nameLabel'></div>
-                    <div type="commentLabel"></div>
+                    <div class="text-danger bold" type="commentLabel"></div>
                 </td>
                 <td posdt='1' class="min-width" rowspan="1">
                     <span type='valueLabel'></span>&nbsp;<span type='unitLabel'></span>
@@ -1684,17 +1731,20 @@
                 </td>
                 <td>
                     <div type="editModeView">
-                        <input type='text' modetype="calculateCatalogNumber" class="form-control input-sm" placeholder="Каталожный номер" />
+                        <input type='text' modetype="calculateCatalogNumber" class="form-control input-sm" placeholder="Каталожный номер" onblur="setPrice($(this).val(), $(this).parent().parent().parent().attr('calcId'))" />
                     </div>
                     <div type="readOnlyModeView" style="display: none;"><span modetype="calculateCatalogNumberValueLabel"></span></div>
                 </td>
                 <td>
-                    <div type="editModeView"><textarea rows="3" modetype="calculateName" class="form-control input-sm" placeholder="Наименование"></textarea></div>
-                    <div type="readOnlyModeView" style="display: none;"><span modetype="calculateNameValueLabel"></span></div>
+                    <div type="editModeView"><textarea rows="3" modetype="calculateName" class="form-control input-sm" placeholder="Ответ"></textarea></div>
+                    <div type="readOnlyModeView" style="display: none;"><span modetype="calculateNameValueLabel"></span><br /><span modetype="calculateReplaceValueLabel"></span></div>
                 </td>
+                @*<td>
+                        <div type="editModeView"><textarea rows="3" modetype="calculateReplace" class="form-control input-sm" placeholder="Замена"></textarea></div>
+                        <div type="readOnlyModeView" style="display: none;"><span modetype="calculateReplaceValueLabel"></span></div>
+                    </td>*@
                 <td>
-                    <div type="editModeView"><textarea rows="3" modetype="calculateReplace" class="form-control input-sm" placeholder="Замена"></textarea></div>
-                    <div type="readOnlyModeView" style="display: none;"><span modetype="calculateReplaceValueLabel"></span></div>
+                    <div><span class="small" name="priceOnlineInfo"></span></div>
                 </td>
                 <td>
                     <div type="editModeView"><input type='text' modetype="calculatePriceUsd" class="form-control input-sm" placeholder="Цена USD" data-mask="float" /></div>
@@ -1733,7 +1783,7 @@
                     <div type="editModeView"><textarea rows='3' class="form-control input-sm" modetype="calculateComment" placeholder="Комментарий"></textarea></div>
                     <div type="readOnlyModeView" style="display: none;"><div modetype="calculateCommentValueLabel"></div></div>
                 </td>
-                <td class="min-width" class="text-center">
+                <td class="min-width text-center">
                     <button type='button' modetype='saveCalcButton' class='btn btn-primary btn-sm' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
                     <button type='button' modetype='cancelCalcButton' class='btn btn-default btn-sm' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
                     <button type='button' modetype='deleteCalcButton' class='btn btn-link' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>

@@ -1,6 +1,6 @@
 ﻿@using System.Web.Script.Serialization
 @using DocumentFormat.OpenXml.Wordprocessing
-@using TenderProcessingDataAccessLayer.Models
+@using SpeCalcDataAccessLayer.Models
 
 @{
     ViewBag.Title = "Список заявок";
@@ -779,11 +779,7 @@
                 </div>
             </div>
         </div>
-        <p>
-            <blockquote class="bg-warning">
-                Измените настройки фильтра чтобы увидеть больше информации!
-            </blockquote>
-        </p>
+        
         <h5>
             <span class="label label-default">
                 Всего записей:
@@ -828,7 +824,6 @@
                     @*<th class="text-nowrap">Тип сделки</th>*@
                     <th style="width: 150px;">
                         Тип сделки
-
                     </th>
                     <th>Статус<br />конкурса</th>
                     @*<th>Автор</th>*@
@@ -839,7 +834,11 @@
             
             </tbody>
         </table>
-
+        <p>
+            <blockquote class="bg-warning">
+                Чтобы увидеть больше информации измените  фильтр (сверху)!
+            </blockquote>
+        </p>
     </div>
 </div>
 
