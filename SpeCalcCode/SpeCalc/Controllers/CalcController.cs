@@ -1356,7 +1356,7 @@ namespace SpeCalc.Controllers
                             {
                                 var messageMail = new StringBuilder();
                                 messageMail.Append("Добрый день!<br/>");
-                                messageMail.Append("Позиции в заявке №" + claim.Id + " отклонены пользователем " + user.Name + ".<br/>");
+                                messageMail.Append("Позиции в заявке № " + claim.Id + " отклонены пользователем " + user.Name + ".<br/>");
                                 messageMail.Append("Отклонены все позиции.<br/>");
                                 messageMail.Append("Комментарий:<br/>");
                                 messageMail.Append(comment+"<br/>");

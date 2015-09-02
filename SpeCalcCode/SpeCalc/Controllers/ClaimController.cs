@@ -2159,7 +2159,7 @@ namespace SpeCalc.Controllers
                         var host = ConfigurationManager.AppSettings["AppHost"];
                         var messageMail = new StringBuilder();
                         messageMail.Append("Добрый день!<br/>");
-                        messageMail.Append("В заявке № " + claim.Id + "вам вновь переданы позиции для расчета пользователем " + user.Name +"<br/>");
+                        messageMail.Append("В заявке № " + claim.Id + " вам вновь переданы позиции для расчета пользователем " + user.Name +"<br/>");
                         if (!string.IsNullOrEmpty(comment)) messageMail.Append("Комментарий: " + comment+"<br/>");
                         messageMail.Append("<br/>");
                         messageMail.Append("Ссылка на заявку: ");
