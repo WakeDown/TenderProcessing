@@ -2134,7 +2134,7 @@ namespace SpeCalc.Controllers
                             Date = DateTime.Now,
                             IdUser = user.Id,
                             IdClaim = idClaim,
-                            Comment = "Следюущим продактам/снабженцам были переданы позиции для повторного расчета:<br />"
+                            Comment = "Переданы позиции для повторного расчета для:<br />"
                     +string.Join("<br />", productManagers.Select(x => x.ShortName))+"<br /><br />",
                     
                             Status = new ClaimStatus() { Id = claimStatus}
