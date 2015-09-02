@@ -1073,7 +1073,6 @@
                     $("[modetype='saveCalcButton']", calcRow).show();
                     $("[modetype='cancelCalcButton']", calcRow).show();
                     $("[modetype='calculateCatalogNumber']", calcRow).val(calculation.CatalogNumber);
-
                     setPrice(calculation.CatalogNumber, calculation.Id);
 
                     var answer = calculation.Name;
@@ -1163,6 +1162,20 @@
         $("[type='unitLabel']", element).text(getUnitString(position.Unit));
         $("[type='valueLabel']", element).text(position.Value);
         $("[type='commentLabel']", element).text(position.Comment);
+        switch (position.State) {
+            case (2):
+                $("[type='posState2']", element).removeClass("hidden");
+                break;
+            case (3): 
+                $("[type='posState3']", element).removeClass("hidden");
+                break;
+            case (4):
+                $("[type='posState4']", element).removeClass("hidden");
+                break;
+            case (5):
+                $("[type='posState5']", element).removeClass("hidden");
+                break;
+        }
         //var currency = getCurrencyById(position.Currency);
         //var price = "";
         //if (position.Price != 0) price = position.Price.toFixed(2);
@@ -1704,6 +1717,7 @@
                 <tr>
                     <th class="min-width center"><input type="checkbox" id="selectAllPositions" data-toggle="tooltip" title="все" /></th>
                     <th></th>
+                    <th style="width:35px;">Статус позиции</th>
                     <th>Каталожный номер</th>
                     <th style="width: 500px">
                         @*Каталожный номер<br />
@@ -1719,6 +1733,7 @@
                         <button type='button' id='editAllCalcButton' class='btn btn-primary btn-sm' data-toggle='tooltip' title='режим резактирования'><i class='fa fa-edit'></i></button>
                         <button type='button' id='editAllCalcButtonCancel' class='btn btn-default btn-sm' data-toggle='tooltip' title='отмена редактирования'><i class='fa fa-undo'></i></button>
                     </th>
+                    
                     <th style="width:150px;">Каталожный номер</th>
                     <th style="width:250px;">Ответ</th>
                     @*<th style="width:200px;">Замена</th>*@
@@ -1745,6 +1760,20 @@
                 </td>
                 <td posdt='1' class="min-width" rowspan="1">
                     <strong modetype="rowNumber"></strong>
+                </td>
+                <td posdt='1' class="center min-width" rowspan="1">
+                    <div type="posState2" class="text-warning hidden">
+                        <i class="fa fa-send-o" style="font-size: 35px"></i>
+                    </div>
+                    <div type="posState3" class="text-danger hidden">
+                        <i class="fa fa-warning" style="font-size: 35px"></i>
+                    </div>
+                    <div type="posState4" class="text-success hidden">
+                        <i class="fa fa-check" style="font-size: 35px"></i>
+                    </div>
+                    <div type="posState5" class="text-danger hidden">
+                        <i class="fa fa-reply" style="font-size: 35px"></i>
+                    </div>
                 </td>
                 <td posdt='1' class="min-width" rowspan="1">
                     <div type='catalogNumberLabel'></div>
