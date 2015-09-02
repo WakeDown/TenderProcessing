@@ -183,10 +183,12 @@
                 $("[type='pnlClaimFormWithCalc']").show();
                 $("#headNoCalc").hide();
                 $("#headWithCalc").show();
+                
                 fillClaimInfoWithCalc(claim);
 
                 var container = $("#positionTable");
                 $("#tblPositionsNoCalc").show();
+                $("#rejectHead").remove();
                 var positionsLength = claim.Positions.length;
                 for (var i = 0; i < positionsLength; i++) {
                     var position = claim.Positions[i];
@@ -221,6 +223,7 @@
                 $("#butSetClaimOnWork").hide();
                 $("#addPositionRow").remove();
                 $("#butAddPosition").remove();
+                if (editablePosIds.length == 0) $("#butDeleteSelected").addClass("hidden");
                 var cancelEditButtons = $("[modeType='editButtonCancel']", $("#positionTable"));
                 $.each(cancelEditButtons, function(index, elem) {
                     $(elem).click();
@@ -370,8 +373,10 @@
                     container.append(element);
                 }
             }
+        } else {
+            $("#rejectHead").addClass('hidden');
+            $("#noRejectHead").addClass('hidden');
         }
-
         if (positions == null) return;
         var container = $("#positionsTableWithCalc");
         var positionsLength = positions.length;
@@ -2594,6 +2599,13 @@
             </span>
             <table id="tblPositionsNoCalc" class="table table-bordered small" style="display: none;">
                 <thead>
+                <tr >
+                        <P>
+                                <h5  id="rejectHead">
+                                    Отклонено продактом/снабженцем
+                                </h5>
+                            </P>
+                </tr>
                     <tr>
                         <th class="min-width center"><input type="checkbox" id="cbSelectAllPosition" data-toggle="tooltip" title="все" /></th>
                         <th>№</th>
@@ -2773,6 +2785,13 @@
 
         <table id="tblPositionsWithCalc" class="table small table-bordered" style="display:none">
             <thead>
+                <tr>
+                    <P>
+                        <h5 id="noRejectHead">
+                            В работе/расчитаны
+                        </h5>
+                    </P>
+                </tr>
                 <tr>
                     <th class="min-width center"><input type="checkbox" id="selectAllPositionsWithCalc" data-toggle="tooltip" title="все" /></th>
                     <th></th>
