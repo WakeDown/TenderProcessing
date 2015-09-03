@@ -684,6 +684,7 @@
         var sum = Number($("#sum").val().replace(",", "."));
         var sumCurrency = $('#sumCurrency').val();
         var comment = $("#comment").val();
+        var files = $("#files").files;
         var dealType = Number($(":selected", $("#listDealTypes")).val());
         var tenderUrl = $("#tenderUrl").val();
         var managerId = $(":selected", $("#listManagers")).val();
@@ -696,6 +697,7 @@
         var auctionDate = $("#auctionDate").val().trim();
         //if (usd == "") usd = 0;
         //if (eur == "") eur = 0;
+
         var model = {
             TenderNumber: tenderNumber,
             TenderStartString: tenderStart,
@@ -1067,7 +1069,7 @@
                 if (data.IsComplete) {
                     claim.ClaimDeadlineString = $("#deadlineCorrector").val();
                     fillClaimInfoWithCalc(claim);
-                    if ($("#butSetClaimOnWork").visible)
+                    if (claim.ClaimStatus===1)
                     {setClaimOnWork(e);}
                     else {setClaimContined(e);}
                 } else {
@@ -2383,6 +2385,13 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="col-sm-3 control-label">Файл</label>
+                    <div class="col-sm-9">
+                        <input type="file" <input type="file" id="files" multiple="multiple" accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="form-control"/>
+                        <div id="fileLabel" style="display: none;" class="form-control"></div>
+                    </div>
+                </div>
+                <div class="form-group">
                     <div class="col-sm-offset-3 col-sm-8">
                         <button type="button" id="butSaveClaim" class="btn btn-primary"><i class="fa fa-save"></i> сохранить</button>
 
@@ -2598,7 +2607,6 @@
                 </tr>
                     <tr>
                         <th class="min-width center"><input type="checkbox" id="cbSelectAllPosition" data-toggle="tooltip" title="все" /></th>
-                        <th style="width:35px;">Статус позиции</th>
                         <th>№</th>
                         <th></th>
                         <th>
@@ -2632,12 +2640,11 @@
                         <td class="min-width center">
                             <input type="checkbox" modetype="selectPositionElement" />
                         </td>
-                        <td class="min-width center">
-                            <div type="posState5" class="text-danger hidden" style="font-size: 35px">
+                        <td class="min-width center"><strong modetype="claimRowNumber"></strong>
+                            <div type="posState5" class="text-danger hidden">
                                 <i class="fa fa-reply" title="позиция отклонена снабженцем/продактом"></i>
                             </div>
                         </td>
-                        <td class="min-width center"><strong modetype="claimRowNumber"></strong></td>
                         <td class="min-width">
                             <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
                             <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
@@ -2791,7 +2798,6 @@
                 <tr>
                     <th class="min-width center"><input type="checkbox" id="selectAllPositionsWithCalc" data-toggle="tooltip" title="все" /></th>
                     <th></th>
-                    <th>Статус позиции</th>
                     <th>Каталожный номер</th>
                     <th style="width: 250px;">
                         Запрос
@@ -2823,16 +2829,14 @@
                 </td>
                 <td posdt='1' class="min-width" rowspan="1">
                     <strong modetype="rowNumber"></strong>
-                </td>
-                <td posdt='1' class="center min-width" rowspan="1">
                     <div type="posState2" class="text-warning hidden">
-                        <i class="fa fa-send-o" style="font-size: 35px" title="отправлена менеджеру для подтверждения"></i>
+                        <i class="fa fa-send-o"  title="отправлена менеджеру для подтверждения"></i>
                     </div>
                     <div type="posState3" class="text-danger hidden">
-                        <i class="fa fa-warning" style="font-size: 35px" title="расчет позиции отклонен менеджерем"></i>
+                        <i class="fa fa-warning" title="расчет позиции отклонен менеджерем"></i>
                     </div>
                     <div type="posState4" class="text-success hidden">
-                        <i class="fa fa-check" style="font-size: 35px" title="расчет позиции подтвержден менеджерем"></i>
+                        <i class="fa fa-check" title="расчет позиции подтвержден менеджерем"></i>
                     </div>
                 </td>
                 <td posdt='1' class="min-width" rowspan="1"><div type='catalogNumberLabel'></div></td>
