@@ -1326,7 +1326,7 @@ namespace SpeCalc.Controllers
                                 var statusHistory = new ClaimStatusHistory()
                                 {
                                     Date = DateTime.Now,
-                                    Comment = String.Format("Пользователь {0} отклонил свои позиции.<br />{0}: {1}", user.ShortName, comment),
+                                    Comment = String.Format("Пользователь {0} отклонил {2} из {3} позиций.<br/>Комментарий: {1} ", user.ShortName, comment, positionIds.Count, allPositions.Count),
                                     IdClaim = idClaim,
                                     IdUser = user.Id,
                                     Status = new ClaimStatus() { Id = lastClaimStatus }
