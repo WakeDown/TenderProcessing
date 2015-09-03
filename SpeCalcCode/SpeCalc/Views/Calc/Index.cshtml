@@ -1545,7 +1545,7 @@
                         <td>
                             @using (Html.BeginForm("SaveFile", "Calc", new { claimId = Request.QueryString["claimId"] }, FormMethod.Post, new { enctype = "multipart/form-data" }))
                             {
-                                <input type="file" name="file" multiple="multiple" accept=".xls"/>
+                                <input type="file" name="file" multiple="multiple"/>
                                 <p>
                                     <button class="btn btn-success" type="submit">сохранить файл</button>
                                 </p>
@@ -1717,7 +1717,6 @@
                 <tr>
                     <th class="min-width center"><input type="checkbox" id="selectAllPositions" data-toggle="tooltip" title="все" /></th>
                     <th></th>
-                    <th style="width:35px;">Статус позиции</th>
                     <th>Каталожный номер</th>
                     <th style="width: 500px">
                         @*Каталожный номер<br />
@@ -1760,19 +1759,17 @@
                 </td>
                 <td posdt='1' class="min-width" rowspan="1">
                     <strong modetype="rowNumber"></strong>
-                </td>
-                <td posdt='1' class="center min-width" rowspan="1">
                     <div type="posState2" class="text-warning hidden">
-                        <i class="fa fa-send-o" style="font-size: 35px" title="отправлена менеджеру для подтверждения"></i>
+                        <i class="fa fa-send-o" title="отправлена менеджеру для подтверждения"></i>
                     </div>
                     <div type="posState3" class="text-danger hidden">
-                        <i class="fa fa-warning" style="font-size: 35px" title="расчет позиции отклонен менеджерем"></i>
+                        <i class="fa fa-warning" title="расчет позиции отклонен менеджерем"></i>
                     </div>
                     <div type="posState4" class="text-success hidden">
-                        <i class="fa fa-check" style="font-size: 35px" title="расчет позиции подтвержден менеджерем"></i>
+                        <i class="fa fa-check" title="расчет позиции подтвержден менеджерем"></i>
                     </div>
                     <div type="posState5" class="text-danger hidden">
-                        <i class="fa fa-reply" style="font-size: 35px" title="позиция отклонена снабженцем/продактом"></i>
+                        <i class="fa fa-reply" title="позиция отклонена снабженцем/продактом"></i>
                     </div>
                 </td>
                 <td posdt='1' class="min-width" rowspan="1">
