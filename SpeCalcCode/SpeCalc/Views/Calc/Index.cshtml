@@ -1545,7 +1545,7 @@
                         <td>
                             @using (Html.BeginForm("SaveFile", "Calc", new { claimId = Request.QueryString["claimId"] }, FormMethod.Post, new { enctype = "multipart/form-data" }))
                             {
-                                <input type="file" name="file" multiple="multiple" />
+                                <input type="file" name="file" multiple="multiple" accept=".xls"/>
                                 <p>
                                     <button class="btn btn-success" type="submit">сохранить файл</button>
                                 </p>

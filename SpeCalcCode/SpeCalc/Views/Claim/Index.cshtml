@@ -513,6 +513,7 @@
                 success: function(data) {
                     messageUi.progressHide();
                     if (data.IsComplete) {
+                        alert("aASaasaAAAs")
                         if (data.Model != null) {
                             claim.ClaimStatus = data.Model.Status.Id;
                             var status = getClaimStatusById(claim.ClaimStatus);
@@ -684,6 +685,7 @@
         var sum = Number($("#sum").val().replace(",", "."));
         var sumCurrency = $('#sumCurrency').val();
         var comment = $("#comment").val();
+        var files = $("#files").files;
         var dealType = Number($(":selected", $("#listDealTypes")).val());
         var tenderUrl = $("#tenderUrl").val();
         var managerId = $(":selected", $("#listManagers")).val();
@@ -696,6 +698,7 @@
         var auctionDate = $("#auctionDate").val().trim();
         //if (usd == "") usd = 0;
         //if (eur == "") eur = 0;
+
         var model = {
             TenderNumber: tenderNumber,
             TenderStartString: tenderStart,
@@ -714,7 +717,8 @@
             DeliveryDateEndString: deliveryDateEnd,
             DeliveryPlace: deliveryPlace,
             AuctionDateString: auctionDate,
-            Manager: { Id: managerId, SubDivision: managerSubDivision }
+            Manager: { Id: managerId, SubDivision: managerSubDivision },
+            Certs: certs
         };
         messageUi.progressShow();
         $.ajax({
@@ -1067,7 +1071,7 @@
                 if (data.IsComplete) {
                     claim.ClaimDeadlineString = $("#deadlineCorrector").val();
                     fillClaimInfoWithCalc(claim);
-                    if ($("#butSetClaimOnWork").visible)
+                    if (claim.ClaimStatus===1)
                     {setClaimOnWork(e);}
                     else {setClaimContined(e);}
                 } else {
@@ -2380,6 +2384,13 @@
                     <div class="col-sm-9">
                         <textarea rows="7" id="comment" class="form-control"></textarea>
                         <div id="commentLabel" style="display: none;" class="form-control"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Файл</label>
+                    <div class="col-sm-9">
+                        <input type="file" <input type="file" id="files" multiple="multiple" accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="form-control"/>
+                        <div id="fileLabel" style="display: none;" class="form-control"></div>
                     </div>
                 </div>
                 <div class="form-group">
