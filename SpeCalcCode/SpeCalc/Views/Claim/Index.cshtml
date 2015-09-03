@@ -346,6 +346,17 @@
         element.show();
         element.attr("positionId", position.Id);
         element.attr("type", "positionRow");
+        switch (position.State) {
+            case (2):
+                $("[type='posState2']", element).removeClass("hidden");
+                break;
+             case (3): 
+                 $("[type='posState3']", element).removeClass("hidden");
+                 break;
+            case (4):
+                $("[type='posState4']", element).removeClass("hidden");
+                break;
+        }
         $("[type='catalogNumberLabel']", element).text(position.CatalogNumber);
         $("[type='nameLabel']", element).text(position.Name);
         //////$("[type='replaceLabel']", element).text(position.Replace);
@@ -423,6 +434,7 @@
                         element.append(calcRow);
                         element.find('[posdt="1"]').attr('rowspan', 1);
                     } else {
+                        
                         //var isp = element.find('[posdt="1"]').attr('rowspan');
                         element.find('[posdt="1"]').attr('rowspan', ++rsp);
                         //var row2 = $("<tr></tr>").append(calcRow);
@@ -1583,6 +1595,7 @@
         $("[modelType='catalogNumberValue']", element).val(position.CatalogNumber);
         $("[type='nameLabel']", element).text(position.Name);
         $("[modelType='nameValue']", element).val(position.Name);
+        if (editablePosIds.indexOf(position.Id) != -1) $("[type='posState5']", element).removeClass("hidden");
         //$("[type='replaceLabel']", element).text(position.Replace);
         //$("[modelType='replaceValue']", element).val(position.Replace);
         $("[type='unitLabel']", element).text(getUnitString(position.Unit));
@@ -2608,6 +2621,7 @@
                 </tr>
                     <tr>
                         <th class="min-width center"><input type="checkbox" id="cbSelectAllPosition" data-toggle="tooltip" title="все" /></th>
+                        <th style="width:35px;">Статус позиции</th>
                         <th>№</th>
                         <th></th>
                         <th>
@@ -2641,6 +2655,11 @@
                         <td class="min-width center">
                             <input type="checkbox" modetype="selectPositionElement" />
                         </td>
+                        <td class="min-width center">
+                            <div type="posState5" class="text-danger hidden" style="font-size: 35px">
+                                <i class="fa fa-reply" title="позиция отклонена снабженцем/продактом"></i>
+                            </div>
+                        </td>
                         <td class="min-width center"><strong modetype="claimRowNumber"></strong></td>
                         <td class="min-width">
                             <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
@@ -2657,13 +2676,13 @@
                         <td>
                             <div type="editModeView" class="row">
                                 <div class="form-group col-sm-2">
-                                    <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" />
+                                    <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер"/>
                                 </div>
                                 <div class="form-group col-sm-3">
                                     <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
                                 </div>
                                 <div class="form-group col-sm-1">
-                                    <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество *" />
+                                    <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество *"/>
                                 </div>
                                 <div class="form-group col-sm-1">
                                     <div id="unitCell"></div>
@@ -2795,6 +2814,7 @@
                 <tr>
                     <th class="min-width center"><input type="checkbox" id="selectAllPositionsWithCalc" data-toggle="tooltip" title="все" /></th>
                     <th></th>
+                    <th>Статус позиции</th>
                     <th>Каталожный номер</th>
                     <th style="width: 250px;">
                         Запрос
@@ -2826,6 +2846,17 @@
                 </td>
                 <td posdt='1' class="min-width" rowspan="1">
                     <strong modetype="rowNumber"></strong>
+                </td>
+                <td posdt='1' class="center min-width" rowspan="1">
+                    <div type="posState2" class="text-warning hidden">
+                        <i class="fa fa-send-o" style="font-size: 35px" title="отправлена менеджеру для подтверждения"></i>
+                    </div>
+                    <div type="posState3" class="text-danger hidden">
+                        <i class="fa fa-warning" style="font-size: 35px" title="расчет позиции отклонен менеджерем"></i>
+                    </div>
+                    <div type="posState4" class="text-success hidden">
+                        <i class="fa fa-check" style="font-size: 35px" title="расчет позиции подтвержден менеджерем"></i>
+                    </div>
                 </td>
                 <td posdt='1' class="min-width" rowspan="1"><div type='catalogNumberLabel'></div></td>
                 <td posdt='1' class="min-width" rowspan="1">
@@ -2885,7 +2916,6 @@
                 <td>
                     <span modetype="calculateCommentValueLabel"></span>
                 </td>
-
             </tr>
         </table>
     <div id="deadLineCorrectorBox" class="modal fade">
