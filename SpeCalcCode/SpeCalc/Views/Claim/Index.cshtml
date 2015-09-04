@@ -1055,27 +1055,7 @@
             Id: claim.Id,
             ClaimDeadline: $("#deadlineCorrector").val()
         }
-@*<<<<<<< remotes/origin/work
 
-        $.ajax({
-            url: '@Url.Action("EditClaimDeadline", "Claim")',//"/Claim/EditClaimDeadline",
-            type: 'POST',
-            dataType: 'json',
-            //data: {idClaim=id, comment: comment},
-            data: JSON.stringify(model),
-            processData: false,
-            contentType: 'application/json; charset = utf-8 ',
-            success: function(data) {
-
-                if (data.IsComplete) {
-                    claim.ClaimDeadlineString = $("#deadlineCorrector").val();
-                    fillClaimInfoWithCalc(claim);
-                    if (claim.ClaimStatus===1)
-                    {setClaimOnWork(e);}
-                    else {setClaimContined(e);}
-                } else {
-
-=======*@
 
         $.ajax({
             url: '@Url.Action("EditClaimDeadline", "Claim")',//"/Claim/EditClaimDeadline",

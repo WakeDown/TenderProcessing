@@ -2301,7 +2301,7 @@ namespace SpeCalc.Controllers
                     messageMail.Append("<br/>");
                     messageMail.Append("В заявке № " + idClaim + ", где Вам назначены позиции для расчета, пользователь ");
                     messageMail.Append(user.ShortName);
-                    messageMail.Append(" создал комментарий: " + comment);
+                    messageMail.Append(" создал комментарий: <br />" + comment);
                     messageMail.Append("<br/>");
                     //messageMail.Append(GetClaimInfo(claim));
                     //messageMail.Append("<br/><br/>");
