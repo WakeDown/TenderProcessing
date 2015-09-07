@@ -61,7 +61,28 @@ namespace SpeCalcDataAccessLayer
             }
             return new ClaimCert() { File = file, FileName = name };
         }
-
+        public TenderClaimFile GetTenderClaimFile(string guid)
+        {
+            byte[] file = null;
+            string name = String.Empty;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "GetTenderClaimFile";
+                cmd.Parameters.AddWithValue("@guid", guid);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    rd.Read();
+                    file = (byte[])rd["fileDATA"];
+                    name = rd["fileName"].ToString();
+                }
+                rd.Dispose();
+            }
+            return new TenderClaimFile() { File = file, FileName = name };
+        }
         public List<ClaimCert> LoadClaimCerts(int idClaim)
         {
             var list = new List<ClaimCert>();
@@ -92,7 +113,63 @@ namespace SpeCalcDataAccessLayer
             }
             return list;
         }
+        public List<TenderClaimFile> LoadTenderClaimFiles(int idClaim)
+        {
+            var list = new List<TenderClaimFile>();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "LoadTenderClaimFiles";
+                cmd.Parameters.AddWithValue("@IdClaim", idClaim);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        list.Add(new TenderClaimFile()
+                        {
+                            Id = rd.GetInt32(0),
+                            FileUrl = rd.GetString(1),
+                            FileName = rd.GetString(2),
+                            FileGuid = rd["fileGUID"].ToString()
+                        });
+                    }
 
+                }
+                rd.Dispose();
+            }
+            return list;
+        }
+        public bool SaveTenderClaimFile(ref TenderClaimFile model)
+        {
+            var result = false;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "SaveTenderClaimFile";
+                cmd.Parameters.AddWithValue("@IdClaim", model.IdClaim);
+                cmd.Parameters.AddWithValue("@file", model.File);
+                cmd.Parameters.AddWithValue("@fileName", model.FileName);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    rd.Read();
+                    var id = rd.GetInt32(0);
+                    if (id != -1)
+                    {
+                        result = true;
+                        model.Id = id;
+                    }
+                }
+                rd.Dispose();
+            }
+
+            return result;
+        }
         public bool SaveClaimCertFile(ref ClaimCert model)
         {
             var result = false;

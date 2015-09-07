@@ -48,7 +48,22 @@ namespace SpeCalc.Controllers
             //Response.AppendHeader("Content-Disposition", cd.ToString());
             return File(cert.File, "text/plain", cert.FileName);
         }
+        public ActionResult GetTenderClaimFile(string guid)
+        {
+            var claimFile = new DbEngine().GetTenderClaimFile(guid);
 
+            //var cd = new System.Net.Mime.ContentDisposition
+            //{
+            //    // for example foo.bak
+            //    FileName = guid,
+
+            //    // always prompt the user for downloading, set to true if you want 
+            //    // the browser to try to show the file inline
+            //    Inline = false,
+            //};
+            //Response.AppendHeader("Content-Disposition", cd.ToString());
+            return File(claimFile.File, "text/plain", claimFile.FileName);
+        }
         //Страница расчета позиций по заявке
         public ActionResult Index(int? claimId)
         {
@@ -90,6 +105,7 @@ namespace SpeCalc.Controllers
                 {
                     claim = db.LoadTenderClaimById(claimId.Value);
                     claim.Certs = db.LoadClaimCerts(claimId.Value);
+                    claim.Files = db.LoadTenderClaimFiles(claimId.Value);
                     var adProductsManager = UserHelper.GetProductManagers();
                     if (claim != null)
                     {

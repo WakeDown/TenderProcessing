@@ -37,6 +37,7 @@
     var dealType = "@ViewBag.DealType";
     var status = "@ViewBag.Status";
     var editablePosIds = @Html.Raw(serializer.Serialize(editableposIds));
+    var claimId = null;
     $(init);
 
     function init() {
@@ -44,6 +45,8 @@
             alert("Произошла ошибка при загрузке");
             return;
         }
+        if("@TempData["error"]"!=="")
+            alert("@TempData["error"]")
         //$.fn.datepicker.dates['ru'] = {
         //    days: ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"],
         //    daysShort: ["Пнд", "Втр", "Срд", "Чтв", "Птн", "Суб", "Вск"],
@@ -80,6 +83,7 @@
             todayBtn: "linked",
             language: "ru"
         });
+        
         $("#claimDeadline").datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
@@ -125,7 +129,6 @@
         $("#butSaveClaim").click(saveClaim);
         $("#butSetClaimOnWork").click(setClaimOnWork);
         $("#cbSelectAllPosition").change(selectAllPosition);
-        $("#btnDeleteSelected").click(deleteSelectedPositions);
         $("#selectAllPositionsWithCalc").change(selectAllPositionWithCalc);
         $("#butDeadLineCorrect").click(correctDeadLine);
         $("#butRejectPositionOk").click(rejectPositionOk);
@@ -183,7 +186,7 @@
                 $("[type='pnlClaimFormWithCalc']").show();
                 $("#headNoCalc").hide();
                 $("#headWithCalc").show();
-                
+
                 fillClaimInfoWithCalc(claim);
 
                 var container = $("#positionTable");
@@ -254,7 +257,7 @@
                     $("#butSetPositionConfirm").hide();
                     $("[modetype='selectPositionElement']", $("#positionTable")).hide();
                     $("#cbSelectAllPosition").hide();
-                    $("btnDeleteSelected").hide;
+                    $("butDeleteSelected").hide;
                     $("#butSendComment").hide();
                 }
                 $("#excelCalculatePanel").show();
@@ -332,6 +335,10 @@
             var certCell = "<div><a class='btn btn-link' href='/Calc/GetCertFile/?guid=" + model.Certs[i].FileGuid + "'>" + model.Certs[i].FileName + "</a></div>";
             $("#certList").append(certCell);
         }
+        for (var i = 0; i < model.Files.length; i++) {
+            var fileCell = "<div><a class='btn btn-link' href='/Calc/GetTenderClaimFile/?guid=" + model.Files[i].FileGuid + "'>" + model.Files[i].FileName + "</a></div>";
+            $("#claimFileList").append(fileCell);
+        }
     }
 
     function getCalculatePositionElement() {
@@ -350,7 +357,7 @@
             case (2):
                 $("[type='posState2']", element).removeClass("hidden");
                 break;
-             case (3): 
+             case (3):
                  $("[type='posState3']", element).removeClass("hidden");
                  break;
             case (4):
@@ -434,7 +441,7 @@
                         element.append(calcRow);
                         element.find('[posdt="1"]').attr('rowspan', 1);
                     } else {
-                        
+
                         //var isp = element.find('[posdt="1"]').attr('rowspan');
                         element.find('[posdt="1"]').attr('rowspan', ++rsp);
                         //var row2 = $("<tr></tr>").append(calcRow);
@@ -486,7 +493,6 @@
     //>>>>>работа с заявкой<<<<<
     //действия
     function setClaimContined(e) {
-        $("#claimDeadline").text("Test");
         var strDate = '@DateTime.Today.AddDays(2)'.toString();
         var split = strDate.substr(0,10).split('.');
         var minDate=Date.parse(split[2]+'/'+split[1]+'/'+split[0]);
@@ -504,7 +510,7 @@
             }
             messageUi.progressShow();
             $.ajax({
-                url: "/Claim/SetClaimContinued",
+                url: '@Url.Action("SetClaimContinued", "Claim")',
                 type: 'POST',
                 dataType: 'json',
                 data: JSON.stringify(model),
@@ -684,7 +690,7 @@
         var sum = Number($("#sum").val().replace(",", "."));
         var sumCurrency = $('#sumCurrency').val();
         var comment = $("#comment").val();
-        var files = $("#files").files;
+
         var dealType = Number($(":selected", $("#listDealTypes")).val());
         var tenderUrl = $("#tenderUrl").val();
         var managerId = $(":selected", $("#listManagers")).val();
@@ -735,12 +741,12 @@
         messageUi.progressHide();
         if (data.IsComplete) {
             claim = data.Model;
+            $("#formClaimId").val(claim.Id);
+            $("form").submit();
+            //var newLocation = window.location.toString() + '?claimId=' + claim.Id;
+            //window.location =newLocation;
 
-            var newLocation = window.location.toString() + '?claimId=' + claim.Id;
-            window.location =newLocation;
-
-
-            showClaimReadOnly(claim);
+            /* showClaimReadOnly(claim);
             $("#claimId").text("Заявка № " + claim.Id);
             $("#butSaveClaim").hide();
             $("#butSetClaimOnWork").show();
@@ -754,7 +760,7 @@
                 message: claim.Id
             }
             var message = JSON.stringify(obj);
-            sendMessage(message);
+            sendMessage(message);*/
         } else {
             showMessage("Ошибка при сохранении заявки:\r\n" + data.errorText);
         }
@@ -1037,7 +1043,7 @@
                     $("#claimStatusPanel").hide();
                     $("[modetype='selectPositionElement']", $("#positionsTableWithCalc")).hide();
                     $("#cbSelectAllPosition").hide();
-                    $("btnDeleteSelected").hide;
+                    $("butDeleteSelected").hide;
                 } else {
                     if (data.Message != "") {
                         showMessage(data.Message);
@@ -1142,7 +1148,7 @@
         if (positionsId.length == 0) {
             alert("Не отмечено ни одной позиции");
         } else  {
-            
+
             var comment = $("#commentWithCalc").val().trim();
             messageUi.progressShow();
             $.ajax({
@@ -1186,8 +1192,8 @@
             });
             location.reload();
         }
-            
-        
+
+
     }
     function rejectPositions() {
         var positionsId = [];
@@ -1905,7 +1911,11 @@
 
     //<<<<<<Получение excel файлов с сервера>>>>>>
     function getExcelFileFromServer() {
-        $("body").append("<iframe src='/Claim/GetSpecificationFile?claimId="+ claim.Id + "' width='0' height='0' style='display: none;' align='left'></iframe>");
+
+        $.get("'/Claim/GetSpecificationFile?claimId="+ claim.Id + "'",function(data) {
+            $("body").append();
+        });
+
     }
 
     function getCalculateExcelFileFromServer() {
@@ -2384,13 +2394,21 @@
                         <div id="commentLabel" style="display: none;" class="form-control"></div>
                     </div>
                 </div>
+                
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">Файл</label>
+                    <label class="col-sm-3 control-label">Файлы</label>
                     <div class="col-sm-9">
-                        <input type="file" <input type="file" id="files" multiple="multiple" accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="form-control"/>
-                        <div id="fileLabel" style="display: none;" class="form-control"></div>
+                        @using (Html.BeginForm("SaveFile", "Claim", FormMethod.Post, new {enctype = "multipart/form-data"}))
+                        {
+                            <input type="text" class="hidden" name="formClaimId" id="formClaimId"/>
+                            <input type="file" name="file" id="fileInput" multiple="multiple" accept=".xls,.xlsx,.doc,.docx"/>
+                            <p>
+                                <button class="btn btn-success hidden" type="submit"></button>
+                            </p>
+                        }
                     </div>
                 </div>
+
                 <div class="form-group">
                     <div class="col-sm-offset-3 col-sm-8">
                         <button type="button" id="butSaveClaim" class="btn btn-primary"><i class="fa fa-save"></i> сохранить</button>
@@ -2437,6 +2455,12 @@
                     <tr>
                         <td class="text-right"><small>Руководитель</small></td>
                         <td><small id="managerChief"></small></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Файлы заявки</td>
+                        <td>
+                            <div id="claimFileList"> </div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="text-right">Файлы</td>

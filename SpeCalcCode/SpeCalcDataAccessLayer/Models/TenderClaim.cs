@@ -84,5 +84,6 @@ namespace SpeCalcDataAccessLayer.Models
         public string StrSum { get; set; }
 
         public List<ClaimCert> Certs { get; set; }
+        public List<TenderClaimFile> Files { get; set; } 
     }
 }
