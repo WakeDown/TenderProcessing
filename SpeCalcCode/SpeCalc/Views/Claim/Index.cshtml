@@ -1,5 +1,6 @@
 ﻿@using System
 @using System.Collections.Generic
+@using System.Configuration
 @using System.Web.Script.Serialization
 @using System.Web.UI.WebControls
 @using SpeCalcDataAccessLayer.Models
@@ -147,6 +148,10 @@
         //$("#butChangeCurrency").click(changeCurrency);
 
         if (claim != null) {
+            var formClaimIds = $("[name='formClaimId']");
+            $.each(formClaimIds, function(index, elem) {
+                $(elem).val(claim.Id);
+            });
             $("#butSetPositionOnWork").hide();
             $("#claimId").text("Заявка №" + claim.Id);
             if (claim.ClaimStatus < 1) {
@@ -1941,11 +1946,12 @@
     }
 
     function getTargetOrigin() {
+        var protocol = document.location.protocol;
         var url = document.location.href;
-        url = url.replace("https://", "");
+        url = url.replace(protocol+"//", "");
         var index = url.indexOf("/");
         url = url.substr(0, index);
-        url = "https://" + url;
+        url = protocol+"//" + url;
         return url;
     }
 
@@ -2194,7 +2200,6 @@
         }
         return list;
     }
-
     function getUnitsList(unit) {
         var units = [{ Id: 1, Value: "шт" }, { Id: 2, Value: "упак" }];
         var list = $("<select size='1' type='unitsList' class='form-control input-sm'></select>");
@@ -2224,7 +2229,6 @@
         }
         return list;
     }
-
     function selectListElement(list, selectedValue) {
         var options = $("option", list);
         $.each(options, function(index, elem) {
@@ -2462,7 +2466,21 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="text-right">Файлы</td>
+                        <td class="text-right"></td>
+                        <td>
+                            @using (Html.BeginForm("SaveFile", "Claim", new { claimId = Request.QueryString["claimId"] }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                            {
+                                <input type="file" name="file" multiple="multiple" accept="@ConfigurationManager.AppSettings["FileFormat4TenderClaimFile"]"/>
+                                <input type="text" class="hidden"  name="formClaimId" id="formClaimId" />
+                                <p>
+                                    
+                                    <button class="btn btn-success" type="submit" onclick="return setFormClaimId()">сохранить файл</button>
+                                </p>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Сертификаты</td>
                         <td>
                             <div id="certList"> </div>
                         </td>

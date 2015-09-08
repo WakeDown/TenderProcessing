@@ -1967,7 +1967,6 @@ namespace SpeCalc.Controllers
             if (Request.Files.Count > 0)
             {
                 int? idClaim = null;
-
                 try
                 {
                     idClaim = Convert.ToInt32(formClaimId);
@@ -1988,7 +1987,7 @@ namespace SpeCalc.Controllers
                     for (int i = 0; i < Request.Files.Count; i++)
                     {
                         var file = Request.Files[i];
-                        var fileFormats = WebConfigurationManager.AppSettings["FileFormat4TenderClaimFile"].Split('|').Select(s => s.ToLower()).ToArray();
+                        var fileFormats = WebConfigurationManager.AppSettings["FileFormat4TenderClaimFile"].Split(',').Select(s => s.ToLower()).ToArray();
                         byte[] fileData = null;
                         if (Array.IndexOf(fileFormats, Path.GetExtension(file.FileName).ToLower()) > -1)
                         {
@@ -2000,7 +1999,7 @@ namespace SpeCalc.Controllers
                         var claimFile = new TenderClaimFile() { IdClaim = idClaim.Value, File = fileData, FileName = file.FileName };
                         db.SaveTenderClaimFile(ref claimFile);  
                         }
-                       else message += String.Format("Файл {0} имеет недопустимое расширение.",file.FileName);
+                       else if (file.ContentLength > 0) message += String.Format("Файл {0} имеет недопустимое расширение.",file.FileName);
                     }
                     //}
                 }

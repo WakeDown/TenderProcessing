@@ -28,11 +28,12 @@
         }
 
         function getTargetOrigin() {
+            var protocol = document.location.protocol;
             var url = document.location.href;
-            url = url.replace("https://", "");
+            url = url.replace(protocol + "//", "");
             var index = url.indexOf("/");
             url = url.substr(0, index);
-            url = "https://" + url;
+            url = protocol + "//" + url;
             return url;
         }
     </script>
