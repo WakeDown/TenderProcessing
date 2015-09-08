@@ -1752,7 +1752,7 @@ namespace SpeCalc.Controllers
             return Json(new { IsComplete = isComplete, Model = model });
         }
 
-        public bool AddClaimPositions(List<SpecificationPosition> modelList)
+        public JsonResult AddClaimPositions(List<SpecificationPosition> modelList)
         {
             var isComplete = modelList.Count>0;
             try
@@ -1763,13 +1763,14 @@ namespace SpeCalc.Controllers
                     //updatec
                     isComplete = isComplete && db.SaveSpecificationPosition(model);
                 }
-                return isComplete;
+                
             }
             catch (Exception)
             {
                 
-                return false;
+                isComplete = false;
             }
+            return Json(new {IsComplete = isComplete, Positions = modelList},JsonRequestBehavior.AllowGet);
         }
         //>>>>Уведомления
         //передача заявки в работу

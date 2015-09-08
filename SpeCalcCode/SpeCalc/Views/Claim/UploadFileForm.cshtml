@@ -79,10 +79,10 @@
 
         function getTargetOrigin() {
             var url = document.location.href;
-            url = url.replace("http://", "");
+            url = url.replace("https://", "");
             var index = url.indexOf("/");
             url = url.substr(0, index);
-            url = "http://" + url;
+            url = "https://" + url;
             return url;
         }
 

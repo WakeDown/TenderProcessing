@@ -1912,9 +1912,7 @@
     //<<<<<<Получение excel файлов с сервера>>>>>>
     function getExcelFileFromServer() {
 
-        $.get("'/Claim/GetSpecificationFile?claimId="+ claim.Id + "'",function(data) {
-            $("body").append();
-        });
+        $("body").append("<iframe src='/Claim/GetSpecificationFile?claimId="+ claim.Id + "' width='0' height='0' style='display: none;' align='left'></iframe>");
 
     }
 
@@ -1939,16 +1937,15 @@
 
     function sendMessage(message) {
         var target = getTargetOrigin();
-        document.getElementById("upl" +
-            "oadFile").contentWindow.postMessage(message, target);
+        document.getElementById("uploadFile").contentWindow.postMessage(message, target);
     }
 
     function getTargetOrigin() {
         var url = document.location.href;
-        url = url.replace("http://", "");
+        url = url.replace("https://", "");
         var index = url.indexOf("/");
         url = url.substr(0, index);
-        url = "http://" + url;
+        url = "https://" + url;
         return url;
     }
 
@@ -2008,17 +2005,19 @@
                         contentType: 'application/json; charset = utf-8 ',
                         success: function(data) {
                             messageUi.progressHide();
-                            if (!data) {showMessage("Ошибка при добавлении позиции спецификации");
-                            }
-                        }
-                    });
-                    var positionsLength = positions.length;
+                            positions = data.Positions;
+                            var positionsLength = positions.length;
                     for (var i = 0; i < positionsLength; i++) {
 
                         var position = positions[i];
                         var element = getPositionElement(position);
                         container.append(element);
                     }
+                            if (!data.IsComplete) {showMessage("Ошибка при добавлении позиции спецификации");
+                            }
+                        }
+                    });
+                    
                 }
                 setInfoForPositionRows();
             }
