@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.Script.Serialization;
@@ -38,6 +39,7 @@ namespace SpeCalc.Controllers
         {
             //получения текущего юзера и проверка наличия у него доступа к странице
             ViewBag.Error = false.ToString().ToLower();
+            TempData["tenderClaimFileFormats"] = WebConfigurationManager.AppSettings["FileFormat4TenderClaimFile"];
             var user = GetUser();
             if (user == null || !UserHelper.IsUserAccess(user))
             {
@@ -130,6 +132,7 @@ namespace SpeCalc.Controllers
                         }
                         //получение позиций по заявке и расчета к ним
                         claim.Certs = db.LoadClaimCerts(claimId.Value);
+                        claim.Files = db.LoadTenderClaimFiles(claimId.Value);
                         claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value);
                         if (claim.Positions != null && claim.Positions.Any())
                         {
@@ -1749,7 +1752,7 @@ namespace SpeCalc.Controllers
             return Json(new { IsComplete = isComplete, Model = model });
         }
 
-        public bool AddClaimPositions(List<SpecificationPosition> modelList)
+        public JsonResult AddClaimPositions(List<SpecificationPosition> modelList)
         {
             var isComplete = modelList.Count>0;
             try
@@ -1760,13 +1763,14 @@ namespace SpeCalc.Controllers
                     //updatec
                     isComplete = isComplete && db.SaveSpecificationPosition(model);
                 }
-                return isComplete;
+                
             }
             catch (Exception)
             {
                 
-                return false;
+                isComplete = false;
             }
+            return Json(new {IsComplete = isComplete, Positions = modelList},JsonRequestBehavior.AllowGet);
         }
         //>>>>Уведомления
         //передача заявки в работу
@@ -1956,10 +1960,58 @@ namespace SpeCalc.Controllers
             }
             return Json(new { IsComplete = isComplete, Model = model });
         }
-
-        //>>>>Уведомления
-        //возобновление заявки
         [HttpPost]
+        public ActionResult SaveFile(string formClaimId)
+        {
+            string message = "";
+            if (Request.Files.Count > 0)
+            {
+                int? idClaim = null;
+                try
+                {
+                    idClaim = Convert.ToInt32(formClaimId);
+                    //idClaim = Convert.ToInt32(RouteData.Values["claimId"]);
+
+
+                }
+                catch (Exception ex)
+                {
+                    idClaim = null;
+                }
+
+
+                if (idClaim != null && idClaim > 0)
+                {
+                    //foreach (HttpPostedFileWrapper file in Request.Files)
+                    //{
+                    for (int i = 0; i < Request.Files.Count; i++)
+                    {
+                        var file = Request.Files[i];
+                        var fileFormats = WebConfigurationManager.AppSettings["FileFormat4TenderClaimFile"].Split(',').Select(s => s.ToLower()).ToArray();
+                        byte[] fileData = null;
+                        if (Array.IndexOf(fileFormats, Path.GetExtension(file.FileName).ToLower()) > -1)
+                        {
+                          using (var br = new BinaryReader(file.InputStream))
+                        {
+                            fileData = br.ReadBytes(file.ContentLength);
+                        }
+                        var db = new DbEngine();
+                        var claimFile = new TenderClaimFile() { IdClaim = idClaim.Value, File = fileData, FileName = file.FileName };
+                        db.SaveTenderClaimFile(ref claimFile);  
+                        }
+                       else if (file.ContentLength > 0) message += String.Format("Файл {0} имеет недопустимое расширение.",file.FileName);
+                    }
+                    //}
+                }
+            }
+            TempData["error"] = message;
+            return RedirectToAction("Index", "Claim", new { claimId = formClaimId});
+        }
+ 
+
+//>>>>Уведомления
+//возобновление заявки
+[HttpPost]
         public JsonResult SetClaimContinued(ClaimStatusHistory model)
         {
             var isComplete = false;

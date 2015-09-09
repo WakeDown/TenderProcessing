@@ -973,6 +973,10 @@
             var certCell = "<div><a class='btn btn-link' href='/Calc/GetCertFile/?guid=" + model.Certs[i].FileGuid + "'>" + model.Certs[i].FileName + "</a></div>";
             $("#certList").append(certCell);
         }
+        for (var i = 0; i < model.Files.length;i++) {
+            var claimFileCell = "<div><a class='btn btn-link' href='/Calc/getTenderClaimFile/?guid=" + model.Files[i].FileGuid + "'>" + model.Files[i].FileName + "</a></div>";
+            $("#claimFileList").append(claimFileCell);
+        }
     }
 
     //<<<<<<<Изменение курсов валют>>>>>>
@@ -1348,11 +1352,12 @@
     }
 
     function getTargetOrigin() {
+        var protocol = document.location.protocol;
         var url = document.location.href;
-        url = url.replace("http://", "");
+        url = url.replace(protocol+"//", "");
         var index = url.indexOf("/");
         url = url.substr(0, index);
-        url = "http://" + url;
+        url = protocol+"//" + url;
         return url;
     }
 
@@ -1535,11 +1540,18 @@
                         <td><small id="managerChief"></small></td>
                     </tr>
                     <tr>
-                        <td class="text-right">Файлы</td>
+                    <td class="text-right">Файлы заявки</td>
+                    <td>
+                        <div id="claimFileList"> </div>
+                    </td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Сертификаты</td>
                         <td>
                             <div id="certList"> </div>
                         </td>
                     </tr>
+                    
                     <tr>
                         <td class="text-right"></td>
                         <td>
