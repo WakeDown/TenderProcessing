@@ -746,10 +746,18 @@
         messageUi.progressHide();
         if (data.IsComplete) {
             claim = data.Model;
-            $("#formClaimId").val(claim.Id);
-            $("form").submit();
-            //var newLocation = window.location.toString() + '?claimId=' + claim.Id;
-            //window.location =newLocation;
+            if ($("#fileInput").prop("files").length === 0) {
+                var newLocation = window.location.toString() + '?claimId=' + claim.Id;
+                window.location = newLocation;
+            } else {
+                var formClaimIds = $("[name='formClaimId']");
+                $.each(formClaimIds, function(index, elem) {
+                    $(elem).val(claim.Id);
+                });
+                $("#formSubmit").click();
+            }
+            
+            //
 
             /* showClaimReadOnly(claim);
             $("#claimId").text("Заявка № " + claim.Id);
@@ -2401,12 +2409,12 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label">Файлы</label>
                     <div class="col-sm-9">
-                        @using (Html.BeginForm("SaveFile", "Claim", FormMethod.Post, new {enctype = "multipart/form-data"}))
+                        @using (Html.BeginForm("SaveFile", "Claim", FormMethod.Post, new {id = "createInputForm", enctype = "multipart/form-data"}))
                         {
-                            <input type="text" class="hidden" name="formClaimId" id="formClaimId"/>
+                            <input type="text" class="hidden" name="formClaimId"/>
                             <input type="file" name="file" id="fileInput" multiple="multiple" accept=".xls,.xlsx,.doc,.docx"/>
                             <p>
-                                <button class="btn btn-success hidden" type="submit"></button>
+                                <button class="btn btn-success hidden" type="submit" id="formSubmit"></button>
                             </p>
                         }
                     </div>
@@ -2474,7 +2482,7 @@
                                 <input type="text" class="hidden"  name="formClaimId" id="formClaimId" />
                                 <p>
                                     
-                                    <button class="btn btn-success" type="submit" onclick="return setFormClaimId()">сохранить файл</button>
+                                    <button class="btn btn-success" type="submit">сохранить файл</button>
                                 </p>
                             }
                         </td>
