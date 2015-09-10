@@ -17,11 +17,57 @@ namespace SpeCalcDataAccessLayer
 
     public class DbEngine
     {
-        private readonly string _connectionString;
+        private static readonly string _connectionString = ConfigurationManager.ConnectionStrings["SpeCalc"].ConnectionString;
 
         public DbEngine()
         {
-            _connectionString = ConfigurationManager.ConnectionStrings["SpeCalc"].ConnectionString;
+        }
+
+        public static int CopyPositionsForNewVersion(int idClaim, int calcVersion, string creatorSid)
+        {
+            int result = 0;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "CopyPositionsForNewVersion";
+                cmd.Parameters.AddWithValue("@idClaim", idClaim);
+                cmd.Parameters.AddWithValue("@calcVersion", calcVersion);
+                cmd.Parameters.AddWithValue("@creatorSid", creatorSid);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+
+                if (rd.HasRows)
+                {
+                    rd.Read();
+                    result = rd.GetInt32(0);
+                }
+            }
+            return result;
+        }
+        public static int[] GetCalcVersionList(int idClaim)
+        {
+            var result = new List<int>();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "GetCalcVersionList";
+                cmd.Parameters.AddWithValue("@idClaim", idClaim);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        result.Add(rd.GetInt32(0));
+                    }
+                }
+                rd.Dispose();
+            }
+
+            return result.ToArray();
         }
 
         #region TenderClaim
