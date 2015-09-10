@@ -699,6 +699,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@positionState", model.State);
                 cmd.Parameters.AddWithValue("@author", model.Author);
                 cmd.Parameters.AddWithValue("@currency", model.Currency);
+                cmd.Parameters.AddWithValue("@version", model.Version);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -806,7 +807,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaim(int claimId)
+        public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaim(int claimId, int version=1)
         {
             var list = new List<SpecificationPosition>();
             using (var conn = new SqlConnection(_connectionString))
@@ -815,6 +816,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "LoadClaimPositionForTenderClaim";
                 cmd.Parameters.AddWithValue("@id", claimId);
+                cmd.Parameters.AddWithValue("@calcVersion", version); 
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -857,7 +859,7 @@ namespace SpeCalcDataAccessLayer
             return list;
         }
 
-        public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaimForProduct(int claimId, string product)
+        public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaimForProduct(int claimId, string product, int version=1)
         {
             var list = new List<SpecificationPosition>();
             using (var conn = new SqlConnection(_connectionString))
@@ -867,6 +869,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandText = "LoadClaimPositionForTenderClaimForProduct";
                 cmd.Parameters.AddWithValue("@id", claimId);
                 cmd.Parameters.AddWithValue("@product", product);
+                cmd.Parameters.AddWithValue("@calcVersion", version);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)

@@ -65,8 +65,10 @@ namespace SpeCalc.Controllers
             return File(claimFile.File, "text/plain", claimFile.FileName);
         }
         //Страница расчета позиций по заявке
-        public ActionResult Index(int? claimId)
+        public ActionResult Index(int? claimId, int? cv)
         {
+            if (claimId.HasValue && !cv.HasValue) return RedirectToAction("Index", new { claimId = claimId, cv = 1 });
+
             //проверка наличия доступа к странице
             var user = GetUser();
             if (user == null || !UserHelper.IsUserAccess(user))

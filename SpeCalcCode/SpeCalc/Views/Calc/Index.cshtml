@@ -1,6 +1,7 @@
 ﻿@using System.Collections.Generic
 @using System.Web.Script.Serialization
 @using DocumentFormat.OpenXml.Wordprocessing
+@using SpeCalcDataAccessLayer
 @using SpeCalcDataAccessLayer.Models
 
 @{
@@ -1723,7 +1724,23 @@
                     </div>
                 </div>*@
         </h5>
+        @if (claim != null && claim.Id > 0)
+        {
+            int[] versions = DbEngine.GetCalcVersionList(claim.Id);
 
+            <div>
+                <ul class="list-inline">
+                    <li>версия расчета</li>
+                    @if (versions != null)
+                    {
+                        foreach (int ver in versions)
+                        {
+                            <li><a class="btn btn-primary @(Request.QueryString["cv"]!= null && Request.QueryString["cv"].Equals(ver.ToString())?"selected":String.Empty)" href="@Url.Action("Index", new {claimId = claim.Id, cv = ver})">@ver</a></li>
+                        }
+                    }
+                </ul>
+            </div>
+        }
         <table class="table small table-bordered">
             <thead>
                 <tr>

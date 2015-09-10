@@ -35,8 +35,10 @@ namespace SpeCalc.Controllers
         }
 
         //форма заявки, если передан параметр idClaim, то загружается инфа по заявки с этим id
-        public ActionResult Index(int? claimId)
+        public ActionResult Index(int? claimId, int? cv)
         {
+            if (claimId.HasValue && !cv.HasValue) return RedirectToAction("Index", new {claimId = claimId, cv = 1});
+
             //получения текущего юзера и проверка наличия у него доступа к странице
             ViewBag.Error = false.ToString().ToLower();
             TempData["tenderClaimFileFormats"] = WebConfigurationManager.AppSettings["FileFormat4TenderClaimFile"];
@@ -81,7 +83,7 @@ namespace SpeCalc.Controllers
                     claim = db.LoadTenderClaimById(claimId.Value);
                     if (claim != null)
                     {
-                        var allPositions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value);
+                        var allPositions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
                         var editablePosIds = new List<int>();
                         foreach (var position in allPositions)
                         {
@@ -133,7 +135,7 @@ namespace SpeCalc.Controllers
                         //получение позиций по заявке и расчета к ним
                         claim.Certs = db.LoadClaimCerts(claimId.Value);
                         claim.Files = db.LoadTenderClaimFiles(claimId.Value);
-                        claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value);
+                        claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
                         if (claim.Positions != null && claim.Positions.Any())
                         {
                             var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
