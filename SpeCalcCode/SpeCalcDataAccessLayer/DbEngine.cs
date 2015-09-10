@@ -301,7 +301,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public bool ChangeTenderClaimClaimStatus(TenderClaim model)
+        public static bool ChangeTenderClaimClaimStatus(TenderClaim model)
         {
             var result = false;
             using (var conn = new SqlConnection(_connectionString))
@@ -317,7 +317,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public bool ChangeTenderClaimTenderStatus(int idClaim, int status)
+        public static bool ChangeTenderClaimTenderStatus(int idClaim, int status)
         {
             var result = false;
             using (var conn = new SqlConnection(_connectionString))

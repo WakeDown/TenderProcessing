@@ -34,6 +34,79 @@ namespace SpeCalc.Controllers
             return Json(new { priceStr = result });
         }
 
+        [HttpGet]
+        public ActionResult GoActual(int? claimId, int? cv)
+        {
+            if (!claimId.HasValue)throw new ArgumentException("Не указана заявка");
+            if (!cv.HasValue) throw new ArgumentException("Не указана верия для актулизации");
+
+            int newVersion = DbEngine.CopyPositionsForNewVersion(claimId.Value, cv.Value, GetUser().Id);
+            var model = new TenderClaim() { Id = claimId.Value, TenderStatus = 10 };
+                bool isComplete = DbEngine.ChangeTenderClaimClaimStatus(model);
+            //var db = new DbEngine();
+            //var hasPosition = db.HasClaimPosition(id);
+            //if (hasPosition)
+            //{
+            //    isComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = id, ClaimStatus = 2 });
+            //    var productManagers = db.LoadProductManagersForClaim(id);
+            //    if (productManagers != null && productManagers.Any())
+            //    {
+            //        var productManagersFromAd = UserHelper.GetProductManagers();
+            //        foreach (var productManager in productManagers)
+            //        {
+            //            var productManagerFromAd =
+            //                productManagersFromAd.FirstOrDefault(x => x.Id == productManager.Id);
+            //            if (productManagerFromAd != null)
+            //            {
+            //                productManager.ShortName = productManagerFromAd.ShortName;
+            //            }
+            //        }
+            //        //истроия изменения статуса заявки
+            //        var user = GetUser();
+            //        var comment = "Продакты/снабженцы:<br />";
+            //        comment += string.Join("<br />", productManagers.Select(x => x.ShortName));
+            //        comment += "<br />Автор: " + user.ShortName;
+            //        model = new ClaimStatusHistory()
+            //        {
+            //            Date = DateTime.Now,
+            //            IdClaim = id,
+            //            IdUser = user.Id,
+            //            Status = new ClaimStatus() { Id = 2 },
+            //            Comment = comment
+            //        };
+            //        db.SaveClaimStatusHistory(model);
+            //        model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
+            //        //>>>>Уведомления
+            //        var claimPositions = db.LoadSpecificationPositionsForTenderClaim(id);
+            //        var productInClaim =
+            //            productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
+            //        var claim = db.LoadTenderClaimById(id);
+            //        var host = ConfigurationManager.AppSettings["AppHost"];
+            //        foreach (var productManager in productInClaim)
+            //        {
+            //            var positionCount = claimPositions.Count(x => x.ProductManager.Id == productManager.Id);
+            //            var messageMail = new StringBuilder();
+            //            messageMail.Append("Добрый день!");
+            //            messageMail.Append(String.Format("<br/>На имя {0} назначена заявка в системе СпецРасчет.", productManager.ShortName));
+            //            //messageMail.Append("<br/>Пользователь ");
+            //            //messageMail.Append(user.Name);
+            //            //messageMail.Append(
+            //            //    " создал заявку где Вам назначены позиции для расчета. Количество назначенных позиций: " +
+            //            //    positionCount + "<br/>");
+            //            messageMail.Append("<br/><br />");
+            //            messageMail.Append(GetClaimInfo(claim));
+            //            messageMail.Append("<br />Ссылка на заявку: ");
+            //            messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
+            //                           "/Calc/Index?claimId=" + claim.Id + "</a>");
+            //            //messageMail.Append("<br/>Сообщение от системы Спец расчет");
+            //            Notification.SendNotification(new[] { productManager }, messageMail.ToString(),
+            //                String.Format("{0} - {1} - Новая заявка СпецРасчет", claim.TenderNumber, claim.Customer));
+            //        }
+            //    }
+
+                return RedirectToAction("Index", new {claimId = claimId, cv= newVersion });
+        }
+
         //форма заявки, если передан параметр idClaim, то загружается инфа по заявки с этим id
         public ActionResult Index(int? claimId, int? cv)
         {
@@ -1787,7 +1860,7 @@ namespace SpeCalc.Controllers
                 var hasPosition = db.HasClaimPosition(id);
                 if (hasPosition)
                 {
-                    isComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = id, ClaimStatus = 2 });
+                    isComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = id, ClaimStatus = 2 });
                     var productManagers = db.LoadProductManagersForClaim(id);
                     if (productManagers != null && productManagers.Any())
                     {
@@ -1867,7 +1940,7 @@ namespace SpeCalc.Controllers
             try
             {
                 var db = new DbEngine();
-                isComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = model.IdClaim, ClaimStatus = 5 });
+                isComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = model.IdClaim, ClaimStatus = 5 });
                 if (isComplete)
                 {
                     model.Date = DateTime.Now;
@@ -1920,7 +1993,7 @@ namespace SpeCalc.Controllers
             try
             {
                 var db = new DbEngine();
-                isComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = model.IdClaim, ClaimStatus = 4 });
+                isComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = model.IdClaim, ClaimStatus = 4 });
                 if (isComplete)
                 {
                     model.Date = DateTime.Now;
@@ -2027,7 +2100,7 @@ namespace SpeCalc.Controllers
                     //if (lastValueValid == 4 || lastValueValid == 5)
                     //{
                         var actualStatus = new ClaimStatusHistory() {Status = new ClaimStatus(){Id = 3}};//statusHistory[statusHistory.Count() - 2];
-                        isComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = model.IdClaim, ClaimStatus = actualStatus.Status.Id });
+                        isComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = model.IdClaim, ClaimStatus = actualStatus.Status.Id });
                         if (isComplete)
                         {
                             model.Date = DateTime.Now;
@@ -2092,7 +2165,7 @@ namespace SpeCalc.Controllers
                 //изменение статуса заявки и истроиии изменения статусов
                 if (status != claimStatus)
                 {
-                    var changeStatusComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = idClaim, ClaimStatus = claimStatus });
+                    var changeStatusComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = idClaim, ClaimStatus = claimStatus });
                     if (changeStatusComplete)
                     {
                         model = new ClaimStatusHistory()
@@ -2181,7 +2254,7 @@ namespace SpeCalc.Controllers
                 var status = db.LoadLastStatusHistoryForClaim(idClaim).Status.Id;
                 //изменение статуса заявки и истроиии изменения статусов
                 var changeStatusComplete = true;
-                if (lastStatus.Status.Id == 9) changeStatusComplete = db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = idClaim, ClaimStatus = 2 });
+                if (lastStatus.Status.Id == 9) changeStatusComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = idClaim, ClaimStatus = 2 });
                if (changeStatusComplete)
                     {
                         model = new ClaimStatusHistory()
@@ -2254,7 +2327,7 @@ namespace SpeCalc.Controllers
                         isComplete = db.ChangePositionsState(positions.Select(x => x.Id).ToList(), 4);
                         if (isComplete)
                         {
-                            db.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = idClaim, ClaimStatus = 8 });
+                            DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = idClaim, ClaimStatus = 8 });
                             model = new ClaimStatusHistory()
                             {
                                 Date = DateTime.Now,
@@ -2316,8 +2389,7 @@ namespace SpeCalc.Controllers
             var isComplete = false;
             try
             {
-                var db = new DbEngine();
-                isComplete = db.ChangeTenderClaimTenderStatus(idClaim, tenderStatus);
+                isComplete = DbEngine.ChangeTenderClaimTenderStatus(idClaim, tenderStatus);
             }
             catch (Exception)
             {

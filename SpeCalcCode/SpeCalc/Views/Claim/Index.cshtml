@@ -2644,7 +2644,10 @@
                     @*<button id="butGetCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет (с позициями)</button>*@
                     <button id="butGetCalculateOnlyCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</button>
                 </span>
-            
+            @if (claim.ClaimStatus == 8 || claim.ClaimStatus == 7)
+            {
+                <a class="btn btn-success btn-sm" href="@Url.Action("GoActual", new {claimId = claim.Id, cv = Request.QueryString["cv"]})"><i class="fa fa-mail-forward"></i> Актуализировать</a>
+            }
             </span>
 @if (claim != null && claim.Id > 0)
             {
@@ -2652,12 +2655,12 @@
 
     <div>
         <ul class="list-inline">
-            <li>версия расчета</li>
+            <li class="bold">версия</li>
             @if (versions != null)
             {
                 foreach (int ver in versions)
                 {
-                    <li><a class="btn btn-primary @(Request.QueryString["cv"] != null && Request.QueryString["cv"].Equals(ver.ToString()) ? "selected" : String.Empty)" href="@Url.Action("Index", new {claimId = claim.Id, cv = ver})">@ver</a></li>
+                    <li><a class="btn @(Request.QueryString["cv"] != null && Request.QueryString["cv"].Equals(ver.ToString()) ? "btn-danger selected" : "btn-primary")" href="@Url.Action("Index", new {claimId = claim.Id, cv = ver})">@ver</a></li>
                 }
             }
         </ul>

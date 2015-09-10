@@ -232,3 +232,7 @@ blockquote.bg-success {
 input.required-mark,textarea.required-mark, select.required-mark, span.required-mark {
     background-color: #fcf8e3;
 }
+
+.btn-danger.selected {
+    background-color: #d9534f;
+}

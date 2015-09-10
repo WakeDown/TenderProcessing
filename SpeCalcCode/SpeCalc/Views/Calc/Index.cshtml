@@ -1730,12 +1730,12 @@
 
             <div>
                 <ul class="list-inline">
-                    <li>версия расчета</li>
+                    <li class="bold">версия</li>
                     @if (versions != null)
                     {
                         foreach (int ver in versions)
                         {
-                            <li><a class="btn btn-primary @(Request.QueryString["cv"]!= null && Request.QueryString["cv"].Equals(ver.ToString())?"selected":String.Empty)" href="@Url.Action("Index", new {claimId = claim.Id, cv = ver})">@ver</a></li>
+                            <li><a class="btn @(Request.QueryString["cv"] != null && Request.QueryString["cv"].Equals(ver.ToString()) ? "btn-danger selected" : "btn-primary")" href="@Url.Action("Index", new {claimId = claim.Id, cv = ver})">@ver</a></li>
                         }
                     }
                 </ul>

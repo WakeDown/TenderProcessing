@@ -121,11 +121,11 @@ namespace SpeCalc.Controllers
                         if (!isController)
                         {
                             claim.Positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId.Value,
-                                user.Id);
+                                user.Id, cv.Value);
                         }
                         else
                         {
-                            claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value);
+                            claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
                         }
                         if (claim.Positions != null && claim.Positions.Any())
                         {
@@ -133,7 +133,7 @@ namespace SpeCalc.Controllers
                             if (claim.ClaimStatus == 2)
                             {
                                 claim.ClaimStatus = 3;
-                                db.ChangeTenderClaimClaimStatus(claim);
+                                DbEngine.ChangeTenderClaimClaimStatus(claim);
                                 var statusHistory = new ClaimStatusHistory()
                                 {
                                     IdClaim = claim.Id,
@@ -1146,7 +1146,7 @@ namespace SpeCalc.Controllers
                             var status = db.LoadLastStatusHistoryForClaim(idClaim).Status.Id;
                             if (status != claimStatus)
                             {
-                                db.ChangeTenderClaimClaimStatus(new TenderClaim()
+                                DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim()
                                 {
                                     Id = idClaim,
                                     ClaimStatus = claimStatus
@@ -1322,7 +1322,7 @@ namespace SpeCalc.Controllers
                             //Изменение статуса заявки и истроии изменения статусов
                             if (lastClaimStatus != claimStatus)
                             {
-                                db.ChangeTenderClaimClaimStatus(new TenderClaim()
+                    DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim()
                                 {
                                     Id = idClaim,
                                     ClaimStatus = claimStatus
