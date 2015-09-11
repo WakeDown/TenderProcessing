@@ -1660,8 +1660,7 @@ namespace SpeCalc.Controllers
             var isComplete = false;
             try
             {
-                var dateValid = true;
-                if (string.IsNullOrEmpty(claim.ClaimDeadline.ToShortDateString())) dateValid = false;
+                bool dateValid = !string.IsNullOrEmpty(claim.ClaimDeadline.ToShortDateString());
                 if (dateValid)
                 {
                     var db = new DbEngine();
