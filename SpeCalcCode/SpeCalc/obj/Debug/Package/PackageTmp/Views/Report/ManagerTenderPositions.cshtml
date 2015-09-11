@@ -1,0 +1,36 @@
+﻿@using System.Web.Mvc.Html
+@using DocumentFormat.OpenXml.EMMA
+@using SpeCalc.Models
+@model SpeCalc.Models.TenderManagerPositionsReportFilter
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-lg-2">
+        @Html.TextBoxFor(m => m.DateStart, "{0:dd.MM.yyyy}", new { @id = "DateStart", @class = "form-control", data_mask = "00.00.0000", required = "required", placeholder = "Дата начала" })
+    </div>
+    <div class="col-lg-2">
+        @Html.TextBoxFor(m => m.DateEnd, "{0:dd.MM.yyyy}", new { @id = "DateEnd", @class = "form-control", data_mask = "00.00.0000", required = "required", placeholder = "Дата окончания" })
+    </div>
+</div>
+
+@Html.Partial("ManagerTenderPositionsList", Tender.GetManagerReport(Model))
+
+<script type="text/javascript">
+    $(Document).ready(function() {
+        $('#DateStart').datepicker({
+            format: "dd.mm.yyyy",
+            autoclose: true,
+            todayBtn: "linked",
+            language: "ru"
+        });
+        $('#DateEnd').datepicker({
+            format: "dd.mm.yyyy",
+            autoclose: true,
+            todayBtn: "linked",
+            language: "ru"
+        });
+    });
+</script>

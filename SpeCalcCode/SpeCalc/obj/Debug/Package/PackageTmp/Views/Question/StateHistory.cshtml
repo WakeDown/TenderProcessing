@@ -1,0 +1,18 @@
+﻿@using SpeCalc.Models
+@model IEnumerable<SpeCalc.Models.HistoryQueState>
+  
+@if (Model.Any())
+{
+    <ul>
+        @foreach (HistoryQueState st in Model)
+        {
+            <li>
+                <p>
+                    <strong>@st.State.Name</strong>
+
+                    <small>@st.DateCreate.ToShortDateString() - @st.Creator.DisplayName</small>
+                </p>
+            </li>
+        }
+    </ul>
+}
