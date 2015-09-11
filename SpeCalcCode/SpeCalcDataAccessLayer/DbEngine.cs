@@ -1015,7 +1015,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public List<ProductManager> LoadProductManagersForClaim(int claimId)
+        public List<ProductManager> LoadProductManagersForClaim(int claimId, int version = 1)
         {
             var list = new List<ProductManager>();
             using (var conn = new SqlConnection(_connectionString))
@@ -1024,6 +1024,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "LoadProductManagersForClaim";
                 cmd.Parameters.AddWithValue("@idClaim", claimId);
+                cmd.Parameters.AddWithValue("@version", version);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)

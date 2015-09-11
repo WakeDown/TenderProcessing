@@ -39,72 +39,69 @@ namespace SpeCalc.Controllers
         {
             if (!claimId.HasValue)throw new ArgumentException("Не указана заявка");
             if (!cv.HasValue) throw new ArgumentException("Не указана верия для актулизации");
-
+            int newClaimState = 10;
             int newVersion = DbEngine.CopyPositionsForNewVersion(claimId.Value, cv.Value, GetUser().Id);
-            var model = new TenderClaim() { Id = claimId.Value, TenderStatus = 10 };
-                bool isComplete = DbEngine.ChangeTenderClaimClaimStatus(model);
-            //var db = new DbEngine();
-            //var hasPosition = db.HasClaimPosition(id);
-            //if (hasPosition)
-            //{
-            //    isComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = id, ClaimStatus = 2 });
-            //    var productManagers = db.LoadProductManagersForClaim(id);
-            //    if (productManagers != null && productManagers.Any())
-            //    {
-            //        var productManagersFromAd = UserHelper.GetProductManagers();
-            //        foreach (var productManager in productManagers)
-            //        {
-            //            var productManagerFromAd =
-            //                productManagersFromAd.FirstOrDefault(x => x.Id == productManager.Id);
-            //            if (productManagerFromAd != null)
-            //            {
-            //                productManager.ShortName = productManagerFromAd.ShortName;
-            //            }
-            //        }
-            //        //истроия изменения статуса заявки
-            //        var user = GetUser();
-            //        var comment = "Продакты/снабженцы:<br />";
-            //        comment += string.Join("<br />", productManagers.Select(x => x.ShortName));
-            //        comment += "<br />Автор: " + user.ShortName;
-            //        model = new ClaimStatusHistory()
-            //        {
-            //            Date = DateTime.Now,
-            //            IdClaim = id,
-            //            IdUser = user.Id,
-            //            Status = new ClaimStatus() { Id = 2 },
-            //            Comment = comment
-            //        };
-            //        db.SaveClaimStatusHistory(model);
-            //        model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
-            //        //>>>>Уведомления
-            //        var claimPositions = db.LoadSpecificationPositionsForTenderClaim(id);
-            //        var productInClaim =
-            //            productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
-            //        var claim = db.LoadTenderClaimById(id);
-            //        var host = ConfigurationManager.AppSettings["AppHost"];
-            //        foreach (var productManager in productInClaim)
-            //        {
-            //            var positionCount = claimPositions.Count(x => x.ProductManager.Id == productManager.Id);
-            //            var messageMail = new StringBuilder();
-            //            messageMail.Append("Добрый день!");
-            //            messageMail.Append(String.Format("<br/>На имя {0} назначена заявка в системе СпецРасчет.", productManager.ShortName));
-            //            //messageMail.Append("<br/>Пользователь ");
-            //            //messageMail.Append(user.Name);
-            //            //messageMail.Append(
-            //            //    " создал заявку где Вам назначены позиции для расчета. Количество назначенных позиций: " +
-            //            //    positionCount + "<br/>");
-            //            messageMail.Append("<br/><br />");
-            //            messageMail.Append(GetClaimInfo(claim));
-            //            messageMail.Append("<br />Ссылка на заявку: ");
-            //            messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
-            //                           "/Calc/Index?claimId=" + claim.Id + "</a>");
-            //            //messageMail.Append("<br/>Сообщение от системы Спец расчет");
-            //            Notification.SendNotification(new[] { productManager }, messageMail.ToString(),
-            //                String.Format("{0} - {1} - Новая заявка СпецРасчет", claim.TenderNumber, claim.Customer));
-            //        }
-            //    }
+                bool isComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = claimId.Value, ClaimStatus = newClaimState });
+            var db = new DbEngine();
+            
+            var productManagers = db.LoadProductManagersForClaim(claimId.Value, newVersion);
+            if (productManagers != null && productManagers.Any())
+            {
+                var productManagersFromAd = UserHelper.GetProductManagers();
+                foreach (var productManager in productManagers)
+                {
+                    var productManagerFromAd =
+                        productManagersFromAd.FirstOrDefault(x => x.Id == productManager.Id);
+                    if (productManagerFromAd != null)
+                    {
+                        productManager.ShortName = productManagerFromAd.ShortName;
+                    }
+                }
+                //истроия изменения статуса заявки
+                var user = GetUser();
+                var comment = "Продакты/снабженцы:<br />";
+                comment += string.Join("<br />", productManagers.Select(x => x.ShortName));
+                comment += "<br />Автор: " + user.ShortName;
+                ClaimStatusHistory model = new ClaimStatusHistory()
+                {
+                    Date = DateTime.Now,
+                    IdClaim = claimId.Value,
+                    IdUser = user.Id,
+                    Status = new ClaimStatus() {Id = newClaimState },
+                    Comment = comment
+                };
+                db.SaveClaimStatusHistory(model);
+                model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
+                //>>>>Уведомления
+                var claimPositions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value, newVersion);
+                var productInClaim =
+                    productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
+                var claim = db.LoadTenderClaimById(claimId.Value);
+                var host = ConfigurationManager.AppSettings["AppHost"];
+                foreach (var productManager in productInClaim)
+                {
+                    var positionCount = claimPositions.Count(x => x.ProductManager.Id == productManager.Id);
+                    var messageMail = new StringBuilder();
+                    messageMail.Append("Добрый день!");
+                    messageMail.Append(String.Format("<br/>На имя {0} назначена Актуализация расчета по заявке в системе СпецРасчет.",
+                        productManager.ShortName));
+                    //messageMail.Append("<br/>Пользователь ");
+                    //messageMail.Append(user.Name);
+                    //messageMail.Append(
+                    //    " создал заявку где Вам назначены позиции для расчета. Количество назначенных позиций: " +
+                    //    positionCount + "<br/>");
+                    messageMail.Append("<br/><br />");
+                    messageMail.Append(GetClaimInfo(claim));
+                    messageMail.Append("<br />Ссылка на заявку: ");
+                    messageMail.Append("<a href='" + host + "/Calc/Index?claimId=" + claim.Id + "'>" + host +
+                                       "/Calc/Index?claimId=" + claim.Id + "&cv=" + newVersion + "</a>");
+                    //messageMail.Append("<br/>Сообщение от системы Спец расчет");
+                    Notification.SendNotification(new[] {productManager}, messageMail.ToString(),
+                        String.Format("{0} - {1} - Актуализация расчета заявки СпецРасчет", claim.TenderNumber, claim.Customer));
+                }
+            }
 
-                return RedirectToAction("Index", new {claimId = claimId, cv= newVersion });
+            return RedirectToAction("Index", new {claimId = claimId, cv= newVersion });
         }
 
         //форма заявки, если передан параметр idClaim, то загружается инфа по заявки с этим id
