@@ -18,7 +18,7 @@
     var history = (List<ClaimStatusHistory>)ViewBag.StatusHistory;
     var facts = (List<ProtectFact>)ViewBag.Facts;
     var deliveryTimes = (List<DeliveryTime>)ViewBag.DeliveryTimes;
-    var editableposIds = (List<int>) ViewBag.EditablePositions;
+    var editableposIds = (List<int>)ViewBag.EditablePositions;
 }
 @*<link href="~/Content/bootstrap-datepicker3.css" rel="stylesheet" />*@
 @*<script src="~/Scripts/bootstrap-datepicker.js"></script>*@
@@ -85,7 +85,7 @@
             todayBtn: "linked",
             language: "ru"
         });
-        
+
         $("#claimDeadline").datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
@@ -147,6 +147,7 @@
         $("#butSetPositionReject").click(rejectPositions);
         $("#butSetPositionConfirm").click(setAllPositionConfirmed);
         //$("#butChangeCurrency").click(changeCurrency);
+        $('#goACtual').click(goActual);
 
         if (claim != null) {
             var formClaimIds = $("[name='formClaimId']");
@@ -263,7 +264,7 @@
                     $("#butSetPositionConfirm").hide();
                     $("[modetype='selectPositionElement']", $("#positionTable")).hide();
                     $("#cbSelectAllPosition").hide();
-                    $("butDeleteSelected").hide;
+                    $("butDeleteSelected").hide();
                     $("#butSendComment").hide();
                 }
                 $("#excelCalculatePanel").show();
@@ -277,6 +278,42 @@
         }
     }
 
+    function goActual() {
+
+        var selId = [];
+        var positionsRows = $("[type='positionRow']", $("#positionsTableWithCalc"));
+
+        $.each(positionsRows, function(index, element) {
+            element = $(element);
+            var isChecked = $("[modetype='selectPositionElement']", element).get(0).checked;
+            if (isChecked) {
+                selId.push(Number(element.attr("positionId")));
+            }
+        });
+        var selIdStr = '';
+        if (selId.length == 0) {
+            alert("Не отмечено ни одной позиции");
+            return;
+        } else {
+            //selIdStr = selId.join(",");
+        }
+        var model = {claimId: @claim.Id, cv: @Request.QueryString["cv"], selIds:selId};
+        $.ajax(
+        {
+            url: '@Url.Action("GoActual")',
+            method: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(model),
+            processData: false,
+            contentType: 'application/json; charset = utf-8 ',
+            success: function(data) {
+                window.location = "@Url.Action("Index")?claimId="+data.claimId+"&cv="+data.newVersion;
+            },
+            error: function(error) {
+                alert('Ошибка: ' + error);
+            }
+        });
+    }
 
     function setPrice(partNum, calcId) {
         //return;
@@ -363,9 +400,9 @@
             case (2):
                 $("[type='posState2']", element).removeClass("hidden");
                 break;
-             case (3):
-                 $("[type='posState3']", element).removeClass("hidden");
-                 break;
+            case (3):
+                $("[type='posState3']", element).removeClass("hidden");
+                break;
             case (4):
                 $("[type='posState4']", element).removeClass("hidden");
                 break;
@@ -410,7 +447,7 @@
             var element = getPositionElementWithCalc(position);
             $("[modetype='rowNumber']", element).text(i + 1);
             if(editablePosIds.indexOf(position.Id)==-1)
-            container.append(element);
+                container.append(element);
 
             //var calculateRowTable = getCalculateTableForPosition(position);
             //container.append(calculateRowTable);
@@ -757,7 +794,7 @@
                 });
                 $("#formSubmit").click();
             }
-            
+
             //
 
             /* showClaimReadOnly(claim);
@@ -2024,17 +2061,17 @@
                             messageUi.progressHide();
                             positions = data.Positions;
                             var positionsLength = positions.length;
-                    for (var i = 0; i < positionsLength; i++) {
+                            for (var i = 0; i < positionsLength; i++) {
 
-                        var position = positions[i];
-                        var element = getPositionElement(position);
-                        container.append(element);
-                    }
+                                var position = positions[i];
+                                var element = getPositionElement(position);
+                                container.append(element);
+                            }
                             if (!data.IsComplete) {showMessage("Ошибка при добавлении позиции спецификации");
                             }
                         }
                     });
-                    
+
                 }
                 setInfoForPositionRows();
             }
@@ -2408,14 +2445,14 @@
                         <div id="commentLabel" style="display: none;" class="form-control"></div>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="col-sm-3 control-label">Файлы</label>
                     <div class="col-sm-9">
-                        @using (Html.BeginForm("SaveFile", "Claim", FormMethod.Post, new {id = "createInputForm", enctype = "multipart/form-data"}))
+                        @using (Html.BeginForm("SaveFile", "Claim", FormMethod.Post, new { id = "createInputForm", enctype = "multipart/form-data" }))
                         {
-                            <input type="text" class="hidden" name="formClaimId"/>
-                            <input type="file" name="file" id="fileInput" multiple="multiple" accept=".xls,.xlsx,.doc,.docx"/>
+                            <input type="text" class="hidden" name="formClaimId" />
+                            <input type="file" name="file" id="fileInput" multiple="multiple" accept=".xls,.xlsx,.doc,.docx" />
                             <p>
                                 <button class="btn btn-success hidden" type="submit" id="formSubmit"></button>
                             </p>
@@ -2481,10 +2518,10 @@
                         <td>
                             @using (Html.BeginForm("SaveFile", "Claim", new { claimId = Request.QueryString["claimId"] }, FormMethod.Post, new { enctype = "multipart/form-data" }))
                             {
-                                <input type="file" name="file" multiple="multiple" accept="@ConfigurationManager.AppSettings["FileFormat4TenderClaimFile"]"/>
-                                <input type="text" class="hidden"  name="formClaimId" id="formClaimId" />
+                                <input type="file" name="file" multiple="multiple" accept="@ConfigurationManager.AppSettings["FileFormat4TenderClaimFile"]" />
+                                <input type="text" class="hidden" name="formClaimId" id="formClaimId" />
                                 <p>
-                                    
+
                                     <button class="btn btn-success" type="submit">сохранить файл</button>
                                 </p>
                             }
@@ -2532,7 +2569,7 @@
                     </div>*@
 
                 @*<div id="commentPanel">*@
-                
+
                 <div id="commentPanel">
                     <button type="button" id="butSetClaimOnWork" style="display: none;" class="btn btn-success"><i class="fa fa-mail-forward"></i> в работу</button>
                     <div id="claimStatusPanel" style="display: none;">
@@ -2621,7 +2658,7 @@
         </P>
         <p>
             <blockquote class="bg-warning">
-               При загрузке спецификации удостоверьтесь, что в ячейках нет формул!
+                При загрузке спецификации удостоверьтесь, что в ячейках нет формул!
             </blockquote>
         </p>
         <div>
@@ -2630,7 +2667,7 @@
                 <span class="label label-default">всего&nbsp;<span class="big" id="positionCountLabel">0</span></span>
                 <span class="label label-info">из них рассчитано&nbsp;<span class="big" id="positionCalculateCountLabel">0</span></span>
             </span>
-        <span>
+            <span>
                 <button type="button" id="butAddPosition" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> добавить позицию</button>
                 <span id="excelPanel">
                     <button id="butGetFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать шаблон</button>
@@ -2644,41 +2681,41 @@
                     @*<button id="butGetCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет (с позициями)</button>*@
                     <button id="butGetCalculateOnlyCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</button>
                 </span>
-            @if (claim != null && (claim.ClaimStatus == 8 @*|| claim.ClaimStatus == 7*@))
+                @if (claim != null && (claim.ClaimStatus == 8 @*|| claim.ClaimStatus == 7*@))
             {
-                <a class="btn btn-success btn-sm" href="@Url.Action("GoActual", new {claimId = claim.Id, cv = Request.QueryString["cv"]})"><i class="fa fa-mail-forward"></i> Актуализировать</a>
-            }
+                    <button id="goACtual" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> Актуализировать</button>
+                }
             </span>
-@if (claim != null && claim.Id > 0)
+            @if (claim != null && claim.Id > 0)
             {
                 int[] versions = DbEngine.GetCalcVersionList(claim.Id);
 
-    <div>
-        <ul class="list-inline">
-            <li class="bold">версия</li>
-            @if (versions != null)
-            {
-                foreach (int ver in versions)
-                {
-                    <li><a class="btn @(Request.QueryString["cv"] != null && Request.QueryString["cv"].Equals(ver.ToString()) ? "btn-danger selected" : "btn-primary")" href="@Url.Action("Index", new {claimId = claim.Id, cv = ver})">@ver</a></li>
-                }
-            }
-        </ul>
-    </div>
-}
-            <div id="delPanel" class="pull-right">
-                    <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить отмеченные</button>
-
+                <div>
+                    <ul class="list-inline">
+                        <li class="bold">версия</li>
+                        @if (versions != null)
+                        {
+                            foreach (int ver in versions)
+                            {
+                                <li><a class="btn @(Request.QueryString["cv"] != null && Request.QueryString["cv"].Equals(ver.ToString()) ? "btn-danger selected" : "btn-primary")" href="@Url.Action("Index", new {claimId = claim.Id, cv = ver})">@ver</a></li>
+                            }
+                        }
+                    </ul>
                 </div>
+            }
+            <div id="delPanel" class="pull-right">
+                <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить отмеченные</button>
+
+            </div>
             <table id="tblPositionsNoCalc" class="table table-bordered small" style="display: none;">
                 <thead>
-                <tr >
+                    <tr>
                         <P>
-                                <h5  id="rejectHead">
-                                    Отклонено продактом/снабженцем
-                                </h5>
-                            </P>
-                </tr>
+                            <h5 id="rejectHead">
+                                Отклонено продактом/снабженцем
+                            </h5>
+                        </P>
+                    </tr>
                     <tr>
                         <th class="min-width center"><input type="checkbox" id="cbSelectAllPosition" data-toggle="tooltip" title="все" /></th>
                         <th>№</th>
@@ -2705,7 +2742,7 @@
                                 </div>
                             </div>
                         </th>
-                        
+
                     </tr>
 
                 </thead>
@@ -2714,7 +2751,8 @@
                         <td class="min-width center">
                             <input type="checkbox" modetype="selectPositionElement" />
                         </td>
-                        <td class="min-width center"><strong modetype="claimRowNumber"></strong>
+                        <td class="min-width center">
+                            <strong modetype="claimRowNumber"></strong>
                             <div type="posState5" class="text-danger hidden">
                                 <i class="fa fa-reply" title="позиция отклонена снабженцем/продактом"></i>
                             </div>
@@ -2734,13 +2772,13 @@
                         <td>
                             <div type="editModeView" class="row">
                                 <div class="form-group col-sm-2">
-                                    <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер"/>
+                                    <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" />
                                 </div>
                                 <div class="form-group col-sm-3">
                                     <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
                                 </div>
                                 <div class="form-group col-sm-1">
-                                    <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество *"/>
+                                    <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество *" />
                                 </div>
                                 <div class="form-group col-sm-1">
                                     <div id="unitCell"></div>
@@ -2904,7 +2942,7 @@
                 <td posdt='1' class="min-width" rowspan="1">
                     <strong modetype="rowNumber"></strong>
                     <div type="posState2" class="text-warning hidden">
-                        <i class="fa fa-send-o"  title="отправлена менеджеру для подтверждения"></i>
+                        <i class="fa fa-send-o" title="отправлена менеджеру для подтверждения"></i>
                     </div>
                     <div type="posState3" class="text-danger hidden">
                         <i class="fa fa-warning" title="расчет позиции отклонен менеджерем"></i>
@@ -2934,12 +2972,12 @@
                 </td>
                 <td>
                     <span modetype="calculateNameValueLabel"></span>
-                    <br/>
+                    <br />
                     <span modetype="calculateReplaceValueLabel"></span>
                 </td>
                 @*<td>
-                    <span modetype="calculateReplaceValueLabel"></span>
-                </td>*@
+                        <span modetype="calculateReplaceValueLabel"></span>
+                    </td>*@
                 <td>
                     <span class="small" name="priceOnlineInfo"></span>
                 </td>
@@ -2973,29 +3011,29 @@
                 </td>
             </tr>
         </table>
-    <div id="deadLineCorrectorBox" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Срок для расчета не может быть менее 2 суток</h4>
-                </div>
-                <div class="modal-body">
-                    
+        <div id="deadLineCorrectorBox" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Срок для расчета не может быть менее 2 суток</h4>
+                    </div>
+                    <div class="modal-body">
+
                         @*<label class="col-sm-9 control-label required-mark">Срок сдачи расчета</label>*@
-                        
-                            <input type="text" id="deadlineCorrector" style="cursor: pointer;" class="form-control datepicker-btn" placeholder="Срок сдачи расчета"/>
-                            <span id="deadlineLabelCorrector" style="display: none;" class="form-control"></span>
-                    <small>не ранее чем через 2 суток</small>
-                   
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
-                    <button id="butDeadLineCorrect" type="button" class="btn btn-primary">Продолжить</button>
+
+                        <input type="text" id="deadlineCorrector" style="cursor: pointer;" class="form-control datepicker-btn" placeholder="Срок сдачи расчета" />
+                        <span id="deadlineLabelCorrector" style="display: none;" class="form-control"></span>
+                        <small>не ранее чем через 2 суток</small>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+                        <button id="butDeadLineCorrect" type="button" class="btn btn-primary">Продолжить</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
         <div id="rejectPositionCommentBox" class="modal fade">
             <div class="modal-dialog">
                 <div class="modal-content">

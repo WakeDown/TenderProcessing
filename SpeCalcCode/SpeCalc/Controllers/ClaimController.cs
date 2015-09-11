@@ -34,17 +34,18 @@ namespace SpeCalc.Controllers
             return Json(new { priceStr = result });
         }
 
-        [HttpGet]
-        public ActionResult GoActual(int? claimId, int? cv)
+        [HttpPost]
+        public ActionResult GoActual(int claimId, int cv, int[] selIds)
         {
-            if (!claimId.HasValue)throw new ArgumentException("Не указана заявка");
-            if (!cv.HasValue) throw new ArgumentException("Не указана верия для актулизации");
+            if (claimId <= 0)throw new ArgumentException("Не указана заявка");
+            if (cv<= 0) throw new ArgumentException("Не указана верия для актулизации");
+            
             int newClaimState = 10;
-            int newVersion = DbEngine.CopyPositionsForNewVersion(claimId.Value, cv.Value, GetUser().Id);
-                bool isComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = claimId.Value, ClaimStatus = newClaimState });
+            int newVersion = DbEngine.CopyPositionsForNewVersion(claimId, cv, GetUser().Id);
+                bool isComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = claimId, ClaimStatus = newClaimState });
             var db = new DbEngine();
             
-            var productManagers = db.LoadProductManagersForClaim(claimId.Value, newVersion);
+            var productManagers = db.LoadProductManagersForClaim(claimId, newVersion);
             if (productManagers != null && productManagers.Any())
             {
                 var productManagersFromAd = UserHelper.GetProductManagers();
@@ -65,7 +66,7 @@ namespace SpeCalc.Controllers
                 ClaimStatusHistory model = new ClaimStatusHistory()
                 {
                     Date = DateTime.Now,
-                    IdClaim = claimId.Value,
+                    IdClaim = claimId,
                     IdUser = user.Id,
                     Status = new ClaimStatus() {Id = newClaimState },
                     Comment = comment
@@ -73,10 +74,10 @@ namespace SpeCalc.Controllers
                 db.SaveClaimStatusHistory(model);
                 model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
                 //>>>>Уведомления
-                var claimPositions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value, newVersion);
+                var claimPositions = db.LoadSpecificationPositionsForTenderClaim(claimId, newVersion);
                 var productInClaim =
                     productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
-                var claim = db.LoadTenderClaimById(claimId.Value);
+                var claim = db.LoadTenderClaimById(claimId);
                 var host = ConfigurationManager.AppSettings["AppHost"];
                 foreach (var productManager in productInClaim)
                 {
@@ -101,7 +102,8 @@ namespace SpeCalc.Controllers
                 }
             }
 
-            return RedirectToAction("Index", new {claimId = claimId, cv= newVersion });
+            return Json(new { claimId = claimId, newVersion = newVersion });
+            //return RedirectToAction("Index", new {claimId = claimId, cv= newVersion });
         }
 
         //форма заявки, если передан параметр idClaim, то загружается инфа по заявки с этим id

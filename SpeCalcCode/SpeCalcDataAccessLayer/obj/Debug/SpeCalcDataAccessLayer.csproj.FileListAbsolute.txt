@@ -15,3 +15,4 @@ D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\SpeCal
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\SpeCalcDataAccessLayer.pdb
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.dll
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.pdb
+D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.csprojResolveAssemblyReference.cache
