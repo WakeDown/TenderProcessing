@@ -23,7 +23,7 @@ namespace SpeCalc
 
         protected void Application_BeginRequest(Object sender, EventArgs e)
         {
-            if (!Request.Url.ToString().Contains("ChromeOnly") && Request.UserAgent != null && !Request.UserAgent.Contains("Chrome"))
+            if (!Request.Url.ToString().Contains("ChromeOnly") && Request.UserAgent != null && !Request.UserAgent.Contains("Chrome") && !Request.UserAgent.Contains("CriOS"))
             {
                 Response.RedirectToRoute("ChromeOnly", new { url = Request.Path.Replace("/", "|") });
             }
