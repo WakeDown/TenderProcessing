@@ -76,7 +76,8 @@
             autoclose: true,
             todayBtn: "linked",
             language: "ru",
-            startDate: '@DateTime.Now.AddDays(2).ToShortDateString()'
+            startDate: '@DateTime.Now.AddDays(2).ToShortDateString()',
+            daysOfWeekDisabled: [0,6]
         });
         $("#kPDeadline").datepicker({
             format: "dd.mm.yyyy",
@@ -90,7 +91,8 @@
             autoclose: true,
             todayBtn: "linked",
             language: "ru",
-            startDate: '@DateTime.Now.AddDays(2).ToShortDateString()'
+            startDate: '@DateTime.Now.AddDays(2).ToShortDateString()',
+            daysOfWeekDisabled: [0,6]
         });
         $("#deliveryDate").datepicker({
             format: "dd.mm.yyyy",

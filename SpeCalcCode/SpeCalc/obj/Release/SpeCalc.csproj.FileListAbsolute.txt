@@ -3,7 +3,6 @@ D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\App_Data\Speci
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\SpeCalc.dll.config
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\SpeCalc.dll
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\SpeCalc.pdb
-D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\ClosedXML.Fakes.fakesconfig
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\ActionMailer.Net.dll
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\ActionMailer.Net.Mvc.dll
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\ClosedXML.dll
@@ -46,7 +45,7 @@ D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\ru\System.Web.
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\ru\System.Web.WebPages.resources.dll
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\ru\System.Web.WebPages.Deployment.resources.dll
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\ru\System.Web.WebPages.Razor.resources.dll
-D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Release\SpeCalc.csprojFakesResolveAssemblyReference.cache
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Release\SpeCalc.csproj.ResolveComReference.cache
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Release\SpeCalc.dll
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Release\SpeCalc.pdb
+D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Release\SpeCalc.csprojResolveAssemblyReference.cache
