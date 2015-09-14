@@ -1751,9 +1751,10 @@ namespace SpeCalc.Controllers
             return Json(new { IsComplete = isComplete, Model = model });
         }
 
-        public JsonResult AddClaimPositions(List<SpecificationPosition> modelList)
+        [HttpPost]
+        public JsonResult AddClaimPositions(IEnumerable<SpecificationPosition> modelList)
         {
-            var isComplete = modelList.Count>0;
+            var isComplete = modelList.Count()>0;
             try
             {
                 var db = new DbEngine();

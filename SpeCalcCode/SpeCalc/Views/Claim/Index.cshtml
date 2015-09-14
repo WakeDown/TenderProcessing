@@ -74,7 +74,6 @@
         $("#deadlineCorrector").datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
-            todayBtn: "linked",
             language: "ru",
             startDate: '@DateTime.Now.AddDays(2).ToShortDateString()',
             daysOfWeekDisabled: [0,6]
@@ -89,7 +88,6 @@
         $("#claimDeadline").datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
-            todayBtn: "linked",
             language: "ru",
             startDate: '@DateTime.Now.AddDays(2).ToShortDateString()',
             daysOfWeekDisabled: [0,6]
@@ -669,8 +667,8 @@
                         $("#claimStatusPanel").show();
                         $("#butСlaimStatusContined").hide();
                     } else {
-                        if (data.Message == null || data.Message.trim() == "") {
-                            showMessage("Ошибка при передачи заявки в работу");
+                        if (data.Message == null || data.Message.trim() === "") {
+                            showMessage("Ошибка при передаче заявки в работу");
                         } else {
                             showMessage(data.Message);
                         }
@@ -1967,6 +1965,7 @@
     function messageHandler(e) {
         var data = e.data;
         var obj = $.parseJSON(data);
+        
         if (obj.type.trim() == "UploadFrameLoaded") {
             if (initClaimIdNedded) {
                 var objM = {
@@ -2010,14 +2009,16 @@
             if (!obj.error && save) {
                 var positions = obj.positions;
                 var container = $("#positionTable");
+                var model = { modelList: positions };
+                //alert(model);
+                //alert(positions.length);
                 if (positions != null) {
                     $.ajax({
                         url: "/Claim/AddClaimPositions",
                         type: 'POST',
                         dataType: 'json',
                         data: JSON.stringify(positions),
-                        processData: false,
-                        contentType: 'application/json; charset = utf-8 ',
+                        contentType: 'application/json; charset=utf-8',
                         success: function(data) {
                             messageUi.progressHide();
                             positions = data.Positions;
@@ -2030,6 +2031,10 @@
                     }
                             if (!data.IsComplete) {showMessage("Ошибка при добавлении позиции спецификации");
                             }
+                        },
+                        error: function(xhr, status, error) {
+                            var err =  xhr.responseText;
+                            alert(err);
                         }
                     });
                     
