@@ -136,7 +136,7 @@
              //var arrIds = rejectPostionsId.split(",");
 
              $.ajax({
-                 url: "/Calc/SetPositionRejected?idClaim=" + claim.Id + "&comment=" + comment,
+                 url: "/Calc/SetPositionRejected?idClaim=" + claim.Id + "&comment=" + comment + "$cv=@Request.QueryString["cv"]",
                  type: 'POST',
                  datatype: 'json',
                  data: JSON.stringify(posIds),
@@ -541,7 +541,7 @@
         //var arrIds = rejectPostionsId.split(",");
 
         $.ajax({
-            url: "/Calc/SetPositionToConfirm?idClaim=" + claim.Id + "&comment=" + comment,
+            url: "/Calc/SetPositionToConfirm?idClaim=" + claim.Id + "&comment=" + comment + "&cv=@Request.QueryString["cv"]",
             type: 'POST',
             datatype: 'json',
             data: JSON.stringify(posIds),
@@ -1408,7 +1408,7 @@
     }
 
     function getExcelFileFromServer() {
-        $("body").append("<iframe src='/Calc/GetSpecificationFile?claimId=" + claim.Id + "&forManager=false' width='0' height='0' style='display: none;' align='left'></iframe>");
+        $("body").append("<iframe src='/Calc/GetSpecificationFile?claimId=" + claim.Id + "&forManager=false&cv=@Request.QueryString["cv"]' width='0' height='0' style='display: none;' align='left'></iframe>");
     }
 
     //Методы для работы со справочниками
@@ -1705,7 +1705,7 @@
             <span id="excelPanel">
                 <button id="butGetExcelFile" type='button' class='btn btn-default btn-sm'><i class="fa fa-download"></i> скачать спецификацию</button>
                 <button id="butUploadExcelFile" type='button' class='btn btn-default btn-sm' style='margin: 4px; display: none;'><i class="fa fa-upload"></i> загрузить расчет</button>
-                <iframe id="uploadFile" src="/Calc/UploadFileForm?claimId=@claim.Id" style="display: none;"></iframe>
+                <iframe id="uploadFile" src="/Calc/UploadFileForm?claimId=@claim.Id&cv=@Request.QueryString["cv"]" style="display: none;"></iframe>
             </span>
             <span id="reassignmentPanel">
                 <span class="btn-line">

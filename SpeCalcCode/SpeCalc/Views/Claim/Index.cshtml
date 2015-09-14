@@ -47,8 +47,8 @@
             alert("Произошла ошибка при загрузке");
             return;
         }
-        if("@TempData["error"]"!=="")
-            alert("@TempData["error"]")
+        if ("@TempData["error"]" !== "")
+            alert("@TempData["error"]");
         //$.fn.datepicker.dates['ru'] = {
         //    days: ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"],
         //    daysShort: ["Пнд", "Втр", "Срд", "Чтв", "Птн", "Суб", "Вск"],
@@ -665,7 +665,7 @@
         else {
             messageUi.progressShow();
             $.ajax({
-                url: "/Claim/SetClaimOnWork?id=" + claim.Id,
+                url: "/Claim/SetClaimOnWork?id=" + claim.Id+"&cv=@Request.QueryString["cv"]",
                 type: 'GET',
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
@@ -1065,7 +1065,7 @@
     function setAllPositionConfirmed(e) {
         messageUi.progressShow();
         $.ajax({
-            url: "/Claim/SetClaimAllPositonConfirmed?idClaim=" + claim.Id,
+            url: "/Claim/SetClaimAllPositonConfirmed?idClaim=" + claim.Id + "&cv=@Request.QueryString["cv"]",
             type: 'GET',
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
@@ -1147,7 +1147,7 @@
         var comment = $("#rejectPositionComment").val().trim();
         messageUi.progressShow();
         $.ajax({
-            url: "/Claim/SetPositonRejected?comment=" + encodeURI(comment) + "&idClaim=" + claim.Id,
+            url: "/Claim/SetPositonRejected?comment=" + encodeURI(comment) + "&idClaim=" + claim.Id+"&cv=@Request.QueryString["cv"]",
             type: 'POST',
             dataType: 'json',
             data: JSON.stringify(arrIds),
@@ -1205,7 +1205,7 @@
             var comment = $("#commentWithCalc").val().trim();
             messageUi.progressShow();
             $.ajax({
-                url: "/Claim/SendPositonOnWork?comment=" + encodeURI(comment) + "&idClaim=" + claim.Id,
+                url: "/Claim/SendPositonOnWork?comment=" + encodeURI(comment) + "&idClaim=" + claim.Id+"&cv=@Request.QueryString["cv"]",
                 type: 'POST',
                 dataType: 'json',
                 data: JSON.stringify(positionsId),
@@ -1974,7 +1974,7 @@
     }
 
     function getCalculateOnlyCalculateExcelFileFromServer() {
-        $("body").append("<iframe src='/Claim/GetSpecificationFileOnlyCalculation?claimId="+ claim.Id + "' width='0' height='0' style='display: none;' align='left'></iframe>");
+        $("body").append("<iframe src='/Claim/GetSpecificationFileOnlyCalculation?claimId="+ claim.Id + "&cv=@Request.QueryString["cv"]' width='0' height='0' style='display: none;' align='left'></iframe>");
     }
 
     //методы взаимодейсвия с фреймами загрузки/выгрузки файлов
@@ -2683,7 +2683,7 @@
                 </span>
                 @if (claim != null && (claim.ClaimStatus == 8 @*|| claim.ClaimStatus == 7*@))
             {
-                    <button id="goACtual" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> Актуализировать</button>
+                    <button id="goACtual" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> Актуализировать отмеченные</button>
                 }
             </span>
             @if (claim != null && claim.Id > 0)

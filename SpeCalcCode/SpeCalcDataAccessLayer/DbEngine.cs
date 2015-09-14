@@ -23,7 +23,7 @@ namespace SpeCalcDataAccessLayer
         {
         }
 
-        public static int CopyPositionsForNewVersion(int idClaim, int calcVersion, string creatorSid)
+        public static int CopyPositionsForNewVersion(int idClaim, int calcVersion, string creatorSid, int[] selIds)
         {
             int result = 0;
             using (var conn = new SqlConnection(_connectionString))
@@ -34,6 +34,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@idClaim", idClaim);
                 cmd.Parameters.AddWithValue("@calcVersion", calcVersion);
                 cmd.Parameters.AddWithValue("@creatorSid", creatorSid);
+                cmd.Parameters.AddWithValue("@ids", String.Join(",", selIds));
                 conn.Open();
                 var rd = cmd.ExecuteReader();
 
@@ -807,7 +808,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaim(int claimId, int version=1)
+        public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaim(int claimId, int version)
         {
             var list = new List<SpecificationPosition>();
             using (var conn = new SqlConnection(_connectionString))
@@ -859,7 +860,7 @@ namespace SpeCalcDataAccessLayer
             return list;
         }
 
-        public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaimForProduct(int claimId, string product, int version=1)
+        public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaimForProduct(int claimId, string product, int version)
         {
             var list = new List<SpecificationPosition>();
             using (var conn = new SqlConnection(_connectionString))
@@ -1015,7 +1016,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public List<ProductManager> LoadProductManagersForClaim(int claimId, int version = 1)
+        public List<ProductManager> LoadProductManagersForClaim(int claimId, int version = 1, int[] selIds = null, bool? getNew = null)
         {
             var list = new List<ProductManager>();
             using (var conn = new SqlConnection(_connectionString))
@@ -1025,6 +1026,8 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandText = "LoadProductManagersForClaim";
                 cmd.Parameters.AddWithValue("@idClaim", claimId);
                 cmd.Parameters.AddWithValue("@version", version);
+                cmd.Parameters.AddWithValue("@selIds", selIds != null ? String.Join(",",selIds) : null);
+                cmd.Parameters.AddWithValue("@getNew", getNew);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -1154,7 +1157,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public List<CalculateSpecificationPosition> LoadCalculateSpecificationPositionsForTenderClaim(int claimId)
+        public List<CalculateSpecificationPosition> LoadCalculateSpecificationPositionsForTenderClaim(int claimId, int version)
         {
             var list = new List<CalculateSpecificationPosition>();
             using (var conn = new SqlConnection(_connectionString))
@@ -1163,6 +1166,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "LoadCalculateClaimPositionForClaim";
                 cmd.Parameters.AddWithValue("@id", claimId);
+                cmd.Parameters.AddWithValue("@version", version);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
