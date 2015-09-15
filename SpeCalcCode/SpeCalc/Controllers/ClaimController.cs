@@ -41,11 +41,12 @@ namespace SpeCalc.Controllers
             if (cv<= 0) throw new ArgumentException("Не указана верия для актулизации");
             
             int newClaimState = 10;
-            int newVersion = DbEngine.CopyPositionsForNewVersion(claimId, cv, GetUser().Id, selIds);
             bool isComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = claimId, ClaimStatus = newClaimState });
+            int newVersion = DbEngine.CopyPositionsForNewVersion(claimId, cv, GetUser().Id, selIds);
+            
             var db = new DbEngine();
             
-            var productManagers = db.LoadProductManagersForClaim(claimId, newVersion, getNew:true);
+            var productManagers = db.LoadProductManagersForClaim(claimId, newVersion, getActualize:true);
             if (productManagers != null && productManagers.Any())
             {
                 var productManagersFromAd = UserHelper.GetProductManagers();
@@ -166,7 +167,7 @@ namespace SpeCalc.Controllers
                            if (position.State == 5) editablePosIds.Add(position.Id);
                         }
                         ViewBag.EditablePositions = editablePosIds;
-                        ViewBag.HasTransmissedPosition = db.HasTenderClaimTransmissedPosition(claimId.Value).ToString().ToLower();
+                        ViewBag.HasTransmissedPosition = db.HasTenderClaimTransmissedPosition(claimId.Value, cv.Value).ToString().ToLower();
                         //проверка наличия доступа к данной заявке
                         if (!isController)
                         {
@@ -2526,5 +2527,11 @@ namespace SpeCalc.Controllers
                            : "не указана");
         }
 
+        [HttpPost]
+        public JsonResult CheckCalcPositionChanges(int idCalcPosition)
+        {
+            var res = CalcPosition.GetChanges(idCalcPosition);
+            return Json(res);
+        }
     }
 }

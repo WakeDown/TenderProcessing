@@ -77,7 +77,7 @@
             var positionsLength = claim.Positions.length;
             for (var i = 0; i < positionsLength; i++) {
                 var position = claim.Positions[i];
-                if (position.State == 1 || position.State == 3) {
+                if (position.State == 1 || position.State == 3|| position.State == 6) {
                     noAction = false;
                     break;
                 }
@@ -1128,6 +1128,20 @@
                     $("[modetype='calculatePriceEurRicoh']", calcRow).val(calculation.PriceEurRicoh);
                     $("[modetype='calculatePriceRubl']", calcRow).val(calculation.PriceRubl);
 
+                    var actualizClass = 'bg-warning text-danger';
+                    $("[modetype='calculatePriceUsdValueLabel']", calcRow).closest('td').removeClass(actualizClass);
+                    $("[modetype='calculatePriceEurValueLabel']", calcRow).closest('td').removeClass(actualizClass);
+                    $("[modetype='calculatePriceEurRicohValueLabel']", calcRow).closest('td').removeClass(actualizClass);
+                    $("[modetype='calculatePriceRublValueLabel']", calcRow).closest('td').removeClass(actualizClass);
+
+                    //елси это Актуализация то подкрашиваем ячейки цен у позиций которые надо изменить
+                    if (position.State === 6) {
+                        
+                        if (calculation.PriceUsd != null && calculation.PriceUsd > 0)$("[modetype='calculatePriceUsdValueLabel']", calcRow).closest('td').addClass(actualizClass);
+                        if (calculation.PriceEur != null && calculation.PriceEur > 0)$("[modetype='calculatePriceEurValueLabel']", calcRow).closest('td').addClass(actualizClass);
+                        if (calculation.PriceEurRicoh != null && calculation.PriceEurRicoh > 0)$("[modetype='calculatePriceEurRicohValueLabel']", calcRow).closest('td').addClass(actualizClass);
+                        if (calculation.PriceRubl != null && calculation.PriceRubl > 0) $("[modetype='calculatePriceRublValueLabel']", calcRow).closest('td').addClass(actualizClass);
+                    }
 
                     var calculateDeliveryTime = $("[modetype='calculateDeliveryTime']", calcRow);
 
@@ -1142,7 +1156,7 @@
                     $("[modetype='cancelCalcButton']", calcRow).hide();
                     $("[type='editPositionPanel']", calcRow).show();
                     $("[modetype='deleteCalcButton']", calcRow).show();
-                    if (position.State != 1 && position.State != 3) {
+                    if (position.State !== 1 && position.State !== 3 && position.State !== 6) {
                         $("[type='editPositionPanel']", calcRow).hide();
                         $("[modetype='deleteCalcButton']", calcRow).hide();
                     }
@@ -1230,7 +1244,7 @@
         //}
         var addCalculateButton = $("[modetype='addCalcButton']", element);
         var selectPosition = $("[modetype='selectPosition']", element);
-        if (position.State != 1 && position.State != 3) {
+        if (position.State != 1 && position.State != 3 && position.State != 6) {
             addCalculateButton.hide();
             selectPosition.hide();
         

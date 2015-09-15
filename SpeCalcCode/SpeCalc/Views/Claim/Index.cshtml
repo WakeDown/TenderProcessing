@@ -251,7 +251,7 @@
                     // $(elem).remove();
                 });
                 $("#excelPanel").hide();
-                if (claim.ClaimStatus == 2 || claim.ClaimStatus == 3 || claim.ClaimStatus == 4 || claim.ClaimStatus == 6 || claim.ClaimStatus == 7) {
+                if (claim.ClaimStatus == 2 || claim.ClaimStatus == 3 || claim.ClaimStatus == 4 || claim.ClaimStatus == 6 || claim.ClaimStatus == 7 || claim.ClaimStatus == 10) {
                     $("#claimStatusPanel").show();
                     if (claim.ClaimStatus == 4) {
                         $("#butСlaimStatusStopped").hide();
@@ -528,9 +528,47 @@
 
                     $("[modetype='calculatePriceRublValueLabel']", calcRow).text(calculation.PriceRubl == null ? '' : calculation.PriceRubl);
 
+                    checkCalcPositionChanges(calculation.Id);
                 }
             }
         }
+    }
+
+    function checkCalcPositionChanges(calcPositionId) {
+        if (calcPositionId == null) return;
+        alert(calcPositionId);
+        var newClass = 'bg-warning';
+        var changeClass = 'bg-danger text-danger';
+        $.ajax({
+            url: '@Url.Action("CheckCalcPositionChanges")',
+            method: 'POST',
+            data: {idCalcPosition:calcPositionId},
+            success: function(data) {
+                var $row = $('#calcElementTemplateWithCalc[calcid="' + calcPositionId + '"]');
+                if (data.IsNewCalcPosition) {
+                    $row.addClass(newClass);
+                } 
+                //else {
+                //    $row.addClass('bg-success');
+                //}
+
+                if (data.CatalogNumberChange) $('[modetype="calculateCatalogNumberValueLabel"]', $row).addClass(changeClass);
+                if (data.NameChange) $('[modetype="calculateNameValueLabel"]', $row).addClass(changeClass);
+                if (data.ProviderChange) $('[modetype="calculateProviderValueLabel"]', $row).addClass(changeClass);
+                if (data.ProtectFactChange) $('[modetype="calculateProtectFactValueLabel]"', $row).addClass(changeClass);
+                if (data.ProtectConditionChange) $('[modetype="calculateProtectConditionValueLabel"]', $row).addClass(changeClass);
+                if (data.CommentChange) $('[modetype="calculateCommentValueLabel"]', $row).addClass(changeClass);
+                if (data.PriceUsdChange) $('[modetype="calculatePriceUsdValueLabel"]', $row).addClass(changeClass);
+                if (data.PriceEurChange) $('[modetype="calculatePriceEurValueLabel"]', $row).addClass(changeClass);
+                if (data.PriceEurRicohChange) $('[modetype="calculatePriceEurRicohValueLabel"]', $row).addClass(changeClass);
+                if (data.PriceRublChange) $('[modetype="calculatePriceRublValueLabel"]', $row).addClass(changeClass);
+                if (data.DeliveryTimeChange) $('[modetype="calculateDeliveryTimeValueLabel"]', $row).addClass(changeClass);
+
+                //var pnl = $('tr[calcid="' + calcPositionId + '"]').find('[name="priceOnlineInfo"]');
+                //pnl.get(0).innerText = data.IsNewCalcPosition;
+                
+            }
+        });
     }
 
     //>>>>>работа с заявкой<<<<<

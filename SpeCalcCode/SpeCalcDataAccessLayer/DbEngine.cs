@@ -23,6 +23,21 @@ namespace SpeCalcDataAccessLayer
         {
         }
 
+        public static DataTable GetCalcPositionsChanges(int idCalcPosition)
+        {
+            DataTable dt = new DataTable();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "GetCalcPositionsChanges";
+                cmd.Parameters.AddWithValue("@idCalcPosition", idCalcPosition);
+                conn.Open();
+                dt.Load(cmd.ExecuteReader());
+            }
+            return dt;
+        }
+
         public static int CopyPositionsForNewVersion(int idClaim, int calcVersion, string creatorSid, int[] selIds)
         {
             int result = 0;
@@ -419,7 +434,7 @@ namespace SpeCalcDataAccessLayer
             return model;
         }
 
-        public bool HasTenderClaimTransmissedPosition(int id)
+        public bool HasTenderClaimTransmissedPosition(int id, int version)
         {
             var result = false;
             using (var conn = new SqlConnection(_connectionString))
@@ -428,6 +443,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "HasClaimTranmissedPosition";
                 cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@version", version);
                 conn.Open();
                 result = (int)cmd.ExecuteScalar() > 0;
             }
@@ -1016,7 +1032,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public List<ProductManager> LoadProductManagersForClaim(int claimId, int version = 1, int[] selIds = null, bool? getNew = null)
+        public List<ProductManager> LoadProductManagersForClaim(int claimId, int version = 1, int[] selIds = null, bool? getActualize = null)
         {
             var list = new List<ProductManager>();
             using (var conn = new SqlConnection(_connectionString))
@@ -1027,7 +1043,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@idClaim", claimId);
                 cmd.Parameters.AddWithValue("@version", version);
                 cmd.Parameters.AddWithValue("@selIds", selIds != null ? String.Join(",",selIds) : null);
-                cmd.Parameters.AddWithValue("@getNew", getNew);
+                cmd.Parameters.AddWithValue("@getActualize", getActualize);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
