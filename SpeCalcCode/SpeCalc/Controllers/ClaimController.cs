@@ -112,8 +112,16 @@ namespace SpeCalc.Controllers
         {
             if (claimId.HasValue && !cv.HasValue)
             {
-                int lastVersion = DbEngine.GetCalcVersionList(claimId.Value).Last();
-                return RedirectToAction("Index", new {claimId = claimId, cv = lastVersion });
+                var verList = DbEngine.GetCalcVersionList(claimId.Value);
+                if (verList.Any())
+                {
+                    int lastVersion = verList.Last();
+                    return RedirectToAction("Index", new {claimId = claimId, cv = lastVersion});
+                }
+                else
+                {
+                    cv = 0;
+                }
             }
 
             //получения текущего юзера и проверка наличия у него доступа к странице
@@ -155,7 +163,7 @@ namespace SpeCalc.Controllers
                 TenderClaim claim = null;
                 var dealTypeString = String.Empty;
                 var tenderStatus = String.Empty;
-                if (claimId.HasValue)
+                if (claimId.HasValue && cv.HasValue)
                 {
                     claim = db.LoadTenderClaimById(claimId.Value);
                     if (claim != null)
