@@ -227,3 +227,4 @@ D:\Projects\TenderProcessing\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.csproj.Resolv
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.dll
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.pdb
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.csprojResolveAssemblyReference.cache
+D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll

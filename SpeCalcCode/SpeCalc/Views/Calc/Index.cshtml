@@ -1,6 +1,7 @@
 ﻿@using System.Collections.Generic
 @using System.Web.Script.Serialization
 @using DocumentFormat.OpenXml.Wordprocessing
+@using SpeCalcDataAccessLayer
 @using SpeCalcDataAccessLayer.Models
 
 @{
@@ -13,7 +14,7 @@
 <style type="text/css">
     .claimInfoLabel {
         font-weight: bold;
-        color: ;
+        color:;
     }
 
     .claimInfoValueLabel {
@@ -60,9 +61,11 @@
         $("#selectAllPositions").change(selectAllPositions);
         $("#editAllCalcButton").click(editAllPositions);
         $("#editAllCalcButtonCancel").click(editAllPositionsCancel);
+        $('#saveAllCalc').click(saveAllCalc);
+        $("#saveAllCalc").hide();
         $("#editAllCalcButton").show();
         $("#editAllCalcButtonCancel").hide();
-        $
+
         //$("#butChangeCurrency").click(changeCurrency);
 
         if (claim == null) {
@@ -76,7 +79,7 @@
             var positionsLength = claim.Positions.length;
             for (var i = 0; i < positionsLength; i++) {
                 var position = claim.Positions[i];
-                if (position.State == 1 || position.State == 3) {
+                if (position.State == 1 || position.State == 3|| position.State == 6) {
                     noAction = false;
                     break;
                 }
@@ -90,6 +93,7 @@
                 $("#selectAllPositions").hide();
                 $("#editAllCalcButton").hide();
                 $("#editAllCalcButtonCancel").hide();
+                $("#saveAllCalc").hide();
             }
             initStatusHistory();
         }
@@ -99,6 +103,16 @@
         //});
     }
 
+    //функция удаляет лишние знаки из вставленного
+    function deletePriceAdditions() {
+        var element = this;
+        setTimeout(function () {
+            var val = $(element).val();
+            val = val.toString().replace(/[^0-9$.,]/g, '');
+            $(element).val(val);
+        }, 100);
+    }
+
     function setPrice(partNum, calcId) {
         //return;
         //var partNum = $('[calcPositionId="' + calcPositionId +'"] [modetype="calculateCatalogNumber"]').val();
@@ -106,70 +120,71 @@
         var minPriceOnline = '';
         //alert(calcId);
         $.ajax({
-                url: '/Calc/GetMinPrice',
-                method: 'POST',
-                data: {partNum:partNum},
-                success: function (data) {
-                    minPriceOnline = data.priceStr;
-                    var pnl = $('tr[calcid="' + calcId + '"]').find('[name="priceOnlineInfo"]');
-                    pnl.get(0).innerText = minPriceOnline;
-                },
-                error: function () {
-                    var error = 'Не удалось получить цену!';
-                }
-            });
+            url: '/Calc/GetMinPrice',
+            method: 'POST',
+            data: {partNum:partNum},
+            success: function (data) {
+                minPriceOnline = data.priceStr;
+                var pnl = $('tr[calcid="' + calcId + '"]').find('[name="priceOnlineInfo"]');
+                pnl.get(0).innerText = minPriceOnline;
+            },
+            error: function () {
+                var error = 'Не удалось получить цену!';
+            }
+        });
     }
     function rejectTenderClaim() {
         var comment = $("#comment").val().trim();
-         if (comment === "")
-             alert("Необходимо заполнить комментарий!");
-         else {
-             messageUi.progressShow();
-             var $checkedPosRows = $("[type='positionRow']", "#positionsTable").has("input:checked");
-             var posIds = [];
-             $checkedPosRows.each(function () {posIds.push($(this).attr('positionId'));});
-             //var strPosIds = posIds.join(',');
-             //alert(strPosIds);
-             //positionId
-             //var rejectPostionsId = $("#rejectPositionCommentBox").attr("rejectedId");
-             //var arrIds = rejectPostionsId.split(",");
+        if (comment === "")
+            alert("Необходимо заполнить комментарий!");
+        else {
+            messageUi.progressShow();
+            var $checkedPosRows = $("[type='positionRow']", "#positionsTable").has("input:checked");
+            var posIds = [];
+            $checkedPosRows.each(function () {posIds.push($(this).attr('positionId'));});
+            //var strPosIds = posIds.join(',');
+            //alert(strPosIds);
+            //positionId
+            //var rejectPostionsId = $("#rejectPositionCommentBox").attr("rejectedId");
+            //var arrIds = rejectPostionsId.split(",");
+            var model = {idClaim:'@Request.QueryString["claimId"]', cv:'@Request.QueryString["cv"]', posIds:posIds};
+            $.ajax({
+                url: "@Url.Action("SetPositionRejected")",
+                type: 'POST',
+                datatype: 'json',
+                data: JSON.stringify(model),
+                processData: false,
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    messageUi.progressHide();
+                    if (data.IsComplete) {
+                        if (data.Model != null) {
+                            claim.ClaimStatus = data.Model.Status.Id;
+                            addClaimStatusHistoryElement(data.Model);
+                        }
+                        $("#butSendOnConfirm").hide();
+                        $("#butGetExcelFile").hide();
+                        $("#butUploadExcelFile").hide();
+                        $("#reassignmentPanel").hide();
+                        $("#selectAllPositions").hide();
+                        $("#editAllCalcButton").hide();
+                        $("#editAllCalcButtonCancel").hide();
+                        $("#saveAllCalc").hide();
+                        setPositionsToNoAction();
+                    } else {
+                        alert(data.Message);
+                    }
+                }
+            });
+            location.reload();
 
-             $.ajax({
-                 url: "/Calc/SetPositionRejected?idClaim=" + claim.Id + "&comment=" + comment,
-                 type: 'POST',
-                 datatype: 'json',
-                 data: JSON.stringify(posIds),
-                 processData: false,
-                 contentType: 'application/json; charset = utf-8 ',
-                 success: function(data) {
-                     messageUi.progressHide();
-                     if (data.IsComplete) {
-                         if (data.Model != null) {
-                             claim.ClaimStatus = data.Model.Status.Id;
-                             addClaimStatusHistoryElement(data.Model);
-                         }
-                         $("#butSendOnConfirm").hide();
-                         $("#butGetExcelFile").hide();
-                         $("#butUploadExcelFile").hide();
-                         $("#reassignmentPanel").hide();
-                         $("#selectAllPositions").hide();
-                         $("#editAllCalcButton").hide();
-                         $("#editAllCalcButtonCancel").hide();
-                         setPositionsToNoAction();
-                     } else {
-                         alert(data.Message);
-                     }
-                 }
-             });
-             location.reload();
-         
- 
-         }
-     }
-    
-        // var comment = $("#commentWithCalc").val().trim();
-          
-    
+
+        }
+    }
+
+    // var comment = $("#commentWithCalc").val().trim();
+
+
     function toglleSecondStateColumns() {
         var $list = $('[secstatecol="1"]');
         if ($list.first().is(':visible')) {
@@ -181,18 +196,23 @@
     }
 
     function editAllPositions() {
-        calcEditMode(true);
+        calcEditMode('true');
     }
 
     function editAllPositionsCancel() {
-        calcEditMode(false);
+        calcEditMode('false');
+    }
+
+    function saveAllCalc() {
+        calcEditMode('save');
     }
 
     function calcEditMode(mode)
     {
-        if (mode == true) {
+        if (mode === 'true') {
             $("#editAllCalcButton").hide();
             $("#editAllCalcButtonCancel").show();
+            $("#saveAllCalc").show();
 
             //Нажимаем кнопку редактирования
             $("#positionsTable").find("[modetype='editCalcButton']").click();
@@ -208,7 +228,26 @@
                 }
             }
 
-        } else {
+        }
+        else if (mode === 'save') {
+            //Нажимаем кнопку сохранения
+            var $calcPos = $("#positionsTable [type='positionCalculate']");
+
+            for (var i = 0; i <= $calcPos.length; i++) {
+                if ($($calcPos.get(i)).find('[modetype="editCalcButtonOk"]').is(':visible')) {
+                    $($calcPos.get(i)).find('[modetype="editCalcButtonOk"]').get(0).click();
+                }else if ($($calcPos.get(i)).find('[modetype="saveCalcButton"]').is(':visible')){
+                    $($calcPos.get(i)).find('[modetype="saveCalcButton"]').get(0).click();
+                }
+            }
+
+            $("#editAllCalcButton").show();
+            $("#editAllCalcButtonCancel").hide();
+            $("#saveAllCalc").hide();
+
+            location.reload();
+        }
+        else if (mode === 'false') {
             location.reload();
             //$("#editAllCalcButton").show();
             //$("#editAllCalcButtonCancel").hide();
@@ -402,7 +441,7 @@
                 row = row.next();
             }
             row.after(calcRow);
-            
+
         }
         calcRow.show();
 
@@ -540,7 +579,7 @@
         //var arrIds = rejectPostionsId.split(",");
 
         $.ajax({
-            url: "/Calc/SetPositionToConfirm?idClaim=" + claim.Id + "&comment=" + comment,
+            url: "/Calc/SetPositionToConfirm?idClaim=" + claim.Id + "&comment=" + comment + "&cv=@Request.QueryString["cv"]",
             type: 'POST',
             datatype: 'json',
             data: JSON.stringify(posIds),
@@ -560,6 +599,7 @@
                     $("#selectAllPositions").hide();
                     $("#editAllCalcButton").hide();
                     $("#editAllCalcButtonCancel").hide();
+                    $("#saveAllCalc").hide();
                     setPositionsToNoAction();
                 } else {
                     alert(data.Message);
@@ -586,7 +626,7 @@
                     }
                     $("#comment").val("");
                 } else {
-                    alert("Ошиб/*к*/а с добавления комментария");
+                    alert("Ошибка с добавления комментария");
                 }
             }
         });
@@ -1020,6 +1060,8 @@
             var position = positions[i];
             var element = getPositionElement(position);
             $("[modetype='rowNumber']", element).text(i + 1);
+
+
             container.append(element);
 
             //var calculateRowTable = getCalculateTableForPosition(position);
@@ -1127,6 +1169,21 @@
                     $("[modetype='calculatePriceEurRicoh']", calcRow).val(calculation.PriceEurRicoh);
                     $("[modetype='calculatePriceRubl']", calcRow).val(calculation.PriceRubl);
 
+                    var actualizClass = 'bg-warning text-danger';
+                    $("[modetype='calculatePriceUsdValueLabel']", calcRow).closest('td').removeClass(actualizClass);
+                    $("[modetype='calculatePriceEurValueLabel']", calcRow).closest('td').removeClass(actualizClass);
+                    $("[modetype='calculatePriceEurRicohValueLabel']", calcRow).closest('td').removeClass(actualizClass);
+                    $("[modetype='calculatePriceRublValueLabel']", calcRow).closest('td').removeClass(actualizClass);
+
+                    //елси это Актуализация то подкрашиваем ячейки цен у позиций которые надо изменить
+                    if (position.State === 6) {
+
+                        if (calculation.PriceUsd != null && calculation.PriceUsd > 0)$("[modetype='calculatePriceUsdValueLabel']", calcRow).closest('td').addClass(actualizClass);
+                        if (calculation.PriceEur != null && calculation.PriceEur > 0)$("[modetype='calculatePriceEurValueLabel']", calcRow).closest('td').addClass(actualizClass);
+                        if (calculation.PriceEurRicoh != null && calculation.PriceEurRicoh > 0)$("[modetype='calculatePriceEurRicohValueLabel']", calcRow).closest('td').addClass(actualizClass);
+                        if (calculation.PriceRubl != null && calculation.PriceRubl > 0) $("[modetype='calculatePriceRublValueLabel']", calcRow).closest('td').addClass(actualizClass);
+                    }
+
 
                     var calculateDeliveryTime = $("[modetype='calculateDeliveryTime']", calcRow);
 
@@ -1141,7 +1198,7 @@
                     $("[modetype='cancelCalcButton']", calcRow).hide();
                     $("[type='editPositionPanel']", calcRow).show();
                     $("[modetype='deleteCalcButton']", calcRow).show();
-                    if (position.State != 1 && position.State != 3) {
+                    if (position.State !== 1 && position.State !== 3 && position.State !== 6) {
                         $("[type='editPositionPanel']", calcRow).hide();
                         $("[modetype='deleteCalcButton']", calcRow).hide();
                     }
@@ -1150,8 +1207,23 @@
 
                     setCalculatePositionReadOnly(calcRow);
                 }
+
+            }
+            
+            
+            //Если запрос на отклонение
+            if (position.State === 7) {
+                $('td:first-child',element).append('<div style="position: relative; color: yellow; font-size:16pt">ЗАПРОШЕНО ОТКЛОНЕНИЕ</div>'); //.addClass('bg-danger deep');
+                $(element).addClass('bg-danger deep');
+                $(element).attr('askReject', 'true');
             }
         }
+
+        //Фунция удаления лишних символов
+        $("[modetype='calculatePriceUsd']").on('paste', deletePriceAdditions);
+        $("[modetype='calculatePriceEur']").on('paste', deletePriceAdditions);
+        $("[modetype='calculatePriceEurRicoh']").on('paste', deletePriceAdditions);
+        $("[modetype='calculatePriceRubl']").on('paste', deletePriceAdditions);
     }
 
     function getPositionElement(position) {
@@ -1170,7 +1242,7 @@
             case (2):
                 $("[type='posState2']", element).removeClass("hidden");
                 break;
-            case (3): 
+            case (3):
                 $("[type='posState3']", element).removeClass("hidden");
                 break;
             case (4):
@@ -1178,6 +1250,9 @@
                 break;
             case (5):
                 $("[type='posState5']", element).removeClass("hidden");
+                break;
+            case (6):
+                $("[type='posActualize']", element).removeClass("hidden");
                 break;
         }
         //var currency = getCurrencyById(position.Currency);
@@ -1229,10 +1304,10 @@
         //}
         var addCalculateButton = $("[modetype='addCalcButton']", element);
         var selectPosition = $("[modetype='selectPosition']", element);
-        if (position.State != 1 && position.State != 3) {
+        if (position.State != 1 && position.State != 3 && position.State != 6 && position.State != 7) {
             addCalculateButton.hide();
             selectPosition.hide();
-        
+
         } else {
             addCalculateButton.click(addCalculateButtonClick);
         }
@@ -1254,12 +1329,14 @@
             positionsCount++;
             var idPosition = element.attr("positionId");
             var calcRowsCount = $("[type='positionCalculate'][calcPositionId='" + idPosition + "']", $("#positionsTable")).size();
+            if (!element.attr('askReject')){
             if (calcRowsCount == 0) {
                 element.find("[posdt='1']").css("backgroundColor", "#EFE1E1");
             } else {
                 element.find("[posdt='1']").css("backgroundColor", "#E4EFDE");
                 calculateCount++;
             }
+}
         });
         $("#positionCountLabel").text(positionsCount);
         $("#positionCalculateCountLabel").text(calculateCount);
@@ -1407,7 +1484,7 @@
     }
 
     function getExcelFileFromServer() {
-        $("body").append("<iframe src='/Calc/GetSpecificationFile?claimId=" + claim.Id + "&forManager=false' width='0' height='0' style='display: none;' align='left'></iframe>");
+        $("body").append("<iframe src='/Calc/GetSpecificationFile?claimId=" + claim.Id + "&forManager=false&cv=@Request.QueryString["cv"]' width='0' height='0' style='display: none;' align='left'></iframe>");
     }
 
     //Методы для работы со справочниками
@@ -1540,10 +1617,10 @@
                         <td><small id="managerChief"></small></td>
                     </tr>
                     <tr>
-                    <td class="text-right">Файлы заявки</td>
-                    <td>
-                        <div id="claimFileList"> </div>
-                    </td>
+                        <td class="text-right">Файлы заявки</td>
+                        <td>
+                            <div id="claimFileList"> </div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="text-right">Сертификаты</td>
@@ -1551,13 +1628,13 @@
                             <div id="certList"> </div>
                         </td>
                     </tr>
-                    
+
                     <tr>
                         <td class="text-right"></td>
                         <td>
                             @using (Html.BeginForm("SaveFile", "Calc", new { claimId = Request.QueryString["claimId"] }, FormMethod.Post, new { enctype = "multipart/form-data" }))
                             {
-                                <input type="file" name="file" multiple="multiple"/>
+                                <input type="file" name="file" multiple="multiple" />
                                 <p>
                                     <button class="btn btn-success" type="submit">сохранить файл</button>
                                 </p>
@@ -1704,7 +1781,7 @@
             <span id="excelPanel">
                 <button id="butGetExcelFile" type='button' class='btn btn-default btn-sm'><i class="fa fa-download"></i> скачать спецификацию</button>
                 <button id="butUploadExcelFile" type='button' class='btn btn-default btn-sm' style='margin: 4px; display: none;'><i class="fa fa-upload"></i> загрузить расчет</button>
-                <iframe id="uploadFile" src="/Calc/UploadFileForm?claimId=@claim.Id" style="display: none;"></iframe>
+                <iframe id="uploadFile" src="/Calc/UploadFileForm?claimId=@claim.Id&cv=@Request.QueryString["cv"]" style="display: none;"></iframe>
             </span>
             <span id="reassignmentPanel">
                 <span class="btn-line">
@@ -1723,10 +1800,26 @@
                     </div>
                 </div>*@
         </h5>
+        @if (claim != null && claim.Id > 0)
+        {
+            int[] versions = DbEngine.GetCalcVersionList(claim.Id);
 
+            <div>
+                <ul class="list-inline">
+                    <li class="bold">версия</li>
+                    @if (versions != null)
+                    {
+                        foreach (int ver in versions)
+                        {
+                            <li><a class="btn @(Request.QueryString["cv"] != null && Request.QueryString["cv"].Equals(ver.ToString()) ? "btn-danger selected" : "btn-primary")" href="@Url.Action("Index", new {claimId = claim.Id, cv = ver})">@ver</a></li>
+                        }
+                    }
+                </ul>
+            </div>
+        }
         <table class="table small table-bordered">
             <thead>
-                <tr>
+                <tr class="bg-primary">
                     <th class="min-width center"><input type="checkbox" id="selectAllPositions" data-toggle="tooltip" title="все" /></th>
                     <th></th>
                     <th>Каталожный номер</th>
@@ -1741,10 +1834,10 @@
                     <th class="text-nowrap">Кол-во</th>
                     <th></th>
                     <th>
-                        <button type='button' id='editAllCalcButton' class='btn btn-primary btn-sm' data-toggle='tooltip' title='режим резактирования'><i class='fa fa-edit'></i></button>
+                        <button type='button' id='editAllCalcButton' class='btn btn-default btn-sm' data-toggle='tooltip' title='режим резактирования'><i class='fa fa-edit'></i></button>
                         <button type='button' id='editAllCalcButtonCancel' class='btn btn-default btn-sm' data-toggle='tooltip' title='отмена редактирования'><i class='fa fa-undo'></i></button>
                     </th>
-                    
+
                     <th style="width:150px;">Каталожный номер</th>
                     <th style="width:250px;">Ответ</th>
                     @*<th style="width:200px;">Замена</th>*@
@@ -1758,7 +1851,7 @@
                     <th secstatecol="1" style="display: none; width: 200px;">Факт защиты</th>
                     <th secstatecol="1" style="display: none; width: 200px;">Условия защиты</th>
                     <th secstatecol="1" style="display: none; width: 300px;">Комментарий</th>
-                    <th></th>
+                    <th><button type='button' id='saveAllCalc' class='btn btn-success btn-sm' data-toggle='tooltip' title='сохранить все'><i class='fa fa-save'></i></button></th>
                 </tr>
             </thead>
             <tbody id="positionsTable"></tbody>
@@ -1783,6 +1876,9 @@
                     <div type="posState5" class="text-danger hidden">
                         <i class="fa fa-reply" title="позиция отклонена снабженцем/продактом"></i>
                     </div>
+                    <div type="posActualize" class="text-danger hidden">
+                        <i class="fa mail-forward" title="актуализация"></i>
+                    </div>
                 </td>
                 <td posdt='1' class="min-width" rowspan="1">
                     <div type='catalogNumberLabel'></div>
@@ -1795,7 +1891,7 @@
                     <span type='valueLabel'></span>&nbsp;<span type='unitLabel'></span>
                 </td>
                 <td posdt='1' class="min-width" rowspan="1">
-                    <button type="button" modetype='addCalcButton' class="btn btn-primary btn-sm" data-toggle="tooltip" title="добавить расчет"><i class="fa fa-plus"></i> <i class="fa fa-calculator"></i></button>
+                    <button type="button" modetype='addCalcButton' class="btn btn-warning btn-sm" data-toggle="tooltip" title="добавить расчет"><i class="fa fa-plus"></i> <i class="fa fa-calculator"></i></button>
                 </td>
                 <td colspan="14" class="positionsPlaceHolder"></td>
             </tr>
@@ -1804,12 +1900,12 @@
         <table>
             <tr id="calcElementTemplate" style="display: none;">
                 <td class="min-width">
-                    <button type='button' modetype='saveCalcButton' class='btn btn-primary btn-sm' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+                    <button type='button' modetype='saveCalcButton' class='btn btn-success btn-sm' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
                     <button type='button' modetype='cancelCalcButton' class='btn btn-default btn-sm' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
                     <div type="editPositionPanel" class="text-center" style="display: none;">
                         <button type='button' modetype='editCalcButton' class='btn btn-link' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></button>
                         <div type="editPositionActionPanel" style="display: none;">
-                            <button type='button' modetype='editCalcButtonOk' class='btn btn-primary btn-sm' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+                            <button type='button' modetype='editCalcButtonOk' class='btn btn-success btn-sm' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
                             <button type='button' modetype='editCalcButtonCancel' class='btn btn-default btn-sm' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
                         </div>
                     </div>
@@ -1869,11 +1965,11 @@
                     <div type="readOnlyModeView" style="display: none;"><div modetype="calculateCommentValueLabel"></div></div>
                 </td>
                 <td class="min-width text-center">
-                    <button type='button' modetype='saveCalcButton' class='btn btn-primary btn-sm' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+                    <button type='button' modetype='saveCalcButton' class='btn btn-success btn-sm' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
                     <button type='button' modetype='cancelCalcButton' class='btn btn-default btn-sm' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
                     <button type='button' modetype='deleteCalcButton' class='btn btn-link' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>
                     <div type="editPositionActionPanel" style="display: none;">
-                        <button type='button' modetype='editCalcButtonOk' class='btn btn-primary btn-sm' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+                        <button type='button' modetype='editCalcButtonOk' class='btn btn-success btn-sm' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
                         <button type='button' modetype='editCalcButtonCancel' class='btn btn-default btn-sm' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
                     </div>
                 </td>

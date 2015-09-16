@@ -53,7 +53,7 @@ namespace SpeCalc.Controllers
                         }
                         else
                         {
-                            model.IsComplete =  db.ChangeTenderClaimTenderStatus(idClaim, status);       
+                            model.IsComplete = DbEngine.ChangeTenderClaimTenderStatus(idClaim, status);       
                         }
                     }
                 }

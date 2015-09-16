@@ -55,6 +55,7 @@
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
@@ -151,8 +152,10 @@
     </Compile>
     <Compile Include="Helpers\AdHelper.cs" />
     <Compile Include="Helpers\Db.cs" />
+    <Compile Include="Helpers\DbHelper.cs" />
     <Compile Include="Helpers\Notification.cs" />
     <Compile Include="Helpers\UserHelper.cs" />
+    <Compile Include="Models\CalcPosition.cs" />
     <Compile Include="Models\CatalogProduct.cs" />
     <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\HistoryQueState.cs" />
