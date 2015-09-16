@@ -237,3 +237,6 @@ input.required-mark,textarea.required-mark, select.required-mark, span.required-
     background-color: #d9534f;
 }
 
+.bg-danger.deep {
+    background-color: #d9534f;
+}

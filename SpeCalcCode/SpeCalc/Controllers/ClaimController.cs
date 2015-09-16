@@ -107,6 +107,140 @@ namespace SpeCalc.Controllers
             //return RedirectToAction("Index", new {claimId = claimId, cv= newVersion });
         }
 
+        [HttpPost]
+        public JsonResult AskPositionReject(List<int> posIds, int idClaim, int cv)
+        {
+            var isComplete = false;
+            var message = string.Empty;
+            ClaimStatusHistory model = null;
+            var user = GetUser();
+            var db = new DbEngine();
+            var positions = new List<SpecificationPosition>();
+            
+            var positionIds = new List<int>();
+            if (posIds.Any())
+            {
+                positionIds = posIds;
+            }
+
+            isComplete = db.ChangePositionsState(positionIds, 7);
+            if (!isComplete) message = "Запрос не отправлен";
+            else
+            {
+                var allPositions = db.LoadSpecificationPositionsForTenderClaim(idClaim, cv);
+                var isAllRejected = allPositions.Count() ==
+                                     allPositions.Count(x => x.State == 7);
+                var lastClaimStatus = db.LoadLastStatusHistoryForClaim(idClaim).Status.Id;
+                var claimStatus = lastClaimStatus;
+                //Изменение статуса заявки и истроии изменения статусов
+                if (lastClaimStatus != claimStatus)
+                {
+                    DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim()
+                    {
+                        Id = idClaim,
+                        ClaimStatus = claimStatus
+                    });
+                    var statusHistory = new ClaimStatusHistory()
+                    {
+                        Date = DateTime.Now,
+                        Comment = String.Format("Пользователь {0} запросил отклонение {1} из {2} позиций.<br/>", user.ShortName, positionIds.Count, allPositions.Count),
+                        IdClaim = idClaim,
+                        IdUser = user.Id,
+                        Status = new ClaimStatus() { Id = claimStatus }
+                    };
+                    db.SaveClaimStatusHistory(statusHistory);
+                    statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
+                    model = statusHistory;
+                }
+                else
+                {
+                    var statusHistory = new ClaimStatusHistory()
+                    {
+                        Date = DateTime.Now,
+                        Comment = String.Format("Пользователь {0} запросил отклонение {1} из {2} позиций.<br/>", user.ShortName, positionIds.Count, allPositions.Count),
+                        IdClaim = idClaim,
+                        IdUser = user.Id,
+                        Status = new ClaimStatus() { Id = lastClaimStatus }
+                    };
+                    db.SaveClaimStatusHistory(statusHistory);
+                    statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
+                    model = statusHistory;
+                }
+                //инфа для уведомления
+                var claim = db.LoadTenderClaimById(idClaim);
+                var host = ConfigurationManager.AppSettings["AppHost"];
+                var productManagersFromAd = UserHelper.GetProductManagers();
+                var productManagers = db.LoadProductManagersForClaim(claim.Id);
+                var productInClaim =
+                    productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id))
+                        .ToList();
+                var manager = UserHelper.GetUserById(claim.Manager.Id);
+                var author = UserHelper.GetUserById(claim.Author.Id);
+                var to = new List<UserBase>();
+                to.Add(manager);
+                if (author.Id != manager.Id)
+                {
+                    to.Add(author);
+                }
+                //>>>>Уведомления
+                if (isAllRejected)
+                {
+                    var messageMail = new StringBuilder();
+                    messageMail.Append("Добрый день!<br/>");
+                    messageMail.Append("Запрос на отклонение позиций в заявке №" + claim.Id + " пльзователем " + user.Name + ".<br/>");
+                    //messageMail.Append("Комментарий:<br/>");
+                    //messageMail.Append(comment + "<br/>");
+                    //messageMail.Append("Продакты/Снабженцы: <br/>");
+                    //foreach (var productManager in productInClaim)
+                    //{
+                    //    messageMail.Append(productManager.Name + "<br/>");
+                    //}
+                    messageMail.Append("Ссылка на заявку: ");
+                    messageMail.Append("<a href='" + host + "/Claim/Index?claimId=" + claim.Id + "'>" + host +
+                                       "/Claim/Index?claimId=" + claim.Id + "</a>");
+                    //messageMail.Append("<br/>Сообщение от системы Спец расчет");
+                    Notification.SendNotification(to, messageMail.ToString(),
+                        String.Format("{0} - {1} - Запрос на отклонение позиций заявки СпецРасчет", claim.TenderNumber,
+                            claim.Customer));
+                }
+                //>>>>Уведомления
+                if (!isAllRejected)
+                {
+                    var noneRejectedPositionManagers =
+                        allPositions.Where(x => x.State == 1 || x.State == 3)
+                            .Select(x => x.ProductManager)
+                            .ToList();
+                    if (noneRejectedPositionManagers.Any())
+                    {
+                        var products =
+                            productManagersFromAd.Where(
+                                x => noneRejectedPositionManagers.Select(y => y.Id).Contains(x.Id))
+                                .ToList();
+                        var messageMail = new StringBuilder();
+                        messageMail.Append("Добрый день!<br/>");
+                        messageMail.Append("Запрос на отклонение позиций в заявке №" + claim.Id + " пльзователем " + user.Name + ".<br/>");
+                        messageMail.Append("Отклонено позиций " + allPositions.Count(x => x.State == 5) + " из " + allPositions.Count + ".<br/>");
+
+                        //messageMail.Append("<br/>");
+                        //messageMail.Append(GetClaimInfo(claim));
+                        //messageMail.Append("<br/>");
+
+                        messageMail.Append("Ссылка на заявку: ");
+                        messageMail.Append("<a href='" + host + "/Claim/Index?claimId=" + claim.Id + "'>" +
+                                           host +
+                                           "/Claim/Index?claimId=" + claim.Id + "</a>");
+                        //messageMail.Append("<br/>Сообщение от системы Спец расчет");
+                        Notification.SendNotification(to, messageMail.ToString(),
+                            String.Format("{0} - {1} - Запрос на отклонение позиций заявки СпецРасчет",
+                                claim.TenderNumber, claim.Customer));
+                    }
+                }
+            }
+            
+            return Json(new { IsComplete = isComplete, Message = message, Model = model }, JsonRequestBehavior.AllowGet);
+        }
+
+
         //форма заявки, если передан параметр idClaim, то загружается инфа по заявки с этим id
         public ActionResult Index(int? claimId, int? cv)
         {

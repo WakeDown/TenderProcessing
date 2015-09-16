@@ -147,6 +147,7 @@
         $("#butSetPositionConfirm").click(setAllPositionConfirmed);
         //$("#butChangeCurrency").click(changeCurrency);
         $('#goACtual').click(goActual);
+        $('#askReject').click(askRejectPositions);
 
         if (claim != null) {
             var formClaimIds = $("[name='formClaimId']");
@@ -532,6 +533,11 @@
 
                     checkCalcPositionChanges(calculation.Id);
                 }
+            }
+
+            if (position.State === 7) {
+                $('td:first-child',element).append('<div style="position: relative; color: yellow; font-size:16pt">ЗАПРОШЕНО ОТКЛОНЕНИЕ</div>'); //.addClass('bg-danger deep');
+                $(element).addClass('bg-danger deep');
             }
         }
     }
@@ -1288,6 +1294,37 @@
 
 
     }
+
+    function askRejectPositions() {
+        var positionsId = [];
+        var positionsRows = $("[type='positionRow']", $("#positionsTableWithCalc"));
+
+        $.each(positionsRows, function(index, element) {
+            element = $(element);
+            var isChecked = $("[modetype='selectPositionElement']", element).get(0).checked;
+            if (isChecked) {
+                positionsId.push(Number(element.attr("positionId")));
+            }
+        });
+        
+        if (positionsId.length == 0) {
+            alert("Не отмечено ни одной позиции");
+        } else {
+            var posIds = positionsId.join(",");
+            var model = {posIds:posIds, idClaim:'@Request.QueryString["claimId"]', cv:'@Request.QueryString["cv"]'};
+            $.ajax({
+                url:"@Url.Action("AskPositionReject")",
+                type: 'POST',
+                datatype: 'json',
+                data: JSON.stringify(model),
+                contentType: 'application/json;charset=utf-8 ',
+                success: function() {
+                    window.reload();
+                }
+            });
+        }
+    }
+
     function rejectPositions() {
         var positionsId = [];
         var positionsRows = $("[type='positionRow']", $("#positionsTableWithCalc"));
@@ -2716,14 +2753,18 @@
                 </span>
                 <button id="butSetPositionReject" type="button" class="btn btn-danger btn-sm"><i class="fa fa-close"></i> отклонить отмеченные</button>
                 <button id="butSetPositionConfirm" type="button" class="btn btn-success btn-sm"><i class="fa fa-check"></i> принять все</button>
-                <button id="butSetPositionOnWork" type="button" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> Отправить позиции в работу</button>
+                <button id="butSetPositionOnWork" type="button" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> В работу отмеченные</button>
                 <span id="excelCalculatePanel">
                     @*<button id="butGetCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет (с позициями)</button>*@
                     <button id="butGetCalculateOnlyCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</button>
                 </span>
                 @if (claim != null && (claim.ClaimStatus == 8 @*|| claim.ClaimStatus == 7*@))
-            {
+                {
                     <button id="goACtual" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> Актуализировать отмеченные</button>
+                }
+                @if (claim != null && (claim.ClaimStatus == 2 || claim.ClaimStatus==3||claim.ClaimStatus==6 ||claim.ClaimStatus==10))
+                {
+                    <button id="askReject" class="btn btn-danger btn-sm"><i class="fa fa-mail-reply"></i> Запросить отклонение для отмеченных</button>
                 }
             </span>
             @if (claim != null && claim.Id > 0)
@@ -2751,9 +2792,9 @@
                 <thead>
                     <tr>
                         <P>
-                            <h5 id="rejectHead">
+                            <h4 id="rejectHead">
                                 Отклонено продактом/снабженцем
-                            </h5>
+                            </h4>
                         </P>
                     </tr>
                     <tr class="bg-primary">
@@ -2782,7 +2823,7 @@
                                 </div>
                             </div>
                         </th>
-
+                        <th></th>
                     </tr>
 
                 </thead>
@@ -2942,9 +2983,9 @@
             <thead>
                 <tr>
                     <P>
-                        <h5 id="noRejectHead">
+                        <h4 id="noRejectHead">
                             В работе/расчитаны
-                        </h5>
+                        </h4>
                     </P>
                 </tr>
                 <tr class="bg-primary">

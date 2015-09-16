@@ -103,6 +103,16 @@
         //});
     }
 
+    //функция удаляет лишние знаки из вставленного
+    function deletePriceAdditions() {
+        var element = this;
+        setTimeout(function () {
+            var val = $(element).val();
+            val = val.toString().replace(/[^0-9$.,]/g, '');
+            $(element).val(val);
+        }, 100);
+    }
+
     function setPrice(partNum, calcId) {
         //return;
         //var partNum = $('[calcPositionId="' + calcPositionId +'"] [modetype="calculateCatalogNumber"]').val();
@@ -137,12 +147,12 @@
             //positionId
             //var rejectPostionsId = $("#rejectPositionCommentBox").attr("rejectedId");
             //var arrIds = rejectPostionsId.split(",");
-
+            var model = {idClaim:'@Request.QueryString["claimId"]', cv:'@Request.QueryString["cv"]', posIds:posIds};
             $.ajax({
-                url: "/Calc/SetPositionRejected?idClaim=" + claim.Id + "&comment=" + comment + "$cv=@Request.QueryString["cv"]",
+                url: "@Url.Action("SetPositionRejected")",
                 type: 'POST',
                 datatype: 'json',
-                data: JSON.stringify(posIds),
+                data: JSON.stringify(model),
                 processData: false,
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
@@ -220,20 +230,20 @@
 
         }
         else if (mode === 'save') {
-            $("#editAllCalcButton").show();
-            $("#editAllCalcButtonCancel").hide();
-            $("#saveAllCalc").hide();
-
             //Нажимаем кнопку сохранения
             var $calcPos = $("#positionsTable [type='positionCalculate']");
 
             for (var i = 0; i <= $calcPos.length; i++) {
-                if ($calcPos.get(i).find('[type="editCalcButtonOk"]').is(':visible')) {
+                if ($($calcPos.get(i)).find('[modetype="editCalcButtonOk"]').is(':visible')) {
                     $($calcPos.get(i)).find('[modetype="editCalcButtonOk"]').get(0).click();
-                }else if ($calcPos.get(i).find('[type="saveCalcButton"]').is(':visible')){
+                }else if ($($calcPos.get(i)).find('[modetype="saveCalcButton"]').is(':visible')){
                     $($calcPos.get(i)).find('[modetype="saveCalcButton"]').get(0).click();
                 }
             }
+
+            $("#editAllCalcButton").show();
+            $("#editAllCalcButtonCancel").hide();
+            $("#saveAllCalc").hide();
 
             location.reload();
         }
@@ -1050,6 +1060,8 @@
             var position = positions[i];
             var element = getPositionElement(position);
             $("[modetype='rowNumber']", element).text(i + 1);
+
+
             container.append(element);
 
             //var calculateRowTable = getCalculateTableForPosition(position);
@@ -1172,6 +1184,7 @@
                         if (calculation.PriceRubl != null && calculation.PriceRubl > 0) $("[modetype='calculatePriceRublValueLabel']", calcRow).closest('td').addClass(actualizClass);
                     }
 
+
                     var calculateDeliveryTime = $("[modetype='calculateDeliveryTime']", calcRow);
 
                     if (calculation.DeliveryTime != null) {
@@ -1194,8 +1207,23 @@
 
                     setCalculatePositionReadOnly(calcRow);
                 }
+
+            }
+            
+            
+            //Если запрос на отклонение
+            if (position.State === 7) {
+                $('td:first-child',element).append('<div style="position: relative; color: yellow; font-size:16pt">ЗАПРОШЕНО ОТКЛОНЕНИЕ</div>'); //.addClass('bg-danger deep');
+                $(element).addClass('bg-danger deep');
+                $(element).attr('askReject', 'true');
             }
         }
+
+        //Фунция удаления лишних символов
+        $("[modetype='calculatePriceUsd']").on('paste', deletePriceAdditions);
+        $("[modetype='calculatePriceEur']").on('paste', deletePriceAdditions);
+        $("[modetype='calculatePriceEurRicoh']").on('paste', deletePriceAdditions);
+        $("[modetype='calculatePriceRubl']").on('paste', deletePriceAdditions);
     }
 
     function getPositionElement(position) {
@@ -1276,7 +1304,7 @@
         //}
         var addCalculateButton = $("[modetype='addCalcButton']", element);
         var selectPosition = $("[modetype='selectPosition']", element);
-        if (position.State != 1 && position.State != 3 && position.State != 6) {
+        if (position.State != 1 && position.State != 3 && position.State != 6 && position.State != 7) {
             addCalculateButton.hide();
             selectPosition.hide();
 
@@ -1301,12 +1329,14 @@
             positionsCount++;
             var idPosition = element.attr("positionId");
             var calcRowsCount = $("[type='positionCalculate'][calcPositionId='" + idPosition + "']", $("#positionsTable")).size();
+            if (!element.attr('askReject')){
             if (calcRowsCount == 0) {
                 element.find("[posdt='1']").css("backgroundColor", "#EFE1E1");
             } else {
                 element.find("[posdt='1']").css("backgroundColor", "#E4EFDE");
                 calculateCount++;
             }
+}
         });
         $("#positionCountLabel").text(positionsCount);
         $("#positionCalculateCountLabel").text(calculateCount);
