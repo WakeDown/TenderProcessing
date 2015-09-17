@@ -227,28 +227,33 @@
     function calcEditMode(mode)
     {
         if (mode === 'true') {
+            messageUi.progressShow();
             $("#editAllCalcButton").hide();
             $("#editAllCalcButtonCancel").show();
             $("#saveAllCalc").show();
 
             
-            //А если добавленных позиций нет то нажимаем кнопку добавления позиции
+            
+            //Если добавленных позиций нет то нажимаем кнопку добавления позиции
             var $positions = $("#positionsTable").find("[type='positionRow']");
-            if ($positions.length === 0) {
                 for (var i = 0; i <= $positions.length; i++) {
                     var posRow = $($positions.get(i));
                     var posId = posRow.attr('positionid');
 
-                    if ($("[type='positionCalculate']").find("[calcpositionid='" + posId + "']").length == 0) {
+                    if ($("[type='positionCalculate'][calcpositionid='" + posId + "']").length === 0) {
                         posRow.find("[modetype='addCalcButton']").click();
+                    }else
+                    {//Нажимаем кнопку редактирования
+                        $("[type='positionCalculate'][calcpositionid='" + posId + "']").find("[modetype='editCalcButton']").click();
                     }
                 }
-            } else {
-                //Нажимаем кнопку редактирования
-                $("#positionsTable").find("[modetype='editCalcButton']").click();
-            }
+
+            //Нажимаем кнопку редактирования
+                //$("#positionsTable").find("[modetype='editCalcButton']").click();
+                messageUi.progressHide();
         }
         else if (mode === 'save') {
+            messageUi.progressShow();
             //Нажимаем кнопку сохранения
             var $calcPos = $("#positionsTable [type='positionCalculate']");
 
@@ -267,6 +272,7 @@
             location.reload();
         }
         else if (mode === 'false') {
+            messageUi.progressShow();
             location.reload();
             //$("#editAllCalcButton").show();
             //$("#editAllCalcButtonCancel").hide();
