@@ -94,10 +94,10 @@
       <publishTime>09/16/2015 17:29:36</publishTime>
     </File>
     <File Include="bin/SpeCalc.dll">
-      <publishTime>09/17/2015 11:18:45</publishTime>
+      <publishTime>09/17/2015 15:51:30</publishTime>
     </File>
     <File Include="bin/SpeCalc.pdb">
-      <publishTime>09/17/2015 11:18:45</publishTime>
+      <publishTime>09/17/2015 15:51:30</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.dll">
       <publishTime>09/17/2015 09:53:43</publishTime>
