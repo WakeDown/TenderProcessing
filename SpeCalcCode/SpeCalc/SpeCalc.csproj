@@ -175,6 +175,8 @@
     <Compile Include="Objects\MultipleButtonAttribute.cs" />
     <Compile Include="Objects\ResponseMessage.cs" />
     <Compile Include="Objects\Settings.cs" />
+    <Compile Include="Objects\WhiteSpaceFilter.cs" />
+    <Compile Include="Objects\WhitespaceFilterAttribute.cs" />
     <Compile Include="Objects\WindowsImpersonationContextFacade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Controllers\tempCalc.cs" />

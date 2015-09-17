@@ -160,12 +160,18 @@ namespace SpeCalc.Controllers
                             var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
                             foreach (var productManager in productManagers)
                             {
-                                var productManagerFromAd = adProductsManager.First(x => x.Id == productManager.Id);
-                                if (productManagerFromAd != null)
+                                var productUser = UserHelper.GetUserById(productManager.Id);
+                                if (productUser != null)
                                 {
-                                    productManager.Name = productManagerFromAd.Name;
-                                    productManager.ShortName = productManagerFromAd.ShortName;
+                                    productManager.Name = productUser.Name;
+                                    productManager.ShortName = productUser.ShortName;
                                 }
+                                //var productManagerFromAd = adProductsManager.First(x => x.Id == productManager.Id);
+                                //if (productManagerFromAd != null)
+                                //{
+                                //    productManager.Name = productManagerFromAd.Name;
+                                //    productManager.ShortName = productManagerFromAd.ShortName;
+                                //}
                             }
                             //Расчет по позициям
                             var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
@@ -215,7 +221,7 @@ namespace SpeCalc.Controllers
                 ViewBag.Status = tenderStatus;
                 ViewBag.ProtectFacts = db.LoadProtectFacts();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 ViewBag.Error = true.ToString().ToLower();
             }

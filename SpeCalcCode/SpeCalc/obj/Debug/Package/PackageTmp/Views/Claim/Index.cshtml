@@ -279,7 +279,7 @@
     }
 
     function goActual() {
-
+        messageUi.progressShow();
 
             var selId = [];
             var positionsRows = $("[type='positionRow']", $("#positionsTableWithCalc"));
@@ -311,6 +311,7 @@
             },
             error: function(error) {
                 alert('Ошибка: ' + error);
+                messageUi.progressHide();
             }
         });
     }
@@ -1293,6 +1294,7 @@
     }
 
     function askRejectPositions() {
+        messageUi.progressShow();
         var positionsId = [];
         var positionsRows = $("[type='positionRow']", $("#positionsTableWithCalc"));
 
@@ -1316,8 +1318,11 @@
                 data: JSON.stringify(model),
                 contentType: 'application/json;charset=utf-8 ',
                 success: function() {
-                    window.reload();
-                }
+                    window.location.reload();
+                },
+                error: function(){
+                messageUi.progressHide();
+            }
             });
         }
     }
@@ -2741,11 +2746,7 @@
             </blockquote>
         </p>
         <div>
-            <span>
-                Список позиций
-                <span class="label label-default">всего&nbsp;<span class="big" id="positionCountLabel">0</span></span>
-                <span class="label label-info">из них рассчитано&nbsp;<span class="big" id="positionCalculateCountLabel">0</span></span>
-            </span>
+            
         <div class="pad-sm">
                 <button type="button" id="butAddPosition" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> добавить позицию</button>
                 <span id="excelPanel">
@@ -2790,7 +2791,11 @@
                     </ul>
                 </div>
             }
-            
+            <span>
+                Список позиций
+                <span class="label label-default">всего&nbsp;<span class="big" id="positionCountLabel">0</span></span>
+                <span class="label label-info">из них рассчитано&nbsp;<span class="big" id="positionCalculateCountLabel">0</span></span>
+            </span>
             <table id="tblPositionsNoCalc" class="table table-bordered small" style="display: none;">
                 <thead>
                     <tr>

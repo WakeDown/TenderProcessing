@@ -514,12 +514,18 @@ namespace SpeCalc.Controllers
                     var claimProductManagers = claims.SelectMany(x => x.ProductManagers).ToList();
                     foreach (var claimProductManager in claimProductManagers)
                     {
-                        var managerFromAD = adProductManagers.FirstOrDefault(x => x.Id == claimProductManager.Id);
-                        if (managerFromAD != null)
+                        var productUser = UserHelper.GetUserById(claimProductManager.Id);
+                        if (productUser != null)
                         {
-                            claimProductManager.Name = managerFromAD.Name;
-                            claimProductManager.ShortName = managerFromAD.ShortName;
+                            claimProductManager.Name = productUser.Name;
+                            claimProductManager.ShortName = productUser.ShortName;
                         }
+                        //var managerFromAD = adProductManagers.FirstOrDefault(x => x.Id == claimProductManager.Id);
+                        //if (managerFromAD != null)
+                        //{
+                        //    claimProductManager.Name = managerFromAD.Name;
+                        //    claimProductManager.ShortName = managerFromAD.ShortName;
+                        //}
                     }
                     foreach (var claim in claims)
                     {

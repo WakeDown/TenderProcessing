@@ -8,6 +8,7 @@ using System.Web.Mvc;
 
 namespace SpeCalc.Objects
 {
+    [WhitespaceFilter]
     public class BaseController:Controller
     {
         //[NonAction]

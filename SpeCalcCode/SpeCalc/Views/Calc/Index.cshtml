@@ -26,6 +26,8 @@
     }
 </style>
 <script type="text/javascript">
+    
+
     var claim = @Html.Raw(serializer.Serialize(claim));
     var status = "@ViewBag.Status";
     var dealType = "@ViewBag.DealType";
@@ -38,7 +40,18 @@
     var errorLoad = @ViewBag.Error;
     var newClaim = @ViewBag.NewClaim;
 
+    $(function(){
+        $('[name="shortComment"]').click(function() {
+            var $el = $(this);
+            if ($el.is(':checked')) {
+                $('#comment').val($el.val());
+            }
+        });
+    });
+
     $(init);
+
+    
 
     function init() {
         if (errorLoad) {
@@ -79,7 +92,7 @@
             var positionsLength = claim.Positions.length;
             for (var i = 0; i < positionsLength; i++) {
                 var position = claim.Positions[i];
-                if (position.State == 1 || position.State == 3|| position.State == 6) {
+                if (position.State == 1 || position.State == 3|| position.State == 6 || Position.State == 7) {
                     noAction = false;
                     break;
                 }
@@ -102,13 +115,10 @@
         //    $("[data-mask='float']").mask('0000000000000000,00');
         //});
 
-        $('[name="shortComment"]').click(function() {
-            var $el = $(this);
-            if ($el.is(':checked')) {
-                $('#comment').val($el.val());
-            }
-        });
+        
     }
+
+    
 
     //функция удаляет лишние знаки из вставленного
     function deletePriceAdditions() {
@@ -221,20 +231,22 @@
             $("#editAllCalcButtonCancel").show();
             $("#saveAllCalc").show();
 
-            //Нажимаем кнопку редактирования
-            $("#positionsTable").find("[modetype='editCalcButton']").click();
+            
             //А если добавленных позиций нет то нажимаем кнопку добавления позиции
             var $positions = $("#positionsTable").find("[type='positionRow']");
+            if ($positions.length === 0) {
+                for (var i = 0; i <= $positions.length; i++) {
+                    var posRow = $($positions.get(i));
+                    var posId = posRow.attr('positionid');
 
-            for (var i = 0; i <= $positions.length; i++) {
-                var posRow = $($positions.get(i));
-                var posId = posRow.attr('positionid');
-
-                if ($("[type='positionCalculate']").find("[calcpositionid='" + posId + "']").length == 0) {
-                    posRow.find("[modetype='addCalcButton']").click();
+                    if ($("[type='positionCalculate']").find("[calcpositionid='" + posId + "']").length == 0) {
+                        posRow.find("[modetype='addCalcButton']").click();
+                    }
                 }
+            } else {
+                //Нажимаем кнопку редактирования
+                $("#positionsTable").find("[modetype='editCalcButton']").click();
             }
-
         }
         else if (mode === 'save') {
             //Нажимаем кнопку сохранения
@@ -1246,21 +1258,21 @@
         $("[type='valueLabel']", element).text(position.Value);
         $("[type='commentLabel']", element).text(position.Comment);
         switch (position.State) {
-            case (2):
-                $("[type='posState2']", element).removeClass("hidden");
-                break;
-            case (3):
-                $("[type='posState3']", element).removeClass("hidden");
-                break;
-            case (4):
-                $("[type='posState4']", element).removeClass("hidden");
-                break;
-            case (5):
-                $("[type='posState5']", element).removeClass("hidden");
-                break;
-            case (6):
-                $("[type='posActualize']", element).removeClass("hidden");
-                break;
+        case (2):
+            $("[type='posState2']", element).removeClass("hidden");
+            break;
+        case (3):
+            $("[type='posState3']", element).removeClass("hidden");
+            break;
+        case (4):
+            $("[type='posState4']", element).removeClass("hidden");
+            break;
+        case (5):
+            $("[type='posState5']", element).removeClass("hidden");
+            break;
+        case (6):
+            $("[type='posActualize']", element).removeClass("hidden");
+            break;
         }
         //var currency = getCurrencyById(position.Currency);
         //var price = "";
@@ -1337,13 +1349,13 @@
             var idPosition = element.attr("positionId");
             var calcRowsCount = $("[type='positionCalculate'][calcPositionId='" + idPosition + "']", $("#positionsTable")).size();
             if (!element.attr('askReject')){
-            if (calcRowsCount == 0) {
-                element.find("[posdt='1']").css("backgroundColor", "#EFE1E1");
-            } else {
-                element.find("[posdt='1']").css("backgroundColor", "#E4EFDE");
-                calculateCount++;
+                if (calcRowsCount == 0) {
+                    element.find("[posdt='1']").css("backgroundColor", "#EFE1E1");
+                } else {
+                    element.find("[posdt='1']").css("backgroundColor", "#E4EFDE");
+                    calculateCount++;
+                }
             }
-}
         });
         $("#positionCountLabel").text(positionsCount);
         $("#positionCalculateCountLabel").text(calculateCount);
@@ -1570,12 +1582,12 @@
     function getUnitString(unit) {
         var result = "";
         switch (unit) {
-            case 1:
-                result = "шт";
-                break;
-            case 2:
-                result = "упак";
-                break;
+        case 1:
+            result = "шт";
+            break;
+        case 2:
+            result = "упак";
+            break;
         }
         return result;
     }
@@ -1784,14 +1796,8 @@
     </div>
     <div>
         <h5>
-            @*<div class="pull-left">*@
-            Список позиций
-            <span class="label label-default">всего&nbsp;<span id="positionCountLabel"></span></span>
-            <span class="label label-info">из них рассчитано&nbsp;<span id="positionCalculateCountLabel"></span></span>
-            @*</div>
-                <div class="pull-left">
-                    <div class="form-inline">
-                        <div class="form-group">*@
+            
+                
 
             <span id="excelPanel">
                 <button id="butGetExcelFile" type='button' class='btn btn-default btn-sm'><i class="fa fa-download"></i> скачать спецификацию</button>
@@ -1811,9 +1817,6 @@
             <span>
                 <button id="btnSecondStateColumns" type='button' class='btn btn-success btn-sm'><i class="fa fa-columns"></i> второстепенные столбцы</button>
             </span>
-            @*</div>
-                    </div>
-                </div>*@
         </h5>
         @if (claim != null && claim.Id > 0)
         {
@@ -1832,18 +1835,23 @@
                 </ul>
             </div>
         }
-        <table class="table small table-bordered">
-            <thead>
-                <tr class="bg-primary">
-                    <th class="min-width center"><input type="checkbox" id="selectAllPositions" data-toggle="tooltip" title="все" /></th>
-                    <th></th>
-                    <th>Каталожный номер</th>
-                    <th style="width: 500px">
-                        @*Каталожный номер<br />
-                            Наименование<br />
-                            Количество<br />
-                            Единицы<br />
-                            Комментарий*@
+        <span>
+        Список позиций
+        <span class="label label-default">всего&nbsp;<span id="positionCountLabel"></span></span>
+        <span class="label label-info">из них рассчитано&nbsp;<span id="positionCalculateCountLabel"></span></span>
+        </span>
+            <table class="table small table-bordered">
+                <thead>
+                    <tr class="bg-primary">
+                        <th class="min-width center"><input type="checkbox" id="selectAllPositions" data-toggle="tooltip" title="все" /></th>
+                        <th></th>
+                        <th>Каталожный номер</th>
+                        <th style="width: 500px">
+                            @*Каталожный номер<br />
+                                Наименование<br />
+                                Количество<br />
+                                Единицы<br />
+                                Комментарий*@
                         Запрос
                     </th>
                     <th class="text-nowrap">Кол-во</th>
