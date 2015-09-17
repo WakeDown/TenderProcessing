@@ -244,6 +244,17 @@ namespace SpeCalc.Controllers
         //форма заявки, если передан параметр idClaim, то загружается инфа по заявки с этим id
         public ActionResult Index(int? claimId, int? cv)
         {
+            var user = GetUser();
+            if (UserHelper.IsProductManager(user))
+                return RedirectToAction("Index", "Calc", new {claimId = claimId, cv = cv});
+
+            if (user == null || !UserHelper.IsUserAccess(user))
+            {
+                var dict = new RouteValueDictionary();
+                dict.Add("message", "У Вас нет доступа к приложению");
+                return RedirectToAction("ErrorPage", "Auth", dict);
+            }
+
             if (claimId.HasValue && !cv.HasValue)
             {
                 var verList = DbEngine.GetCalcVersionList(claimId.Value);
@@ -261,13 +272,8 @@ namespace SpeCalc.Controllers
             //получения текущего юзера и проверка наличия у него доступа к странице
             ViewBag.Error = false.ToString().ToLower();
             TempData["tenderClaimFileFormats"] = WebConfigurationManager.AppSettings["FileFormat4TenderClaimFile"];
-            var user = GetUser();
-            if (user == null || !UserHelper.IsUserAccess(user))
-            {
-                var dict = new RouteValueDictionary();
-                dict.Add("message", "У Вас нет доступа к приложению");
-                return RedirectToAction("ErrorPage", "Auth", dict);
-            }
+            
+            
             ViewBag.UserName = user.Name;
             var isController = UserHelper.IsController(user);
             var isManager = UserHelper.IsManager(user);

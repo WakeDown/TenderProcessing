@@ -67,20 +67,25 @@ namespace SpeCalc.Controllers
         //Страница расчета позиций по заявке
         public ActionResult Index(int? claimId, int? cv)
         {
-            if (claimId.HasValue && !cv.HasValue)
-            {
-                int lastVersion = DbEngine.GetCalcVersionList(claimId.Value).Last();
-                return RedirectToAction("Index", new { claimId = claimId, cv = lastVersion });
-            }
+            var user = GetUser();
+            if (UserHelper.IsManager(user) || UserHelper.IsOperator(user))
+                return RedirectToAction("Index", "Claim", new { claimId = claimId, cv = cv });
 
             //проверка наличия доступа к странице
-            var user = GetUser();
             if (user == null || !UserHelper.IsUserAccess(user))
             {
                 var dict = new RouteValueDictionary();
                 dict.Add("message", "У Вас нет доступа к приложению");
                 return RedirectToAction("ErrorPage", "Auth", dict);
             }
+
+            if (claimId.HasValue && !cv.HasValue)
+            {
+                int lastVersion = DbEngine.GetCalcVersionList(claimId.Value).Last();
+                return RedirectToAction("Index", new { claimId = claimId, cv = lastVersion });
+            }
+
+            
             ViewBag.UserName = user.Name;
             var isController = UserHelper.IsController(user);
             var isProduct = UserHelper.IsProductManager(user);
