@@ -101,6 +101,13 @@
         //    //alert($("[data-mask='float']").length);
         //    $("[data-mask='float']").mask('0000000000000000,00');
         //});
+
+        $('[name="shortComment"]').click(function() {
+            var $el = $(this);
+            if ($el.is(':checked')) {
+                $('#comment').val($el.val());
+            }
+        });
     }
 
     //функция удаляет лишние знаки из вставленного
@@ -1382,14 +1389,14 @@
 
     function addClaimStatusHistoryElement(model) {
         var container = $("#claimStatusHistoryContainer");
-        var element = $("<li class='list-group-item'></li>");
+        var element = $("<li class='list-group-item pad-sm'></li>");
         var status = getClaimStatusById(model.Status.Id);
         if (status == null) {
             status = { Value: "Неопределен" };
         }
         if (model.Comment == null) model.Comment = "";
-        element.append("<h5 class='list-group-item-heading'>" + model.DateString + "<br />" + "<strong>" + status.Value + "</strong>" + "</h5>");
-        element.append("<p class='list-group-item-text'>" + model.Comment + "</p>");
+        element.append("<h5 class='list-group-item-heading marg-sm'><small>" + model.DateString + "</small><br />" + "<strong>" + status.Value + "</strong>" + "</h5>");
+        element.append("<p class='list-group-item-text marg-sm'>" + model.Comment + "</p>");
         if (container.children().length > 0) {
             container.children().first().before(element);
         } else {
@@ -1578,16 +1585,20 @@
         <div class="panel-heading">
             <div class="h4">
                 Заявка №<span id="claimId"></span>
-                <div id="claimCustomer"></div>
-                <div>
-                    Бюджет <span id="claimSum"></span><span id="claimSumPostfix"></span>
-                </div>
             </div>
         </div>
         <div class="panel-body">
             @*<div class="row">*@
             <div class="col-sm-5">
-                <table class="table table-condensed">
+                <table class="table table-condensed pad-xs">
+                    <tr>
+                        <td class="text-right">Заказчик</td>
+                        <td><span id="claimCustomer"></span></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Бюджет</td>
+                        <td><span id="claimSum"></span><span id="claimSumPostfix"></span></td>
+                    </tr>
                     <tr>
                         <td class="text-right">Тип сделки</td>
                         <td><strong id="claimDealType"></strong></td>
@@ -1609,12 +1620,12 @@
                         <td><strong id="claimManager"></strong></td>
                     </tr>
                     <tr>
-                        <td class="text-right"><small>Подразделение</small></td>
-                        <td><small id="managerSubDivision"></small></td>
+                        <td class="text-right"><span>Подразделение</span></td>
+                        <td><span id="managerSubDivision"></span></td>
                     </tr>
                     <tr>
-                        <td class="text-right"><small>Руководитель</small></td>
-                        <td><small id="managerChief"></small></td>
+                        <td class="text-right"><span>Руководитель</span></td>
+                        <td><span id="managerChief"></span></td>
                     </tr>
                     <tr>
                         <td class="text-right">Файлы заявки</td>
@@ -1632,13 +1643,13 @@
                     <tr>
                         <td class="text-right"></td>
                         <td>
-                            @using (Html.BeginForm("SaveFile", "Calc", new { claimId = Request.QueryString["claimId"] }, FormMethod.Post, new { enctype = "multipart/form-data" }))
-                            {
-                                <input type="file" name="file" multiple="multiple" />
-                                <p>
-                                    <button class="btn btn-success" type="submit">сохранить файл</button>
-                                </p>
-                            }
+                                                        @using (Html.BeginForm("SaveFile", "Calc", new { claimId = Request.QueryString["claimId"] }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                                        {
+                                                            <div class="pull-left">
+                                                                <input type="file" name="file" multiple="multiple"/>
+                                                            </div>
+                                                            <div class="pull-left"><button class="btn btn-success btn-xs" type="submit">сохранить файл</button></div>
+                                                        }
                         </td>
                     </tr>
                 </table>
@@ -1679,17 +1690,21 @@
 
                 @*<div id="commentPanel">*@
                 <div id="commentPanel">
-                    <textarea id="comment" rows="5" placeholder="Комментарий" class="form-control"></textarea>
+                    <ul class="list-unstyled list-inline">
+                        <li><input type="radio" name="shortComment" value="по запросу Менеджера"/> по запросу Менеджера</li>
+                        <li><input type="radio" name="shortComment" value="некорректно составлено" /> некорректно составлено</li>
+                    </ul>
+                    <textarea id="comment" rows="3" placeholder="Комментарий" class="form-control"></textarea>
                     <div>
-                        <button type='button' id="butrejectClaim" class='btn btn-danger'><i class="fa fa-remove"></i> отклонить отмеченные</button>
-                        <button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение отмеченные</button>
-                        <button type="button" id="butSendComment" class="btn btn-default"><i class="fa fa-comment"></i> сохранить комментарий</button>
+                        <button type='button' id="butrejectClaim" class='btn btn-danger btn-sm'><i class="fa fa-remove"></i> отклонить отмеченные</button>
+                        <button type='button' id="butSendOnConfirm" class='btn btn-success btn-sm'><i class="fa fa-bullhorn"></i> на подтверждение отмеченные</button>
+                        <button type="button" id="butSendComment" class="btn btn-default btn-sm"><i class="fa fa-comment"></i> сохранить комментарий</button>
                     </div>
                 </div>
             </div>
 
             <div class="col-sm-3">
-                <table class="table table-condensed">
+                <table class="table table-condensed pad-xs">
                     <tr>
                         <td class="text-right">№ конкурса</td>
                         <td><strong id="claimTenderNumber"></strong></td>
@@ -1745,7 +1760,7 @@
                     </div>*@
             </div>
             <div class="col-sm-4">
-                <h4 class="text-center">История изменения статусов</h4>
+                <h4 class="text-center marg-sm">История изменения статусов</h4>
                 <div class="claimStateHistory">
                     <ul class="list-group small" id="claimStatusHistoryContainer"></ul>
                 </div>
