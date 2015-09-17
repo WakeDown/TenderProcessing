@@ -43,5 +43,20 @@ namespace SpeCalc.Models
 
             return managers;
         }
+
+        public static IEnumerable<Employee> GetOperatorSelectionList()
+        {
+            var managers = new List<Employee>();
+
+            foreach (UserBase manager in UserHelper.GetOperators())
+            {
+                if (!String.IsNullOrEmpty(manager.ShortName))
+                    managers.Add(new Employee() { AdSid = manager.Id, DisplayName = manager.ShortName });
+            }
+
+            managers = managers.OrderBy(m => m.DisplayName).ToList();
+
+            return managers;
+        }
     }
 }

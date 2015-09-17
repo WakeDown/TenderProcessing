@@ -26,5 +26,17 @@ namespace SpeCalc.Objects
         {
             return new SelectList(QueState.GetList(), "Id", "Name");
         }
+
+        public static SelectList GetManagerAndOperatorSelectionList()
+        {
+            var man = Employee.GetManagerSelectionList();
+            var oper = Employee.GetOperatorSelectionList();
+            var list = man.ToList();
+            list.AddRange(oper);
+            list = list.OrderBy(x => x.DisplayName).ToList();
+
+            var managerSelectionList = new SelectList(list, "AdSid", "DisplayName");
+            return managerSelectionList;
+        }
     }
 }
