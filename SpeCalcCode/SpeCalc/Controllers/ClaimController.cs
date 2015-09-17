@@ -1724,7 +1724,25 @@ namespace SpeCalc.Controllers
             }
             return Json(new { IsComplete = isComplete }, JsonRequestBehavior.AllowGet);
         }
-
+        public JsonResult DeleteClaimPositions(int[] ids)
+        {
+            var isComplete = true;
+            try
+            {
+                var user = GetUser();
+                var db = new DbEngine();
+                foreach (var id in ids)
+                {
+                  isComplete = isComplete &&         db.DeleteSpecificationPosition(id, user);  
+                }
+                
+            }
+            catch (Exception)
+            {
+                isComplete = false;
+            }
+            return Json(new { IsComplete = isComplete }, JsonRequestBehavior.AllowGet);
+        }
         //удаление заявки
         public JsonResult DeleteClaim(int id)
         {

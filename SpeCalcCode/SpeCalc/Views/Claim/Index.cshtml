@@ -1583,24 +1583,15 @@
                 checked = true;
             }})
         if (checked) {
+            var ids = [];
             var sure = confirm("Вы уверены, что хотите удалить выделенные записи?");
             if (sure) {messageUi.progressShow();
                 $.each(selectedRows, function(index, element) {element = $(element);
                     var isChecked = element.attr("selectState") == "true";
-                    if (isChecked) {var id = Number(element.attr("positionId"));
+                    if (isChecked) { ids.push(Number(element.attr("positionId")));
                         var initalBackGround = element.css("background-color");
 
-                        $.ajax({url: "/Claim/DeleteClaimPosition?id=" + id,
-                            type: 'GET',
-                            contentType: 'application/json; charset = utf-8 ',
-                            success: function(data)
-                            {if (data.IsComplete)
-                            {element.remove();
-                                setInfoForPositionRows();
-                            }
-                            else {showMessage("Запись не удалена из БД");}
-                            }
-                        });
+                      /*  */
                     }
 
                 });
@@ -1608,6 +1599,23 @@
         } else {
             showMessage("Записи не выбраны")
         }messageUi.progressHide();
+
+        $.ajax({url: '@Url.Action("DeleteClaimPositions","Claim")',
+            type: 'POST',
+            contentType: 'application/json; charset = utf-8 ',
+            dataType: "json",
+            data: JSON.stringify(ids),
+            success: function(data)
+            {if (data.IsComplete) {
+                    $.each(selectedRows, function(index, element) {
+                        if ($(element).attr("selectState") == "true") $(element).remove();
+                    });
+                } else {
+                    showMessage("Не удалось удалить все записи из БД");
+                    location.reload();
+                }
+            }
+        });
     }
 
     function setInfoForPositionRows() {
@@ -2089,6 +2097,8 @@
             if (!obj.error && save) {
                 var positions = obj.positions;
                 var container = $("#positionTable");
+                var url = '@Url.Action("AddClaimPositions", "Claim")';
+                var json = JSON.stringify(positions);
                 if (positions != null) {
                     $.ajax({
                         url: "/Claim/AddClaimPositions",
@@ -2109,7 +2119,10 @@
                             }
                             if (!data.IsComplete) {showMessage("Ошибка при добавлении позиции спецификации");
                             }
-                        }
+                        },
+                        error: function(xhr){
+                            alert(xhr.statusText);
+                            alert(xhr.error);}
                     });
 
                 }
