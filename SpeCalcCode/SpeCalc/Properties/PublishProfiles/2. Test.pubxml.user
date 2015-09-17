@@ -94,16 +94,16 @@
       <publishTime>09/16/2015 17:29:36</publishTime>
     </File>
     <File Include="bin/SpeCalc.dll">
-      <publishTime>09/16/2015 17:38:18</publishTime>
+      <publishTime>09/17/2015 09:53:59</publishTime>
     </File>
     <File Include="bin/SpeCalc.pdb">
-      <publishTime>09/16/2015 17:38:18</publishTime>
+      <publishTime>09/17/2015 09:53:59</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.dll">
-      <publishTime>09/16/2015 17:30:17</publishTime>
+      <publishTime>09/17/2015 09:53:43</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.pdb">
-      <publishTime>09/16/2015 17:30:17</publishTime>
+      <publishTime>09/17/2015 09:53:43</publishTime>
     </File>
     <File Include="bin/System.Net.Http.Formatting.dll">
       <publishTime>09/16/2015 17:29:36</publishTime>
@@ -388,7 +388,7 @@
       <publishTime>09/16/2015 17:29:37</publishTime>
     </File>
     <File Include="Views/Claim/Index.cshtml">
-      <publishTime>09/16/2015 17:36:31</publishTime>
+      <publishTime>09/17/2015 10:05:56</publishTime>
     </File>
     <File Include="Views/Claim/List.cshtml">
       <publishTime>09/17/2015 09:41:40</publishTime>
@@ -412,13 +412,13 @@
       <publishTime>09/16/2015 17:29:37</publishTime>
     </File>
     <File Include="Views/Question/Index.cshtml">
-      <publishTime>09/16/2015 17:29:37</publishTime>
+      <publishTime>09/17/2015 09:53:43</publishTime>
     </File>
     <File Include="Views/Question/List.cshtml">
       <publishTime>09/16/2015 17:29:37</publishTime>
     </File>
     <File Include="Views/Question/New.cshtml">
-      <publishTime>09/16/2015 17:29:37</publishTime>
+      <publishTime>09/17/2015 09:53:43</publishTime>
     </File>
     <File Include="Views/Question/PosAnswerList.cshtml">
       <publishTime>09/16/2015 17:29:37</publishTime>

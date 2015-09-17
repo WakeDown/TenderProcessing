@@ -2020,14 +2020,14 @@
 
     function addClaimStatusHistoryElement(model) {
         var container = $("#claimStatusHistoryContainer");
-        var element = $("<li class='list-group-item'></li>");
+        var element = $("<li class='list-group-item pad-sm'></li>");
         var status = getClaimStatusById(model.Status.Id);
         if (status == null) {
             status = { Value: "Неопределен" };
         }
         if (model.Comment == null) model.Comment = "";
-        element.append("<h5 class='list-group-item-heading'>" + model.DateString + "<br />" + "<strong>" + status.Value + "</strong>" + "</h5>");
-        element.append("<p class='list-group-item-text'>" + model.Comment + "</p>");
+        element.append("<h5 class='list-group-item-heading marg-sm'><small>" + model.DateString + "</small><br />" + "<strong>" + status.Value + "</strong>" + "</h5>");
+        element.append("<p class='list-group-item-text marg-sm'>" + model.Comment + "</p>");
 
         if (container.children().length > 0) {
             container.children().first().before(element);
@@ -2371,14 +2371,13 @@
 <div>
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h4 id="headNoCalc">
+            <h4 id="headNoCalc" class="marg-sm">
                 <span id="claimId">
                     Новая заявка
                 </span>
             </h4>
-            <h4 id="headWithCalc" style="display:none;">
-                Заявка №<span id="claimId"></span>
-                <div id="claimCustomer"></div>
+            <h4 id="headWithCalc" class="marg-sm" style="display:none;">
+                Заявка №<span id="claimId"></span><span id="claimCustomer"></span>
                 <div>
                     Бюджет <span id="claimSum"></span><span id="claimSumCurrency"></span>
                 </div>
@@ -2559,7 +2558,7 @@
                 </div>
             </div>
             <div type="pnlClaimFormWithCalc" class="col-sm-4" style="display:none;">
-                <table class="table table-condensed">
+                <table class="table table-condensed pad-xs">
                     <tr>
                         <td class="text-right">Тип сделки</td>
                         <td><strong id="claimDealType"></strong></td>
@@ -2581,12 +2580,12 @@
                         <td><strong id="claimManager"></strong></td>
                     </tr>
                     <tr>
-                        <td class="text-right"><small>Подразделение</small></td>
-                        <td><small id="managerSubDivision"></small></td>
+                        <td class="text-right"><span>Подразделение</span></td>
+                        <td><span id="managerSubDivision"></span></td>
                     </tr>
                     <tr>
-                        <td class="text-right"><small>Руководитель</small></td>
-                        <td><small id="managerChief"></small></td>
+                        <td class="text-right"><span>Руководитель</span></td>
+                        <td><span id="managerChief"></span></td>
                     </tr>
                     <tr>
                         <td class="text-right">Файлы заявки</td>
@@ -2599,12 +2598,11 @@
                         <td>
                             @using (Html.BeginForm("SaveFile", "Claim", new { claimId = Request.QueryString["claimId"] }, FormMethod.Post, new { enctype = "multipart/form-data" }))
                             {
-                                <input type="file" name="file" multiple="multiple" accept="@ConfigurationManager.AppSettings["FileFormat4TenderClaimFile"]" />
-                                <input type="text" class="hidden" name="formClaimId" id="formClaimId" />
-                                <p>
-                                    
-                                    <button class="btn btn-success" type="submit">сохранить файл</button>
-                                </p>
+                                <div class="pull-left">
+                                    <input type="file" name="file" multiple="multiple" accept="@ConfigurationManager.AppSettings["FileFormat4TenderClaimFile"]" />
+                                    <input type="text" class="hidden" name="formClaimId" id="formClaimId" />
+                                </div><div class="pull-left"><button class="btn btn-success btn-xs" type="submit">сохранить файл</button></div>
+
                             }
                         </td>
                     </tr>
@@ -2652,13 +2650,13 @@
                 @*<div id="commentPanel">*@
                 
                 <div id="commentPanel">
-                    <button type="button" id="butSetClaimOnWork" style="display: none;" class="btn btn-success"><i class="fa fa-mail-forward"></i> в работу</button>
+                    <button type="button" id="butSetClaimOnWork" style="display: none;" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> в работу</button>
                     <div id="claimStatusPanel" style="display: none;">
-                        <button id="butСlaimStatusContined" type="button" class="btn btn-success"><i class="fa fa-play"></i> возобновить</button>
-                        <button id="butСlaimStatusStopped" type="button" class="btn btn-warning"><i class="fa fa-pause"></i> приостановить</button>
-                        <button id="butСlaimStatusCanceled" type="button" class="btn btn-danger"><i class="fa fa-stop"></i> отменить</button>
+                        <button id="butСlaimStatusContined" type="button" class="btn btn-success btn-sm"><i class="fa fa-play"></i> возобновить</button>
+                        <button id="butСlaimStatusStopped" type="button" class="btn btn-warning btn-sm"><i class="fa fa-pause"></i> приостановить</button>
+                        <button id="butСlaimStatusCanceled" type="button" class="btn btn-danger btn-sm"><i class="fa fa-stop"></i> отменить</button>
                     </div>
-                    <textarea id="commentWithCalc" rows="5" placeholder="Комментарий" class="form-control"></textarea>
+                    <textarea id="commentWithCalc" rows="3" placeholder="Комментарий" class="form-control"></textarea>
                     <div>
                         @*<button type='button' class='btn btn-danger'><i class="fa fa-remove"></i> отклонить</button>*@
                         @*<button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение</button>*@
@@ -2667,7 +2665,7 @@
                 </div>
             </div>
             <div type="pnlClaimFormWithCalc" class="col-sm-4" style="display:none;">
-                <table class="table table-condensed">
+                <table class="table table-condensed pad-xs">
                     <tr>
                         <td class="text-right">№ конкурса</td>
                         <td><strong id="claimTenderNumber"></strong></td>
@@ -2724,7 +2722,7 @@
                     </div>*@
             </div>
             <div class="col-sm-4">
-                <h4 class="text-center">История изменения статуса</h4>
+                <h4 class="text-center marg-sm">История изменения статуса</h4>
                 <div class="claimStateHistoryBig">
                     <ul class="list-group small" id="claimStatusHistoryContainer"></ul>
                 </div>
@@ -2733,12 +2731,12 @@
     </div>
     <div id="positionPanel" style="display: none; margin-left: 4px; margin-right: 4px;">
         <P>
-            <blockquote class="bg-warning">
+            <blockquote class="bg-warning pad-sm">
                 Каждая номенклатурная позиция должны оформляться отдельной строкой!
             </blockquote>
         </P>
         <p>
-            <blockquote class="bg-warning">
+            <blockquote class="bg-warning pad-sm">
                При загрузке спецификации удостоверьтесь, что в ячейках нет формул!
             </blockquote>
         </p>
@@ -2748,7 +2746,7 @@
                 <span class="label label-default">всего&nbsp;<span class="big" id="positionCountLabel">0</span></span>
                 <span class="label label-info">из них рассчитано&nbsp;<span class="big" id="positionCalculateCountLabel">0</span></span>
             </span>
-            <span>
+        <div class="pad-sm">
                 <button type="button" id="butAddPosition" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> добавить позицию</button>
                 <span id="excelPanel">
                     <button id="butGetFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать шаблон</button>
@@ -2766,16 +2764,20 @@
                 {
                     <button id="goACtual" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> Актуализировать отмеченные</button>
                 }
-                @if (claim != null && (claim.ClaimStatus == 2 || claim.ClaimStatus==3||claim.ClaimStatus==6 ||claim.ClaimStatus==10))
+                @if (claim != null && (claim.ClaimStatus == 2 || claim.ClaimStatus == 3 || claim.ClaimStatus == 6 || claim.ClaimStatus == 10))
                 {
                     <button id="askReject" class="btn btn-danger btn-sm"><i class="fa fa-mail-reply"></i> Запросить отклонение для отмеченных</button>
                 }
-            </span>
+            </div>
+            <div id="delPanel" class="pull-right">
+                <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить отмеченные</button>
+
+            </div>
             @if (claim != null && claim.Id > 0)
             {
                 int[] versions = DbEngine.GetCalcVersionList(claim.Id);
 
-                <div>
+                <div class="pad-sm">
                     <ul class="list-inline">
                         <li class="bold">версия</li>
                         @if (versions != null)
@@ -2788,10 +2790,7 @@
                     </ul>
                 </div>
             }
-            <div id="delPanel" class="pull-right">
-                    <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить отмеченные</button>
-
-            </div>
+            
             <table id="tblPositionsNoCalc" class="table table-bordered small" style="display: none;">
                 <thead>
                     <tr>
