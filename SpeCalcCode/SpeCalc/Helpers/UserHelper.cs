@@ -232,11 +232,57 @@ namespace SpeCalc.Helpers
 
         public static List<Operator> GetOperators()
         {
-            return new List<Operator>()
+            using (WindowsImpersonationContextFacade impersonationContext
+                = new WindowsImpersonationContextFacade(
+                    nc))
             {
-                new Operator(){ Id = "sdfsdfewrewrwe", Name = "L.Messi", Roles = new List<Role>() { Role.Enter, Role.Operator}},
-                new Operator(){ Id = "yuygurere", Name = "L.Suarez", Roles = new List<Role>() { Role.Enter, Role.Operator, Role.Controller}}
-            };
+                var list = new List<Operator>();
+                var domain = new PrincipalContext(ContextType.Domain);
+                var group = GroupPrincipal.FindByIdentity(domain, IdentityType.Name,
+                    _roles.First(x => x.Role == Role.Operator).Name);
+                if (group != null)
+                {
+                    var members = group.GetMembers(true);
+                    foreach (var principal in members)
+                    {
+                        var userPrincipal = UserPrincipal.FindByIdentity(domain, principal.Name);
+                        if (userPrincipal != null)
+                        {
+                            var email = userPrincipal.EmailAddress;
+                            var name = userPrincipal.DisplayName;
+                            var sid = userPrincipal.Sid.Value;
+                            var shortName = GetShortName(name);
+                            var departament = GetProperty(userPrincipal, "department");
+                            var manager = GetProperty(userPrincipal, "manager");
+                            var managerShortName = string.Empty;
+                            if (!string.IsNullOrEmpty(manager))
+                            {
+                                var managerUser = UserPrincipal.FindByIdentity(domain, manager);
+                                if (managerUser != null)
+                                {
+                                    manager = managerUser.DisplayName;
+                                    managerShortName = GetShortName(manager);
+                                }
+                            }
+                            var user = new Operator()
+                            {
+                                Id = sid,
+                                Name = name,
+                                ShortName = shortName,
+                                Email = email,
+                                SubDivision = departament,
+                                Chief = manager,
+                                ChiefShortName = managerShortName,
+                                Roles = new List<Role>() { Role.Manager }
+                            };
+                            list.Add(user);
+                        }
+                    }
+                }
+                list = list.OrderBy(m => m.ShortName).ToList();
+
+                return list;
+            }
         }
 
         public static List<ControllerUser> GetControllerUsers()

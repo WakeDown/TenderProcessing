@@ -46,17 +46,17 @@ namespace SpeCalc.Models
 
         public static IEnumerable<Employee> GetOperatorSelectionList()
         {
-            var managers = new List<Employee>();
+            var operators = new List<Employee>();
 
             foreach (UserBase manager in UserHelper.GetOperators())
             {
                 if (!String.IsNullOrEmpty(manager.ShortName))
-                    managers.Add(new Employee() { AdSid = manager.Id, DisplayName = manager.ShortName });
+                    operators.Add(new Employee() { AdSid = manager.Id, DisplayName = manager.ShortName });
             }
 
-            managers = managers.OrderBy(m => m.DisplayName).ToList();
+            operators = operators.OrderBy(m => m.DisplayName).ToList();
 
-            return managers;
+            return operators;
         }
     }
 }
