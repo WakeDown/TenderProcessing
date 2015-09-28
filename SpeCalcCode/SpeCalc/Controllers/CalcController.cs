@@ -162,7 +162,7 @@ namespace SpeCalc.Controllers
                                 claim.Manager.ShortName = managerFromAd.ShortName;
                                 claim.Manager.ChiefShortName = managerFromAd.ChiefShortName;
                             }
-                            var hasAccess = false;
+                            var hasAccess = isController;
                             var subordinateList = Employee.GetSubordinates(user.Id);
                             var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
                             foreach (var productManager in productManagers)
