@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.DirectoryServices.Protocols;
@@ -162,9 +162,12 @@ namespace SpeCalc.Controllers
                                 claim.Manager.ShortName = managerFromAd.ShortName;
                                 claim.Manager.ChiefShortName = managerFromAd.ChiefShortName;
                             }
+                            var hasAccess = false;
+                            var subordinateList = Employee.GetSubordinates(user.Id);
                             var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
                             foreach (var productManager in productManagers)
                             {
+                                hasAccess = hasAccess || subordinateList.Contains(productManager.Id);
                                 var productUser = UserHelper.GetUserById(productManager.Id);
                                 if (productUser != null)
                                 {
@@ -177,6 +180,12 @@ namespace SpeCalc.Controllers
                                 //    productManager.Name = productManagerFromAd.Name;
                                 //    productManager.ShortName = productManagerFromAd.ShortName;
                                 //}
+                            }
+                            if (!hasAccess && isProduct)
+                            {
+                                var dict = new RouteValueDictionary();
+                                dict.Add("message", "У Вас нет доступа к этой заявке, Вам не назначены позиции для расчета");
+                                return RedirectToAction("ErrorPage", "Auth", dict);
                             }
                             //Расчет по позициям
                             var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
