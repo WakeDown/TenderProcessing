@@ -40,6 +40,7 @@
     var status = "@ViewBag.Status";
     var editablePosIds = @Html.Raw(serializer.Serialize(editableposIds));
     var claimId = null;
+    var nextDateMin = "@ViewBag.NextDateMin";
     $(init);
 
     function init() {
@@ -76,7 +77,7 @@
             format: "dd.mm.yyyy",
             autoclose: true,
             language: "ru",
-            startDate: '@DateTime.Now.AddDays(2).ToShortDateString()',
+            startDate: nextDateMin,
             daysOfWeekDisabled: [0,6]
         });
         $("#kPDeadline").datepicker({
@@ -89,7 +90,7 @@
             format: "dd.mm.yyyy",
             autoclose: true,
             language: "ru",
-            startDate: '@DateTime.Now.AddDays(2).ToShortDateString()',
+            startDate: nextDateMin,
             daysOfWeekDisabled: [0,6]
         });
         $("#deliveryDate").datepicker({
@@ -583,7 +584,7 @@
     //>>>>>работа с заявкой<<<<<
     //действия
     function setClaimContined(e) {
-        var strDate = '@DateTime.Today.AddDays(2)'.toString();
+        var strDate = nextDateMin;
         var split = strDate.substr(0,10).split('.');
         var minDate=Date.parse(split[2]+'/'+split[1]+'/'+split[0]);
         split = claim.ClaimDeadlineString.split('.');
@@ -699,7 +700,7 @@
     }
 
     function setClaimOnWork(e) {
-        var strDate = '@DateTime.Today.AddDays(2)'.toString();
+        var strDate = nextDateMin;
         var split = strDate.substr(0,10).split('.');
         var minDate=Date.parse(split[2]+'/'+split[1]+'/'+split[0]);
         split = claim.ClaimDeadlineString.split('.');
@@ -2769,11 +2770,11 @@
                     @*<button id="butGetCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет (с позициями)</button>*@
                     <button id="butGetCalculateOnlyCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</button>
                 </span>
-                @if (claim != null && (claim.ClaimStatus == 8 @*|| claim.ClaimStatus == 7*@))
+                @if (DateTime.Now > new DateTime(2015,10,2) && claim != null && (claim.ClaimStatus == 8 @*|| claim.ClaimStatus == 7*@))
             {
                     <button id="goACtual" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> Актуализировать отмеченные</button>
                 }
-                @if (claim != null && (claim.ClaimStatus == 2 || claim.ClaimStatus == 3 || claim.ClaimStatus == 6 || claim.ClaimStatus == 10))
+                @if (DateTime.Now > new DateTime(2015, 10, 2) && claim != null && (claim.ClaimStatus == 2 || claim.ClaimStatus == 3 || claim.ClaimStatus == 6 || claim.ClaimStatus == 10))
                 {
                     <button id="askReject" class="btn btn-danger btn-sm"><i class="fa fa-mail-reply"></i> Запросить отклонение для отмеченных</button>
                 }
@@ -3124,7 +3125,7 @@
 
                         <input type="text" id="deadlineCorrector" style="cursor: pointer;" class="form-control datepicker-btn" placeholder="Срок сдачи расчета" />
                         <span id="deadlineLabelCorrector" style="display: none;" class="form-control"></span>
-                        <small>не ранее чем через 2 суток</small>
+                        <small>не менее 2 рабочих дней</small>
 
                     </div>
                     <div class="modal-footer">
