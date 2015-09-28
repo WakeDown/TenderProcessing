@@ -40,6 +40,7 @@
     var status = "@ViewBag.Status";
     var editablePosIds = @Html.Raw(serializer.Serialize(editableposIds));
     var claimId = null;
+    var nextDateMin = "@ViewBag.NextDateMin";
     $(init);
 
     function init() {
@@ -76,7 +77,7 @@
             format: "dd.mm.yyyy",
             autoclose: true,
             language: "ru",
-            startDate: '@DateTime.Now.AddDays(2).ToShortDateString()',
+            startDate: nextDateMin,
             daysOfWeekDisabled: [0,6]
         });
         $("#kPDeadline").datepicker({
@@ -89,7 +90,7 @@
             format: "dd.mm.yyyy",
             autoclose: true,
             language: "ru",
-            startDate: '@DateTime.Now.AddDays(2).ToShortDateString()',
+            startDate: nextDateMin,
             daysOfWeekDisabled: [0,6]
         });
         $("#deliveryDate").datepicker({
@@ -130,7 +131,6 @@
         $("#butSaveClaim").click(saveClaim);
         $("#butSetClaimOnWork").click(setClaimOnWork);
         $("#cbSelectAllPosition").change(selectAllPosition);
-        $("#btnDeleteSelected").click(deleteSelectedPositions);
         $("#selectAllPositionsWithCalc").change(selectAllPositionWithCalc);
         $("#butDeadLineCorrect").click(correctDeadLine);
         $("#butRejectPositionOk").click(rejectPositionOk);
@@ -535,13 +535,13 @@
 
                     checkCalcPositionChanges(calculation.Id);
                 }
-                }
+            }
 
             if (position.State === 7) {
                 $('td:first-child',element).append('<div style="position: relative; color: yellow; font-size:16pt">ЗАПРОШЕНО ОТКЛОНЕНИЕ</div>'); //.addClass('bg-danger deep');
                 $(element).addClass('bg-danger deep');
-            }
         }
+    }
     }
 
     function checkCalcPositionChanges(calcPositionId) {
@@ -584,7 +584,7 @@
     //>>>>>работа с заявкой<<<<<
     //действия
     function setClaimContined(e) {
-        var strDate = '@DateTime.Today.AddDays(2)'.toString();
+        var strDate = nextDateMin;
         var split = strDate.substr(0,10).split('.');
         var minDate=Date.parse(split[2]+'/'+split[1]+'/'+split[0]);
         split = claim.ClaimDeadlineString.split('.');
@@ -700,7 +700,7 @@
     }
 
     function setClaimOnWork(e) {
-        var strDate = '@DateTime.Today.AddDays(2)'.toString();
+        var strDate = nextDateMin;
         var split = strDate.substr(0,10).split('.');
         var minDate=Date.parse(split[2]+'/'+split[1]+'/'+split[0]);
         split = claim.ClaimDeadlineString.split('.');
@@ -1157,7 +1157,7 @@
                     $("#claimStatusPanel").hide();
                     $("[modetype='selectPositionElement']", $("#positionsTableWithCalc")).hide();
                     $("#cbSelectAllPosition").hide();
-                    $("butDeleteSelected").hide();
+                    $("butDeleteSelected").hide;
                 } else {
                     if (data.Message != "") {
                         showMessage(data.Message);
@@ -1304,7 +1304,7 @@
                 }
             });
             location.reload();
-    }
+        }
 
 
     }
@@ -1628,13 +1628,13 @@
     }
     function deleteSelectedPositions() {
         var selectedRows = $("[type='positionRow']", $("#positionTable"));
-
+        
         var checked = false;
         $.each(selectedRows, function(index, element) {
             element = $(element);
             var isChecked = element.attr("selectState") == "true";
             if (isChecked) {
-                // element.css("backgroundColor", "#EAA4A4");
+               // element.css("backgroundColor", "#EAA4A4");
                 checked = true;
             }})
         if (checked) {
@@ -1645,10 +1645,10 @@
                     var isChecked = element.attr("selectState") == "true";
                     if (isChecked) { ids.push(Number(element.attr("positionId")));
                         var initalBackGround = element.css("background-color");
-
+                  
                       /*  */
-                            }
-
+                               } 
+            
                 });
             }
         } else {
@@ -2092,9 +2092,8 @@
     }
 
     function sendMessage(message) {
-        var target = getTargetOrigin();
-        document.getElementById("upl" +
-            "oadFile").contentWindow.postMessage(message, target);
+       var target = getTargetOrigin();
+        document.getElementById("uploadFile").contentWindow.postMessage(message, target);
     }
 
     function getTargetOrigin() {
@@ -2770,7 +2769,7 @@
                При загрузке спецификации удостоверьтесь, что в ячейках нет формул!
             </blockquote>
         </p>
-        <div>
+    <div>
             
         <div class="pad-sm">
                 <button type="button" id="butAddPosition" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> добавить позицию</button>
@@ -2796,7 +2795,7 @@
                 }
             </div>
             <div id="delPanel" class="pull-right">
-                <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить отмеченные</button>
+                    <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить отмеченные</button>
 
             </div>
             @if (claim != null && claim.Id > 0)
@@ -2821,10 +2820,9 @@
                 <span class="label label-default">всего&nbsp;<span class="big" id="positionCountLabel">0</span></span>
                 <span class="label label-info">из них рассчитано&nbsp;<span class="big" id="positionCalculateCountLabel">0</span></span>
             </span>
-        </p>
-            <table id="tblPositionsNoCalc" class="table table-bordered small" style="display: none;">
-                <thead>
-                    <tr>
+    <table id="tblPositionsNoCalc" class="table table-bordered small" style="display: none;">
+        <thead>
+        <tr>
                         <P>
                             <h4 id="rejectHead">
                                 Отклонено продактом/снабженцем
@@ -2833,49 +2831,49 @@
                     </tr>
                     <tr class="bg-primary">
                         <th class="min-width center"><input type="checkbox" id="cbSelectAllPosition" data-toggle="tooltip" title="все" /></th>
-                        <th>№</th>
+            <th>№</th>
+            <th></th>
+            <th>
+                <div class="row">
+                    <div class="col-sm-2">
+                        Каталожный номер
+                    </div>
+                    <div class="col-sm-3">
+                        Наименование
+                    </div>
+                    <div class="col-sm-1">
+                        Количество
+                    </div>
+                    <div class="col-sm-1">
+                        Единица
+                    </div>
+                    <div class="col-sm-2">
+                        Продакт/Снабженец
+                    </div>
+                    <div class="col-sm-3">
+                        Комментарий
+                    </div>
+                </div>
+            </th>
                         <th></th>
-                        <th>
-                            <div class="row">
-                                <div class="col-sm-2">
-                                    Каталожный номер
-                                </div>
-                                <div class="col-sm-3">
-                                    Наименование
-                                </div>
-                                <div class="col-sm-1">
-                                    Количество
-                                </div>
-                                <div class="col-sm-1">
-                                    Единица
-                                </div>
-                                <div class="col-sm-2">
-                                    Продакт/Снабженец
-                                </div>
-                                <div class="col-sm-3">
-                                    Комментарий
-                                </div>
-                            </div>
-                        </th>
-                        <th></th>
-                    </tr>
+        </tr>
 
-                </thead>
-                <tbody id="positionTable">
-                    <tr id="addPositionRow" style="display: none;">
-                        <td class="min-width center">
-                <input type="checkbox" modetype="selectPositionElement"/>
+        </thead>
+        <tbody id="positionTable">
+        <tr id="addPositionRow" style="display: none;">
+            <td class="min-width center">
+                            <input type="checkbox" modetype="selectPositionElement" />
                         </td>
                         <td class="min-width center">
                             <strong modetype="claimRowNumber"></strong>
                             <div type="posState5" class="text-danger hidden">
                                 <i class="fa fa-reply" title="позиция отклонена снабженцем/продактом"></i>
                             </div>
-                        </td>
-                        <td class="min-width">
-                <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br/>
-                            <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
-                            <span type="editPositionPanel" style="display: none;">
+            </td>
+            <td class="min-width">
+                            <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+                <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                <span type="editPositionPanel" style="display: none;">
 
                                 <button type='button' modetype='editButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></button>
                                 <span type="editPositionActionPanel" style="display: none;">
@@ -2883,23 +2881,23 @@
                                     <button type='button' modetype='editPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
                                 </span>
                             </span>
-                        </td>
-                        <td>
-                            <div type="editModeView" class="row">
-                                <div class="form-group col-sm-2">
-                        <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер"/>
-                                </div>
-                                <div class="form-group col-sm-3">
-                                    <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
-                                </div>
-                                <div class="form-group col-sm-1">
-                        <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество *"/>
-                                </div>
-                                <div class="form-group col-sm-1">
-                                    <div id="unitCell"></div>
-                                </div>
+            </td>
+            <td>
+                <div type="editModeView" class="row">
+                    <div class="form-group col-sm-2">
+                                    <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" />
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
+                    </div>
+                    <div class="form-group col-sm-1">
+                                    <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество *" />
+                    </div>
+                    <div class="form-group col-sm-1">
+                        <div id="unitCell"></div>
+                    </div>
 
-                                @*<div class="form-group col-sm-1">
+                    @*<div class="form-group col-sm-1">
                                         <textarea rows="3" class="form-control input-sm" modeltype='replaceValue' placeholder="Замена" style="display: none;"></textarea>
                                     </div>
                                     <div class="form-group">
@@ -2923,14 +2921,14 @@
                                     <div class="form-group col-sm-1">
                                         <input type='text' modeltype='sumNdsValue' class="form-control input-sm" placeholder="Сумма с НДС" style="display: none;" />
                                     </div>*@
-                                <div class="form-group col-sm-2">
-                                    <div id="managersCell"></div>
-                                </div>
-                                <div class="form-group col-sm-3">
-                                    <textarea rows='3' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
-                                </div>
-                            </div>
-                            @*<div type="editModeView" class="col-sm-5">
+                    <div class="form-group col-sm-2">
+                        <div id="managersCell"></div>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <textarea rows='3' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
+                    </div>
+                </div>
+                @*<div type="editModeView" class="col-sm-5">
                                     <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
                                     <textarea rows="3" class="form-control input-sm" modeltype='replaceValue' placeholder="Замена" style="display: none;"></textarea>
                                 </div>
@@ -2939,20 +2937,20 @@
                                     <textarea rows='4' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
                                 </div>*@
 
-                            <div type="readOnlyModeView" style="display: none;" class="row">
-                                <div class="col-sm-2">
-                                    <span type='catalogNumberLabel'></span>
-                                </div>
-                                <div class="col-sm-3">
-                                    <div type='nameLabel'></div>
-                                </div>
-                                <div class="col-sm-1">
-                                    <span type='valueLabel'></span>
-                                </div>
-                                <div class="col-sm-1">
-                                    <span type='unitLabel'></span>
-                                </div>
-                                @*<div style="display: none;">
+                <div type="readOnlyModeView" style="display: none;" class="row">
+                    <div class="col-sm-2">
+                        <span type='catalogNumberLabel'></span>
+                    </div>
+                    <div class="col-sm-3">
+                        <div type='nameLabel'></div>
+                    </div>
+                    <div class="col-sm-1">
+                        <span type='valueLabel'></span>
+                    </div>
+                    <div class="col-sm-1">
+                        <span type='unitLabel'></span>
+                    </div>
+                    @*<div style="display: none;">
                                         <strong type='priceLabel'></strong>&nbsp;<span type='priceLabelPostfix'></span>
                                     </div>
                                     <div style="display: none;">
@@ -2972,15 +2970,15 @@
                                     </div>*@
 
 
-                                <div class="col-sm-2">
-                                    <span type='productManagerLabel'></span>
-                                </div>
-                                <div class="col-sm-3">
-                                    <div type="commentLabel"></div>
-                                </div>
-                            </div>
+                    <div class="col-sm-2">
+                        <span type='productManagerLabel'></span>
+                    </div>
+                    <div class="col-sm-3">
+                        <div type="commentLabel"></div>
+                    </div>
+                </div>
 
-                            @*<div type="readOnlyModeView" style="display: none;" class="col-sm-4">
+                @*<div type="readOnlyModeView" style="display: none;" class="col-sm-4">
                                     <div>
                                         <strong>Наименование</strong>
                                         <div type='nameLabel'></div>
@@ -3002,16 +3000,16 @@
                                         <span type='productManagerLabel'></span>
                                     </div>
                                 </div>*@
-                        </td>
-                        <td class="min-width">
-                <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br/>
-                            <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
-                            <button type='button' modetype='deleteButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+            </td>
+            <td class="min-width">
+                            <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+                <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                <button type='button' modetype='deleteButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    </div>
 
         <table id="tblPositionsWithCalc" class="table small table-bordered" style="display:none">
             <thead>
@@ -3142,7 +3140,7 @@
 
                         <input type="text" id="deadlineCorrector" style="cursor: pointer;" class="form-control datepicker-btn" placeholder="Срок сдачи расчета" />
                         <span id="deadlineLabelCorrector" style="display: none;" class="form-control"></span>
-                        <small>не ранее чем через 2 суток</small>
+                        <small>не менее 2 рабочих дней</small>
 
                     </div>
                     <div class="modal-footer">

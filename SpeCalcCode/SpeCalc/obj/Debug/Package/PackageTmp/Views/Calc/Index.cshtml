@@ -137,18 +137,18 @@
         var minPriceOnline = '';
         //alert(calcId);
         $.ajax({
-                url: '/Calc/GetMinPrice',
-                method: 'POST',
-                data: {partNum:partNum},
-                success: function (data) {
-                    minPriceOnline = data.priceStr;
-                    var pnl = $('tr[calcid="' + calcId + '"]').find('[name="priceOnlineInfo"]');
-                    pnl.get(0).innerText = minPriceOnline;
-                },
-                error: function () {
-                    var error = 'Не удалось получить цену!';
-                }
-            });
+            url: '/Calc/GetMinPrice',
+            method: 'POST',
+            data: {partNum:partNum},
+            success: function (data) {
+                minPriceOnline = data.priceStr;
+                var pnl = $('tr[calcid="' + calcId + '"]').find('[name="priceOnlineInfo"]');
+                pnl.get(0).innerText = minPriceOnline;
+            },
+            error: function () {
+                var error = 'Не удалось получить цену!';
+            }
+        });
     }
     function rejectTenderClaim() {
         var comment = $("#comment").val().trim();
@@ -232,16 +232,16 @@
             $("#editAllCalcButtonCancel").show();
             $("#saveAllCalc").show();
 
-
+            
             
             //Если добавленных позиций нет то нажимаем кнопку добавления позиции
             var $positions = $("#positionsTable").find("[type='positionRow']");
-            for (var i = 0; i <= $positions.length; i++) {
-                var posRow = $($positions.get(i));
-                var posId = posRow.attr('positionid');
+                for (var i = 0; i <= $positions.length; i++) {
+                    var posRow = $($positions.get(i));
+                    var posId = posRow.attr('positionid');
 
                     if ($("[type='positionCalculate'][calcpositionid='" + posId + "']").length === 0) {
-                    posRow.find("[modetype='addCalcButton']").click();
+                        posRow.find("[modetype='addCalcButton']").click();
                     }else
                     {//Нажимаем кнопку редактирования
                         $("[type='positionCalculate'][calcpositionid='" + posId + "']").find("[modetype='editCalcButton']").click();
@@ -1050,7 +1050,7 @@
         for (var i = 0; i < model.Files.length;i++) {
             var claimFileCell = "<div><a class='btn btn-link' href='/Calc/getTenderClaimFile/?guid=" + model.Files[i].FileGuid + "'>" + model.Files[i].FileName + "</a></div>";
             $("#claimFileList").append(claimFileCell);
-    }
+        }
     }
 
     //<<<<<<<Изменение курсов валют>>>>>>
@@ -1364,12 +1364,12 @@
             var idPosition = element.attr("positionId");
             var calcRowsCount = $("[type='positionCalculate'][calcPositionId='" + idPosition + "']", $("#positionsTable")).size();
             if (!element.attr('askReject')){
-            if (calcRowsCount == 0) {
-                element.find("[posdt='1']").css("backgroundColor", "#EFE1E1");
-            } else {
-                element.find("[posdt='1']").css("backgroundColor", "#E4EFDE");
-                calculateCount++;
-            }
+                if (calcRowsCount == 0) {
+                    element.find("[posdt='1']").css("backgroundColor", "#EFE1E1");
+                } else {
+                    element.find("[posdt='1']").css("backgroundColor", "#E4EFDE");
+                    calculateCount++;
+                }
             }
         });
         $("#positionCountLabel").text(positionsCount);
@@ -1597,12 +1597,12 @@
     function getUnitString(unit) {
         var result = "";
         switch (unit) {
-            case 1:
-                result = "шт";
-                break;
-            case 2:
-                result = "упак";
-                break;
+        case 1:
+            result = "шт";
+            break;
+        case 2:
+            result = "упак";
+            break;
         }
         return result;
     }
@@ -1612,8 +1612,8 @@
         <div class="panel-heading">
             <div class="h4 marg-sm">
                 Заявка №<span id="claimId"></span>
-                </div>
             </div>
+        </div>
         <div class="panel-body">
             @*<div class="row">*@
             <div class="col-sm-5">
@@ -1670,13 +1670,13 @@
                     <tr>
                         <td class="text-right"></td>
                         <td>
-                            @using (Html.BeginForm("SaveFile", "Calc", new { claimId = Request.QueryString["claimId"] }, FormMethod.Post, new { enctype = "multipart/form-data" }))
-                            {
+                                                        @using (Html.BeginForm("SaveFile", "Calc", new { claimId = Request.QueryString["claimId"] }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                                        {
                                                             <div class="pull-left">
                                                                 <input type="file" name="file" multiple="multiple"/>
                                                             </div>
                                                             <div class="pull-left"><button class="btn btn-success btn-xs" type="submit">сохранить файл</button></div>
-                            }
+                                                        }
                         </td>
                     </tr>
                 </table>
@@ -1855,18 +1855,18 @@
         <span class="label label-default">всего&nbsp;<span id="positionCountLabel"></span></span>
         <span class="label label-info">из них рассчитано&nbsp;<span id="positionCalculateCountLabel"></span></span>
         </span>
-        <table class="table small table-bordered">
-            <thead>
+            <table class="table small table-bordered">
+                <thead>
                     <tr class="bg-primary">
-                    <th class="min-width center"><input type="checkbox" id="selectAllPositions" data-toggle="tooltip" title="все" /></th>
-                    <th></th>
-                    <th>Каталожный номер</th>
-                    <th style="width: 500px">
-                        @*Каталожный номер<br />
-                            Наименование<br />
-                            Количество<br />
-                            Единицы<br />
-                            Комментарий*@
+                        <th class="min-width center"><input type="checkbox" id="selectAllPositions" data-toggle="tooltip" title="все" /></th>
+                        <th></th>
+                        <th>Каталожный номер</th>
+                        <th style="width: 500px">
+                            @*Каталожный номер<br />
+                                Наименование<br />
+                                Количество<br />
+                                Единицы<br />
+                                Комментарий*@
                         Запрос
                     </th>
                     <th class="text-nowrap">Кол-во</th>
