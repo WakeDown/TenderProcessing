@@ -292,6 +292,9 @@ namespace SpeCalc.Controllers
                 ViewBag.Managers = managers;
                 ViewBag.DateStart = DateTime.Now.ToString("dd.MM.yyyy");
                 var db = new DbEngine();
+                ViewBag.NextDateMin = DateTime.Now.DayOfWeek == DayOfWeek.Friday
+                    ? DateTime.Now.AddDays(4).ToShortDateString()
+                    : DateTime.Now.AddDays(2).ToShortDateString();
                 ViewBag.DealTypes = db.LoadDealTypes();
                 ViewBag.ClaimStatus = db.LoadClaimStatus();
                 var adProductManagers = UserHelper.GetProductManagers();
