@@ -5,6 +5,14 @@ D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderPr
 D:\GoogleDrive\Dev\GitHub\SpeCalc\TenderProcessing\TenderProcessingCode\TenderProcessingDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.pdb
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\SpeCalcDataAccessLayer.dll
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\SpeCalcDataAccessLayer.pdb
-D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.csprojResolveAssemblyReference.cache
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.dll
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.pdb
+D:\Pojects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\SpeCalcDataAccessLayer.dll
+D:\Pojects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\SpeCalcDataAccessLayer.pdb
+D:\Pojects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.dll
+D:\Pojects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.pdb
+D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\SpeCalcDataAccessLayer.dll
+D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\SpeCalcDataAccessLayer.pdb
+D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.dll
+D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.pdb
+D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.csprojResolveAssemblyReference.cache

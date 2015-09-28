@@ -49,5 +49,7 @@ namespace SpeCalcDataAccessLayer.Models
         public int Currency { get; set; }
 
         public List<CalculateSpecificationPosition> Calculations { get; set; } 
+
+        public int Version { get; set; }
     }
 }

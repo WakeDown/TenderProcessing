@@ -17,15 +17,76 @@ namespace SpeCalcDataAccessLayer
 
     public class DbEngine
     {
-        private readonly string _connectionString;
+        private static readonly string _connectionString = ConfigurationManager.ConnectionStrings["SpeCalc"].ConnectionString;
 
         public DbEngine()
         {
-            _connectionString = ConfigurationManager.ConnectionStrings["SpeCalc"].ConnectionString;
+        }
+
+        public static DataTable GetCalcPositionsChanges(int idCalcPosition)
+        {
+            DataTable dt = new DataTable();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "GetCalcPositionsChanges";
+                cmd.Parameters.AddWithValue("@idCalcPosition", idCalcPosition);
+                conn.Open();
+                dt.Load(cmd.ExecuteReader());
+            }
+            return dt;
+        }
+
+        public static int CopyPositionsForNewVersion(int idClaim, int calcVersion, string creatorSid, int[] selIds)
+        {
+            int result = 0;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "CopyPositionsForNewVersion";
+                cmd.Parameters.AddWithValue("@idClaim", idClaim);
+                cmd.Parameters.AddWithValue("@calcVersion", calcVersion);
+                cmd.Parameters.AddWithValue("@creatorSid", creatorSid);
+                cmd.Parameters.AddWithValue("@ids", String.Join(",", selIds));
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+
+                if (rd.HasRows)
+                {
+                    rd.Read();
+                    result = rd.GetInt32(0);
+                }
+            }
+            return result;
+        }
+        public static int[] GetCalcVersionList(int idClaim)
+        {
+            var result = new List<int>();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "GetCalcVersionList";
+                cmd.Parameters.AddWithValue("@idClaim", idClaim);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        result.Add(rd.GetInt32(0));
+                    }
+                }
+                rd.Dispose();
+            }
+
+            return result.ToArray();
         }
 
         #region TenderClaim
-
         public void UpdateClaimDeadline(int idClaim, DateTime claimDeadline)
         {
             using (var conn = new SqlConnection(_connectionString))
@@ -40,7 +101,6 @@ namespace SpeCalcDataAccessLayer
                 rd.Dispose();
             }
         }
-
         public ClaimCert GetCertFile(string guid)
         {
             byte[] file = null;
@@ -63,7 +123,28 @@ namespace SpeCalcDataAccessLayer
             }
             return new ClaimCert() { File = file, FileName = name };
         }
-
+        public TenderClaimFile GetTenderClaimFile(string guid)
+        {
+            byte[] file = null;
+            string name = String.Empty;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "GetTenderClaimFile";
+                cmd.Parameters.AddWithValue("@guid", guid);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    rd.Read();
+                    file = (byte[])rd["fileDATA"];
+                    name = rd["fileName"].ToString();
+                }
+                rd.Dispose();
+            }
+            return new TenderClaimFile() { File = file, FileName = name };
+        }
         public List<ClaimCert> LoadClaimCerts(int idClaim)
         {
             var list = new List<ClaimCert>();
@@ -94,7 +175,63 @@ namespace SpeCalcDataAccessLayer
             }
             return list;
         }
+        public List<TenderClaimFile> LoadTenderClaimFiles(int idClaim)
+        {
+            var list = new List<TenderClaimFile>();
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "LoadTenderClaimFiles";
+                cmd.Parameters.AddWithValue("@IdClaim", idClaim);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        list.Add(new TenderClaimFile()
+                        {
+                            Id = rd.GetInt32(0),
+                            FileUrl = rd.GetString(1),
+                            FileName = rd.GetString(2),
+                            FileGuid = rd["fileGUID"].ToString()
+                        });
+                    }
 
+                }
+                rd.Dispose();
+            }
+            return list;
+        }
+        public bool SaveTenderClaimFile(ref TenderClaimFile model)
+        {
+            var result = false;
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "SaveTenderClaimFile";
+                cmd.Parameters.AddWithValue("@IdClaim", model.IdClaim);
+                cmd.Parameters.AddWithValue("@file", model.File);
+                cmd.Parameters.AddWithValue("@fileName", model.FileName);
+                conn.Open();
+                var rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    rd.Read();
+                    var id = rd.GetInt32(0);
+                    if (id != -1)
+                    {
+                        result = true;
+                        model.Id = id;
+                    }
+                }
+                rd.Dispose();
+            }
+
+            return result;
+        }
         public bool SaveClaimCertFile(ref ClaimCert model)
         {
             var result = false;
@@ -180,7 +317,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public bool ChangeTenderClaimClaimStatus(TenderClaim model)
+        public static bool ChangeTenderClaimClaimStatus(TenderClaim model)
         {
             var result = false;
             using (var conn = new SqlConnection(_connectionString))
@@ -196,7 +333,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public bool ChangeTenderClaimTenderStatus(int idClaim, int status)
+        public static bool ChangeTenderClaimTenderStatus(int idClaim, int status)
         {
             var result = false;
             using (var conn = new SqlConnection(_connectionString))
@@ -297,7 +434,7 @@ namespace SpeCalcDataAccessLayer
             return model;
         }
 
-        public bool HasTenderClaimTransmissedPosition(int id)
+        public bool HasTenderClaimTransmissedPosition(int id, int version)
         {
             var result = false;
             using (var conn = new SqlConnection(_connectionString))
@@ -306,6 +443,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "HasClaimTranmissedPosition";
                 cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@version", version);
                 conn.Open();
                 result = (int)cmd.ExecuteScalar() > 0;
             }
@@ -578,6 +716,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@positionState", model.State);
                 cmd.Parameters.AddWithValue("@author", model.Author);
                 cmd.Parameters.AddWithValue("@currency", model.Currency);
+                cmd.Parameters.AddWithValue("@version", model.Version);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -685,7 +824,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaim(int claimId)
+        public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaim(int claimId, int version)
         {
             var list = new List<SpecificationPosition>();
             using (var conn = new SqlConnection(_connectionString))
@@ -694,6 +833,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "LoadClaimPositionForTenderClaim";
                 cmd.Parameters.AddWithValue("@id", claimId);
+                cmd.Parameters.AddWithValue("@calcVersion", version); 
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -736,7 +876,7 @@ namespace SpeCalcDataAccessLayer
             return list;
         }
 
-        public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaimForProduct(int claimId, string product)
+        public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaimForProduct(int claimId, string product, int version)
         {
             var list = new List<SpecificationPosition>();
             using (var conn = new SqlConnection(_connectionString))
@@ -746,6 +886,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandText = "LoadClaimPositionForTenderClaimForProduct";
                 cmd.Parameters.AddWithValue("@id", claimId);
                 cmd.Parameters.AddWithValue("@product", product);
+                cmd.Parameters.AddWithValue("@calcVersion", version);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -891,7 +1032,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public List<ProductManager> LoadProductManagersForClaim(int claimId)
+        public List<ProductManager> LoadProductManagersForClaim(int claimId, int version = 1, int[] selIds = null, bool? getActualize = null)
         {
             var list = new List<ProductManager>();
             using (var conn = new SqlConnection(_connectionString))
@@ -900,6 +1041,9 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "LoadProductManagersForClaim";
                 cmd.Parameters.AddWithValue("@idClaim", claimId);
+                cmd.Parameters.AddWithValue("@version", version);
+                cmd.Parameters.AddWithValue("@selIds", selIds != null ? String.Join(",",selIds) : null);
+                cmd.Parameters.AddWithValue("@getActualize", getActualize);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -1029,7 +1173,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public List<CalculateSpecificationPosition> LoadCalculateSpecificationPositionsForTenderClaim(int claimId)
+        public List<CalculateSpecificationPosition> LoadCalculateSpecificationPositionsForTenderClaim(int claimId, int version)
         {
             var list = new List<CalculateSpecificationPosition>();
             using (var conn = new SqlConnection(_connectionString))
@@ -1038,6 +1182,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "LoadCalculateClaimPositionForClaim";
                 cmd.Parameters.AddWithValue("@id", claimId);
+                cmd.Parameters.AddWithValue("@version", version);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)

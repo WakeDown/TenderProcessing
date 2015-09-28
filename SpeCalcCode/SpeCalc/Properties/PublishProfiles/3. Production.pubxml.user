@@ -22,10 +22,10 @@
       <publishTime>02/06/2015 11:47:16</publishTime>
     </File>
     <File Include="bin/ActionMailer.Net.dll">
-      <publishTime>01/03/2015 18:04:07</publishTime>
+      <publishTime>03/07/2015 08:20:13</publishTime>
     </File>
     <File Include="bin/ActionMailer.Net.Mvc.dll">
-      <publishTime>01/03/2015 18:04:07</publishTime>
+      <publishTime>03/07/2015 08:20:13</publishTime>
     </File>
     <File Include="bin/App_Data/Specification.xlsx">
       <publishTime>01/01/0001 00:00:00</publishTime>
@@ -51,11 +51,14 @@
     <File Include="bin/Microsoft.QualityTools.Testing.Fakes.dll">
       <publishTime>10/05/2013 01:38:22</publishTime>
     </File>
+    <File Include="bin/Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll">
+      <publishTime>07/07/2015 02:51:38</publishTime>
+    </File>
     <File Include="bin/Microsoft.Web.Infrastructure.dll">
-      <publishTime>01/03/2015 18:04:07</publishTime>
+      <publishTime>03/07/2015 08:20:14</publishTime>
     </File>
     <File Include="bin/Newtonsoft.Json.dll">
-      <publishTime>01/03/2015 18:04:08</publishTime>
+      <publishTime>03/07/2015 08:20:14</publishTime>
     </File>
     <File Include="bin/ru/Microsoft.QualityTools.Testing.Fakes.resources.dll">
       <publishTime>10/05/2013 03:08:00</publishTime>
@@ -82,40 +85,40 @@
       <publishTime>01/03/2015 17:16:03</publishTime>
     </File>
     <File Include="bin/SpeCalc.dll">
-      <publishTime>07/23/2015 11:36:56</publishTime>
+      <publishTime>09/28/2015 11:39:56</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.dll">
-      <publishTime>07/22/2015 14:35:10</publishTime>
+      <publishTime>09/28/2015 11:39:55</publishTime>
     </File>
     <File Include="bin/System.Net.Http.Formatting.dll">
-      <publishTime>01/03/2015 18:04:07</publishTime>
+      <publishTime>03/07/2015 08:20:14</publishTime>
     </File>
     <File Include="bin/System.Web.Helpers.dll">
-      <publishTime>01/03/2015 18:04:07</publishTime>
+      <publishTime>03/07/2015 08:20:14</publishTime>
     </File>
     <File Include="bin/System.Web.Http.dll">
-      <publishTime>01/03/2015 18:04:07</publishTime>
+      <publishTime>03/07/2015 08:20:14</publishTime>
     </File>
     <File Include="bin/System.Web.Http.WebHost.dll">
-      <publishTime>01/03/2015 18:04:07</publishTime>
+      <publishTime>03/07/2015 08:20:14</publishTime>
     </File>
     <File Include="bin/System.Web.Mvc.dll">
-      <publishTime>01/03/2015 18:04:07</publishTime>
+      <publishTime>03/07/2015 08:20:14</publishTime>
     </File>
     <File Include="bin/System.Web.Optimization.dll">
-      <publishTime>01/03/2015 18:04:07</publishTime>
+      <publishTime>03/07/2015 08:20:14</publishTime>
     </File>
     <File Include="bin/System.Web.Razor.dll">
-      <publishTime>01/03/2015 18:04:07</publishTime>
+      <publishTime>03/07/2015 08:20:14</publishTime>
     </File>
     <File Include="bin/System.Web.WebPages.Deployment.dll">
-      <publishTime>01/03/2015 18:04:07</publishTime>
+      <publishTime>03/07/2015 08:20:14</publishTime>
     </File>
     <File Include="bin/System.Web.WebPages.dll">
-      <publishTime>01/03/2015 18:04:07</publishTime>
+      <publishTime>03/07/2015 08:20:14</publishTime>
     </File>
     <File Include="bin/System.Web.WebPages.Razor.dll">
-      <publishTime>01/03/2015 18:04:07</publishTime>
+      <publishTime>03/07/2015 08:20:14</publishTime>
     </File>
     <File Include="bin/TenderProcessing.dll">
       <publishTime>07/17/2015 14:09:15</publishTime>
@@ -124,7 +127,7 @@
       <publishTime>07/14/2015 17:06:33</publishTime>
     </File>
     <File Include="bin/WebGrease.dll">
-      <publishTime>01/03/2015 18:04:08</publishTime>
+      <publishTime>03/07/2015 08:20:14</publishTime>
     </File>
     <File Include="Content/bootstrap-datepicker3.css">
       <publishTime>06/25/2015 17:31:49</publishTime>
@@ -235,7 +238,7 @@
       <publishTime>01/03/2015 17:16:01</publishTime>
     </File>
     <File Include="Content/Site.css">
-      <publishTime>01/07/2015 13:10:05</publishTime>
+      <publishTime>09/17/2015 09:36:29</publishTime>
     </File>
     <File Include="favicon.ico">
       <publishTime>06/25/2015 17:46:11</publishTime>
@@ -274,7 +277,7 @@
       <publishTime>07/18/2015 11:09:14</publishTime>
     </File>
     <File Include="packages.config">
-      <publishTime>07/20/2015 15:08:26</publishTime>
+      <publishTime>09/16/2015 17:29:37</publishTime>
     </File>
     <File Include="PrecompiledApp.config">
       <publishTime>07/22/2015 14:36:11</publishTime>
@@ -282,8 +285,14 @@
     <File Include="Properties/SlowCheetah/SlowCheetah.Transforms.targets">
       <publishTime>06/07/2015 14:37:40</publishTime>
     </File>
+    <File Include="Scripts/bootbox.js">
+      <publishTime>01/09/2015 15:37:23</publishTime>
+    </File>
+    <File Include="Scripts/bootbox.min.js">
+      <publishTime>01/09/2015 15:37:23</publishTime>
+    </File>
     <File Include="Scripts/bootstrap-datepicker.js">
-      <publishTime>06/25/2015 18:22:55</publishTime>
+      <publishTime>06/25/2015 18:23:03</publishTime>
     </File>
     <File Include="Scripts/bootstrap-datepicker.ru.js">
       <publishTime>06/22/2015 13:57:48</publishTime>
@@ -334,7 +343,7 @@
       <publishTime>01/03/2015 17:16:01</publishTime>
     </File>
     <File Include="Scripts/_references.js">
-      <publishTime>06/24/2015 14:47:39</publishTime>
+      <publishTime>09/16/2015 17:29:37</publishTime>
     </File>
     <File Include="Views/Auth/ErrorPage.cshtml">
       <publishTime>07/18/2015 11:10:10</publishTime>
@@ -343,31 +352,31 @@
       <publishTime>01/03/2015 17:16:01</publishTime>
     </File>
     <File Include="Views/Calc/GetSpecificationFile.cshtml">
-      <publishTime>01/03/2015 17:16:01</publishTime>
+      <publishTime>09/16/2015 17:29:37</publishTime>
     </File>
     <File Include="Views/Calc/Index.cshtml">
-      <publishTime>07/22/2015 16:50:11</publishTime>
+      <publishTime>09/17/2015 11:34:56</publishTime>
     </File>
     <File Include="Views/Calc/UploadFileForm.cshtml">
-      <publishTime>07/18/2015 11:10:10</publishTime>
+      <publishTime>09/16/2015 17:29:37</publishTime>
     </File>
     <File Include="Views/Claim/GetListExcelFile.cshtml">
-      <publishTime>01/03/2015 17:16:01</publishTime>
+      <publishTime>09/16/2015 17:29:37</publishTime>
     </File>
     <File Include="Views/Claim/GetSpecificationFile.cshtml">
-      <publishTime>01/03/2015 17:16:01</publishTime>
+      <publishTime>09/16/2015 17:29:37</publishTime>
     </File>
     <File Include="Views/Claim/GetSpecificationFileOnlyCalculation.cshtml">
-      <publishTime>03/10/2015 17:06:01</publishTime>
+      <publishTime>09/16/2015 17:29:37</publishTime>
     </File>
     <File Include="Views/Claim/Index.cshtml">
-      <publishTime>07/23/2015 11:36:30</publishTime>
+      <publishTime>09/17/2015 16:46:36</publishTime>
     </File>
     <File Include="Views/Claim/List.cshtml">
-      <publishTime>07/18/2015 11:10:10</publishTime>
+      <publishTime>09/17/2015 09:41:40</publishTime>
     </File>
     <File Include="Views/Claim/UploadFileForm.cshtml">
-      <publishTime>07/18/2015 11:10:10</publishTime>
+      <publishTime>09/16/2015 17:29:37</publishTime>
     </File>
     <File Include="Views/Error/ChromeOnly.cshtml">
       <publishTime>06/26/2015 14:49:34</publishTime>
@@ -385,13 +394,13 @@
       <publishTime>07/18/2015 11:10:10</publishTime>
     </File>
     <File Include="Views/Question/Index.cshtml">
-      <publishTime>07/18/2015 11:10:10</publishTime>
+      <publishTime>09/17/2015 09:53:43</publishTime>
     </File>
     <File Include="Views/Question/List.cshtml">
       <publishTime>07/18/2015 11:10:10</publishTime>
     </File>
     <File Include="Views/Question/New.cshtml">
-      <publishTime>07/18/2015 11:10:10</publishTime>
+      <publishTime>09/17/2015 09:53:43</publishTime>
     </File>
     <File Include="Views/Question/PosAnswerList.cshtml">
       <publishTime>07/18/2015 11:10:10</publishTime>
@@ -427,7 +436,7 @@
       <publishTime>06/23/2015 16:51:12</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>07/22/2015 16:50:25</publishTime>
+      <publishTime>09/28/2015 11:39:57</publishTime>
     </File>
   </ItemGroup>
 </Project>

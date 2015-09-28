@@ -48,18 +48,44 @@ namespace SpeCalc.Controllers
             //Response.AppendHeader("Content-Disposition", cd.ToString());
             return File(cert.File, "text/plain", cert.FileName);
         }
-
-        //Страница расчета позиций по заявке
-        public ActionResult Index(int? claimId)
+        public ActionResult GetTenderClaimFile(string guid)
         {
-            //проверка наличия доступа к странице
+            var claimFile = new DbEngine().GetTenderClaimFile(guid);
+
+            //var cd = new System.Net.Mime.ContentDisposition
+            //{
+            //    // for example foo.bak
+            //    FileName = guid,
+
+            //    // always prompt the user for downloading, set to true if you want 
+            //    // the browser to try to show the file inline
+            //    Inline = false,
+            //};
+            //Response.AppendHeader("Content-Disposition", cd.ToString());
+            return File(claimFile.File, "text/plain", claimFile.FileName);
+        }
+        //Страница расчета позиций по заявке
+        public ActionResult Index(int? claimId, int? cv)
+        {
             var user = GetUser();
+            if (UserHelper.IsManager(user) || UserHelper.IsOperator(user))
+                return RedirectToAction("Index", "Claim", new { claimId = claimId, cv = cv });
+
+            //проверка наличия доступа к странице
             if (user == null || !UserHelper.IsUserAccess(user))
             {
                 var dict = new RouteValueDictionary();
                 dict.Add("message", "У Вас нет доступа к приложению");
                 return RedirectToAction("ErrorPage", "Auth", dict);
             }
+
+            if (claimId.HasValue && !cv.HasValue)
+            {
+                int lastVersion = DbEngine.GetCalcVersionList(claimId.Value).Last();
+                return RedirectToAction("Index", new { claimId = claimId, cv = lastVersion });
+            }
+
+            
             ViewBag.UserName = user.Name;
             var isController = UserHelper.IsController(user);
             var isProduct = UserHelper.IsProductManager(user);
@@ -90,6 +116,7 @@ namespace SpeCalc.Controllers
                 {
                     claim = db.LoadTenderClaimById(claimId.Value);
                     claim.Certs = db.LoadClaimCerts(claimId.Value);
+                    claim.Files = db.LoadTenderClaimFiles(claimId.Value);
                     var adProductsManager = UserHelper.GetProductManagers();
                     if (claim != null)
                     {
@@ -103,11 +130,11 @@ namespace SpeCalc.Controllers
                         if (!isController)
                         {
                             claim.Positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId.Value,
-                                user.Id);
+                                user.Id, cv.Value);
                         }
                         else
                         {
-                            claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value);
+                            claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
                         }
                         if (claim.Positions != null && claim.Positions.Any())
                         {
@@ -115,7 +142,7 @@ namespace SpeCalc.Controllers
                             if (claim.ClaimStatus == 2)
                             {
                                 claim.ClaimStatus = 3;
-                                db.ChangeTenderClaimClaimStatus(claim);
+                                DbEngine.ChangeTenderClaimClaimStatus(claim);
                                 var statusHistory = new ClaimStatusHistory()
                                 {
                                     IdClaim = claim.Id,
@@ -138,15 +165,21 @@ namespace SpeCalc.Controllers
                             var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
                             foreach (var productManager in productManagers)
                             {
-                                var productManagerFromAd = adProductsManager.First(x => x.Id == productManager.Id);
-                                if (productManagerFromAd != null)
+                                var productUser = UserHelper.GetUserById(productManager.Id);
+                                if (productUser != null)
                                 {
-                                    productManager.Name = productManagerFromAd.Name;
-                                    productManager.ShortName = productManagerFromAd.ShortName;
+                                    productManager.Name = productUser.Name;
+                                    productManager.ShortName = productUser.ShortName;
                                 }
+                                //var productManagerFromAd = adProductsManager.First(x => x.Id == productManager.Id);
+                                //if (productManagerFromAd != null)
+                                //{
+                                //    productManager.Name = productManagerFromAd.Name;
+                                //    productManager.ShortName = productManagerFromAd.ShortName;
+                                //}
                             }
                             //Расчет по позициям
-                            var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value);
+                            var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
                             if (calculations != null && calculations.Any())
                             {
                                 foreach (var position in claim.Positions)
@@ -193,7 +226,7 @@ namespace SpeCalc.Controllers
                 ViewBag.Status = tenderStatus;
                 ViewBag.ProtectFacts = db.LoadProtectFacts();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 ViewBag.Error = true.ToString().ToLower();
             }
@@ -202,7 +235,7 @@ namespace SpeCalc.Controllers
 
         //Excel
         //получение excel файла с инфой по позициям и расчетам к ним
-        public ActionResult GetSpecificationFile(int claimId, bool forManager)
+        public ActionResult GetSpecificationFile(int claimId, bool forManager, int cv)
         {
             XLWorkbook excBook = null;
             var ms = new MemoryStream();
@@ -216,13 +249,13 @@ namespace SpeCalc.Controllers
                 //получение позиций исходя из роли юзера
                 if (UserHelper.IsController(user) || UserHelper.IsManager(user))
                 {
-                    positions = db.LoadSpecificationPositionsForTenderClaim(claimId);
+                    positions = db.LoadSpecificationPositionsForTenderClaim(claimId, cv);
                 }
                 else
                 {
                     if (UserHelper.IsProductManager(user))
                     {
-                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId, user.Id);
+                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId, user.Id, cv);
                     }
                 }
                 if (positions.Any())
@@ -232,7 +265,7 @@ namespace SpeCalc.Controllers
                     if (positions.Any())
                     {
                         //расчет к позициям
-                        var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId);
+                        var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId, cv);
                         if (calculations != null && calculations.Any())
                         {
                             foreach (var position in positions)
@@ -690,7 +723,7 @@ namespace SpeCalc.Controllers
         //Excel
         //обработка загруженного файла excel, с расчетом по позициям
         [HttpPost]
-        public ActionResult UploadFileForm(HttpPostedFileBase file, int claimId)
+        public ActionResult UploadFileForm(HttpPostedFileBase file, int claimId, int cv)
         {
             var error = false;
             var message = string.Empty;
@@ -914,11 +947,11 @@ namespace SpeCalc.Controllers
                         var userPositions = new List<SpecificationPosition>();
                         if (UserHelper.IsController(user))
                         {
-                            userPositions = db.LoadSpecificationPositionsForTenderClaim(claimId);
+                            userPositions = db.LoadSpecificationPositionsForTenderClaim(claimId, cv);
                         }
                         else if (UserHelper.IsProductManager(user))
                         {
-                            userPositions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId, user.Id);
+                            userPositions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId, user.Id, cv);
                         }
                         //позиции доступные для изменения
                         var possibleEditPosition = userPositions.Where(x => x.State == 1 || x.State == 3).ToList();
@@ -962,11 +995,11 @@ namespace SpeCalc.Controllers
                         if (!isController)
                         {
                             positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId,
-                                user.Id);
+                                user.Id, cv);
                         }
                         else
                         {
-                            positions = db.LoadSpecificationPositionsForTenderClaim(claimId);
+                            positions = db.LoadSpecificationPositionsForTenderClaim(claimId, cv);
                         }
                         var productManagers = positions.Select(x => x.ProductManager).ToList();
                         foreach (var productManager in productManagers)
@@ -977,7 +1010,7 @@ namespace SpeCalc.Controllers
                                 productManager.Name = productManagerFromAd.Name;
                             }
                         }
-                        var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId);
+                        var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId, cv);
                         if (calculations != null && calculations.Any())
                         {
                             foreach (var position in positions)
@@ -1078,7 +1111,7 @@ namespace SpeCalc.Controllers
         //>>>>Уведомления
         //отправка позиций на подтверждение - изменение статуса позиции
         [HttpPost]
-        public JsonResult SetPositionToConfirm(List<int> posIds, int idClaim, string comment)
+        public JsonResult SetPositionToConfirm(List<int> posIds, int idClaim, string comment, int cv)
         {
             var isComplete = false;
             var message = string.Empty;
@@ -1091,13 +1124,13 @@ namespace SpeCalc.Controllers
                 var positions = new List<SpecificationPosition>();
                 if (UserHelper.IsController(user))
                 {
-                    positions = db.LoadSpecificationPositionsForTenderClaim(idClaim);
+                    positions = db.LoadSpecificationPositionsForTenderClaim(idClaim, cv);
                 }
                 else
                 {
                     if (UserHelper.IsProductManager(user))
                     {
-                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(idClaim, user.Id);
+                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(idClaim, user.Id, cv);
                     }
                 }
                 //if (positions.Any())
@@ -1120,7 +1153,7 @@ namespace SpeCalc.Controllers
                         if (!isComplete) message = "Позиции не отправлены";
                         else
                         {
-                            var allPositions = db.LoadSpecificationPositionsForTenderClaim(idClaim);
+                            var allPositions = db.LoadSpecificationPositionsForTenderClaim(idClaim, cv);
                             var isAllCalculate = allPositions.Count() ==
                                                  allPositions.Count(x => x.State == 2 || x.State == 4);
                             var claimStatus = isAllCalculate ? 7 : 6;
@@ -1128,7 +1161,7 @@ namespace SpeCalc.Controllers
                             var status = db.LoadLastStatusHistoryForClaim(idClaim).Status.Id;
                             if (status != claimStatus)
                             {
-                                db.ChangeTenderClaimClaimStatus(new TenderClaim()
+                                DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim()
                                 {
                                     Id = idClaim,
                                     ClaimStatus = claimStatus
@@ -1163,7 +1196,7 @@ namespace SpeCalc.Controllers
                             var claim = db.LoadTenderClaimById(idClaim);
                             var host = ConfigurationManager.AppSettings["AppHost"];
                             var productManagersFromAd = UserHelper.GetProductManagers();
-                            var productManagers = db.LoadProductManagersForClaim(claim.Id);
+                            var productManagers = db.LoadProductManagersForClaim(claim.Id, cv);
                             var productInClaim =
                                 productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id))
                                     .ToList();
@@ -1181,7 +1214,7 @@ namespace SpeCalc.Controllers
                                 var messageMail = new StringBuilder();
                                 messageMail.Append("Добрый день!");
                                 messageMail.Append("<br/>");
-                                messageMail.Append("Заявка №" + claim.Id + " полностью расчитана.");
+                                messageMail.Append("Заявка №" + claim.Id + " - версия " + cv + " - полностью расчитана.");
                                 //messageMail.Append("<br/><br />");
                                 //messageMail.Append(GetClaimInfo(claim));
                                 messageMail.Append("<br/>");
@@ -1195,8 +1228,8 @@ namespace SpeCalc.Controllers
                                                    "/Claim/Index?claimId=" + claim.Id + "</a>");
                                 //messageMail.Append("<br/>Сообщение от системы Спец расчет");
                                 Notification.SendNotification(to, messageMail.ToString(),
-                                    String.Format("{0} - {1} - Полный расчет заявки СпецРасчет", claim.TenderNumber,
-                                        claim.Customer));
+                                    String.Format("{0} - версия {2} - {1} - Полный расчет заявки СпецРасчет", claim.TenderNumber,
+                                        claim.Customer, cv));
                             }
                             //>>>>Уведомления
                             if (claimStatus == 6)
@@ -1253,7 +1286,177 @@ namespace SpeCalc.Controllers
             }
             return Json(new { IsComplete = isComplete, Message = message, Model = model }, JsonRequestBehavior.AllowGet);
         }
+        [HttpPost]
+        public JsonResult SetPositionRejected(List<int> posIds, int idClaim, string comment, int cv)
+        {
+            var isComplete = false;
+            var message = string.Empty;
+            ClaimStatusHistory model = null;
+           /* try
+            {*/
+                var user = GetUser();
+                var db = new DbEngine();
+                //получение позиций для текущего юзера
+                var positions = new List<SpecificationPosition>();
+                if (UserHelper.IsController(user))
+                {
+                    positions = db.LoadSpecificationPositionsForTenderClaim(idClaim, cv);
+                }
+                else
+                {
+                    if (UserHelper.IsProductManager(user))
+                    {
+                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(idClaim, user.Id, cv);
+                    }
+                }
+                var positionIds = new List<int>();
+                //if (positions.Any())
+                if (posIds.Any())
+                {
+                    //Переделано для частичной передачи расчета
+                    positionIds = posIds;
+                }
+                //изменения статуса позиций на - отправлено
+                else
+                {
+                    foreach (var position in positions)
+                    {
+                        positionIds.Add(position.Id);
+                    }
+                }       
+                
+                isComplete = db.ChangePositionsState(positionIds,5);
+                if (!isComplete) message = "Позиции не отклонены";
+                else
+                        {
+                            var allPositions = db.LoadSpecificationPositionsForTenderClaim(idClaim, cv);
+                            var isAllRejected = allPositions.Count() ==
+                                                 allPositions.Count(x => x.State == 5);
+                            var lastClaimStatus = db.LoadLastStatusHistoryForClaim(idClaim).Status.Id;
+                    var claimStatus = isAllRejected ? 9 : lastClaimStatus;
+                            //Изменение статуса заявки и истроии изменения статусов
+                            if (lastClaimStatus != claimStatus)
+                            {
+                    DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim()
+                                {
+                                    Id = idClaim,
+                                    ClaimStatus = claimStatus
+                                });
+                                var statusHistory = new ClaimStatusHistory()
+                                {
+                                    Date = DateTime.Now,
+                                    Comment = String.Format("Пользователь {0} отклонил {2} из {3} позиций.<br/>Комментарий: {1} ",user.ShortName,comment,positionIds.Count,allPositions.Count),
+                                    IdClaim = idClaim,
+                                    IdUser = user.Id,
+                                    Status = new ClaimStatus() { Id = claimStatus }
+                                };
+                                db.SaveClaimStatusHistory(statusHistory);
+                                statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
+                                model = statusHistory;
+                            }
+                            else
+                            {
+                                var statusHistory = new ClaimStatusHistory()
+                                {
+                                    Date = DateTime.Now,
+                                    Comment = String.Format("Пользователь {0} отклонил {2} из {3} позиций.<br/>Комментарий: {1} ", user.ShortName, comment, positionIds.Count, allPositions.Count),
+                                    IdClaim = idClaim,
+                                    IdUser = user.Id,
+                                    Status = new ClaimStatus() { Id = lastClaimStatus }
+                                };
+                                db.SaveClaimStatusHistory(statusHistory);
+                                statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
+                                model = statusHistory;
+                            }
+                            //инфа для уведомления
+                            var claim = db.LoadTenderClaimById(idClaim);
+                            var host = ConfigurationManager.AppSettings["AppHost"];
+                            var productManagersFromAd = UserHelper.GetProductManagers();
+                            var productManagers = db.LoadProductManagersForClaim(claim.Id);
+                            var productInClaim =
+                                productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id))
+                                    .ToList();
+                            var manager = UserHelper.GetUserById(claim.Manager.Id);
+                            var author = UserHelper.GetUserById(claim.Author.Id);
+                            var to = new List<UserBase>();
+                            to.Add(manager);
+                            if (author.Id != manager.Id)
+                            {
+                                to.Add(author);
+                            }
+                            //>>>>Уведомления
+                            if (claimStatus == 9)
+                            {
+                                var messageMail = new StringBuilder();
+                                messageMail.Append("Добрый день!<br/>");
+                                messageMail.Append("Позиции в заявке № " + claim.Id + " отклонены пользователем " + user.Name + ".<br/>");
+                                messageMail.Append("Отклонены все позиции.<br/>");
+                                messageMail.Append("Комментарий:<br/>");
+                                messageMail.Append(comment+"<br/>");
+                                //messageMail.Append("Продакты/Снабженцы: <br/>");
+                                //foreach (var productManager in productInClaim)
+                                //{
+                                //    messageMail.Append(productManager.Name + "<br/>");
+                                //}
+                                messageMail.Append("Ссылка на заявку: ");
+                                messageMail.Append("<a href='" + host + "/Claim/Index?claimId=" + claim.Id + "'>" + host +
+                                                   "/Claim/Index?claimId=" + claim.Id + "</a>");
+                                //messageMail.Append("<br/>Сообщение от системы Спец расчет");
+                                Notification.SendNotification(to, messageMail.ToString(),
+                                    String.Format("{0} - {1} - Полное отклонение заявки СпецРасчет", claim.TenderNumber,
+                                        claim.Customer));
+                            }
+                            //>>>>Уведомления
+                            if (claimStatus == lastClaimStatus)
+                            {
+                                var noneRejectedPositionManagers =
+                                    allPositions.Where(x => x.State == 1 || x.State == 3)
+                                        .Select(x => x.ProductManager)
+                                        .ToList();
+                                if (noneRejectedPositionManagers.Any())
+                                {
+                                    var products =
+                                        productManagersFromAd.Where(
+                                            x => noneRejectedPositionManagers.Select(y => y.Id).Contains(x.Id))
+                                            .ToList();
+                                    var messageMail = new StringBuilder();
+                                    messageMail.Append("Добрый день!<br/>");
+                                    messageMail.Append("Позиции в заявке №" + claim.Id + " отклонены пльзователем "+             user.Name+".<br/>");
+                                    messageMail.Append("Отклонено позиций "+allPositions.Count(x => x.State==5)+" из "+allPositions.Count+".<br/>");
+                                    
+                                    //messageMail.Append("<br/>");
+                                    //messageMail.Append(GetClaimInfo(claim));
+                                    //messageMail.Append("<br/>");
 
+                                    messageMail.Append("Ссылка на заявку: ");
+                                    messageMail.Append("<a href='" + host + "/Claim/Index?claimId=" + claim.Id + "'>" +
+                                                       host +
+                                                       "/Claim/Index?claimId=" + claim.Id + "</a>");
+                                    //messageMail.Append("<br/>Сообщение от системы Спец расчет");
+                                    Notification.SendNotification(to, messageMail.ToString(),
+                                        String.Format("{0} - {1} - Частичное отклонение заявки СпецРасчет",
+                                            claim.TenderNumber, claim.Customer));
+                                }
+                            }
+                        }
+                  /*   }
+                    else
+                    {
+                        message = "Невозможно отправить позиции на подтверждение\rНе все позиции имеют расчет";
+                   }
+              }
+                else
+                {
+                    message = "Выберите хотябы одну позицию!";
+                }*/
+      /*      }
+            catch (Exception)
+            {
+                isComplete = false;
+                message = "Ошибка сервера";
+            }*/
+            return Json(new { IsComplete = isComplete, Message = message, Model = model }, JsonRequestBehavior.AllowGet);
+        }
         //>>>>Уведомления
         //переназначение позиций другому снабженцу
         [HttpPost]
