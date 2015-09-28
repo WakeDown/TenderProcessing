@@ -15,7 +15,6 @@ namespace Stuff.Objects
     public class DbModel
     {
         public static string OdataServiceUri = ConfigurationManager.AppSettings["OdataServiceUri"];//"http://uiis-1:10002/odata";
-
         private static string AuthorizationHeaderValue
         {
             get

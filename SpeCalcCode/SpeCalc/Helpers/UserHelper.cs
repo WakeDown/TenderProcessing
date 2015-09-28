@@ -192,7 +192,7 @@ namespace SpeCalc.Helpers
                     {
                         var userPrincipal = UserPrincipal.FindByIdentity(domain, principal.Name);
                         if (userPrincipal != null)
-                        {
+                        {   
                             var email = userPrincipal.EmailAddress;
                             var name = userPrincipal.DisplayName;
                             var sid = userPrincipal.Sid.Value;

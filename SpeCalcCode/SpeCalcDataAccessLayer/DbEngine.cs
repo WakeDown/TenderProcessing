@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using SpeCalcDataAccessLayer.Enums;
 using SpeCalcDataAccessLayer.Models;
 
+
 namespace SpeCalcDataAccessLayer
 {
 
@@ -23,6 +24,7 @@ namespace SpeCalcDataAccessLayer
         {
         }
 
+       
         public static DataTable GetCalcPositionsChanges(int idCalcPosition)
         {
             DataTable dt = new DataTable();
@@ -479,7 +481,8 @@ namespace SpeCalcDataAccessLayer
                 if (filter.IdClaim != 0) cmd.Parameters.AddWithValue("@idClaim", filter.IdClaim);
                 if (!string.IsNullOrEmpty(filter.TenderNumber)) cmd.Parameters.AddWithValue("@tenderNumber", filter.TenderNumber);
                 if (filter.ClaimStatus != null && filter.ClaimStatus.Any()) cmd.Parameters.AddWithValue("@claimStatusIds", string.Join(",", filter.ClaimStatus));
-                if (!string.IsNullOrEmpty(filter.IdManager)) cmd.Parameters.AddWithValue("@manager", filter.IdManager);
+                if (!string.IsNullOrEmpty(filter.IdManager))
+                cmd.Parameters.AddWithValue("@manager", filter.IdManager);
                 if (!string.IsNullOrEmpty(filter.ManagerSubDivision)) cmd.Parameters.AddWithValue("@managerSubDivision", filter.ManagerSubDivision);
                 if (filter.Overdie.HasValue) cmd.Parameters.AddWithValue("@overdie", filter.Overdie);
                 if (!string.IsNullOrEmpty(filter.IdProductManager)) cmd.Parameters.AddWithValue("@idProductManager", filter.IdProductManager);
