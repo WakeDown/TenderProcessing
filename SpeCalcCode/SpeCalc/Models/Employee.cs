@@ -33,6 +33,11 @@ namespace SpeCalc.Models
 
             return managers;
         }
+        /// <summary>
+        /// Возвращает подчиненных владельца id как список продактов
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public static List<ProductManager> GetSubordinateProductManagers(string id)
         {
             var sidList = GetSubordinates(id);
@@ -48,7 +53,6 @@ namespace SpeCalc.Models
                         Id = subordinate.Id,
                         Name = subordinate.Name,
                         ShortName = subordinate.ShortName,
-                        Email = subordinate.Email,
                         Roles = new List<Role>() { Role.ProductManager }
                     };
                     subordinateList.Add(productManagerSubordinate);
@@ -58,6 +62,11 @@ namespace SpeCalc.Models
             subordinateList = subordinateList.OrderBy(m => m.ShortName).ToList();
             return subordinateList;
         }
+        /// <summary>
+        /// Возвращает подчиненных владельца id как список менеджеров
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public static List<Manager> GetSubordinateManagers(string id)
         {
             var sidList = GetSubordinates(id);
@@ -86,13 +95,17 @@ namespace SpeCalc.Models
             subordinateList = subordinateList.OrderBy(m => m.ShortName).ToList();
             return subordinateList;
         }
-
-        public static List<string> GetSubordinates(string sid)
+        /// <summary>
+        /// Возвращает список sid`ов подчиненных владельца id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static List<string> GetSubordinates(string id)
         {
-            Uri uri = new Uri(String.Format("{0}/Employee/GetSubordinatesSimple?sid={1}", OdataServiceUri, sid));
+            Uri uri = new Uri(String.Format("{0}/Employee/GetSubordinatesSimple?sid={1}", OdataServiceUri, id));
             string jsonString = GetJson(uri);
             var dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonString);
-            var sidList = new List<string>() {sid};
+            var sidList = new List<string>() {id};
             foreach (var pair in dictionary)
             {
                 sidList.Add(pair.Key);

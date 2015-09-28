@@ -329,15 +329,7 @@ namespace SpeCalc.Controllers
                                     return RedirectToAction("ErrorPage", "Auth", dict);
                                 }
                             }
-                            else
-                            {
-                                if (claim.Author.Id != user.Id)
-                                {
-                                    var dict = new RouteValueDictionary();
-                                    dict.Add("message", "У Вас нет доступа к этой странице");
-                                    return RedirectToAction("ErrorPage", "Auth", dict);
-                                }
-                            }
+                            
                         }
                         var managerFromAd = managers.FirstOrDefault(x => x.Id == claim.Manager.Id);
                         if (managerFromAd != null)
