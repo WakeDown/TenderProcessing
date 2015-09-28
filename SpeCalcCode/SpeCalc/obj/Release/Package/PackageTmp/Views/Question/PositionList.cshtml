@@ -37,7 +37,7 @@
                     </div>
                 </td>
                 <td>
-                    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager) && queState == 1)
+                    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator) && queState == 1)
                     {
                         <button class="btn btn-link" name="delele-pos" posid="@pos.Id" data-toggle="tooltip" title="удалить вопрос"><i class="fa fa-trash"></i></button>
                     }

@@ -41,7 +41,7 @@
                     <tr>
                         <td class="text-right"></td>
                         <td>
-                            @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager) && (Model.State == null || Model.State.OrderNum == 1))
+                            @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator) && (Model.State == null || Model.State.OrderNum == 1))
 {
     <button class="btn btn-success" name="action:SetQuestionSent">В работу</button>
 }
@@ -72,12 +72,12 @@
         </div>
     </div>
 
-    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager) && Model.State.OrderNum == 1)
+    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator) && Model.State.OrderNum == 1)
     {
         @Html.Partial("AddPosition", new QuePosition() { Question = new Question() { Id = Model.Id } });
     }
 
-    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager, AdGroup.SpeCalcProduct))
+    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator, AdGroup.SpeCalcProduct))
     {
         @Html.Partial("PositionList", Model.GetPositions());
     }
