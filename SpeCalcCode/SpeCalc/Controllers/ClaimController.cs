@@ -14,6 +14,7 @@ using System.Web.Script.Serialization;
 using System.Web.UI.WebControls;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json;
@@ -504,12 +505,12 @@ namespace SpeCalc.Controllers
                 };
                 if (!string.IsNullOrEmpty(filterManager)) filter.IdManager = filterManager;
                 else
-                    filter.IdManager = isManager
+                    filter.IdManager = isManager && !isController
                         ? String.Join(",", Employee.GetSubordinates(user.Id))
                         : String.Empty;
                 if (!string.IsNullOrEmpty(filterProduct)) filter.IdProductManager = filterProduct;
                 else
-                    filter.IdProductManager = isProduct
+                    filter.IdProductManager = isProduct && !isController
                         ? String.Join(",", Employee.GetSubordinates(user.Id))
                         : String.Empty;
                 if (!string.IsNullOrEmpty(author)) filter.Author = author;
@@ -517,10 +518,10 @@ namespace SpeCalc.Controllers
                 var claims = db.FilterTenderClaims(filter);
                 //снабженцы и менеджеры из ActiveDirectory
 
-                var adProductManagers = isProduct
+                var adProductManagers = isProduct && !isController
                     ? Employee.GetSubordinateProductManagers(user.Id)
                     : UserHelper.GetProductManagers();
-                var managers = isManager
+                var managers = isManager && !isController
                     ? Employee.GetSubordinateManagers(user.Id)
                     : UserHelper.GetManagers();
 
@@ -1944,11 +1945,16 @@ namespace SpeCalc.Controllers
             var count = -1;
             try
             {
-                var isManager = UserHelper.IsManager(GetUser());
+                var user = GetUser();
+                var isController = UserHelper.IsController(user);
+                var isProduct = UserHelper.IsProductManager(user);
+                var isManager = UserHelper.IsManager(user);
                 var db = new DbEngine();
                 if (model.RowCount == 0) model.RowCount = 10;
-                if (string.IsNullOrEmpty(model.IdManager) && isManager)
-                    model.IdManager =string.Join(",", Employee.GetSubordinates(GetUser().Id)) ;
+                if (string.IsNullOrEmpty(model.IdManager) && isManager && !isController)
+                    model.IdManager = string.Join(",", Employee.GetSubordinates(GetUser().Id));
+                if (string.IsNullOrEmpty(model.IdProductManager) && isProduct && !isController)
+                    model.IdProductManager = string.Join(",", Employee.GetSubordinates(GetUser().Id));
                 list = db.FilterTenderClaims(model);
                 var adProductManagers = UserHelper.GetProductManagers();
                 var managers = UserHelper.GetManagers();
