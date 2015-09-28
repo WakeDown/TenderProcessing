@@ -94,10 +94,10 @@
       <publishTime>09/16/2015 17:29:36</publishTime>
     </File>
     <File Include="bin/SpeCalc.dll">
-      <publishTime>09/17/2015 15:51:30</publishTime>
+      <publishTime>09/17/2015 16:47:18</publishTime>
     </File>
     <File Include="bin/SpeCalc.pdb">
-      <publishTime>09/17/2015 15:51:30</publishTime>
+      <publishTime>09/17/2015 16:47:18</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.dll">
       <publishTime>09/17/2015 09:53:43</publishTime>
@@ -388,7 +388,7 @@
       <publishTime>09/16/2015 17:29:37</publishTime>
     </File>
     <File Include="Views/Claim/Index.cshtml">
-      <publishTime>09/17/2015 10:42:33</publishTime>
+      <publishTime>09/17/2015 16:46:36</publishTime>
     </File>
     <File Include="Views/Claim/List.cshtml">
       <publishTime>09/17/2015 09:41:40</publishTime>

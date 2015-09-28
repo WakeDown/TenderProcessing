@@ -49,3 +49,4 @@ D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Release\SpeCal
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Release\SpeCalc.dll
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Release\SpeCalc.pdb
 D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Release\SpeCalc.csprojResolveAssemblyReference.cache
+D:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll

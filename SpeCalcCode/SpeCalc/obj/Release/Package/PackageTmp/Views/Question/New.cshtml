@@ -9,9 +9,9 @@
 @using (Html.BeginForm("New", "Question", FormMethod.Post, new { @id = "queForm", @class = "form-horizontal", data_toggle = "validator", role = "form" }))
 {
     <div class="form-group">
-        <label class="col-lg-2 control-label" for="manager">Менеджер</label>
+        <label class="col-lg-2 control-label" for="manager">Автор</label>
         <div class="col-lg-2">
-            @Html.DropDownListFor(m => m.Manager.AdSid, DbList.GetManagerSelectionList(), "--выберите--", new { @class = "form-control required-mark", @id = "manager", @required="required" })
+            @Html.DropDownListFor(m => m.Manager.AdSid, DbList.GetManagerAndOperatorSelectionList(), "--выберите--", new { @class = "form-control required-mark", @id = "manager", @required="required" })
             <span class="help-block with-errors"></span>
         </div>
     </div>
