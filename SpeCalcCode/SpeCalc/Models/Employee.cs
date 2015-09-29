@@ -128,19 +128,19 @@ namespace SpeCalc.Models
             return managers;
         }
 
-        public static IEnumerable<Employee> GetOperatorSelectionList()
-        {
-            var operators = new List<Employee>();
+        //public static IEnumerable<KeyValuePair<string, string>> GetOperatorSelectionList()
+        //{
+        //    //var operators = new List<Employee>();
 
-            foreach (UserBase manager in UserHelper.GetOperators())
-            {
-                if (!String.IsNullOrEmpty(manager.ShortName))
-                    operators.Add(new Employee() { AdSid = manager.Id, DisplayName = manager.ShortName });
-            }
+        //    //foreach (var oper in UserHelper.GetOperators())
+        //    //{
+        //    //    if (!String.IsNullOrEmpty(manager.ShortName))
+        //    //        operators.Add(new Employee() { AdSid = manager.Id, DisplayName = manager.ShortName });
+        //    //}
 
-            operators = operators.OrderBy(m => m.DisplayName).ToList();
+        //    //operators = operators.OrderBy(m => m.DisplayName).ToList();
 
-            return operators;
-        }
+        //    return UserHelper.GetOperators();
+        //}
     }
 }

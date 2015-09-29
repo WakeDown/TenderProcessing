@@ -8,15 +8,18 @@ using System.Net;
 using System.Security.Principal;
 using System.Text;
 using System.Web;
+using System.Web.Mvc;
+using Newtonsoft.Json;
 using SpeCalc.Objects;
 using SpeCalcDataAccessLayer;
 using SpeCalcDataAccessLayer.Enums;
 using SpeCalcDataAccessLayer.Models;
+using Stuff.Objects;
 
 namespace SpeCalc.Helpers
 {
     //класс для работы с юзерами из ActiveDirectory
-    public static class UserHelper
+    public class UserHelper:DbModel
     {
         private static NetworkCredential nc = Settings.GetAdUserCredentials();
 
@@ -230,106 +233,115 @@ namespace SpeCalc.Helpers
             }
         }
 
-        public static List<Operator> GetOperators()
+        public static IEnumerable<KeyValuePair<string, string>> GetUserSelectionList(AdGroup group)
         {
-            using (WindowsImpersonationContextFacade impersonationContext
-                = new WindowsImpersonationContextFacade(
-                    nc))
-            {
-                var list = new List<Operator>();
-                var domain = new PrincipalContext(ContextType.Domain);
-                var group = GroupPrincipal.FindByIdentity(domain, IdentityType.Name,
-                    _roles.First(x => x.Role == Role.Operator).Name);
-                if (group != null)
-                {
-                    var members = group.GetMembers(true);
-                    foreach (var principal in members)
-                    {
-                        var userPrincipal = UserPrincipal.FindByIdentity(domain, principal.Name);
-                        if (userPrincipal != null)
-                        {
-                            var email = userPrincipal.EmailAddress;
-                            var name = userPrincipal.DisplayName;
-                            var sid = userPrincipal.Sid.Value;
-                            var shortName = GetShortName(name);
-                            var departament = GetProperty(userPrincipal, "department");
-                            var manager = GetProperty(userPrincipal, "manager");
-                            var managerShortName = string.Empty;
-                            if (!string.IsNullOrEmpty(manager))
-                            {
-                                var managerUser = UserPrincipal.FindByIdentity(domain, manager);
-                                if (managerUser != null)
-                                {
-                                    manager = managerUser.DisplayName;
-                                    managerShortName = GetShortName(manager);
-                                }
-                            }
-                            var user = new Operator()
-                            {
-                                Id = sid,
-                                Name = name,
-                                ShortName = shortName,
-                                Email = email,
-                                SubDivision = departament,
-                                Chief = manager,
-                                ChiefShortName = managerShortName,
-                                Roles = new List<Role>() { Role.Manager }
-                            };
-                            list.Add(user);
-                        }
-                    }
-                }
-                list = list.OrderBy(m => m.ShortName).ToList();
-
-                return list;
-            }
+            Uri uri = new Uri($"{OdataServiceUri}/Ad/GetUserListByAdGroup?group={group}");
+            string jsonString = GetJson(uri);
+            var model = JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(jsonString);
+            return model;
         }
 
-        public static List<ControllerUser> GetControllerUsers()
-        {
-            return  new List<ControllerUser>()
-            {
-                new ControllerUser() { Id = "bngbtjradbdfgbffg", Name = "Тихонов Андрей", Roles = new List<Role>() { Role.Enter, Role.Controller}},
-                new ControllerUser() { Id = "uyjtjuktsdfvwvfv", Name = "Аршавин Денис", Roles = new List<Role>() { Role.Enter, Role.Controller, Role.TenderStatus}},
-            };
-        }
+        //public static IEnumerable<KeyValuePair<string, string>> GetOperators()
+        //{
+        //    return GetUserSelectionList(AdGroup.SpeCalcOperator);
+        //    //using (WindowsImpersonationContextFacade impersonationContext
+        //    //    = new WindowsImpersonationContextFacade(
+        //    //        nc))
+        //    //{
+        //    //    var list = new List<Operator>();
+        //    //    var domain = new PrincipalContext(ContextType.Domain);
+        //    //    var group = GroupPrincipal.FindByIdentity(domain, IdentityType.Name,
+        //    //        _roles.First(x => x.Role == Role.Operator).Name);
+        //    //    if (group != null)
+        //    //    {
+        //    //        var members = group.GetMembers(true);
+        //    //        foreach (var principal in members)
+        //    //        {
+        //    //            var userPrincipal = UserPrincipal.FindByIdentity(domain, principal.Name);
+        //    //            if (userPrincipal != null)
+        //    //            {
+        //    //                var email = userPrincipal.EmailAddress;
+        //    //                var name = userPrincipal.DisplayName;
+        //    //                var sid = userPrincipal.Sid.Value;
+        //    //                var shortName = GetShortName(name);
+        //    //                var departament = GetProperty(userPrincipal, "department");
+        //    //                var manager = GetProperty(userPrincipal, "manager");
+        //    //                var managerShortName = string.Empty;
+        //    //                if (!string.IsNullOrEmpty(manager))
+        //    //                {
+        //    //                    var managerUser = UserPrincipal.FindByIdentity(domain, manager);
+        //    //                    if (managerUser != null)
+        //    //                    {
+        //    //                        manager = managerUser.DisplayName;
+        //    //                        managerShortName = GetShortName(manager);
+        //    //                    }
+        //    //                }
+        //    //                var user = new Operator()
+        //    //                {
+        //    //                    Id = sid,
+        //    //                    Name = name,
+        //    //                    ShortName = shortName,
+        //    //                    Email = email,
+        //    //                    SubDivision = departament,
+        //    //                    Chief = manager,
+        //    //                    ChiefShortName = managerShortName,
+        //    //                    Roles = new List<Role>() { Role.Manager }
+        //    //                };
+        //    //                list.Add(user);
+        //    //            }
+        //    //        }
+        //    //    }
+        //    //    list = list.OrderBy(m => m.ShortName).ToList();
 
-        public static List<TenderStatusUser> GetTenderStatusUsers()
-        {
-            return new List<TenderStatusUser>()
-            {
-                new TenderStatusUser() { Id = "rtyutyujyujyuj", Name = "C. Ronaldo", Roles = new List<Role>() { Role.Enter, Role.TenderStatus, Role.ProductManager}},
-                new TenderStatusUser() { Id = "iumsdfvsdfsdr", Name = "L. Modrich", Roles = new List<Role>() { Role.Enter, Role.TenderStatus}},
-            };
-        }
+        //    //    return list;
+        //    //}
+        //}
 
-        public static UserBase GetUserByName(string name)
-        {
-            UserBase user = null;
-            var managers = GetManagers();
-            user = managers.FirstOrDefault(x => x.Name == name);
-            if (user == null)
-            {
-                var products = GetProductManagers();
-                user = products.FirstOrDefault(x => x.Name == name);
-            }
-            if (user == null)
-            {
-                var operators = GetOperators();
-                user = operators.FirstOrDefault(x => x.Name == name);
-            }
-            if (user == null)
-            {
-                var controllerUsers = GetControllerUsers();
-                user = controllerUsers.FirstOrDefault(x => x.Name == name);
-            }
-            if (user == null)
-            {
-                var tenderStatusUsers = GetTenderStatusUsers();
-                user = tenderStatusUsers.FirstOrDefault(x => x.Name == name);
-            }
-            return user;
-        }
+        //public static List<ControllerUser> GetControllerUsers()
+        //{
+        //    return  new List<ControllerUser>()
+        //    {
+        //        new ControllerUser() { Id = "bngbtjradbdfgbffg", Name = "Тихонов Андрей", Roles = new List<Role>() { Role.Enter, Role.Controller}},
+        //        new ControllerUser() { Id = "uyjtjuktsdfvwvfv", Name = "Аршавин Денис", Roles = new List<Role>() { Role.Enter, Role.Controller, Role.TenderStatus}},
+        //    };
+        //}
+
+        //public static List<TenderStatusUser> GetTenderStatusUsers()
+        //{
+        //    return new List<TenderStatusUser>()
+        //    {
+        //        new TenderStatusUser() { Id = "rtyutyujyujyuj", Name = "C. Ronaldo", Roles = new List<Role>() { Role.Enter, Role.TenderStatus, Role.ProductManager}},
+        //        new TenderStatusUser() { Id = "iumsdfvsdfsdr", Name = "L. Modrich", Roles = new List<Role>() { Role.Enter, Role.TenderStatus}},
+        //    };
+        //}
+
+        //public static UserBase GetUserByName(string name)
+        //{
+        //    UserBase user = null;
+        //    var managers = GetManagers();
+        //    user = managers.FirstOrDefault(x => x.Name == name);
+        //    if (user == null)
+        //    {
+        //        var products = GetProductManagers();
+        //        user = products.FirstOrDefault(x => x.Name == name);
+        //    }
+        //    if (user == null)
+        //    {
+        //        var operators = GetOperators();
+        //        user = operators.FirstOrDefault(x => x.Name == name);
+        //    }
+        //    if (user == null)
+        //    {
+        //        var controllerUsers = GetControllerUsers();
+        //        user = controllerUsers.FirstOrDefault(x => x.Name == name);
+        //    }
+        //    if (user == null)
+        //    {
+        //        var tenderStatusUsers = GetTenderStatusUsers();
+        //        user = tenderStatusUsers.FirstOrDefault(x => x.Name == name);
+        //    }
+        //    return user;
+        //}
 
         //получение юзера по id(sid)
         public static UserBase GetUserById(string id)
