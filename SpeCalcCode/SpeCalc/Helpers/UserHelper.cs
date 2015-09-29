@@ -422,12 +422,14 @@ namespace SpeCalc.Helpers
                     var name = userPrincipal.DisplayName;
                     var sid = userPrincipal.Sid.Value;
                     var shortName = GetShortName(name);
+                    var manager = GetProperty(userPrincipal, "manager");
                     user = new UserBase()
                     {
                         Id = sid,
                         Name = name,
                         ShortName = shortName,
                         Email = email,
+                        ManagerName = manager,
                         Roles = new List<Role>() { Role.Enter }
                     };
                 }
