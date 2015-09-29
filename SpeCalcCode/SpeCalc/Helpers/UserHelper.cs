@@ -232,6 +232,26 @@ namespace SpeCalc.Helpers
                 return list;
             }
         }
+        public static List<Manager> GetManagersSelectionList()
+        {
+            var list = new List<Manager>();
+            foreach (var item in GetUserSelectionList(AdGroup.SpeCalcManager))
+            {
+                list.Add(new Manager() { Id = item.Key, ShortName = item.Value });
+            }
+            return list;
+        }
+        public static List<ProductManager> GetProductManagersSelectionList()
+        {
+           
+            var list = new List<ProductManager>();
+            foreach (var item in GetUserSelectionList(AdGroup.SpeCalcProduct))
+            {
+                list.Add(new ProductManager() {Id=item.Key, ShortName = item.Value});
+            }
+            return list;
+        }
+
 
         public static IEnumerable<KeyValuePair<string, string>> GetUserSelectionList(AdGroup group)
         {
@@ -240,6 +260,25 @@ namespace SpeCalc.Helpers
             var model = JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(jsonString);
             return model;
         }
+
+        public static IEnumerable<KeyValuePair<string, string>> GetAuthorsSelectionList()
+        {
+            var list = new Dictionary<string, string>();
+            var man = UserHelper.GetUserSelectionList(AdGroup.SpeCalcManager);  //Employee.GetManagerSelectionList();
+
+            foreach (var m in man)
+            {
+                if (!list.ContainsKey(m.Key))
+                    list.Add(m.Key, m.Value);
+            }
+
+            var oper = UserHelper.GetUserSelectionList(AdGroup.SpeCalcOperator);
+            foreach (var o in oper)
+            {
+                if (!list.ContainsKey(o.Key)) list.Add(o.Key, o.Value);
+            }
+            return list;
+        } 
 
         //public static IEnumerable<KeyValuePair<string, string>> GetOperators()
         //{
@@ -389,7 +428,7 @@ namespace SpeCalc.Helpers
                         Name = name,
                         ShortName = shortName,
                         Email = email,
-                        Roles = new List<Role>() {Role.Enter}
+                        Roles = new List<Role>() { Role.Enter }
                     };
                 }
                 return user;

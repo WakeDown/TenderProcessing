@@ -20,6 +20,7 @@ using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json;
 using SpeCalc.Helpers;
 using SpeCalc.Models;
+using SpeCalc.Objects;
 using SpeCalcDataAccessLayer;
 using SpeCalcDataAccessLayer.Enums;
 using SpeCalcDataAccessLayer.Models;
@@ -326,7 +327,8 @@ namespace SpeCalc.Controllers
                         {
                             if (isManager)
                             {
-                                if (!Employee.GetSubordinates(user.Id).Contains(claim.Manager.Id) && !Employee.GetSubordinates(user.Id).Contains(claim.Author.Id))
+                                var subs = Employee.GetSubordinates(user.Id).ToList();
+                                if (!Employee.UserIsSubordinate(subs, claim.Manager.Id) && !Employee.UserIsSubordinate(subs, claim.Author.Id))
                                 {
                                     var dict = new RouteValueDictionary();
                                     dict.Add("message", "У Вас нет доступа к этой странице");
@@ -516,13 +518,17 @@ namespace SpeCalc.Controllers
                 if (filterClaimStatus.Any()) filter.ClaimStatus = filterClaimStatus;
                 var claims = db.FilterTenderClaims(filter);
                 //снабженцы и менеджеры из ActiveDirectory
-
-                var adProductManagers = isProduct && !isController
-                    ? Employee.GetSubordinateProductManagers(user.Id)
-                    : UserHelper.GetProductManagers();
-                var managers = isManager && !isController
+                var prodManSelList = UserHelper.GetProductManagersSelectionList();
+                var adProductManagers = 
+                    isProduct && !isController? Employee.GetSubordinateProductManagers(user.Id):
+                    prodManSelList;
+                var managers =
+                    isManager && !isController
                     ? Employee.GetSubordinateManagers(user.Id)
-                    : UserHelper.GetManagers();
+                    :
+                    UserHelper.GetManagersSelectionList();
+
+                //var prodManSelList = UserHelper.Get();
 
                 if (claims != null && claims.Any())
                 {
@@ -530,12 +536,12 @@ namespace SpeCalc.Controllers
                     var claimProductManagers = claims.SelectMany(x => x.ProductManagers).ToList();
                     foreach (var claimProductManager in claimProductManagers)
                     {
-                        var productUser = UserHelper.GetUserById(claimProductManager.Id);
-                        if (productUser != null)
-                        {
-                            claimProductManager.Name = productUser.Name;
-                            claimProductManager.ShortName = productUser.ShortName;
-                        }
+                        //var productUser = UserHelper.GetUserById(claimProductManager.Id);
+                        //if (productUser != null)
+                        //{
+                            //claimProductManager.Name = productUser.Name;
+                            claimProductManager.ShortName = prodManSelList.Find(x=>x.Id== claimProductManager.Id).ShortName;
+                        //}
                         //var managerFromAD = adProductManagers.FirstOrDefault(x => x.Id == claimProductManager.Id);
                         //if (managerFromAD != null)
                         //{
@@ -543,6 +549,7 @@ namespace SpeCalc.Controllers
                         //    claimProductManager.ShortName = managerFromAD.ShortName;
                         //}
                     }
+                    var authorsList = UserHelper.GetAuthorsSelectionList();
                     foreach (var claim in claims)
                     {
                         var manager = managers.FirstOrDefault(x => x.Id == claim.Manager.Id);
@@ -550,7 +557,9 @@ namespace SpeCalc.Controllers
                         {
                             claim.Manager.ShortName = manager.ShortName;
                         }
-                        claim.Author = UserHelper.GetUserById(claim.Author.Id);
+                        var auth = authorsList.SingleOrDefault(x => x.Key == claim.Author.Id);
+                        claim.Author = new UserBase() { Id= auth.Key, ShortName = auth.Value};// UserHelper.GetUserById(claim.Author.Id);
+
                     }
                     db.SetStatisticsForClaims(claims);
                 }

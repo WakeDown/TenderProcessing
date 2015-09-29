@@ -165,21 +165,22 @@ namespace SpeCalc.Controllers
                             var hasAccess = isController;
                             var subordinateList = Employee.GetSubordinates(user.Id);
                             var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
+
                             foreach (var productManager in productManagers)
                             {
-                                hasAccess = hasAccess || subordinateList.Contains(productManager.Id);
-                                var productUser = UserHelper.GetUserById(productManager.Id);
-                                if (productUser != null)
-                                {
-                                    productManager.Name = productUser.Name;
-                                    productManager.ShortName = productUser.ShortName;
-                                }
-                                //var productManagerFromAd = adProductsManager.First(x => x.Id == productManager.Id);
-                                //if (productManagerFromAd != null)
+                                //hasAccess = hasAccess || subordinateList.ToList().Contains(productManager.Id);
+                                //var productUser = UserHelper.GetUserById(productManager.Id);
+                                //if (productUser != null)
                                 //{
-                                //    productManager.Name = productManagerFromAd.Name;
-                                //    productManager.ShortName = productManagerFromAd.ShortName;
+                                //    productManager.Name = productUser.Name;
+                                //    productManager.ShortName = productUser.ShortName;
                                 //}
+                                var productManagerFromAd = adProductsManager.First(x => x.Id == productManager.Id);
+                                if (productManagerFromAd != null)
+                                {
+                                    productManager.Name = productManagerFromAd.Name;
+                                    productManager.ShortName = productManagerFromAd.ShortName;
+                                }
                             }
                             if (!hasAccess && isProduct)
                             {
