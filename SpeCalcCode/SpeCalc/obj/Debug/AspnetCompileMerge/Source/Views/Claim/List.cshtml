@@ -1,6 +1,6 @@
 ﻿@using System.Web.Script.Serialization
 @using DocumentFormat.OpenXml.Wordprocessing
-@using TenderProcessingDataAccessLayer.Models
+@using SpeCalcDataAccessLayer.Models
 
 @{
     ViewBag.Title = "Список заявок";
@@ -174,7 +174,7 @@
         $(":first", $("#filterClaimStatus")).attr("selected", "selected");
         $(":first", $("#filterManagerSubDivisions")).attr("selected", "selected");
         $(":first", $("#filterProductManagers")).attr("selected", "selected");
-        var filterStatusControls = ["filterClaimStatusCreated", "filterClaimStatusTransmissed", "filterClaimStatusInWork", "filterClaimStatusStopped", "filterClaimStatusCancelled", "filterClaimStatusSameCalculated", "filterClaimStatusCalculated", "filterClaimStatusConfirmed"];
+        var filterStatusControls = ["filterClaimStatusCreated", "filterClaimStatusTransmissed", "filterClaimStatusInWork", "filterClaimStatusStopped", "filterClaimStatusCancelled", "filterClaimStatusSameCalculated", "filterClaimStatusCalculated", "filterClaimStatusConfirmed", "filterClaimStatusActualize"];
         var controlsLength = filterStatusControls.length;
         for (var i = 0; i < controlsLength; i++) {
             var control = $("#" + filterStatusControls[i]);
@@ -268,7 +268,7 @@
             model.TenderNumber = tenderNumber;
         }
         var status = [];
-        var filterStatusControls = ["filterClaimStatusCreated", "filterClaimStatusTransmissed", "filterClaimStatusInWork", "filterClaimStatusStopped", "filterClaimStatusCancelled", "filterClaimStatusSameCalculated", "filterClaimStatusCalculated", "filterClaimStatusConfirmed"];
+        var filterStatusControls = ["filterClaimStatusCreated", "filterClaimStatusTransmissed", "filterClaimStatusInWork", "filterClaimStatusStopped", "filterClaimStatusCancelled", "filterClaimStatusSameCalculated", "filterClaimStatusCalculated", "filterClaimStatusConfirmed", "filterClaimStatusActualize"];
         var controlsLength = filterStatusControls.length;
         for (var i = 0; i < controlsLength; i++) {
             var control = $("#" + filterStatusControls[i]);
@@ -717,7 +717,8 @@
                                 <input type="checkbox" id="filterClaimStatusCancelled" value="5" /><span>Отменено</span>
                                 <input type="checkbox" id="filterClaimStatusSameCalculated" value="6" /><span>Частично расчитано</span>
                                 <input type="checkbox" id="filterClaimStatusCalculated" value="7" /><span>Расчитано</span>
-                                <input type="checkbox" id="filterClaimStatusConfirmed" value="8" /><span>Подтверждено</span>
+                                <input type="checkbox" id="filterClaimStatusConfirmed" value="8"/><span>Подтверждено</span>
+                                <input type="checkbox" id="filterClaimStatusActualize" value="10" /><span>Актуализация</span>
                             </div>
                         </div>
                         <div class="form-group">
@@ -779,11 +780,7 @@
                 </div>
             </div>
         </div>
-        <p>
-            <blockquote class="bg-warning">
-                Измените настройки фильтра чтобы увидеть больше информации!
-            </blockquote>
-        </p>
+        
         <h5>
             <span class="label label-default">
                 Всего записей:
@@ -797,7 +794,7 @@
         </h5>
         <table class="table table-bordered small">
             <thead>
-                <tr>
+                <tr class="bg-primary">
                     <th class="min-width text-nowrap">&nbsp;</th>
                     <th>ID</th>
                     @*<th class="text-nowrap">№ Конкурса</th>
@@ -824,11 +821,10 @@
                     <th>Статус заявки</th>
                     <th>Создано</th>
                     <th>Срок сдачи</th>
-                    <th class="text-nowrap"><table class="table table-bordered prod-manager-table"><tr><td>Снабженец</td><td class="bg-default ligth num">запрос</td><td class="bg-success ligth num">расчет</td><td class="bg-info ligth num">позиций</td></tr></table></th>
+                    <th class="text-nowrap"><table class="table table-bordered prod-manager-table"><tr class="text-primary"><td>Снабженец</td><td class="bg-default ligth num">запрос</td><td class="bg-success ligth num">расчет</td><td class="bg-info ligth num">позиций</td></tr></table></th>
                     @*<th class="text-nowrap">Тип сделки</th>*@
                     <th style="width: 150px;">
                         Тип сделки
-
                     </th>
                     <th>Статус<br />конкурса</th>
                     @*<th>Автор</th>*@
@@ -839,7 +835,11 @@
             
             </tbody>
         </table>
-
+        <p>
+            <blockquote class="bg-warning">
+                Чтобы увидеть больше информации измените  фильт (сверху)!
+            </blockquote>
+        </p>
     </div>
 </div>
 

@@ -638,10 +638,16 @@
         var comment = $("#comment").val().trim();
         if (comment == "") return;
         messageUi.progressShow();
+        //alert(comment);
+        //comment = encodeURI(comment);
+        
         $.ajax({
-            url: "/Calc/AddComment?idClaim=" + claim.Id +"&comment=" + encodeURI(comment),
-            type: 'GET',
-            contentType: 'application/json; charset = utf-8 ',
+            //url: "/Calc/AddComment?idClaim=" + claim.Id +"&comment=" + comment,
+            url: '@Url.Action("AddComment")',//"/Calc/AddComment",
+            type: 'POST',
+            dataType: 'json',
+            data: {idClaim: claim.Id, comment: comment },
+            //contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 messageUi.progressHide();
                 if (data.IsComplete) {
@@ -653,6 +659,9 @@
                 } else {
                     alert("Ошибка с добавления комментария");
                 }
+            },
+            error:function(data) {
+                alert("Ошибка с добавления комментария");
             }
         });
     }

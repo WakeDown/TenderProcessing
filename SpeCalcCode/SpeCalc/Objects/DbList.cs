@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Mvc;
+using SpeCalc.Helpers;
 using SpeCalc.Models;
 
 namespace SpeCalc.Objects
@@ -12,13 +13,13 @@ namespace SpeCalc.Objects
     {
         public static SelectList GetManagerSelectionList()
         {
-            var managerSelectionList = new SelectList(Employee.GetManagerSelectionList(), "AdSid", "DisplayName");
+            var managerSelectionList = new SelectList(UserHelper.GetUserSelectionList(AdGroup.SpeCalcManager), "Key", "Value");
             return managerSelectionList;
         }
 
         public static SelectList GetProductManagerSelectionList()
         {
-            var productManagerSelectionList = new SelectList(Employee.GetProductManagerSelectionList(), "AdSid", "DisplayName");
+            var productManagerSelectionList = new SelectList(UserHelper.GetUserSelectionList(AdGroup.SpeCalcProduct), "Key", "Value");
             return productManagerSelectionList;
         }
 
@@ -29,13 +30,25 @@ namespace SpeCalc.Objects
 
         public static SelectList GetManagerAndOperatorSelectionList()
         {
-            var man = Employee.GetManagerSelectionList();
-            var oper = Employee.GetOperatorSelectionList();
-            var list = man.ToList();
-            list.AddRange(oper);
-            list = list.OrderBy(x => x.DisplayName).ToList();
+            var list = new Dictionary<string, string>();
+            var man = UserHelper.GetUserSelectionList(AdGroup.SpeCalcManager);  //Employee.GetManagerSelectionList();
 
-            var managerSelectionList = new SelectList(list, "AdSid", "DisplayName");
+            foreach (var m in man)
+            {
+                if (!list.ContainsKey(m.Key))
+                    list.Add(m.Key, m.Value);
+            }
+
+            var oper = UserHelper.GetUserSelectionList(AdGroup.SpeCalcOperator);
+            foreach (var o in oper)
+            {
+                if (!list.ContainsKey(o.Key))list.Add(o.Key, o.Value);
+            }
+
+            //list.AddRange(oper);
+            //list = list.OrderBy(x => x.Value).ToList();
+
+            var managerSelectionList = new SelectList(list.OrderBy(x => x.Value).ToList(), "Key", "Value");
             return managerSelectionList;
         }
     }

@@ -36,7 +36,7 @@
                         @Html.TextBoxFor(m => m.Id, new { @class = "form-control", @id = "fQueId", placeholder="ID вопроса" })
                     </div>
                     <div class="col-sm-2">
-                        @Html.DropDownListFor(m => m.Manager.AdSid, DbList.GetManagerSelectionList(), "--выберите менеджера--", new { @class = "form-control", @id = "fManager" })
+                        @Html.DropDownListFor(m => m.Manager.AdSid, DbList.GetManagerSelectionList(), "--выберите автора--", new { @class = "form-control", @id = "fManager" })
                     </div>
                     <div class="col-sm-2">
                         @Html.DropDownListFor(m => m.Product.AdSid, DbList.GetProductManagerSelectionList(), "--выберите Продакта/Снабженеца--", new { @class = "form-control", @id = "fProd" })

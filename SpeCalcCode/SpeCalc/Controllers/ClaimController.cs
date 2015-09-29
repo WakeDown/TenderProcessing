@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Web;
 using System.Web.Configuration;
@@ -13,6 +14,7 @@ using System.Web.Script.Serialization;
 using System.Web.UI.WebControls;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json;
@@ -21,6 +23,7 @@ using SpeCalc.Models;
 using SpeCalcDataAccessLayer;
 using SpeCalcDataAccessLayer.Enums;
 using SpeCalcDataAccessLayer.Models;
+using Stuff.Objects;
 
 namespace SpeCalc.Controllers
 {
@@ -247,7 +250,6 @@ namespace SpeCalc.Controllers
             var user = GetUser();
             if (UserHelper.IsProductManager(user))
                 return RedirectToAction("Index", "Calc", new {claimId = claimId, cv = cv});
-
             if (user == null || !UserHelper.IsUserAccess(user))
             {
                 var dict = new RouteValueDictionary();
@@ -291,10 +293,9 @@ namespace SpeCalc.Controllers
                 ViewBag.Managers = managers;
                 ViewBag.DateStart = DateTime.Now.ToString("dd.MM.yyyy");
                 var db = new DbEngine();
-                var curDate = DateTime.Now;
-                ViewBag.NextDateMin = curDate.DayOfWeek == DayOfWeek.Friday
-                    ? curDate.AddDays(4).ToShortDateString()
-                    : curDate.AddDays(2).ToShortDateString();
+                ViewBag.NextDateMin = DateTime.Now.DayOfWeek == DayOfWeek.Friday
+                    ? DateTime.Now.AddDays(4).ToShortDateString()
+                    : DateTime.Now.AddDays(2).ToShortDateString();
                 ViewBag.DealTypes = db.LoadDealTypes();
                 ViewBag.ClaimStatus = db.LoadClaimStatus();
                 var adProductManagers = UserHelper.GetProductManagers();
@@ -325,16 +326,7 @@ namespace SpeCalc.Controllers
                         {
                             if (isManager)
                             {
-                                if (claim.Manager.Id != user.Id && claim.Author.Id != user.Id)
-                                {
-                                    var dict = new RouteValueDictionary();
-                                    dict.Add("message", "У Вас нет доступа к этой странице");
-                                    return RedirectToAction("ErrorPage", "Auth", dict);
-                                }
-                            }
-                            else
-                            {
-                                if (claim.Author.Id != user.Id)
+                                if (!Employee.GetSubordinates(user.Id).Contains(claim.Manager.Id) && !Employee.GetSubordinates(user.Id).Contains(claim.Author.Id))
                                 {
                                     var dict = new RouteValueDictionary();
                                     dict.Add("message", "У Вас нет доступа к этой странице");
@@ -511,13 +503,27 @@ namespace SpeCalc.Controllers
                     RowCount = 30,
                 };
                 if (!string.IsNullOrEmpty(filterManager)) filter.IdManager = filterManager;
+                else
+                    filter.IdManager = isManager && !isController
+                        ? String.Join(",", Employee.GetSubordinates(user.Id))
+                        : String.Empty;
                 if (!string.IsNullOrEmpty(filterProduct)) filter.IdProductManager = filterProduct;
+                else
+                    filter.IdProductManager = isProduct && !isController
+                        ? String.Join(",", Employee.GetSubordinates(user.Id))
+                        : String.Empty;
                 if (!string.IsNullOrEmpty(author)) filter.Author = author;
                 if (filterClaimStatus.Any()) filter.ClaimStatus = filterClaimStatus;
                 var claims = db.FilterTenderClaims(filter);
                 //снабженцы и менеджеры из ActiveDirectory
-                var adProductManagers = UserHelper.GetProductManagers();
-                var managers = UserHelper.GetManagers();
+
+                var adProductManagers = isProduct && !isController
+                    ? Employee.GetSubordinateProductManagers(user.Id)
+                    : UserHelper.GetProductManagers();
+                var managers = isManager && !isController
+                    ? Employee.GetSubordinateManagers(user.Id)
+                    : UserHelper.GetManagers();
+
                 if (claims != null && claims.Any())
                 {
                     db.SetProductManagersForClaims(claims);
@@ -556,7 +562,7 @@ namespace SpeCalc.Controllers
                 ViewBag.ClaimCount = db.GetCountFilteredTenderClaims(filter);
                 ViewBag.TenderStatus = db.LoadTenderStatus();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 ViewBag.Error = true.ToString().ToLower();
             }
@@ -1938,8 +1944,16 @@ namespace SpeCalc.Controllers
             var count = -1;
             try
             {
+                var user = GetUser();
+                var isController = UserHelper.IsController(user);
+                var isProduct = UserHelper.IsProductManager(user);
+                var isManager = UserHelper.IsManager(user);
                 var db = new DbEngine();
                 if (model.RowCount == 0) model.RowCount = 10;
+                if (string.IsNullOrEmpty(model.IdManager) && isManager && !isController)
+                    model.IdManager = string.Join(",", Employee.GetSubordinates(GetUser().Id));
+                if (string.IsNullOrEmpty(model.IdProductManager) && isProduct && !isController)
+                    model.IdProductManager = string.Join(",", Employee.GetSubordinates(GetUser().Id));
                 list = db.FilterTenderClaims(model);
                 var adProductManagers = UserHelper.GetProductManagers();
                 var managers = UserHelper.GetManagers();
@@ -2578,6 +2592,7 @@ namespace SpeCalc.Controllers
             return Json(new { IsComplete = isComplete }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
         //>>>>Уведомления
         //Добавление комментария
         public JsonResult AddCommentToClaim(string comment, int idClaim)

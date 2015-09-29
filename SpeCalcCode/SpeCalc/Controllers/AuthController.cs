@@ -16,12 +16,12 @@ namespace SpeCalc.Controllers
         public ActionResult Index()
         {
             var users = new List<UserBase>();
-            users.AddRange(UserHelper.GetManagers());
-            users.AddRange(UserHelper.GetProductManagers());
-            users.AddRange(UserHelper.GetOperators());
-            users.AddRange(UserHelper.GetControllerUsers());
-            users.AddRange(UserHelper.GetTenderStatusUsers());
-            ViewBag.Users = users;
+            //users.AddRange(UserHelper.GetManagers());
+            //users.AddRange(UserHelper.GetProductManagers());
+            //users.AddRange(UserHelper.GetOperators());
+            //users.AddRange(UserHelper.GetControllerUsers());
+            //users.AddRange(UserHelper.GetTenderStatusUsers());
+            //ViewBag.Users = users;
             return View();
         }
 
