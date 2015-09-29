@@ -26,7 +26,7 @@ namespace SpeCalc.Models
             foreach (UserBase manager in UserHelper.GetManagers())
             {
                 if (!String.IsNullOrEmpty(manager.ShortName))
-                managers.Add(new Employee(){AdSid = manager.Id, DisplayName = manager.ShortName});
+                    managers.Add(new Employee() { AdSid = manager.Id, DisplayName = manager.ShortName });
             }
 
             managers = managers.OrderBy(m => m.DisplayName).ToList();
@@ -40,20 +40,20 @@ namespace SpeCalc.Models
         /// <returns></returns>
         public static List<ProductManager> GetSubordinateProductManagers(string id)
         {
-            var sidList = GetSubordinates(id);
+            IEnumerable<KeyValuePair<string, string>> sidList = GetSubordinates(id);
             var subordinateList = new List<ProductManager>();
 
-            foreach (var sid in sidList)
+            foreach (var item in sidList)
             {
-                if (!string.IsNullOrEmpty(sid))
+                if (!string.IsNullOrEmpty(item.Key))
                 {
-                    var subordinate = UserHelper.GetUserById(sid);
+                    //var subordinate = UserHelper.GetUserById(sid);
                     var productManagerSubordinate = new ProductManager()
                     {
-                        Id = subordinate.Id,
-                        Name = subordinate.Name,
-                        ShortName = subordinate.ShortName,
-                        Roles = new List<Role>() { Role.ProductManager }
+                        Id = item.Key,
+                        //Name = subordinate.Name,
+                        ShortName = item.Value,
+                        //Roles = new List<Role>() { Role.ProductManager }
                     };
                     subordinateList.Add(productManagerSubordinate);
                 }
@@ -71,26 +71,26 @@ namespace SpeCalc.Models
         {
             var sidList = GetSubordinates(id);
             var subordinateList = new List<Manager>();
-            var chief = UserHelper.GetUserById(id);
-            foreach (var sid in sidList)
+            //var chief = UserHelper.GetUserById(id);
+            foreach (var item in sidList)
             {
-                if (!string.IsNullOrEmpty(sid))
+                if (!string.IsNullOrEmpty(item.Key))
                 {
-                   var subordinate = UserHelper.GetUserById(sid);
-               var managerSubordinate = new Manager()
-               {
-                   Id = subordinate.Id,
-                   Name = subordinate.Name,
-                   ShortName = subordinate.ShortName,
-                   Email = subordinate.Email,
-                   //SubDivision = subordinate,
-                   Chief = chief.Name,
-                   ChiefShortName = chief.ShortName,
-                   Roles = new List<Role>() { Role.Manager }
-               }; 
-                subordinateList.Add(managerSubordinate); 
+                    //var subordinate = UserHelper.GetUserById(sid);
+                    var managerSubordinate = new Manager()
+                    {
+                        Id = item.Key,
+                        //Name = subordinate.Name,
+                        ShortName = item.Value,
+                        //Email = subordinate.Email,
+                        ////SubDivision = subordinate,
+                        //Chief = chief.Name,
+                        //ChiefShortName = chief.ShortName,
+                        //Roles = new List<Role>() { Role.Manager }
+                    };
+                    subordinateList.Add(managerSubordinate);
                 }
-               
+
             }
             subordinateList = subordinateList.OrderBy(m => m.ShortName).ToList();
             return subordinateList;
@@ -100,17 +100,17 @@ namespace SpeCalc.Models
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static List<string> GetSubordinates(string id)
+        public static IEnumerable<KeyValuePair<string, string>> GetSubordinates(string id)
         {
             Uri uri = new Uri(String.Format("{0}/Employee/GetSubordinatesSimple?sid={1}", OdataServiceUri, id));
             string jsonString = GetJson(uri);
-            var dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonString);
-            var sidList = new List<string>() {id};
-            foreach (var pair in dictionary)
-            {
-                sidList.Add(pair.Key);
-            }
-            return sidList;
+            var list = JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(jsonString);
+            //var sidList = new List<string>() { id };
+            //foreach (var pair in dictionary)
+            //{
+            //    sidList.Add(pair.Key);
+            //}
+            return list;
         }
 
         public static IEnumerable<Employee> GetProductManagerSelectionList()
@@ -120,12 +120,21 @@ namespace SpeCalc.Models
             foreach (UserBase manager in UserHelper.GetProductManagers())
             {
                 if (!String.IsNullOrEmpty(manager.ShortName))
-                managers.Add(new Employee() { AdSid = manager.Id, DisplayName = manager.ShortName });
+                    managers.Add(new Employee() { AdSid = manager.Id, DisplayName = manager.ShortName });
             }
 
             managers = managers.OrderBy(m => m.DisplayName).ToList();
 
             return managers;
+        }
+
+        public static bool UserIsSubordinate(IEnumerable<KeyValuePair<string, string>> subList, string userSid)
+        {
+            foreach (KeyValuePair<string, string> item in subList)
+            {
+                if (item.Key == userSid) return true;
+            }
+            return false;
         }
 
         //public static IEnumerable<KeyValuePair<string, string>> GetOperatorSelectionList()

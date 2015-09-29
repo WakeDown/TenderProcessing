@@ -375,7 +375,7 @@
         } else {
             $("#claimTenderUrl", container).html("&nbsp;");
         }
-        
+
         for (var i = 0; i < model.Certs.length; i++) {
             var certCell = "<div><a class='btn btn-link' href='/Calc/GetCertFile/?guid=" + model.Certs[i].FileGuid + "'>" + model.Certs[i].FileName + "</a></div>";
             $("#certList").append(certCell);
@@ -383,7 +383,7 @@
         for (var i = 0; i < model.Files.length; i++) {
             var fileCell = "<div><a class='btn btn-link' href='/Calc/GetTenderClaimFile/?guid=" + model.Files[i].FileGuid + "'>" + model.Files[i].FileName + "</a></div>";
             $("#claimFileList").append(fileCell);
-    }
+        }
     }
 
     function getCalculatePositionElement() {
@@ -452,7 +452,7 @@
             var element = getPositionElementWithCalc(position);
             $("[modetype='rowNumber']", element).text(i + 1);
             if(editablePosIds.indexOf(position.Id)==-1)
-            container.append(element);
+                container.append(element);
 
             //var calculateRowTable = getCalculateTableForPosition(position);
             //container.append(calculateRowTable);
@@ -594,40 +594,40 @@
         }
 
         else {
-        var comment = $("#commentWithCalc").val().trim();
-        var model = {
-            Comment: comment,
-            IdClaim: claim.Id
-        }
-        messageUi.progressShow();
-        $.ajax({
-                url: '@Url.Action("SetClaimContinued", "Claim")',
-            type: 'POST',
-            dataType: 'json',
-            data: JSON.stringify(model),
-            processData: false,
-            contentType: 'application/json; charset = utf-8 ',
-            success: function(data) {
-                messageUi.progressHide();
-                if (data.IsComplete) {
-                    if (data.Model != null) {
-                        claim.ClaimStatus = data.Model.Status.Id;
-                        var status = getClaimStatusById(claim.ClaimStatus);
-                        if (status == null) {
-                            status = { Value: "Неопределен" };
-                        }
-                        $("#claimStatus").text(status.Value);
-                        addClaimStatusHistoryElement(data.Model);
-                    }
-                    $("#butСlaimStatusStopped").show();
-                    $("#butСlaimStatusContined").hide();
-
-                } else {
-                    showMessage("Ошибка");
-                }
+            var comment = $("#commentWithCalc").val().trim();
+            var model = {
+                Comment: comment,
+                IdClaim: claim.Id
             }
-        });
-    }
+            messageUi.progressShow();
+            $.ajax({
+                url: '@Url.Action("SetClaimContinued", "Claim")',
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify(model),
+                processData: false,
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    messageUi.progressHide();
+                    if (data.IsComplete) {
+                        if (data.Model != null) {
+                            claim.ClaimStatus = data.Model.Status.Id;
+                            var status = getClaimStatusById(claim.ClaimStatus);
+                            if (status == null) {
+                                status = { Value: "Неопределен" };
+                            }
+                            $("#claimStatus").text(status.Value);
+                            addClaimStatusHistoryElement(data.Model);
+                        }
+                        $("#butСlaimStatusStopped").show();
+                        $("#butСlaimStatusContined").hide();
+
+                    } else {
+                        showMessage("Ошибка");
+                    }
+                }
+            });
+        }
     }
     function setClaimCancelled(e) {
         var comment = $("#commentWithCalc").val().trim();
@@ -711,58 +711,58 @@
         }
 
         else {
-        messageUi.progressShow();
-        $.ajax({
+            messageUi.progressShow();
+            $.ajax({
                 url: "/Claim/SetClaimOnWork?id=" + claim.Id+"&cv=@Request.QueryString["cv"]",
-            type: 'GET',
-            contentType: 'application/json; charset = utf-8 ',
-            success: function(data) {
-                messageUi.progressHide();
-                if (data.IsComplete) {
-                    if (data.Model != null) {
-                        claim.ClaimStatus = data.Model.Status.Id;
-                        var status = getClaimStatusById(claim.ClaimStatus);
-                        if (status == null) {
-                            status = { Value: "Неопределен" };
+                type: 'GET',
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    messageUi.progressHide();
+                    if (data.IsComplete) {
+                        if (data.Model != null) {
+                            claim.ClaimStatus = data.Model.Status.Id;
+                            var status = getClaimStatusById(claim.ClaimStatus);
+                            if (status == null) {
+                                status = { Value: "Неопределен" };
+                            }
+                            $("#claimStatus").text(status.Value);
+                            addClaimStatusHistoryElement(data.Model);
                         }
-                        $("#claimStatus").text(status.Value);
-                        addClaimStatusHistoryElement(data.Model);
-                    }
 
-                    $("#butSetClaimOnWork").hide();
+                        $("#butSetClaimOnWork").hide();
 
-                    $("#addPositionRow").remove();
-                    $("#butAddPosition").remove();
-                    var cancelEditButtons = $("[modeType='editButtonCancel']", $("#positionTable"));
-                    $.each(cancelEditButtons, function(index, elem) {
-                        $(elem).click();
-                    });
-                    var editButtons = $("[modeType='editButton']", $("#positionTable"));
-                    $.each(editButtons, function(index, elem) {
-                        $(elem).remove();
-                    });
-                    var editPanels = $("[type='editPositionPanel']", $("#positionTable"));
-                    $.each(editPanels, function(index, elem) {
-                        $(elem).remove();
-                    });
-                    var deleteButtons = $("[modeType='deleteButton']", $("#positionTable"));
-                    $.each(deleteButtons, function(index, elem) {
-                        $(elem).remove();
-                    });
-                    $("#excelPanel").hide();
-                    $("#claimStatusPanel").show();
-                    $("#butСlaimStatusContined").hide();
-                } else {
+                        $("#addPositionRow").remove();
+                        $("#butAddPosition").remove();
+                        var cancelEditButtons = $("[modeType='editButtonCancel']", $("#positionTable"));
+                        $.each(cancelEditButtons, function(index, elem) {
+                            $(elem).click();
+                        });
+                        var editButtons = $("[modeType='editButton']", $("#positionTable"));
+                        $.each(editButtons, function(index, elem) {
+                            $(elem).remove();
+                        });
+                        var editPanels = $("[type='editPositionPanel']", $("#positionTable"));
+                        $.each(editPanels, function(index, elem) {
+                            $(elem).remove();
+                        });
+                        var deleteButtons = $("[modeType='deleteButton']", $("#positionTable"));
+                        $.each(deleteButtons, function(index, elem) {
+                            $(elem).remove();
+                        });
+                        $("#excelPanel").hide();
+                        $("#claimStatusPanel").show();
+                        $("#butСlaimStatusContined").hide();
+                    } else {
                         if (data.Message == null || data.Message.trim() === "") {
                             showMessage("Ошибка при передаче заявки в работу");
-                    } else {
-                        showMessage(data.Message);
+                        } else {
+                            showMessage(data.Message);
+                        }
                     }
                 }
-            }
-        });
-        location.reload();
-    }
+            });
+            location.reload();
+        }
 
     }
 
@@ -833,7 +833,7 @@
         if (data.IsComplete) {
             claim = data.Model;
             if ($("#fileInput").prop("files").length === 0) {
-            var newLocation = window.location.toString() + '?claimId=' + claim.Id;
+                var newLocation = window.location.toString() + '?claimId=' + claim.Id;
                 window.location = newLocation;
             } else {
                 var formClaimIds = $("[name='formClaimId']");
@@ -1346,7 +1346,7 @@
     function rejectPositions() {
         var positionsId = [];
         var positionsRows = $("[type='positionRow']", $("#positionsTableWithCalc"));
-        
+
         $.each(positionsRows, function(index, element) {
             element = $(element);
             var isChecked = $("[modetype='selectPositionElement']", element).get(0).checked;
@@ -1628,13 +1628,13 @@
     }
     function deleteSelectedPositions() {
         var selectedRows = $("[type='positionRow']", $("#positionTable"));
-        
+
         var checked = false;
         $.each(selectedRows, function(index, element) {
             element = $(element);
             var isChecked = element.attr("selectState") == "true";
             if (isChecked) {
-               // element.css("backgroundColor", "#EAA4A4");
+                // element.css("backgroundColor", "#EAA4A4");
                 checked = true;
             }})
         if (checked) {
@@ -1645,10 +1645,10 @@
                     var isChecked = element.attr("selectState") == "true";
                     if (isChecked) { ids.push(Number(element.attr("positionId")));
                         var initalBackGround = element.css("background-color");
-                  
+
                       /*  */
-                               } 
-            
+                            }
+
                 });
             }
         } else {
@@ -2092,7 +2092,7 @@
     }
 
     function sendMessage(message) {
-       var target = getTargetOrigin();
+        var target = getTargetOrigin();
         document.getElementById("uploadFile").contentWindow.postMessage(message, target);
     }
 
@@ -2166,13 +2166,13 @@
                         success: function(data) {
                             messageUi.progressHide();
                             positions = data.Positions;
-                    var positionsLength = positions.length;
-                    for (var i = 0; i < positionsLength; i++) {
+                            var positionsLength = positions.length;
+                            for (var i = 0; i < positionsLength; i++) {
 
-                        var position = positions[i];
-                        var element = getPositionElement(position);
-                        container.append(element);
-                    }
+                                var position = positions[i];
+                                var element = getPositionElement(position);
+                                container.append(element);
+                            }
                             if (!data.IsComplete) {showMessage("Ошибка при добавлении позиции спецификации");
                             }
                         },
@@ -2766,10 +2766,10 @@
         </P>
         <p>
             <blockquote class="bg-warning pad-sm">
-               При загрузке спецификации удостоверьтесь, что в ячейках нет формул!
+                При загрузке спецификации удостоверьтесь, что в ячейках нет формул!
             </blockquote>
         </p>
-    <div>
+        <div>
             
         <div class="pad-sm">
                 <button type="button" id="butAddPosition" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> добавить позицию</button>
@@ -2785,17 +2785,17 @@
                     @*<button id="butGetCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет (с позициями)</button>*@
                     <button id="butGetCalculateOnlyCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</button>
                 </span>
-                @if (DateTime.Now > new DateTime(2015, 10, 2) && claim != null && (claim.ClaimStatus == 8 @*|| claim.ClaimStatus == 7*@))
+                @if (DateTime.Now > new DateTime(2015,10,2) && claim != null && (claim.ClaimStatus == 8 @*|| claim.ClaimStatus == 7*@))
             {
                     <button id="goACtual" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> Актуализировать отмеченные</button>
                 }
-                @if (DateTime.Now > new DateTime(2015,10,2) && claim != null && (claim.ClaimStatus == 2 || claim.ClaimStatus == 3 || claim.ClaimStatus == 6 || claim.ClaimStatus == 10))
+                @if (DateTime.Now > new DateTime(2015, 10, 2) && claim != null && (claim.ClaimStatus == 2 || claim.ClaimStatus == 3 || claim.ClaimStatus == 6 || claim.ClaimStatus == 10))
                 {
                     <button id="askReject" class="btn btn-danger btn-sm"><i class="fa fa-mail-reply"></i> Запросить отклонение для отмеченных</button>
                 }
             </div>
             <div id="delPanel" class="pull-right">
-                    <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить отмеченные</button>
+                <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить отмеченные</button>
 
             </div>
             @if (claim != null && claim.Id > 0)
@@ -2820,9 +2820,9 @@
                 <span class="label label-default">всего&nbsp;<span class="big" id="positionCountLabel">0</span></span>
                 <span class="label label-info">из них рассчитано&nbsp;<span class="big" id="positionCalculateCountLabel">0</span></span>
             </span>
-    <table id="tblPositionsNoCalc" class="table table-bordered small" style="display: none;">
-        <thead>
-        <tr>
+            <table id="tblPositionsNoCalc" class="table table-bordered small" style="display: none;">
+                <thead>
+                    <tr>
                         <P>
                             <h4 id="rejectHead">
                                 Отклонено продактом/снабженцем
@@ -2831,37 +2831,37 @@
                     </tr>
                     <tr class="bg-primary">
                         <th class="min-width center"><input type="checkbox" id="cbSelectAllPosition" data-toggle="tooltip" title="все" /></th>
-            <th>№</th>
-            <th></th>
-            <th>
-                <div class="row">
-                    <div class="col-sm-2">
-                        Каталожный номер
-                    </div>
-                    <div class="col-sm-3">
-                        Наименование
-                    </div>
-                    <div class="col-sm-1">
-                        Количество
-                    </div>
-                    <div class="col-sm-1">
-                        Единица
-                    </div>
-                    <div class="col-sm-2">
-                        Продакт/Снабженец
-                    </div>
-                    <div class="col-sm-3">
-                        Комментарий
-                    </div>
-                </div>
-            </th>
+                        <th>№</th>
                         <th></th>
-        </tr>
+                        <th>
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    Каталожный номер
+                                </div>
+                                <div class="col-sm-3">
+                                    Наименование
+                                </div>
+                                <div class="col-sm-1">
+                                    Количество
+                                </div>
+                                <div class="col-sm-1">
+                                    Единица
+                                </div>
+                                <div class="col-sm-2">
+                                    Продакт/Снабженец
+                                </div>
+                                <div class="col-sm-3">
+                                    Комментарий
+                                </div>
+                            </div>
+                        </th>
+                        <th></th>
+                    </tr>
 
-        </thead>
-        <tbody id="positionTable">
-        <tr id="addPositionRow" style="display: none;">
-            <td class="min-width center">
+                </thead>
+                <tbody id="positionTable">
+                    <tr id="addPositionRow" style="display: none;">
+                        <td class="min-width center">
                             <input type="checkbox" modetype="selectPositionElement" />
                         </td>
                         <td class="min-width center">
@@ -2869,11 +2869,11 @@
                             <div type="posState5" class="text-danger hidden">
                                 <i class="fa fa-reply" title="позиция отклонена снабженцем/продактом"></i>
                             </div>
-            </td>
-            <td class="min-width">
+                        </td>
+                        <td class="min-width">
                             <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
-                <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
-                <span type="editPositionPanel" style="display: none;">
+                            <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                            <span type="editPositionPanel" style="display: none;">
 
                                 <button type='button' modetype='editButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></button>
                                 <span type="editPositionActionPanel" style="display: none;">
@@ -2881,23 +2881,23 @@
                                     <button type='button' modetype='editPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
                                 </span>
                             </span>
-            </td>
-            <td>
-                <div type="editModeView" class="row">
-                    <div class="form-group col-sm-2">
+                        </td>
+                        <td>
+                            <div type="editModeView" class="row">
+                                <div class="form-group col-sm-2">
                                     <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" />
-                    </div>
-                    <div class="form-group col-sm-3">
-                        <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
-                    </div>
-                    <div class="form-group col-sm-1">
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
+                                </div>
+                                <div class="form-group col-sm-1">
                                     <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество *" />
-                    </div>
-                    <div class="form-group col-sm-1">
-                        <div id="unitCell"></div>
-                    </div>
+                                </div>
+                                <div class="form-group col-sm-1">
+                                    <div id="unitCell"></div>
+                                </div>
 
-                    @*<div class="form-group col-sm-1">
+                                @*<div class="form-group col-sm-1">
                                         <textarea rows="3" class="form-control input-sm" modeltype='replaceValue' placeholder="Замена" style="display: none;"></textarea>
                                     </div>
                                     <div class="form-group">
@@ -2921,14 +2921,14 @@
                                     <div class="form-group col-sm-1">
                                         <input type='text' modeltype='sumNdsValue' class="form-control input-sm" placeholder="Сумма с НДС" style="display: none;" />
                                     </div>*@
-                    <div class="form-group col-sm-2">
-                        <div id="managersCell"></div>
-                    </div>
-                    <div class="form-group col-sm-3">
-                        <textarea rows='3' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
-                    </div>
-                </div>
-                @*<div type="editModeView" class="col-sm-5">
+                                <div class="form-group col-sm-2">
+                                    <div id="managersCell"></div>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <textarea rows='3' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
+                                </div>
+                            </div>
+                            @*<div type="editModeView" class="col-sm-5">
                                     <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
                                     <textarea rows="3" class="form-control input-sm" modeltype='replaceValue' placeholder="Замена" style="display: none;"></textarea>
                                 </div>
@@ -2937,20 +2937,20 @@
                                     <textarea rows='4' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
                                 </div>*@
 
-                <div type="readOnlyModeView" style="display: none;" class="row">
-                    <div class="col-sm-2">
-                        <span type='catalogNumberLabel'></span>
-                    </div>
-                    <div class="col-sm-3">
-                        <div type='nameLabel'></div>
-                    </div>
-                    <div class="col-sm-1">
-                        <span type='valueLabel'></span>
-                    </div>
-                    <div class="col-sm-1">
-                        <span type='unitLabel'></span>
-                    </div>
-                    @*<div style="display: none;">
+                            <div type="readOnlyModeView" style="display: none;" class="row">
+                                <div class="col-sm-2">
+                                    <span type='catalogNumberLabel'></span>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div type='nameLabel'></div>
+                                </div>
+                                <div class="col-sm-1">
+                                    <span type='valueLabel'></span>
+                                </div>
+                                <div class="col-sm-1">
+                                    <span type='unitLabel'></span>
+                                </div>
+                                @*<div style="display: none;">
                                         <strong type='priceLabel'></strong>&nbsp;<span type='priceLabelPostfix'></span>
                                     </div>
                                     <div style="display: none;">
@@ -2970,15 +2970,15 @@
                                     </div>*@
 
 
-                    <div class="col-sm-2">
-                        <span type='productManagerLabel'></span>
-                    </div>
-                    <div class="col-sm-3">
-                        <div type="commentLabel"></div>
-                    </div>
-                </div>
+                                <div class="col-sm-2">
+                                    <span type='productManagerLabel'></span>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div type="commentLabel"></div>
+                                </div>
+                            </div>
 
-                @*<div type="readOnlyModeView" style="display: none;" class="col-sm-4">
+                            @*<div type="readOnlyModeView" style="display: none;" class="col-sm-4">
                                     <div>
                                         <strong>Наименование</strong>
                                         <div type='nameLabel'></div>
@@ -3000,16 +3000,16 @@
                                         <span type='productManagerLabel'></span>
                                     </div>
                                 </div>*@
-            </td>
-            <td class="min-width">
+                        </td>
+                        <td class="min-width">
                             <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
-                <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
-                <button type='button' modetype='deleteButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    </div>
+                            <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                            <button type='button' modetype='deleteButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
         <table id="tblPositionsWithCalc" class="table small table-bordered" style="display:none">
             <thead>
@@ -3092,8 +3092,8 @@
                     <span modetype="calculateReplaceValueLabel"></span>
                 </td>
                 @*<td>
-                    <span modetype="calculateReplaceValueLabel"></span>
-                </td>*@
+                        <span modetype="calculateReplaceValueLabel"></span>
+                    </td>*@
                 <td>
                     <span class="small" name="priceOnlineInfo"></span>
                 </td>
