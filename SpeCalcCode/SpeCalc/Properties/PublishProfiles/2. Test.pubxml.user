@@ -40,10 +40,10 @@
       <publishTime>09/29/2015 14:37:48</publishTime>
     </File>
     <File Include="bin/App_global.asax.compiled">
-      <publishTime>09/29/2015 15:32:15</publishTime>
+      <publishTime>09/29/2015 18:34:45</publishTime>
     </File>
     <File Include="bin/App_global.asax.dll">
-      <publishTime>09/29/2015 15:32:15</publishTime>
+      <publishTime>09/29/2015 18:34:45</publishTime>
     </File>
     <File Include="bin/App_global.asax.pdb">
       <publishTime>07/08/2015 13:48:13</publishTime>
@@ -94,16 +94,16 @@
       <publishTime>09/28/2015 16:37:39</publishTime>
     </File>
     <File Include="bin/SpeCalc.dll">
-      <publishTime>09/29/2015 15:32:04</publishTime>
+      <publishTime>09/29/2015 18:34:18</publishTime>
     </File>
     <File Include="bin/SpeCalc.pdb">
-      <publishTime>09/29/2015 15:32:04</publishTime>
+      <publishTime>09/29/2015 18:34:18</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.dll">
-      <publishTime>09/29/2015 14:52:06</publishTime>
+      <publishTime>09/29/2015 17:37:15</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.pdb">
-      <publishTime>09/29/2015 14:52:06</publishTime>
+      <publishTime>09/29/2015 17:37:15</publishTime>
     </File>
     <File Include="bin/System.Net.Http.Formatting.dll">
       <publishTime>09/28/2015 16:37:39</publishTime>
@@ -298,7 +298,7 @@
       <publishTime>09/29/2015 14:37:48</publishTime>
     </File>
     <File Include="PrecompiledApp.config">
-      <publishTime>09/29/2015 15:32:13</publishTime>
+      <publishTime>09/29/2015 18:34:43</publishTime>
     </File>
     <File Include="Properties/SlowCheetah/SlowCheetah.Transforms.targets">
       <publishTime>09/28/2015 16:37:40</publishTime>
@@ -391,7 +391,7 @@
       <publishTime>09/29/2015 14:52:06</publishTime>
     </File>
     <File Include="Views/Claim/List.cshtml">
-      <publishTime>09/29/2015 15:32:04</publishTime>
+      <publishTime>09/29/2015 18:07:08</publishTime>
     </File>
     <File Include="Views/Claim/UploadFileForm.cshtml">
       <publishTime>09/29/2015 14:37:48</publishTime>
@@ -448,7 +448,7 @@
       <publishTime>09/28/2015 16:37:40</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>09/29/2015 15:32:12</publishTime>
+      <publishTime>09/29/2015 18:08:02</publishTime>
     </File>
   </ItemGroup>
 </Project>

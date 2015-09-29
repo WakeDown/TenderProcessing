@@ -84,12 +84,14 @@ namespace SpeCalc.Helpers
 
         public static bool IsController(UserBase user)
         {
+            return false;
             var result = user.Roles.Contains(Role.Controller);
             return result;
         }
 
         public static bool IsProductManager(UserBase user)
         {
+            
             var result = user.Roles.Contains(Role.ProductManager);
             return result;
         }
@@ -102,6 +104,7 @@ namespace SpeCalc.Helpers
 
         public static bool IsManager(UserBase user)
         {
+            return true;
             var result = user.Roles.Contains(Role.Manager);
             return result;
         }

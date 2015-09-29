@@ -347,7 +347,7 @@
         }
         for (var i = 0; i < managersLength; i++) {
             var manager = managers[i];
-            option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
+            option = $("<option value='" + manager.Id + "'>" + manager.ShortName + "</option>");
             if (id != null && id != "" && manager.Id == id){ option.attr("selected", "selected");
                 list.append(option);}
             if(id == null || id == ""){
@@ -371,7 +371,7 @@
 
         for (var i = 0; i < managersLength; i++) {
             var manager = productManagers[i];
-            option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
+            option = $("<option value='" + manager.Id + "'>" + manager.ShortName + "</option>");
             if (id != null && id != "" && manager.Id == id){ option.attr("selected", "selected");list.append(option);}
             if(id == null || id == ""){
                 list.append(option);

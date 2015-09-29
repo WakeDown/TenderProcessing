@@ -249,7 +249,7 @@ namespace SpeCalc.Controllers
         public ActionResult Index(int? claimId, int? cv)
         {
             var user = GetUser();
-            if (UserHelper.IsProductManager(user))
+            if (!UserHelper.IsController(user) && UserHelper.IsProductManager(user))
                 return RedirectToAction("Index", "Calc", new {claimId = claimId, cv = cv});
             if (user == null || !UserHelper.IsUserAccess(user))
             {
@@ -506,14 +506,36 @@ namespace SpeCalc.Controllers
                 };
                 if (!string.IsNullOrEmpty(filterManager)) filter.IdManager = filterManager;
                 else
-                    filter.IdManager = isManager && !isController
-                        ? String.Join(",", Employee.GetSubordinates(user.Id))
-                        : String.Empty;
-                if (!string.IsNullOrEmpty(filterProduct)) filter.IdProductManager = filterProduct;
+                {
+                    
+                    if (isManager && !isController)
+                    {
+                        filter.IdManager = user.Id;
+                        var subs = Employee.GetSubordinates(user.Id);
+                        if (subs.Any())
+                        {
+                            filter.IdManager = user.Id + ","+ String.Join(",", subs);
+                        }
+                    }
+                }
+                
+                if (!string.IsNullOrEmpty(filterProduct)) filter.IdProductManager = user.Id;
                 else
-                    filter.IdProductManager = isProduct && !isController
-                        ? String.Join(",", Employee.GetSubordinates(user.Id))
-                        : String.Empty;
+                {
+                    
+                    if (isProduct && !isController)
+                    {
+                        filter.IdProductManager = user.Id;
+                        var subs = Employee.GetSubordinates(user.Id);
+                        if (subs.Any())
+                        {
+                            filter.IdProductManager = user.Id + "," + String.Join(",", subs);
+                        }
+                    }
+                    //filter.IdProductManager = isProduct && !isController
+                    //    ? String.Join(",", Employee.GetSubordinates(user.Id))
+                    //    : String.Empty;
+                }
                 if (!string.IsNullOrEmpty(author)) filter.Author = author;
                 if (filterClaimStatus.Any()) filter.ClaimStatus = filterClaimStatus;
                 var claims = db.FilterTenderClaims(filter);
@@ -522,11 +544,12 @@ namespace SpeCalc.Controllers
                 var adProductManagers = 
                     isProduct && !isController? Employee.GetSubordinateProductManagers(user.Id):
                     prodManSelList;
+                var manSelList = UserHelper.GetManagersSelectionList();
                 var managers =
                     isManager && !isController
                     ? Employee.GetSubordinateManagers(user.Id)
                     :
-                    UserHelper.GetManagersSelectionList();
+                    manSelList;
 
                 //var prodManSelList = UserHelper.Get();
 
@@ -553,11 +576,11 @@ namespace SpeCalc.Controllers
                     var authorsList = UserHelper.GetAuthorsSelectionList();
                     foreach (var claim in claims)
                     {
-                        var manager = managers.FirstOrDefault(x => x.Id == claim.Manager.Id);
-                        if (manager != null)
-                        {
-                            claim.Manager.ShortName = manager.ShortName;
-                        }
+                        claim.Manager.ShortName = manSelList.FirstOrDefault(x => x.Id == claim.Manager.Id)?.ShortName;
+                        //if (manager != null)
+                        //{
+                        //    claim.Manager.ShortName = manager.ShortName;
+                        //}
                         var auth = authorsList.SingleOrDefault(x => x.Key == claim.Author.Id);
                         claim.Author = new UserBase() { Id= auth.Key, ShortName = auth.Value};// UserHelper.GetUserById(claim.Author.Id);
 

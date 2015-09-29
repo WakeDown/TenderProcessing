@@ -104,7 +104,8 @@ namespace SpeCalc.Models
         {
             Uri uri = new Uri(String.Format("{0}/Employee/GetSubordinatesSimple?sid={1}", OdataServiceUri, id));
             string jsonString = GetJson(uri);
-            var list = JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(jsonString);
+            IEnumerable<KeyValuePair<string, string>> list = new List<KeyValuePair<string, string>>();
+            if (jsonString != null && jsonString != "{}") list = JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(jsonString);
             //var sidList = new List<string>() { id };
             //foreach (var pair in dictionary)
             //{

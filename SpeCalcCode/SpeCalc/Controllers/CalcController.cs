@@ -167,13 +167,16 @@ namespace SpeCalc.Controllers
                             //    claim.Manager.ChiefShortName = managerFromAd.ChiefShortName;
                             //}
                             var hasAccess = isController;
-                            //var subordinateList = Employee.GetSubordinates(user.Id);
+
+                            var subordinateList = Employee.GetSubordinates(user.Id);
+
+
                             var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
                             var prodManSelList = UserHelper.GetProductManagersSelectionList();
 
                             foreach (var productManager in productManagers)
                             {
-                                //hasAccess = hasAccess || Employee.UserIsSubordinate(subordinateList, productManager.Id);// subordinateList.ToList().Contains(productManager.Id);
+                                hasAccess = hasAccess || (subordinateList.Any() && Employee.UserIsSubordinate(subordinateList, productManager.Id));// subordinateList.ToList().Contains(productManager.Id);
                                 productManager.ShortName = prodManSelList.FirstOrDefault(x => x.Id == productManager.Id)?.ShortName;
                                 //var productUser = UserHelper.GetUserById(productManager.Id);
                                 //if (productUser != null)
@@ -188,7 +191,7 @@ namespace SpeCalc.Controllers
                                 //    productManager.ShortName = productManagerFromAd.ShortName;
                                 //}
                             }
-                            if (!hasAccess && isProduct)
+                            if (!hasAccess || isProduct)
                             {
                                 var dict = new RouteValueDictionary();
                                 dict.Add("message", "У Вас нет доступа к этой заявке, Вам не назначены позиции для расчета");
