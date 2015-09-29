@@ -450,7 +450,7 @@ namespace SpeCalc.Controllers
                 if (isManager)
                 {
                     showEdit = true;
-                    filterManager = user.Id;
+                    //filterManager = user.Id;
                     clickAction = "editClaim";
                     posibleAction = "editClaim";
                     userId = user.Id;
@@ -460,7 +460,7 @@ namespace SpeCalc.Controllers
                 if (isProduct)
                 {
                     showCalculate = true;
-                    filterProduct = user.Id;
+                   // filterProduct = user.Id;
                     clickAction = "calculateClaim";
                     posibleAction = (isManager ? "all" : "calculateClaim");
                     userId = user.Id;
