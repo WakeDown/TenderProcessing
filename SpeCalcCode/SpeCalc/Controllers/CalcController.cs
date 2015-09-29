@@ -1544,7 +1544,7 @@ namespace SpeCalc.Controllers
             }
             return Json(new { IsComplete = isComplete, Model = model, Deleted = deleted });
         }
-
+        [HttpPost]
         //добавление комментария
         public JsonResult AddComment(int idClaim, string comment)
         {

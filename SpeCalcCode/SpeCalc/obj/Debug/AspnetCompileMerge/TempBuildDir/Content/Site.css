@@ -42,6 +42,7 @@ input[type="checkbox"].input-validation-error {
 
 body {
    background: #B4B4B4 url(../Content/images/bg3.png) repeat left top;
+    font-size: 10pt;
 }
 
 .body-content {
@@ -231,4 +232,29 @@ blockquote.bg-success {
 }
 input.required-mark,textarea.required-mark, select.required-mark, span.required-mark {
     background-color: #fcf8e3;
+}
+
+.btn-danger.selected {
+    background-color: #d9534f;
+}
+
+.bg-danger.deep {
+    background-color: #d9534f;
+}
+
+.text-sm {
+    font-size: 0.9em;
+}
+.table-condensed.pad-xs tr td {
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+.marg-sm {
+    margin-top: 0px !important;
+    margin-bottom: 3px !important;
+}
+
+.pad-sm {
+    padding: 3px 3px 3px 3px !important;
 }

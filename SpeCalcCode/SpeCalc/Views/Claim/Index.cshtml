@@ -897,14 +897,19 @@
     }
 
     function sendCommentWithCalc(e) {
+        //alert(1);
         var comment = $("#commentWithCalc").val().trim();
         if (comment == "") return;
         messageUi.progressShow();
-        comment = encodeURI(comment);
+        //alert(comment);
+        //comment = encodeURI(comment);
+        //alert(comment);
         $.ajax({
-            url: "/Claim/AddCommentToClaim?comment=" + comment + "&idClaim=" + claim.Id,
-            type: 'GET',
-            contentType: 'application/json; charset = utf-8 ',
+            url: '@Url.Action("AddCommentToClaim")',//"/Claim/AddCommentToClaim?comment=" + comment + "&idClaim=" + claim.Id,
+            type: 'POST',
+            dataType: 'json',
+            data: {idClaim: claim.Id, comment: comment },
+            //contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 messageUi.progressHide();
                 if (data.IsComplete) {
@@ -916,19 +921,26 @@
                 } else {
                     showMessage("Ошибка при добавлении комментария");
                 }
+            },
+            error:function(data) {
+                alert("Ошибка с добавления комментария");
             }
         });
     }
 
     function sendComment(e) {
+
         var comment = $("#claimStatusComment").val().trim();
         if (comment == "") return;
         messageUi.progressShow();
+        //alert(comment);
         comment = encodeURI(comment);
+        //alert(comment);
         $.ajax({
-            url: "/Claim/AddCommentToClaim?comment=" + comment + "&idClaim=" + claim.Id,
-            type: 'GET',
-            contentType: 'application/json; charset = utf-8 ',
+            url: '@Url.Action("AddCommentToClaim")',//"/Claim/AddCommentToClaim?comment=" + comment + "&idClaim=" + claim.Id,
+            type: 'POST',
+            data: {idClaim: claim.Id, comment: comment },
+            //contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 messageUi.progressHide();
                 if (data.IsComplete) {
@@ -940,6 +952,9 @@
                 } else {
                     showMessage("Ошибка при добавлении комментария");
                 }
+            },
+            error:function(data) {
+                alert("Ошибка с добавления комментария");
             }
         });
     }
