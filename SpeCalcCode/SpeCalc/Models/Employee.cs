@@ -38,9 +38,9 @@ namespace SpeCalc.Models
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static List<ProductManager> GetSubordinateProductManagers(string id)
+        public static List<ProductManager> GetSubordinateProductManagers(string id, List<KeyValuePair<string,string>> list = null)
         {
-            IEnumerable<KeyValuePair<string, string>> sidList = GetSubordinates(id);
+            var sidList = list ?? GetSubordinates(id);
             var subordinateList = new List<ProductManager>();
 
             foreach (var item in sidList)
@@ -67,9 +67,9 @@ namespace SpeCalc.Models
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static List<Manager> GetSubordinateManagers(string id)
+        public static List<Manager> GetSubordinateManagers(string id, List<KeyValuePair<string, string>> list = null)
         {
-            var sidList = GetSubordinates(id);
+            var sidList = list ?? GetSubordinates(id);
             var subordinateList = new List<Manager>();
             //var chief = UserHelper.GetUserById(id);
             foreach (var item in sidList)

@@ -46,7 +46,7 @@
             alert("Произошла ошибка при загрузке");
             return;
         }
-        
+
         //$.fn.datepicker.dates['ru'] = {
         //    days: ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"],
         //    daysShort: ["Вск", "Пнд", "Втр", "Срд", "Чтв", "Птн", "Суб", "Вск"],
@@ -55,23 +55,23 @@
         //    monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
         //    today: "Сегодня"
         //};
-        
+
         messageUi.initProgressImage();
         window.addEventListener("message", messageHandler, true);
         if (settings.newClaim == "false") $("#newClaimNavButton").hide();
-        
+
         initClaimsElements(claims);
         var managerId = (settings.filterManager != "") ? settings.filterManager : "";
         initFilterManagersList(managerId);
-        
+
         var productId = (settings.filterProduct != "") ? settings.filterProduct : "";
         initFilterProductManagersList(productId);
-        
+
         initFilterManagerSubDivisionsList();
         if (settings.filterClaimStatus != null && settings.filterClaimStatus.length > 0) {
             initFilterClaimStatus(settings.filterClaimStatus);
         }
-        
+
         $("#filterTenderStartFrom").datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
@@ -94,7 +94,7 @@
             $("#filterTenderStartFrom").val("");
             $("#filterTenderStartTo").val("");
         });
-        
+
         $("#acceptFilter").click(filter);
         $("#clearFilter").click(clearFilter);
         $("#saveFilterInExcel").click(filterInExcel);
@@ -174,7 +174,7 @@
         $(":first", $("#filterClaimStatus")).attr("selected", "selected");
         $(":first", $("#filterManagerSubDivisions")).attr("selected", "selected");
         $(":first", $("#filterProductManagers")).attr("selected", "selected");
-        var filterStatusControls = ["filterClaimStatusCreated", "filterClaimStatusTransmissed", "filterClaimStatusInWork", "filterClaimStatusStopped", "filterClaimStatusCancelled", "filterClaimStatusSameCalculated", "filterClaimStatusCalculated", "filterClaimStatusConfirmed"];
+        var filterStatusControls = ["filterClaimStatusCreated", "filterClaimStatusTransmissed", "filterClaimStatusInWork", "filterClaimStatusStopped", "filterClaimStatusCancelled", "filterClaimStatusSameCalculated", "filterClaimStatusCalculated", "filterClaimStatusConfirmed", "filterClaimStatusActualize"];
         var controlsLength = filterStatusControls.length;
         for (var i = 0; i < controlsLength; i++) {
             var control = $("#" + filterStatusControls[i]);
@@ -203,7 +203,7 @@
     }
 
     function getFilterObj() {
-        
+
         //получение настроек фильтра из формы и проверка валидности введенных значений
         var obj = { isValid: true, message: "", model: null };
         var model = {};
@@ -268,7 +268,7 @@
             model.TenderNumber = tenderNumber;
         }
         var status = [];
-        var filterStatusControls = ["filterClaimStatusCreated", "filterClaimStatusTransmissed", "filterClaimStatusInWork", "filterClaimStatusStopped", "filterClaimStatusCancelled", "filterClaimStatusSameCalculated", "filterClaimStatusCalculated", "filterClaimStatusConfirmed"];
+        var filterStatusControls = ["filterClaimStatusCreated", "filterClaimStatusTransmissed", "filterClaimStatusInWork", "filterClaimStatusStopped", "filterClaimStatusCancelled", "filterClaimStatusSameCalculated", "filterClaimStatusCalculated", "filterClaimStatusConfirmed", "filterClaimStatusActualize"];
         var controlsLength = filterStatusControls.length;
         for (var i = 0; i < controlsLength; i++) {
             var control = $("#" + filterStatusControls[i]);
@@ -347,14 +347,14 @@
         }
         for (var i = 0; i < managersLength; i++) {
             var manager = managers[i];
-            option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
+            option = $("<option value='" + manager.Id + "'>" + manager.ShortName + "</option>");
             if (id != null && id != "" && manager.Id == id){ option.attr("selected", "selected");
                 list.append(option);}
             if(id == null || id == ""){
                 list.append(option);
             }
         }
-        
+
         //if (id!='') {
         //    $(list).prop( "disabled", true );
         //}
@@ -367,17 +367,17 @@
             var option = $("<option value='-1'>---Все---</option>");
             list.append(option);
         }
-        
+
 
         for (var i = 0; i < managersLength; i++) {
             var manager = productManagers[i];
-            option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
+            option = $("<option value='" + manager.Id + "'>" + manager.ShortName + "</option>");
             if (id != null && id != "" && manager.Id == id){ option.attr("selected", "selected");list.append(option);}
             if(id == null || id == ""){
                 list.append(option);
             }
         }
-        
+
         //if (id!='') {
             //$(list).prop( "disabled", true );
         //}
@@ -409,7 +409,7 @@
             option = $("<option value='" + subDiv + "'>" + subDiv + "</option>");
             list.append(option);
         }
-        
+
         //if (id != null && id > 0) {
         //    $(list).prop( "disabled", true );
         //}
@@ -438,36 +438,16 @@
         var editCell = $("<td class='min-width text-nowrap'>&nbsp;</td>");
         element.append(editCell);
         if (settings.showEdit)  {
-            var editButton = $("<a type='claimPage' href='/Claim/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></a>");
-            if (settings.userId == "" && settings.author == "") {
-                editCell.append(editButton);
-            } else {
-                if (settings.author != "") {
-                    if (claim.Author.Id == settings.author) {
-                        editCell.append(editButton);
-                    }
-                }
-                if (settings.filterManager != "") {
-                    if (claim.Manager.Id == settings.filterManager || claim.Author.Id == settings.filterManager) {
-                        editCell.append(editButton);
-                    }
-                }
-            }
-        }
+            var editButton = $("<a type='claimPage' target='_blank' href='/Claim/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></a>");
+            editCell.append(editButton);
+         }
         if (settings.showCalculate)  {
-            var calculateButton = $("<a href='/Calc/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='рассчитать'><i class='fa fa-calculator'></i></a>");
-            if (settings.userId == "") {
-                editCell.append(calculateButton);
-            } else {
-                if (settings.filterProduct != "") {
-                    if (containsProduct(claim.ProductManagers, settings.filterProduct)) {
-                        editCell.append(calculateButton);
-                    }
-                }
-            }
+            var calculateButton = $("<a href='/Calc/Index?claimId=" + claim.Id  + "' target='_blank' class='btn btn-link btn-lg' data-toggle='tooltip' title='рассчитать'><i class='fa fa-calculator'></i></a>");
+            editCell.append(calculateButton);
+
         }
         element.append("<th><span>" + claim.Id + "</span></th>");
-        
+
         //var claimInfoCell = $("<td></td>");
         //claimInfoCell.append("<div class='row'>");
         //claimInfoCell.append("<div class='col-sm-2 text-nowrap'>" + claim.TenderNumber + "</div>");
@@ -486,7 +466,7 @@
 
         element.append("<td class='text-nowrap'>" + claim.TenderNumber + "</td>");
         element.append("<td>" + claim.Customer + "<br />ИНН " + claim.CustomerInn + "</td>");
-        
+
         element.append("<td class='text-nowrap'>" + claim.StrSum + "</td>");
         element.append("<td><div class='text-nowrap'>" + claim.Manager.ShortName + "</div><div class='text-nowrap'>" + claim.Author.ShortName + "</div></td>");
         element.append("<td>" + getClaimStatusById(claim.ClaimStatus).Value + "</td>");
@@ -495,9 +475,9 @@
 
         //element.append("<td><div class='text-nowrap'><strong>Всего</strong>&nbsp;<span class='label label-default ligth'>" + claim.PositionsCount + "</span>/<span class='label label-success ligth'>" + claim.CalculatePositionsCount + "</span>/<span class='label label-info ligth'>" + claim.CalculatesCount + "</span></div>" + getProductManagersString(claim.ProductManagers) + "</td>");
         element.append("<td>" +
-            "<table class='table table-bordered prod-manager-table'><tr><th>Всего</th><td class='bg-default ligth text-right num'>" + claim.PositionsCount + "</td><td class='bg-success ligth text-right num'>" + claim.CalculatePositionsCount + "</td><td class='bg-info ligth text-right num'>" + claim.CalculatesCount + "</td></tr>" + getProductManagersString(claim.ProductManagers) 
+            "<table class='table table-bordered prod-manager-table'><tr><th>Всего</th><td class='bg-default ligth text-right num'>" + claim.PositionsCount + "</td><td class='bg-success ligth text-right num'>" + claim.CalculatePositionsCount + "</td><td class='bg-info ligth text-right num'>" + claim.CalculatesCount + "</td></tr>" + getProductManagersString(claim.ProductManagers)
             + "</table></td>");
-        
+
         var claimStateCell = $("<td></td>");
         claimStateCell.append(getDealTypeById(claim.DealType).Value);
         //claimStateCell.append("<div>" + getClaimStatusById(claim.ClaimStatus).Value + "</div>");
@@ -540,9 +520,9 @@
                 var row = $(e.currentTarget);
                 var claimId = row.attr("claimId");
                 var href = "";
-                if (settings.clickAction == "editClaim") href = "/Claim/Index?claimId=" + claimId;
-                if (settings.clickAction == "calculateClaim") href = "/Calc/Index?claimId=" + claim.Id;
-                if (href != "") document.location.href = href;
+                if (settings.clickAction == "editClaim") href = '@Url.Action("Index", "Claim")?claimId=' + claimId;//"/Claim/Index?claimId=" + claimId;
+                if (settings.clickAction == "calculateClaim") href = '@Url.Action("Index", "Calc")?claimId=' + claimId;//"/Calc/Index?claimId=" + claim.Id;
+                if (href != "") window.open(href);// document.location.href = href;
             });
         }
         return element;
@@ -717,7 +697,8 @@
                                 <input type="checkbox" id="filterClaimStatusCancelled" value="5" /><span>Отменено</span>
                                 <input type="checkbox" id="filterClaimStatusSameCalculated" value="6" /><span>Частично расчитано</span>
                                 <input type="checkbox" id="filterClaimStatusCalculated" value="7" /><span>Расчитано</span>
-                                <input type="checkbox" id="filterClaimStatusConfirmed" value="8" /><span>Подтверждено</span>
+                                <input type="checkbox" id="filterClaimStatusConfirmed" value="8"/><span>Подтверждено</span>
+                                <input type="checkbox" id="filterClaimStatusActualize" value="10" /><span>Актуализация</span>
                             </div>
                         </div>
                         <div class="form-group">
@@ -793,7 +774,7 @@
         </h5>
         <table class="table table-bordered small">
             <thead>
-                <tr>
+                <tr class="bg-primary">
                     <th class="min-width text-nowrap">&nbsp;</th>
                     <th>ID</th>
                     @*<th class="text-nowrap">№ Конкурса</th>
@@ -820,7 +801,7 @@
                     <th>Статус заявки</th>
                     <th>Создано</th>
                     <th>Срок сдачи</th>
-                    <th class="text-nowrap"><table class="table table-bordered prod-manager-table"><tr><td>Снабженец</td><td class="bg-default ligth num">запрос</td><td class="bg-success ligth num">расчет</td><td class="bg-info ligth num">позиций</td></tr></table></th>
+                    <th class="text-nowrap"><table class="table table-bordered prod-manager-table"><tr class="text-primary"><td>Снабженец</td><td class="bg-default ligth num">запрос</td><td class="bg-success ligth num">расчет</td><td class="bg-info ligth num">позиций</td></tr></table></th>
                     @*<th class="text-nowrap">Тип сделки</th>*@
                     <th style="width: 150px;">
                         Тип сделки
