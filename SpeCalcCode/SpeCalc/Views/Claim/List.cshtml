@@ -347,7 +347,7 @@
         }
         for (var i = 0; i < managersLength; i++) {
             var manager = managers[i];
-            option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
+            option = $("<option value='" + manager.Id + "'>" + manager.ShortName + "</option>");
             if (id != null && id != "" && manager.Id == id){ option.attr("selected", "selected");
                 list.append(option);}
             if(id == null || id == ""){
@@ -371,7 +371,7 @@
 
         for (var i = 0; i < managersLength; i++) {
             var manager = productManagers[i];
-            option = $("<option value='" + manager.Id + "'>" + manager.Name + "</option>");
+            option = $("<option value='" + manager.Id + "'>" + manager.ShortName + "</option>");
             if (id != null && id != "" && manager.Id == id){ option.attr("selected", "selected");list.append(option);}
             if(id == null || id == ""){
                 list.append(option);
@@ -439,32 +439,12 @@
         element.append(editCell);
         if (settings.showEdit)  {
             var editButton = $("<a type='claimPage' href='/Claim/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></a>");
-            if (settings.userId == "" && settings.author == "") {
-                editCell.append(editButton);
-            } else {
-                if (settings.author != "") {
-                    if (claim.Author.Id == settings.author) {
-                        editCell.append(editButton);
-                    }
-                }
-                if (settings.filterManager != "") {
-                    if (claim.Manager.Id == settings.filterManager || claim.Author.Id == settings.filterManager) {
-                        editCell.append(editButton);
-                    }
-                }
-            }
-        }
+            editCell.append(editButton);
+         }
         if (settings.showCalculate)  {
             var calculateButton = $("<a href='/Calc/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='рассчитать'><i class='fa fa-calculator'></i></a>");
-            if (settings.userId == "") {
-                editCell.append(calculateButton);
-            } else {
-                if (settings.filterProduct != "") {
-                    if (containsProduct(claim.ProductManagers, settings.filterProduct)) {
-                        editCell.append(calculateButton);
-                    }
-                }
-            }
+            editCell.append(calculateButton);
+            
         }
         element.append("<th><span>" + claim.Id + "</span></th>");
         

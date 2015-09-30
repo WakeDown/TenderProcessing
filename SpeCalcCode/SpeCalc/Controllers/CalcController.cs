@@ -68,7 +68,7 @@ namespace SpeCalc.Controllers
         public ActionResult Index(int? claimId, int? cv)
         {
             var user = GetUser();
-            if (UserHelper.IsManager(user) || UserHelper.IsOperator(user))
+            if (!UserHelper.IsController(user) && (UserHelper.IsManager(user) || UserHelper.IsOperator(user)))
                 return RedirectToAction("Index", "Claim", new { claimId = claimId, cv = cv });
 
             //проверка наличия доступа к странице
@@ -154,26 +154,36 @@ namespace SpeCalc.Controllers
                                 db.SaveClaimStatusHistory(statusHistory);
                             }
                             //менеджеры и снабженцы из ActiveDirectory
-                            var managers = UserHelper.GetManagers();
-                            var managerFromAd = managers.FirstOrDefault(x => x.Id == claim.Manager.Id);
-                            if (managerFromAd != null)
-                            {
-                                claim.Manager.Name = managerFromAd.Name;
-                                claim.Manager.ShortName = managerFromAd.ShortName;
-                                claim.Manager.ChiefShortName = managerFromAd.ChiefShortName;
-                            }
+                            var managerFromAd = UserHelper.GetUserById(claim.Manager.Id);
+                            claim.Manager.Name = managerFromAd.Name;
+                            claim.Manager.ShortName = managerFromAd.ShortName;
+                            claim.Manager.ChiefShortName = managerFromAd.ManagerName;
+                            //var managers = UserHelper.GetManagers();
+                            //var managerFromAd = managers.FirstOrDefault(x => x.Id == claim.Manager.Id);
+                            //if (managerFromAd != null)
+                            //{
+                            //    claim.Manager.Name = managerFromAd.Name;
+                            //    claim.Manager.ShortName = managerFromAd.ShortName;
+                            //    claim.Manager.ChiefShortName = managerFromAd.ChiefShortName;
+                            //}
                             var hasAccess = isController;
+
                             var subordinateList = Employee.GetSubordinates(user.Id);
+
+
                             var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
+                            var prodManSelList = UserHelper.GetProductManagersSelectionList();
+
                             foreach (var productManager in productManagers)
                             {
-                                hasAccess = hasAccess || subordinateList.Contains(productManager.Id);
-                                var productUser = UserHelper.GetUserById(productManager.Id);
-                                if (productUser != null)
-                                {
-                                    productManager.Name = productUser.Name;
-                                    productManager.ShortName = productUser.ShortName;
-                                }
+                                hasAccess = hasAccess || (subordinateList.Any() && Employee.UserIsSubordinate(subordinateList, productManager.Id));// subordinateList.ToList().Contains(productManager.Id);
+                                productManager.ShortName = prodManSelList.FirstOrDefault(x => x.Id == productManager.Id)?.ShortName;
+                                //var productUser = UserHelper.GetUserById(productManager.Id);
+                                //if (productUser != null)
+                                //{
+                                //    productManager.Name = productUser.Name;
+                                //    productManager.ShortName = productUser.ShortName;
+                                //}
                                 //var productManagerFromAd = adProductsManager.First(x => x.Id == productManager.Id);
                                 //if (productManagerFromAd != null)
                                 //{
@@ -181,7 +191,7 @@ namespace SpeCalc.Controllers
                                 //    productManager.ShortName = productManagerFromAd.ShortName;
                                 //}
                             }
-                            if (!hasAccess && isProduct)
+                            if (!hasAccess || isProduct)
                             {
                                 var dict = new RouteValueDictionary();
                                 dict.Add("message", "У Вас нет доступа к этой заявке, Вам не назначены позиции для расчета");
@@ -1544,7 +1554,7 @@ namespace SpeCalc.Controllers
             }
             return Json(new { IsComplete = isComplete, Model = model, Deleted = deleted });
         }
-
+        [HttpPost]
         //добавление комментария
         public JsonResult AddComment(int idClaim, string comment)
         {

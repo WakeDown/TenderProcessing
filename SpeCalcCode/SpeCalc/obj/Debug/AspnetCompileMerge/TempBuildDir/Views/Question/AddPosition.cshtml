@@ -1,5 +1,5 @@
-﻿@using TenderProcessing.Objects
-@model TenderProcessing.Models.QuePosition
+﻿@using SpeCalc.Objects
+@model SpeCalc.Models.QuePosition
 
 @*@using (Html.BeginForm("AddPosition", "Question", FormMethod.Post, new { @class = "form-inline", data_toggle = "validator", role = "form" }))*@
 @using (Html.BeginForm("AddPosition", "Question", FormMethod.Post, new { @class = "form-inline", data_toggle = "validator", role = "form" }))
@@ -17,7 +17,6 @@
             <span class="help-block with-errors"></span>
         </div>
     </div>
-
     <div class="form-group">
         <div class="col-lg-2">
             <button id="btnCreate" type="submit" class="btn btn-success"><i class="fa fa-save"></i>&nbsp;добавить</button>

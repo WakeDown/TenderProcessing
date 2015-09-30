@@ -1,4 +1,5 @@
 ﻿@using System.Configuration
+@using System.Data.SqlClient
 <!DOCTYPE html>
 
 <html>
@@ -70,7 +71,15 @@
         @if (!String.IsNullOrEmpty(ConfigurationManager.AppSettings["Environment"]))
 {
     <blockquote class="bg-warning">@ConfigurationManager.AppSettings["Environment"]<br/>
-        @ViewBag.Sid</blockquote>
+        <small>@ConfigurationManager.AppSettings["OdataServiceUri"]</small>
+            @foreach (ConnectionStringSettings cs in ConfigurationManager.ConnectionStrings)
+            {
+                var conn =  new SqlConnection(cs.ConnectionString); 
+                <small>@conn.DataSource - @conn.Database</small>
+            }
+        @*<br/>
+        @ViewBag.Sid*@
+        </blockquote>
 }
         @RenderBody()
         <div class="clearfix"></div>

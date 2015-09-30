@@ -1,5 +1,6 @@
-﻿@using System.Web.Script.Serialization
-@using TenderProcessingDataAccessLayer.Models
+﻿@using System.Collections.Generic
+@using System.Web.Script.Serialization
+@using SpeCalcDataAccessLayer.Models
 
 @{
     Layout = null;
@@ -75,11 +76,12 @@
     }
 
     function getTargetOrigin() {
+        var protocol = document.location.protocol;
         var url = document.location.href;
-        url = url.replace("http://", "");
+        url = url.replace(protocol+"//", "");
         var index = url.indexOf("/");
         url = url.substr(0, index);
-        url = "http://" + url;
+        url = protocol+"//" + url;
         return url;
     }
 

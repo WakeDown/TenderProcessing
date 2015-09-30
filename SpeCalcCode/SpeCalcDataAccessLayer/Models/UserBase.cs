@@ -17,6 +17,7 @@ namespace SpeCalcDataAccessLayer.Models
         public string ShortName { get; set; }
 
         public string Email { get; set; }
+        public string ManagerName { get; set; }
 
         public List<Role> Roles { get; set; }
     }

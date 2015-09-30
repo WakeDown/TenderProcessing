@@ -1,8 +1,8 @@
-﻿@using TenderProcessing.Controllers
-@using TenderProcessing.Helpers
-@using TenderProcessing.Models
-@using TenderProcessing.Objects
-@model TenderProcessing.Models.Question
+﻿@using SpeCalc.Controllers
+@using SpeCalc.Helpers
+@using SpeCalc.Models
+@using SpeCalc.Objects
+@model SpeCalc.Models.Question
 
 @{
 
@@ -27,13 +27,13 @@
                         <col class="col-lg-4" />
                     </colgroup>
                     <tr>
-                        <td class="text-right">Менеджер:</td>
+                        <td class="text-right">Автор:</td>
                         <td>@Html.LabelFor(m => m, Model.Manager.DisplayName)</td>
                     </tr>
-                    <tr>
+                    @*<tr>
                         <td class="text-right">Комментарий:</td>
                         <td>@Html.LabelFor(m => m, Model.Descr)</td>
-                    </tr>
+                    </tr>*@
                     <tr>
                         <td class="text-right">Срок сдачи:</td>
                         <td>@Html.LabelFor(m => m, String.Format("{0:d}", Model.DateLimit))</td>
@@ -41,7 +41,7 @@
                     <tr>
                         <td class="text-right"></td>
                         <td>
-                            @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager) && (Model.State == null || Model.State.OrderNum == 1))
+                            @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator) && (Model.State == null || Model.State.OrderNum == 1))
 {
     <button class="btn btn-success" name="action:SetQuestionSent">В работу</button>
 }
@@ -72,12 +72,12 @@
         </div>
     </div>
 
-    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager) && Model.State.OrderNum == 1)
+    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator) && Model.State.OrderNum == 1)
     {
         @Html.Partial("AddPosition", new QuePosition() { Question = new Question() { Id = Model.Id } });
     }
 
-    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager))
+    @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator, AdGroup.SpeCalcProduct))
     {
         @Html.Partial("PositionList", Model.GetPositions());
     }
