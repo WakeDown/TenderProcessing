@@ -603,7 +603,7 @@
             messageUi.progressShow();
             $.ajax({
                 url: '@Url.Action("SetClaimContinued", "Claim")',
-                type: 'POST',
+                method: 'POST',
                 dataType: 'json',
                 data: JSON.stringify(model),
                 processData: false,
@@ -640,7 +640,7 @@
         messageUi.progressShow();
         $.ajax({
             url: "/Claim/SetClaimCancelled",
-            type: 'POST',
+            method: 'POST',
             dataType: 'json',
             data: JSON.stringify(model),
             processData: false,
@@ -675,7 +675,7 @@
         messageUi.progressShow();
         $.ajax({
             url: "/Claim/SetClaimStopped",
-            type: 'POST',
+            method: 'POST',
             dataType: 'json',
             data: JSON.stringify(model),
             processData: false,
@@ -821,7 +821,7 @@
         messageUi.progressShow();
         $.ajax({
             url: "/Claim/SaveClaim",
-            type: 'POST',
+            method: 'POST',
             dataType: 'json',
             data: JSON.stringify(model),
             processData: false,
@@ -857,7 +857,7 @@
             //$("#butChangeCurrency").show();
             if (data.StatusHistory != null) addClaimStatusHistoryElement(data.StatusHistory);
             var obj = {
-                type: "setClaimId",
+                method: "setClaimId",
                 error: false,
                 message: claim.Id
             }
@@ -885,7 +885,7 @@
         messageUi.progressShow();
         $.ajax({
             url: "/Claim/UpdateClaimCurrency",
-            type: 'POST',
+            method: 'POST',
             dataType: 'json',
             data: JSON.stringify(model),
             processData: false,
@@ -909,7 +909,7 @@
         //alert(comment);
         $.ajax({
             url: '@Url.Action("AddCommentToClaim")',//"/Claim/AddCommentToClaim?comment=" + comment + "&idClaim=" + claim.Id,
-            type: 'POST',
+            method: 'POST',
             dataType: 'json',
             data: {idClaim: claim.Id, comment: comment, cv:'@Request.QueryString["cv"]' },
             //contentType: 'application/json; charset = utf-8 ',
@@ -941,7 +941,7 @@
         //alert(comment);
         $.ajax({
             url: '@Url.Action("AddCommentToClaim")',//"/Claim/AddCommentToClaim?comment=" + comment + "&idClaim=" + claim.Id,
-            type: 'POST',
+            method: 'POST',
             data: {idClaim: claim.Id, comment: comment },
             //contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
@@ -1132,7 +1132,7 @@
         messageUi.progressShow();
         $.ajax({
             url: "/Claim/SetClaimAllPositonConfirmed?idClaim=" + claim.Id + "&cv=@Request.QueryString["cv"]",
-            type: 'GET',
+            method: 'GET',
             contentType: 'application/json; charset = utf-8 ',
             success: function(data) {
                 messageUi.progressHide();
@@ -1182,7 +1182,7 @@
 
         $.ajax({
             url: '@Url.Action("EditClaimDeadline", "Claim")',//"/Claim/EditClaimDeadline",
-            type: 'POST',
+            method: 'POST',
             dataType: 'json',
             //data: {idClaim=id, comment: comment},
             data: JSON.stringify(model),
@@ -1211,7 +1211,7 @@
         messageUi.progressShow();
         $.ajax({
             url: "/Claim/SetPositonRejected?comment=" + encodeURI(comment) + "&idClaim=" + claim.Id+"&cv=@Request.QueryString["cv"]",
-            type: 'POST',
+            method: 'POST',
             dataType: 'json',
             data: JSON.stringify(arrIds),
             processData: false,
@@ -1269,7 +1269,7 @@
             messageUi.progressShow();
             $.ajax({
                 url: "/Claim/SendPositonOnWork?comment=" + encodeURI(comment) + "&idClaim=" + claim.Id+"&cv=@Request.QueryString["cv"]",
-                type: 'POST',
+                method: 'POST',
                 dataType: 'json',
                 data: JSON.stringify(positionsId),
                 processData: false,
@@ -1332,7 +1332,7 @@
             var model = {posIds:posIds, idClaim:'@Request.QueryString["claimId"]', cv:'@Request.QueryString["cv"]'};
             $.ajax({
                 url:"@Url.Action("AskPositionReject")",
-                type: 'POST',
+                method: 'POST',
                 datatype: 'json',
                 data: JSON.stringify(model),
                 contentType: 'application/json;charset=utf-8 ',
@@ -1392,7 +1392,7 @@
             model.IdClaim = claim.Id;
             $.ajax({
                 url: "/Claim/AddClaimPosition",
-                type: 'POST',
+                method: 'POST',
                 dataType: 'json',
                 data: JSON.stringify(model),
                 processData: false,
@@ -1455,7 +1455,7 @@
             messageUi.progressShow();
             $.ajax({
                 url: "/Claim/DeleteClaimPosition?id=" + id,
-                type: 'GET',
+                method: 'GET',
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
                     messageUi.progressHide();
@@ -1516,7 +1516,7 @@
 
             $.ajax({
                 url: "/Claim/EditClaimPosition",
-                type: 'POST',
+                method: 'POST',
                 dataType: 'json',
                 data: JSON.stringify(model),
                 processData: false,
@@ -1659,7 +1659,7 @@
         }messageUi.progressHide();
 
         $.ajax({url: '@Url.Action("DeleteClaimPositions","Claim")',
-            type: 'POST',
+            method: 'POST',
             contentType: 'application/json; charset = utf-8 ',
             dataType: "json",
             data: JSON.stringify(ids),
@@ -2162,7 +2162,7 @@
                 if (positions != null) {
                     $.ajax({
                         url: "/Claim/AddClaimPositions",
-                        type: 'POST',
+                        method: 'POST',
                         dataType: 'json',
                         data: JSON.stringify(positions),
                         contentType: 'application/json; charset=utf-8',
