@@ -1,0 +1,104 @@
+﻿@using System.Web.Script.Serialization
+@using DocumentFormat.OpenXml.Wordprocessing
+@using SpeCalc.Models
+@using SpeCalcDataAccessLayer.Models
+@model SpeCalc.Models.ListViewModels
+
+@{
+    ViewBag.Title = "Список заявок";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var canEdit = (bool) ViewBag.CanEdit;
+    var canCalc = (bool) ViewBag.CanCalc;
+}
+<h5>
+    <span class="label label-default">
+        Всего записей:
+        <span id="claimCountLabel">@Model.TotalClaimsCount</span>
+    </span>
+    &nbsp;
+    <span class="label label-info">
+        из них показано:
+        <span id="showCountLabel">@Model.Claims.Count</span>
+    </span>
+</h5>
+<table class="table table-bordered small">
+    <thead>
+        <tr class="bg-primary">
+            @if(canCalc || canEdit) {<th>&nbsp;</th>}
+            <th>ID</th>
+            <th>№ конкурса</th>
+            <th class="width-300">Заказчик</th>
+            <th>Бюджет запроса</th>
+            <th>Менеджер<br />Автор</th>
+            <th>Статус заявки</th>
+            <th>Создано</th>
+            <th>Срок сдачи</th>
+            <th class="text-nowrap"><table class="table table-bordered prod-manager-table"><tr class="text-primary"><td>Снабженец</td><td class="bg-default ligth num">запрос</td><td class="bg-success ligth num">расчет</td><td class="bg-info ligth num">позиций</td></tr></table></th>
+            @*<th class="text-nowrap">Тип сделки</th>*@
+            <th style="width: 150px;">
+                Тип сделки
+            </th>
+            <th>Статус<br />конкурса</th>
+            @*<th>Автор</th>*@
+            @if (canEdit) {<th>&nbsp;</th>}
+        </tr>
+    </thead>
+    <tbody id="claimTable">
+    @foreach (var claim in Model.Claims)
+    {
+        <tr>
+            @if (canCalc || canEdit)
+            {
+                <td>
+                    @if (canEdit)
+                    {
+                        <a href=@Url.Action("Index", "Claim", new {claimId = claim.Id}) class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></a>
+                    }
+                    @if (canCalc)
+                    {
+                        <a href=@Url.Action("Index", "Calc", new {claimId = claim.Id}) class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-calculator'></i></a>
+                    }
+                </td>
+            }
+            <td>@claim.Id</td>
+            <td>@claim.TenderNumber</td>
+            <td>@claim.Customer<br/>ИНН @claim.CustomerInn</td>
+            <td>@claim.Sum</td>
+            <td>
+                <div class='text-nowrap'>@claim.Manager.ShortName</div>
+                <div class='text-nowrap'>@claim.Author.ShortName</div>
+            </td>
+            <td>@ListViewModels.GetClaimStatus(claim.ClaimStatus)</td>
+            <td>@claim.RecordDateString.Split(' ')[0]</td>
+            <td>@claim.ClaimDeadlineString</td>
+            <td>
+                <table class='table table-bordered prod-manager-table'>
+                    <tr>
+                        <th>Всего</th>
+                        <td class='bg-default ligth text-right num'>@claim.PositionsCount</td>
+                        <td class='bg-success ligth text-right num'>@claim.CalculatePositionsCount</td>
+                        <td class='bg-info ligth text-right num'>@claim.CalculatesCount</td>
+                    </tr>
+                    @foreach (var product in claim.ProductManagers)
+                    {
+                        <tr>
+                            <td>@product.ShortName</td>
+                            <td class='bg-default ligth text-right num'>@product.PositionsCount</td>
+                            <td class='bg-success ligth text-right num'>@product.CalculatePositionsCount</td>
+                            <td class='bg-info light text-right num'>@product.CalculatesCount</td>
+                        </tr>
+                    }
+                </table>
+            </td>
+            <td>@ListViewModels.GetClaimDealType(claim.DealType)</td>
+        </tr>
+    }
+    </tbody>
+</table>
+<p>
+    <blockquote class="bg-warning">
+        Чтобы увидеть больше информации измените  фильт (сверху)!
+    </blockquote>
+</p>
+
+

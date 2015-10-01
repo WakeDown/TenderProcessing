@@ -398,6 +398,34 @@ namespace SpeCalc.Controllers
         }
 
         //список заявок
+        public ActionResult MVCList()
+        {
+            var user = UserHelper.GetUser(User.Identity);
+            var isManager = UserHelper.IsManager(user);
+            var isProduct = UserHelper.IsProductManager(user);
+            var isController = UserHelper.IsController(user);
+            var subordinates = Employee.GetSubordinates(user.Id).ToList();
+            subordinates.Add(new KeyValuePair<string, string>(user.Id,user.ShortName));
+            var filter = new FilterTenderClaim()
+            {
+                RowCount = 30,
+                IdManager = isController 
+                    ? null
+                    : isManager
+                        ? string.Join(",",subordinates)
+                        : null,
+                IdProductManager = isController
+                    ? null
+                    : isProduct
+                        ? string.Join(",", subordinates)
+                        : null
+            };
+            ViewBag.UserName = user.Name;
+            ViewBag.CanEdit = isManager || isController;
+            ViewBag.CanCalc = isController || isProduct;
+            var listViewModel = new ListViewModels(filter);
+            return View(listViewModel);
+        }
         public ActionResult List()
         {
             //получение пользователя и через наличие у него определенных ролей, определяются настройки по 
