@@ -1391,7 +1391,7 @@ namespace SpeCalc.Controllers
                             var claim = db.LoadTenderClaimById(idClaim);
                             var host = ConfigurationManager.AppSettings["AppHost"];
                             var productManagersFromAd = UserHelper.GetProductManagers();
-                            var productManagers = db.LoadProductManagersForClaim(claim.Id);
+                            var productManagers = db.LoadProductManagersForClaim(claim.Id, cv);
                             var productInClaim =
                                 productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id))
                                     .ToList();

@@ -174,7 +174,7 @@ namespace SpeCalc.Controllers
                 var claim = db.LoadTenderClaimById(idClaim);
                 var host = ConfigurationManager.AppSettings["AppHost"];
                 var productManagersFromAd = UserHelper.GetProductManagers();
-                var productManagers = db.LoadProductManagersForClaim(claim.Id);
+                var productManagers = db.LoadProductManagersForClaim(claim.Id, cv);
                 var productInClaim =
                     productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id))
                         .ToList();
@@ -2123,6 +2123,7 @@ namespace SpeCalc.Controllers
         }
         //>>>>Уведомления
         //передача заявки в работу
+        [HttpPost]
         public JsonResult SetClaimOnWork(int id, int cv)
         {
             var isComplete = false;
@@ -2135,7 +2136,7 @@ namespace SpeCalc.Controllers
                 if (hasPosition)
                 {
                     isComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = id, ClaimStatus = 2 });
-                    var productManagers = db.LoadProductManagersForClaim(id);
+                    var productManagers = db.LoadProductManagersForClaim(id, cv);
                     if (productManagers != null && productManagers.Any())
                     {
                         var productManagersFromAd = UserHelper.GetProductManagers();
@@ -2224,7 +2225,7 @@ namespace SpeCalc.Controllers
                     model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
                     //>>>>Уведомления
                     var claim = db.LoadTenderClaimById(model.IdClaim);
-                    var productManagers = db.LoadProductManagersForClaim(model.IdClaim);
+                    var productManagers = db.LoadProductManagersForClaim(model.IdClaim, model.Version);
                     if (productManagers != null && productManagers.Any())
                     {
                         var productManagersFromAd = UserHelper.GetProductManagers();
@@ -2278,7 +2279,7 @@ namespace SpeCalc.Controllers
                     model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
                     //>>>>Уведомления
                     var claim = db.LoadTenderClaimById(model.IdClaim);
-                    var productManagers = db.LoadProductManagersForClaim(model.IdClaim);
+                    var productManagers = db.LoadProductManagersForClaim(model.IdClaim, model.Version);
                     if (productManagers != null && productManagers.Any())
                     {
                         var productManagersFromAd = UserHelper.GetProductManagers();
@@ -2385,7 +2386,7 @@ namespace SpeCalc.Controllers
                             model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
                             //>>>>Уведомления
                             var claim = db.LoadTenderClaimById(model.IdClaim);
-                            var productManagers = db.LoadProductManagersForClaim(model.IdClaim);
+                            var productManagers = db.LoadProductManagersForClaim(model.IdClaim, model.Version);
                             if (productManagers != null && productManagers.Any())
                             {
                                 var productManagersFromAd = UserHelper.GetProductManagers();
@@ -2675,7 +2676,7 @@ namespace SpeCalc.Controllers
         [HttpPost]
         //>>>>Уведомления
         //Добавление комментария
-        public JsonResult AddCommentToClaim(string comment, int idClaim)
+        public JsonResult AddCommentToClaim(string comment, int idClaim, int cv)
         {
             var isComplete = false;
             ClaimStatusHistory statusHistory = null;
@@ -2691,7 +2692,7 @@ namespace SpeCalc.Controllers
                 isComplete = db.SaveClaimStatusHistory(statusHistory);
                 if (isComplete)
                 {
-                    var productManagers = db.LoadProductManagersForClaim(idClaim);
+                    var productManagers = db.LoadProductManagersForClaim(idClaim, cv);
                     var productManagersFromAd = UserHelper.GetProductManagers();
                     var productInClaim =
                             productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();

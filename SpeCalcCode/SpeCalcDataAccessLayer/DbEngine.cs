@@ -1032,8 +1032,9 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public List<ProductManager> LoadProductManagersForClaim(int claimId, int version = 1, int[] selIds = null, bool? getActualize = null)
+        public List<ProductManager> LoadProductManagersForClaim(int claimId, int version, int[] selIds = null, bool? getActualize = null)
         {
+            if (version <= 0)version = 1;
             var list = new List<ProductManager>();
             using (var conn = new SqlConnection(_connectionString))
             {

@@ -22,5 +22,6 @@ namespace SpeCalcDataAccessLayer.Models
         public string IdUser { get; set; }
 
         public ClaimStatus Status { get; set; }
+        public int Version { get; set; }
     }
 }
