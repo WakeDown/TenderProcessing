@@ -40,6 +40,7 @@
     var status = "@ViewBag.Status";
     var editablePosIds = @Html.Raw(serializer.Serialize(editableposIds));
     var claimId = null;
+    var nextDateMin = "@ViewBag.NextDateMin";
     $(init);
 
     function init() {
@@ -76,7 +77,7 @@
             format: "dd.mm.yyyy",
             autoclose: true,
             language: "ru",
-            startDate: '@DateTime.Now.AddDays(2).ToShortDateString()',
+            startDate: nextDateMin,
             daysOfWeekDisabled: [0,6]
         });
         $("#kPDeadline").datepicker({
@@ -89,7 +90,7 @@
             format: "dd.mm.yyyy",
             autoclose: true,
             language: "ru",
-            startDate: '@DateTime.Now.AddDays(2).ToShortDateString()',
+            startDate: nextDateMin,
             daysOfWeekDisabled: [0,6]
         });
         $("#deliveryDate").datepicker({
@@ -583,7 +584,7 @@
     //>>>>>работа с заявкой<<<<<
     //действия
     function setClaimContined(e) {
-        var strDate = '@DateTime.Today.AddDays(2)'.toString();
+        var strDate = nextDateMin;
         var split = strDate.substr(0,10).split('.');
         var minDate=Date.parse(split[2]+'/'+split[1]+'/'+split[0]);
         split = claim.ClaimDeadlineString.split('.');
@@ -699,7 +700,7 @@
     }
 
     function setClaimOnWork(e) {
-        var strDate = '@DateTime.Today.AddDays(2)'.toString();
+        var strDate = nextDateMin;
         var split = strDate.substr(0,10).split('.');
         var minDate=Date.parse(split[2]+'/'+split[1]+'/'+split[0]);
         split = claim.ClaimDeadlineString.split('.');
