@@ -517,14 +517,20 @@ namespace SpeCalc.Controllers
                 if (!string.IsNullOrEmpty(filterManager)) filter.IdManager = filterManager;
                 else
                 {
-                    
                     if (isManager && !isController)
                     {
                         filter.IdManager = user.Id;
                         subsManagers = Employee.GetSubordinates(user.Id).ToList();
                         if (subsManagers.Any())
                         {
-                            filter.IdManager = user.Id + ","+ String.Join(",", subsManagers);
+                            filter.IdManager = user.Id;// + ","+ String.Join(",", subsManagers);
+                            foreach (var sub in subsManagers)
+                            {
+                                if (sub.Key != null)
+                                {
+                                    filter.IdManager += "," + sub.Key;
+                                }
+                            }
                         }
                     }
                 }
@@ -539,7 +545,14 @@ namespace SpeCalc.Controllers
                         subsProduct = Employee.GetSubordinates(user.Id).ToList();
                         if (subsProduct.Any())
                         {
-                            filter.IdProductManager = user.Id + "," + String.Join(",", subsProduct);
+                            filter.IdProductManager = user.Id;// + "," + String.Join(",", subsProduct);
+                            foreach (var sub in subsProduct)
+                            {
+                                if (sub.Key != null)
+                                {
+                                    filter.IdProductManager += "," + sub.Key;
+                                }
+                            }
                         }
                     }
                     //filter.IdProductManager = isProduct && !isController
