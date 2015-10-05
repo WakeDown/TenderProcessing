@@ -48,9 +48,9 @@ namespace SpeCalc.Helpers
                 {
                     user = new UserBase();
                     var domain = new PrincipalContext(ContextType.Domain);
-                    var id = "S-1-5-21-1970802976-3466419101-4042325969-1774";//wi.User.Value;
+                    var id = wi.User.Value;
                     user.Id = id;
-                    var login = "anton.demakov";//wi.Name.Remove(0, wi.Name.IndexOf("\\", StringComparison.CurrentCulture) + 1);
+                    var login = wi.Name.Remove(0, wi.Name.IndexOf("\\", StringComparison.CurrentCulture) + 1);
                     var userPrincipal = UserPrincipal.FindByIdentity(domain, login);
                     if (userPrincipal != null)
                     {
@@ -61,16 +61,14 @@ namespace SpeCalc.Helpers
                         user.ShortName = GetShortName(user.Name);
                         user.Roles = new List<Role>();
                         var wp = new WindowsPrincipal(wi);
-                        //foreach (var role in _roles)
-                        //{
-                        //    var grpSid = new SecurityIdentifier(role.Sid);
-                        //    if (wp.IsInRole(grpSid))
-                        //    {
-                        //        user.Roles.Add(role.Role);
-                        //    }
-                        //}
-                        user.Roles.Add(Role.Enter);
-                        user.Roles.Add(Role.Manager);
+                        foreach (var role in _roles)
+                        {
+                            var grpSid = new SecurityIdentifier(role.Sid);
+                            if (wp.IsInRole(grpSid))
+                            {
+                                user.Roles.Add(role.Role);
+                            }
+                        }
                     }
                 }
             
