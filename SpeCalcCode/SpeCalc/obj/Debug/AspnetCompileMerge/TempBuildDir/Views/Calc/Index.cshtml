@@ -80,16 +80,17 @@
         $("#editAllCalcButtonCancel").hide();
 
         //$("#butChangeCurrency").click(changeCurrency);
-
         if (claim == null) {
             alert("Заявка не найдена\rили у Вас нет доступа к ней");
         } else {
             showClaimInfo(claim);
             initPositions(claim.Positions);
             setInfoForPositionRows();
+            initStatusHistory();
             $("#butSendOnConfirm").click(sendOnConfirm);
             var noAction = true;
             var positionsLength = claim.Positions.length;
+            
             for (var i = 0; i < positionsLength; i++) {
                 var position = claim.Positions[i];
                 if (position.State == 1 || position.State == 3|| position.State == 6 || Position.State == 7) {
@@ -97,6 +98,7 @@
                     break;
                 }
             }
+            
             if (noAction) {
                 setPositionsToNoAction();
                 $("#butSendOnConfirm").hide();
@@ -108,7 +110,7 @@
                 $("#editAllCalcButtonCancel").hide();
                 $("#saveAllCalc").hide();
             }
-            initStatusHistory();
+            
         }
         //$(document).ready(function() {
         //    //alert($("[data-mask='float']").length);
