@@ -174,7 +174,7 @@ namespace SpeCalc.Controllers
                 var claim = db.LoadTenderClaimById(idClaim);
                 var host = ConfigurationManager.AppSettings["AppHost"];
                 var productManagersFromAd = UserHelper.GetProductManagers();
-                var productManagers = db.LoadProductManagersForClaim(claim.Id);
+                var productManagers = db.LoadProductManagersForClaim(claim.Id, cv);
                 var productInClaim =
                     productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id))
                         .ToList();
@@ -325,7 +325,11 @@ namespace SpeCalc.Controllers
                         //проверка наличия доступа к данной заявке
                         if (!isController)
                         {
-                            if (isManager)
+                            if (claim.Manager.Id == user.Id || claim.Author.Id == user.Id)
+                            {
+                                
+                            }
+                            else if (isManager)
                             {
                                 var subs = Employee.GetSubordinates(user.Id).ToList();
                                 if (!Employee.UserIsSubordinate(subs, claim.Manager.Id) && !Employee.UserIsSubordinate(subs, claim.Author.Id))
@@ -336,6 +340,7 @@ namespace SpeCalc.Controllers
                                 }
                             }
                         }
+
                         var managerFromAd = managers.FirstOrDefault(x => x.Id == claim.Manager.Id);
                         if (managerFromAd != null)
                         {
@@ -343,6 +348,9 @@ namespace SpeCalc.Controllers
                             claim.Manager.ShortName = managerFromAd.ShortName;
                             claim.Manager.ChiefShortName = managerFromAd.ChiefShortName;
                         }
+
+                       
+
                         var dealTypes = db.LoadDealTypes();
                         var dealType = dealTypes.FirstOrDefault(x => x.Id == claim.DealType);
                         if (dealType != null)
@@ -504,32 +512,47 @@ namespace SpeCalc.Controllers
                 {
                     RowCount = 30,
                 };
+                var subsProduct = new List<KeyValuePair<string, string>>();
+                var subsManagers = new List<KeyValuePair<string, string>>();
                 if (!string.IsNullOrEmpty(filterManager)) filter.IdManager = filterManager;
                 else
                 {
-                    
                     if (isManager && !isController)
                     {
                         filter.IdManager = user.Id;
-                        var subs = Employee.GetSubordinates(user.Id);
-                        if (subs.Any())
+                        subsManagers = Employee.GetSubordinates(user.Id).ToList();
+                        if (subsManagers.Any())
                         {
-                            filter.IdManager = user.Id + ","+ String.Join(",", subs);
+                            filter.IdManager = user.Id;// + ","+ String.Join(",", subsManagers);
+                            foreach (var sub in subsManagers)
+                            {
+                                if (sub.Key != null)
+                                {
+                                    filter.IdManager += "," + sub.Key;
+                                }
+                            }
                         }
                     }
                 }
                 
-                if (!string.IsNullOrEmpty(filterProduct)) filter.IdProductManager = user.Id;
+                if (!string.IsNullOrEmpty(filterProduct)) filter.IdProductManager = filterProduct;
                 else
                 {
                     
                     if (isProduct && !isController)
                     {
                         filter.IdProductManager = user.Id;
-                        var subs = Employee.GetSubordinates(user.Id);
-                        if (subs.Any())
+                        subsProduct = Employee.GetSubordinates(user.Id).ToList();
+                        if (subsProduct.Any())
                         {
-                            filter.IdProductManager = user.Id + "," + String.Join(",", subs);
+                            filter.IdProductManager = user.Id;// + "," + String.Join(",", subsProduct);
+                            foreach (var sub in subsProduct)
+                            {
+                                if (sub.Key != null)
+                                {
+                                    filter.IdProductManager += "," + sub.Key;
+                                }
+                            }
                         }
                     }
                     //filter.IdProductManager = isProduct && !isController
@@ -541,15 +564,46 @@ namespace SpeCalc.Controllers
                 var claims = db.FilterTenderClaims(filter);
                 //снабженцы и менеджеры из ActiveDirectory
                 var prodManSelList = UserHelper.GetProductManagersSelectionList();
-                var adProductManagers = 
-                    isProduct && !isController? Employee.GetSubordinateProductManagers(user.Id):
-                    prodManSelList;
+                
+                var adProductManagers = new List<ProductManager>();
+                
+                adProductManagers = prodManSelList;
+                
+                if (!isController && isProduct)
+                {
+                    var subProds = Employee.GetSubordinateProductManagers(user.Id, subsProduct);
+                    if (subProds.Any())
+                    {
+                        adProductManagers = subProds;
+                    }
+                    else
+                    {
+                        var curProd = new ProductManager() {Id = user.Id, ShortName = user.ShortName};
+                        adProductManagers = new List<ProductManager>();
+                        adProductManagers.Add(curProd);
+                    }
+                }
                 var manSelList = UserHelper.GetManagersSelectionList();
-                var managers =
-                    isManager && !isController
-                    ? Employee.GetSubordinateManagers(user.Id)
-                    :
-                    manSelList;
+                
+                var managers = new List<Manager>();
+                
+                    managers = manSelList;
+                
+                if (!isController && isManager)
+                {
+                    var subMans = Employee.GetSubordinateManagers(user.Id, subsManagers);
+                    if (subMans.Any())
+                    {
+                        managers = subMans;
+                    }
+                    else
+                    {
+                        var curMan = new Manager() { Id = user.Id, ShortName = user.ShortName };
+                        managers = new List<Manager>();
+                        managers.Add(curMan);
+                    }
+                }
+                
 
                 //var prodManSelList = UserHelper.Get();
 
@@ -573,7 +627,7 @@ namespace SpeCalc.Controllers
                         //    claimProductManager.ShortName = managerFromAD.ShortName;
                         //}
                     }
-                    var authorsList = UserHelper.GetAuthorsSelectionList();
+                    //var authorsList = UserHelper.GetAuthorsSelectionList();
                     foreach (var claim in claims)
                     {
                         claim.Manager.ShortName = manSelList.FirstOrDefault(x => x.Id == claim.Manager.Id)?.ShortName;
@@ -581,8 +635,8 @@ namespace SpeCalc.Controllers
                         //{
                         //    claim.Manager.ShortName = manager.ShortName;
                         //}
-                        var auth = authorsList.SingleOrDefault(x => x.Key == claim.Author.Id);
-                        claim.Author = new UserBase() { Id= auth.Key, ShortName = auth.Value};// UserHelper.GetUserById(claim.Author.Id);
+                        //var auth = authorsList.SingleOrDefault(x => x.Key == claim.Author.Id);
+                        claim.Author = UserHelper.GetUserById(claim.Author.Id);//new UserBase() { Id= auth.Key, ShortName = auth.Value};// UserHelper.GetUserById(claim.Author.Id);
 
                     }
                     db.SetStatisticsForClaims(claims);
@@ -1984,9 +2038,15 @@ namespace SpeCalc.Controllers
                 var db = new DbEngine();
                 if (model.RowCount == 0) model.RowCount = 10;
                 if (string.IsNullOrEmpty(model.IdManager) && isManager && !isController)
-                    model.IdManager = string.Join(",", Employee.GetSubordinates(GetUser().Id));
+                {
+                    var subMans = Employee.GetSubordinates(GetUser().Id);
+                    model.IdManager = user.Id + "," + string.Join(",", subMans);
+                }
                 if (string.IsNullOrEmpty(model.IdProductManager) && isProduct && !isController)
-                    model.IdProductManager = string.Join(",", Employee.GetSubordinates(GetUser().Id));
+                {
+                    var subProds = string.Join(",", Employee.GetSubordinates(GetUser().Id));
+                    model.IdProductManager = user.Id + "," + subProds;
+                }
                 list = db.FilterTenderClaims(model);
                 var adProductManagers = UserHelper.GetProductManagers();
                 var managers = UserHelper.GetManagers();
@@ -2076,6 +2136,7 @@ namespace SpeCalc.Controllers
         }
         //>>>>Уведомления
         //передача заявки в работу
+        [HttpPost]
         public JsonResult SetClaimOnWork(int id, int cv)
         {
             var isComplete = false;
@@ -2088,7 +2149,7 @@ namespace SpeCalc.Controllers
                 if (hasPosition)
                 {
                     isComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = id, ClaimStatus = 2 });
-                    var productManagers = db.LoadProductManagersForClaim(id);
+                    var productManagers = db.LoadProductManagersForClaim(id, cv);
                     if (productManagers != null && productManagers.Any())
                     {
                         var productManagersFromAd = UserHelper.GetProductManagers();
@@ -2177,7 +2238,7 @@ namespace SpeCalc.Controllers
                     model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
                     //>>>>Уведомления
                     var claim = db.LoadTenderClaimById(model.IdClaim);
-                    var productManagers = db.LoadProductManagersForClaim(model.IdClaim);
+                    var productManagers = db.LoadProductManagersForClaim(model.IdClaim, model.Version);
                     if (productManagers != null && productManagers.Any())
                     {
                         var productManagersFromAd = UserHelper.GetProductManagers();
@@ -2231,7 +2292,7 @@ namespace SpeCalc.Controllers
                     model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
                     //>>>>Уведомления
                     var claim = db.LoadTenderClaimById(model.IdClaim);
-                    var productManagers = db.LoadProductManagersForClaim(model.IdClaim);
+                    var productManagers = db.LoadProductManagersForClaim(model.IdClaim, model.Version);
                     if (productManagers != null && productManagers.Any())
                     {
                         var productManagersFromAd = UserHelper.GetProductManagers();
@@ -2338,7 +2399,7 @@ namespace SpeCalc.Controllers
                             model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
                             //>>>>Уведомления
                             var claim = db.LoadTenderClaimById(model.IdClaim);
-                            var productManagers = db.LoadProductManagersForClaim(model.IdClaim);
+                            var productManagers = db.LoadProductManagersForClaim(model.IdClaim, model.Version);
                             if (productManagers != null && productManagers.Any())
                             {
                                 var productManagersFromAd = UserHelper.GetProductManagers();
@@ -2628,7 +2689,7 @@ namespace SpeCalc.Controllers
         [HttpPost]
         //>>>>Уведомления
         //Добавление комментария
-        public JsonResult AddCommentToClaim(string comment, int idClaim)
+        public JsonResult AddCommentToClaim(string comment, int idClaim, int cv)
         {
             var isComplete = false;
             ClaimStatusHistory statusHistory = null;
@@ -2644,7 +2705,7 @@ namespace SpeCalc.Controllers
                 isComplete = db.SaveClaimStatusHistory(statusHistory);
                 if (isComplete)
                 {
-                    var productManagers = db.LoadProductManagersForClaim(idClaim);
+                    var productManagers = db.LoadProductManagersForClaim(idClaim, cv);
                     var productManagersFromAd = UserHelper.GetProductManagers();
                     var productInClaim =
                             productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();

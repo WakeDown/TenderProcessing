@@ -166,13 +166,13 @@ namespace SpeCalc.Controllers
                             //    claim.Manager.ShortName = managerFromAd.ShortName;
                             //    claim.Manager.ChiefShortName = managerFromAd.ChiefShortName;
                             //}
-                            var hasAccess = isController;
 
                             var subordinateList = Employee.GetSubordinates(user.Id);
 
 
                             var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
                             var prodManSelList = UserHelper.GetProductManagersSelectionList();
+                            bool hasAccess = isController || claim.Positions.Any(x => x.ProductManager.Id == user.Id);
 
                             foreach (var productManager in productManagers)
                             {
@@ -191,7 +191,7 @@ namespace SpeCalc.Controllers
                                 //    productManager.ShortName = productManagerFromAd.ShortName;
                                 //}
                             }
-                            if (!hasAccess || isProduct)
+                            if (!hasAccess)
                             {
                                 var dict = new RouteValueDictionary();
                                 dict.Add("message", "У Вас нет доступа к этой заявке, Вам не назначены позиции для расчета");
@@ -1391,7 +1391,7 @@ namespace SpeCalc.Controllers
                             var claim = db.LoadTenderClaimById(idClaim);
                             var host = ConfigurationManager.AppSettings["AppHost"];
                             var productManagersFromAd = UserHelper.GetProductManagers();
-                            var productManagers = db.LoadProductManagersForClaim(claim.Id);
+                            var productManagers = db.LoadProductManagersForClaim(claim.Id, cv);
                             var productInClaim =
                                 productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id))
                                     .ToList();
