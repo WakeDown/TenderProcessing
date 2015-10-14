@@ -396,37 +396,120 @@ namespace SpeCalc.Controllers
             }
             return View();
         }
-
+        [HttpGet]
         //список заявок
-        public ActionResult MVCList()
+        public ActionResult List(string filterString)
         {
-            var user = UserHelper.GetUser(User.Identity);
+            var filter = string.IsNullOrEmpty(filterString)
+                ? null
+                : JsonConvert.DeserializeObject<FilterTenderClaim>(filterString);
+            /*var testRoles = new List<Role>()
+            {
+                Role.Enter,
+                Role.Manager,
+               // Role.Controller
+            };
+            var user = new EmployeeSm("Some Sid").GetUserBase(testRoles);*/
+            var user = GetUser();
             var isManager = UserHelper.IsManager(user);
             var isProduct = UserHelper.IsProductManager(user);
             var isController = UserHelper.IsController(user);
             var subordinates = Employee.GetSubordinates(user.Id).ToList();
-            subordinates.Add(new KeyValuePair<string, string>(user.Id,user.ShortName));
-            var filter = new FilterTenderClaim()
+            subordinates.Add(new KeyValuePair<string, string>(user.Id, user.ShortName));
+            var subSids = string.Join(",", subordinates.Select(s => s.Key));
+            filter = filter ?? new FilterTenderClaim() {RowCount = 30};
+            if (!isController)
             {
-                RowCount = 30,
-                IdManager = isController 
-                    ? null
-                    : isManager
-                        ? string.Join(",",subordinates)
-                        : null,
-                IdProductManager = isController
-                    ? null
-                    : isProduct
-                        ? string.Join(",", subordinates)
-                        : null
-            };
+                if (isManager && (string.IsNullOrEmpty(filter.IdManager) || !subSids.Contains(filter.IdManager)))
+                filter.IdManager = subSids;
+                if (isProduct && (string.IsNullOrEmpty(filter.IdProductManager) || !subSids.Contains(filter.IdProductManager)))
+                filter.IdProductManager = subSids;
+            }
+            var mainRole = isController
+                    ? Role.Controller
+                    : isManager 
+                        ? Role.Manager 
+                        : isProduct 
+                            ? Role.ProductManager 
+                            : Role.Enter;
+            if (mainRole == Role.Enter)
+            {
+                var dict = new RouteValueDictionary();
+                dict.Add("message", "У Вас нет доступа к приложению");
+                return RedirectToAction("ErrorPage", "Auth", dict);
+            }
+            var listViewModel = new ListViewModels(filter, subordinates, mainRole);
             ViewBag.UserName = user.Name;
             ViewBag.CanEdit = isManager || isController;
-            ViewBag.CanCalc = isController || isProduct;
-            var listViewModel = new ListViewModels(filter);
+            ViewBag.CanCalc = isProduct || isController;
             return View(listViewModel);
         }
-        public ActionResult List()
+        [HttpGet]
+        public ActionResult NewClaim(string errorMessage)
+        {
+            var user = new EmployeeSm(GetUser().Id);
+            ViewBag.UserName = user.FullName;
+            TempData["userSid"] = user.AdSid;
+            TempData["errorMessage"] = errorMessage;
+            TempData["department"] = user.DepartmentName;
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult NewClaim(TenderClaim model, string managerSid)
+        {
+            var manager = new EmployeeSm(managerSid);
+            model.Manager = new Manager()
+            {
+                Id = manager.AdSid,
+                ShortName = manager.DisplayName,
+                SubDivision = manager.DepartmentName
+            };
+            model.Author = GetUser();
+            model.RecordDate = DateTime.Now;
+            model.ClaimStatus = 1;
+            model.TenderStatus = 1;
+            var success = new DbEngine().SaveTenderClaim(ref model);
+            if (success)
+            {
+                string message = "";
+                if (Request.Files.Count > 0)
+                {
+                    int idClaim = model.Id;
+                    if (idClaim != null && idClaim > 0)
+                    {
+                        for (int i = 0; i < Request.Files.Count; i++)
+                        {
+                            var file = Request.Files[i];
+                            var fileFormats = WebConfigurationManager.AppSettings["FileFormat4TenderClaimFile"].Split(',').Select(s => s.ToLower()).ToArray();
+                            byte[] fileData = null;
+                            if (Array.IndexOf(fileFormats, Path.GetExtension(file.FileName).ToLower()) > -1)
+                            {
+                                using (var br = new BinaryReader(file.InputStream))
+                                {
+                                    fileData = br.ReadBytes(file.ContentLength);
+                                }
+                                var db = new DbEngine();
+                                var claimFile = new TenderClaimFile() { IdClaim = idClaim, File = fileData, FileName = file.FileName };
+                                db.SaveTenderClaimFile(ref claimFile);
+                            }
+                            else if (file.ContentLength > 0) message += String.Format("Файл {0} имеет недопустимое расширение.", file.FileName);
+                        }
+                        //}
+                    }
+                }
+                TempData["error"] = message;
+                return RedirectToAction("Index", "Claim", new {claimId = model.Id});
+            }
+            return RedirectToAction("NewClaim", "Claim", new {errorMessage = "при сохранении возникла ошибка"});
+        }
+
+        [HttpGet]
+        public string GetDepartment(string sid)
+        {
+            return new EmployeeSm(sid).DepartmentName;
+        }
+        public ActionResult ListOld()
         {
             //получение пользователя и через наличие у него определенных ролей, определяются настройки по 
             //функциональности на странице
@@ -2051,7 +2134,7 @@ namespace SpeCalc.Controllers
             }
             return Json(new { IsComplete = isComplete, Claims = list, Count = count });
         }
-
+        
         //добавление позиции по заявке
         [HttpPost]
         public JsonResult AddClaimPosition(SpecificationPosition model)

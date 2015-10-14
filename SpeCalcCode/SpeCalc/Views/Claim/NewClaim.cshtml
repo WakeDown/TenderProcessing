@@ -1,0 +1,178 @@
+﻿@using SpeCalc.Models
+@using SpeCalcDataAccessLayer.Models
+@model TenderClaim
+@{
+    ViewBag.Title = "Новая заявка";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var errorMessage = (string) TempData["errorMessage"];
+    var currencyList = new SelectList(new Dictionary<int, string>() {{1, "руб."}, {2, "USD"}, {3, "EUR"}},"Key", "Value");
+    var minDate = DateTime.Now.DayOfWeek == DayOfWeek.Friday
+                    ? DateTime.Now.AddDays(4).ToShortDateString()
+                    : DateTime.Now.AddDays(2).ToShortDateString();
+    var department = TempData["department"];
+    var userSid = TempData["userSid"].ToString();
+    var managerSid = userSid;
+    }
+@using (Html.BeginForm("NewClaim", "Claim", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data", role = "form" }))
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 id="headNoCalc" class="marg-sm">
+                <span id="claimId">
+                        Новая заявка
+                    </span>
+            </h4>
+        </div>
+        <div class="panel-body">
+            <div id="pnlClaimFormNoCalc" class="form-horizontal val-form col-sm-8 small" role="form">
+                
+                <div>
+                    <label class="col-sm-3 control-label">№ конкурса из Эталон</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(cl => cl.TenderNumber, new {id = "tenderNumber", @class = "form-control"})
+                    </div>
+                </div><!--№ конкурса из Эталон-->
+                <div>
+                    <label class="col-sm-3 control-label required-mark">Дата начала</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(cl => cl.TenderStart, "{0:dd.MM.yyyy}", new {style = "cursor: pointer;", @class = "form-control datepicker-btn", required = "required"})
+                    </div>
+                </div><!--Дата начала-->
+                <div>
+                    <label class="col-sm-3 control-label required-mark">Срок сдачи расчета</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(cl => cl.ClaimDeadline, "{0:dd.MM.yyyy}", new {id = "claimDeadline", style = "cursor: pointer;", @class = "form-control datepicker-btn", required = "required"})
+                    </div>
+                </div> <!--Срок сдачи расчета-->
+                <div>
+                    <label class="col-sm-3 control-label required-mark">Срок подачи КП</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(cl => cl.KPDeadline, "{0:dd.MM.yyyy}", new {id = "kPDeadline", style = "cursor: pointer;", @class = "form-control datepicker-btn", required = "required"})
+                    </div>
+                </div><!--Срок подачи КП-->
+                <div>
+                    <label class="col-sm-3 control-label required-mark">Заказчик</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(cl => cl.Customer, new {id = "customer", @class = "form-control", required = "required"})
+                    </div>
+                </div><!--Заказчик-->
+                <div>
+                    <label class="col-sm-3 control-label">ИНН заказчика</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(cl => cl.CustomerInn, new {id = "innCustomer", @class = "form-control"})
+                    </div>
+                </div><!--ИНН заказчика-->
+                <div>
+                    <label class="col-sm-3 control-label required-mark">Бюджет запроса</label>
+                    <div class="col-sm-9">
+                        <div id="sumPanel" class="input-group">
+                            @Html.TextBoxFor(cl => cl.Sum, new {id = "sum", @class = "form-control", required = "required"})
+                            <span class="input-group-addon">
+                                @Html.DropDownListFor(cl => cl.SumCurrency, currencyList)
+                            </span>
+                        </div>
+                        <span id="sumLabel" style="display: none;" class="form-control"></span>
+                    </div>
+                </div><!--Бюджет запроса-->
+                <div>
+                    <label class="col-sm-3 control-label required-mark">Тип сделки</label>
+                    <div class="col-sm-9">
+                        @Html.DropDownListFor(cl => cl.DealType, DealType.GetList(), "--выберите--", new {size = "1", id = "listDealTypes", @class = "form-control", required = "required" })
+                    </div>
+                </div><!--Тип сделки-->
+                <div>
+                    <label class="col-sm-3 control-label">Ссылка на закупки</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(cl => cl.TenderUrl, new {@class = "form-control"})
+                    </div>
+                </div><!--Ссылка на закупки-->
+                <div>
+                    <label class="col-sm-3 control-label required-mark">Менеджер</label>
+                    <div class="col-sm-9">
+                        @Html.DropDownListFor(m => managerSid, Employee.GetManagerSelectList(userSid),"--выберите--", new {size = "1", id = "listManagers", @class = "form-control", required = "required"})
+                    </div>
+                </div><!--Менеджер-->
+                <div>
+                    <label class="col-sm-3 control-label">Подразделение</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(d => department, new {id = "managerSubDivision", @class = "form-control", @readonly = "true"})
+                        <span ></span>
+                        <span id="managerSubDivisionLabel" style="display: none;" class="form-control"></span>
+                    </div>
+                </div><!--Подразделение-->
+                <div>
+                    <label class="col-sm-3 control-label">Срок поставки начало</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(cl => cl.DeliveryDate, new {id = "deliveryDate", style = "cursor: pointer;", @class = "form-control datepicker-btn"})
+                    </div>
+                </div><!--Срок поставки начало-->
+                <div>
+                    <label class="col-sm-3 control-label">Срок поставки окончание</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(cl => cl.DeliveryDateEnd, new {id = "deliveryDateEnd", style = "cursor: pointer;", @class = "form-control datepicker-btn"})
+                    </div>
+                </div><!--Срок поставки окончание-->
+                <div>
+                    <label class="col-sm-3 control-label">Место поставки</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(cl => cl.DeliveryPlace, new {id = "deliveryPlace", @class="form-control"})
+                    </div>
+                </div><!--Место поставки-->
+                <div>
+                    <label class="col-sm-3 control-label">Дата аукциона</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(cl => cl.AuctionDate, new {id = "auctionDate", style = "cursor: pointer;", @class = "form-control datepicker-btn"})
+                    </div>
+                </div><!--Дата аукциона-->
+                <div>
+                    <label class="col-sm-3 control-label">Комментарий</label>
+                    <div class="col-sm-9">
+                        @Html.TextAreaFor(cl => cl.Comment, new {rows = "1", id = "comment", @class = "form-control"})
+                    </div>
+                </div><!--Комментарий-->
+                <div>
+                    <label class="col-sm-3 control-label">Файлы</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="hidden" name="formClaimId"/>
+                        <input type="file" name="file" id="fileInput" multiple="multiple" accept=".xls,.xlsx,.doc,.docx"/>
+                   </div>
+                </div><!--Файлы-->
+                <div>
+                    <div class="col-sm-offset-3 col-sm-8">
+                        <button type="submit" id="butSaveClaim" class="btn btn-primary"><i class="fa fa-save"></i> сохранить</button>
+                    </div>
+                </div><!--сохранить-->
+            </div>
+        </div>
+    </div>
+}
+<script type="text/javascript">
+    $(document).ready(function() {
+        var startDate = "@minDate";
+        $(".datepicker-btn").datepicker({
+            format: "dd.mm.yyyy",
+            autoclose: true,
+            todayBtn: "linked",
+            language: "ru"
+        });
+        $("#claimDeadline").datepicker("setStartDate", startDate);
+        $("#sum").change(function() {
+            var sum = Number($("#sum").val().replace(",", "."));
+            if (isNaN(sum)) {
+                (alert("Бюджет должен быть числом"));
+                $("#sum").val("");
+            }             
+        });
+        
+        
+        $("#listManagers").change(function () {
+            var opt = $("#listManagers option:selected")
+            var url = "@Url.Action("GetDepartment","Claim")";
+                var sid = $(opt).val();
+            $.get(url, { sid: sid }, function(data) {
+                $("#managerSubDivision").val(data);
+            }); 
+        });
+        
+    });
+</script>

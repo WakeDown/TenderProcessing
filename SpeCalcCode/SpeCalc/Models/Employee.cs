@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 using DocumentFormat.OpenXml.Presentation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SpeCalc.Helpers;
+using SpeCalc.Objects;
 using SpeCalcDataAccessLayer.Enums;
 using SpeCalcDataAccessLayer.Models;
 using Stuff.Objects;
@@ -32,6 +34,19 @@ namespace SpeCalc.Models
             managers = managers.OrderBy(m => m.DisplayName).ToList();
 
             return managers;
+        }
+
+        public static SelectList GetManagerSelectList(string sid)
+        {
+            var managers = new List<Manager>();
+            var list = GetUserListByAdGroup(AdGroup.SpeCalcManager);
+            foreach (var pair in list)
+            {
+                var manager = new Manager() {Id = pair.Key, ShortName = pair.Value};
+                managers.Add(manager);
+            }
+
+            return new SelectList(managers, "Id", "ShortName", sid);
         }
         /// <summary>
         /// Возвращает подчиненных владельца id как список продактов
@@ -105,7 +120,7 @@ namespace SpeCalc.Models
             Uri uri = new Uri(String.Format("{0}/Employee/GetSubordinatesSimple?sid={1}", OdataServiceUri, id));
             string jsonString = GetJson(uri);
             IEnumerable<KeyValuePair<string, string>> list = new List<KeyValuePair<string, string>>();
-            if (jsonString != null && jsonString != "{}") list = JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(jsonString);
+            if (jsonString != null && jsonString != "[]") list = JsonConvert.DeserializeObject<List<KeyValuePair <string, string>>>(jsonString);
             //var sidList = new List<string>() { id };
             //foreach (var pair in dictionary)
             //{
@@ -136,6 +151,18 @@ namespace SpeCalc.Models
                 if (item.Key == userSid) return true;
             }
             return false;
+        }
+        /// <summary>
+        /// Получает список членов группы AD
+        /// </summary>
+        /// <param name="adGroup">группа AD</param>
+        /// <returns></returns>
+        public static List<KeyValuePair<string, string>> GetUserListByAdGroup(AdGroup adGroup)
+        {
+            Uri uri = new Uri($"{OdataServiceUri}/Ad/GetUserListByAdGroup?group={adGroup}");
+            string jsonString = GetJson(uri);
+            var sidNamePairs = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(jsonString);
+            return sidNamePairs;
         }
 
         //public static IEnumerable<KeyValuePair<string, string>> GetOperatorSelectionList()
