@@ -80,16 +80,17 @@
         $("#editAllCalcButtonCancel").hide();
 
         //$("#butChangeCurrency").click(changeCurrency);
-
         if (claim == null) {
             alert("Заявка не найдена\rили у Вас нет доступа к ней");
         } else {
             showClaimInfo(claim);
             initPositions(claim.Positions);
             setInfoForPositionRows();
+            initStatusHistory();
             $("#butSendOnConfirm").click(sendOnConfirm);
             var noAction = true;
             var positionsLength = claim.Positions.length;
+            
             for (var i = 0; i < positionsLength; i++) {
                 var position = claim.Positions[i];
                 if (position.State == 1 || position.State == 3|| position.State == 6 || Position.State == 7) {
@@ -97,6 +98,7 @@
                     break;
                 }
             }
+            
             if (noAction) {
                 setPositionsToNoAction();
                 $("#butSendOnConfirm").hide();
@@ -108,7 +110,7 @@
                 $("#editAllCalcButtonCancel").hide();
                 $("#saveAllCalc").hide();
             }
-            initStatusHistory();
+            
         }
         //$(document).ready(function() {
         //    //alert($("[data-mask='float']").length);
@@ -164,7 +166,7 @@
             //positionId
             //var rejectPostionsId = $("#rejectPositionCommentBox").attr("rejectedId");
             //var arrIds = rejectPostionsId.split(",");
-            var model = {idClaim:'@Request.QueryString["claimId"]', cv:'@Request.QueryString["cv"]', posIds:posIds};
+            var model = {idClaim:'@Request.QueryString["claimId"]', cv:'@Request.QueryString["cv"]', posIds:posIds, comment:comment};
             $.ajax({
                 url: "@Url.Action("SetPositionRejected")",
                 type: 'POST',
@@ -1268,6 +1270,7 @@
         element.attr("type", "positionRow");
         $("[type='catalogNumberLabel']", element).text(position.CatalogNumber);
         $("[type='nameLabel']", element).text(position.Name);
+        $("[type='productName']", element).text(position.ProductManager.ShortName);
         //$("[type='replaceLabel']", element).text(position.Replace);
         $("[type='unitLabel']", element).text(getUnitString(position.Unit));
         $("[type='valueLabel']", element).text(position.Value);
@@ -1867,8 +1870,9 @@
                                 Количество<br />
                                 Единицы<br />
                                 Комментарий*@
-                        Запрос
-                    </th>
+                            Запрос
+                        </th>
+                        <th class="text-nowrap">Продакт/Снабженец</th>
                     <th class="text-nowrap">Кол-во</th>
                     <th></th>
                     <th>
@@ -1924,6 +1928,9 @@
                 <td posdt='1' class="min-width" rowspan="1">
                     <div type='nameLabel'></div>
                     <div class="text-danger bold" type="commentLabel"></div>
+                </td>
+                <td posdt='1' class="min-width" rowspan="1">
+                    <div type='productName' class="text-nowrap"></div>
                 </td>
                 <td posdt='1' class="min-width" rowspan="1">
                     <span type='valueLabel'></span>&nbsp;<span type='unitLabel'></span>
