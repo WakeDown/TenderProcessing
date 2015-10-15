@@ -14,7 +14,11 @@ namespace SpeCalcDataAccessLayer.Models
 
         public string TenderNumber { get; set; }
 
+        public string Customer { get; set; }
+
         public List<int> ClaimStatus { get; set; }
+
+        public int DealTypeId { get; set; }
 
         public string IdManager { get; set; }
 
