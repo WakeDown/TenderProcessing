@@ -2046,7 +2046,7 @@ namespace SpeCalc.Controllers
         //удаление заявки
         public JsonResult DeleteClaim(int id)
         {
-            var isComplete = false;
+            bool isComplete;
             try
             {
                 var user = GetUser();

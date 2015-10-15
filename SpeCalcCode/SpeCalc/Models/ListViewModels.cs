@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 using System.Web.UI.WebControls;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using Newtonsoft.Json;
@@ -78,6 +79,10 @@ namespace SpeCalc.Models
             return new DbEngine().LoadDealTypes().Find(dt => dt.Id == claimDealTypeId).Value;
         }
 
+        public static List<DealType> GetDealTypesList()
+        {
+            return new DbEngine().LoadDealTypes();
+        }
         /// <summary>
         /// Получает название статуса по его id.
         /// </summary>

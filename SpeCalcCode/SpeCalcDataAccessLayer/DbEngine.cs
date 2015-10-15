@@ -478,7 +478,9 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@rowCount", filter.RowCount);
                 if (filter.IdClaim != 0) cmd.Parameters.AddWithValue("@idClaim", filter.IdClaim);
                 if (!string.IsNullOrEmpty(filter.TenderNumber)) cmd.Parameters.AddWithValue("@tenderNumber", filter.TenderNumber);
+                if (!string.IsNullOrEmpty(filter.Customer)) cmd.Parameters.AddWithValue("@customer", filter.Customer);
                 if (filter.ClaimStatus != null && filter.ClaimStatus.Any()) cmd.Parameters.AddWithValue("@claimStatusIds", string.Join(",", filter.ClaimStatus));
+                if (filter.DealTypeId != 0) cmd.Parameters.AddWithValue("@dealTypeId", filter.DealTypeId);
                 if (!string.IsNullOrEmpty(filter.IdManager)) cmd.Parameters.AddWithValue("@manager", filter.IdManager);
                 if (!string.IsNullOrEmpty(filter.ManagerSubDivision)) cmd.Parameters.AddWithValue("@managerSubDivision", filter.ManagerSubDivision);
                 if (filter.Overdie.HasValue) cmd.Parameters.AddWithValue("@overdie", filter.Overdie);
@@ -560,7 +562,9 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandText = "FilterTenderClaimsCount";
                 if (filter.IdClaim != 0) cmd.Parameters.AddWithValue("@idClaim", filter.IdClaim);
                 if (!string.IsNullOrEmpty(filter.TenderNumber)) cmd.Parameters.AddWithValue("@tenderNumber", filter.TenderNumber);
+                if (!string.IsNullOrEmpty(filter.Customer)) cmd.Parameters.AddWithValue("@customer", filter.Customer);
                 if (filter.ClaimStatus != null && filter.ClaimStatus.Any()) cmd.Parameters.AddWithValue("@claimStatusIds", string.Join(",", filter.ClaimStatus));
+                if (filter.DealTypeId != 0) cmd.Parameters.AddWithValue("@dealTypeId", filter.DealTypeId);
                 if (!string.IsNullOrEmpty(filter.IdManager)) cmd.Parameters.AddWithValue("@manager", filter.IdManager);
                 if (!string.IsNullOrEmpty(filter.ManagerSubDivision)) cmd.Parameters.AddWithValue("@managerSubDivision", filter.ManagerSubDivision);
                 if (filter.Overdie.HasValue) cmd.Parameters.AddWithValue("@overdie", filter.Overdie);
