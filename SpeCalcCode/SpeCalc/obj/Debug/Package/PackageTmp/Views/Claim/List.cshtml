@@ -182,16 +182,16 @@
             @if (canCalc && canEdit)
             {
                 <td>
-                    <a href=@Url.Action("Index", "Claim", new {claimId = claim.Id}) class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></a>
+                    <a href=@Url.Action("Index", "Claim", new {claimId = claim.Id}) class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить' target="_blank"><i class='fa fa-edit'></i></a>
                     @if (claim.ProductManagers.Count > 0)
                     {
-                        <a href=@Url.Action("Index", "Calc", new {claimId = claim.Id}) class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-calculator'></i></a>
+                        <a href=@Url.Action("Index", "Calc", new {claimId = claim.Id}) class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить' target="_blank"><i class='fa fa-calculator'></i></a>
                     }
                 </td>
             }
             <td>@claim.Id</td>
             <td>@claim.TenderNumber</td>
-            <td>@claim.Customer<br/>ИНН @claim.CustomerInn</td>
+            <td>@claim.Customer@(!String.IsNullOrEmpty(claim.CustomerInn) ?"< br/>ИНН" + claim.CustomerInn : String.Empty)</td>
             <td>@claim.Sum</td>
             <td>
                 <div class='text-nowrap'>@claim.Manager.ShortName</div>
@@ -234,7 +234,7 @@
 </table>
 <p>
     <blockquote class="bg-warning">
-        Чтобы увидеть больше информации измените фильт (сверху)!
+        Чтобы увидеть больше информации измените фильтр (сверху)!
     </blockquote>
 </p>
 
@@ -301,6 +301,9 @@
                 });
                 
             }; e.stopPropagation();
+        });
+        $('[class="btn btn-link btn-lg"]').click(function(e) {
+            e.stopPropagation();
         });
     }
     function getFilterObj() {
