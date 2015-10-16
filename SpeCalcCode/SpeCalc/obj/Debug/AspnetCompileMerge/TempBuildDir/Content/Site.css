@@ -258,3 +258,12 @@ input.required-mark,textarea.required-mark, select.required-mark, span.required-
 .pad-sm {
     padding: 3px 3px 3px 3px !important;
 }
+
+.row-claim-item {
+    
+}
+
+.row-claim-item:hover {
+    cursor: pointer;
+    background-color: #f7ecb5;
+}
