@@ -158,7 +158,9 @@
     <Compile Include="Models\CalcPosition.cs" />
     <Compile Include="Models\CatalogProduct.cs" />
     <Compile Include="Models\Employee.cs" />
+    <Compile Include="Models\EmployeeSm.cs" />
     <Compile Include="Models\HistoryQueState.cs" />
+    <Compile Include="Models\ListViewModels.cs" />
     <Compile Include="Models\QuePosAnswer.cs" />
     <Compile Include="Models\QuePosition.cs" />
     <Compile Include="Models\QueState.cs" />
@@ -167,6 +169,7 @@
     <Compile Include="Models\Tender.cs" />
     <Compile Include="Models\TenderManagerPositionsReportFilter.cs" />
     <Compile Include="Models\TenderState.cs" />
+    <Compile Include="Models\UserHelper.cs" />
     <Compile Include="Objects\AdGroup.cs" />
     <Compile Include="Objects\AdUserGroup.cs" />
     <Compile Include="Objects\BaseController.cs" />
@@ -239,10 +242,8 @@
     <Content Include="App_Data\Specification_fin.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="Properties\PublishProfiles\2. Test.pubxml" />
-    <None Include="Properties\PublishProfiles\3. Production.pubxml" />
-    <None Include="Properties\PublishProfiles\1. Dev.pubxml" />
     <Content Include="Properties\SlowCheetah\SlowCheetah.Transforms.targets" />
+    <None Include="Properties\PublishProfiles\romanov.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootbox.js" />
     <Content Include="Scripts\bootbox.min.js" />
@@ -303,6 +304,8 @@
     <Content Include="Views\Question\FilteredList.cshtml" />
     <Content Include="Views\Report\ManagerTenderPositions.cshtml" />
     <Content Include="Views\Report\ManagerTenderPositionsList.cshtml" />
+    <Content Include="Views\Claim\NewClaim.cshtml" />
+    <Content Include="Views\Claim\ListOld.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeCalcDataAccessLayer\SpeCalcDataAccessLayer.csproj">
@@ -352,7 +355,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>31340</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>https://localhost:44300/</IISUrl>
+          <IISUrl>https://localhost:44301/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>http://uiis-1:12301/</CustomServerUrl>

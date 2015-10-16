@@ -1,77 +1,251 @@
 ﻿@using System.Web.Script.Serialization
+@using DocumentFormat.OpenXml.Office2013.PowerPoint.Roaming
 @using DocumentFormat.OpenXml.Wordprocessing
+@using SpeCalc.Models
 @using SpeCalcDataAccessLayer.Models
+@model SpeCalc.Models.ListViewModels
 
 @{
     ViewBag.Title = "Список заявок";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var serializer = new JavaScriptSerializer();
-    var dealTypes = (List<DealType>)ViewBag.DealTypes;
-    var claimStatus = (List<ClaimStatus>)ViewBag.ClaimStatus;
-    var claims = (List<TenderClaim>)ViewBag.Claims;
-    var managers = (List<Manager>)ViewBag.Managers;
-    var productManagers = (List<ProductManager>)ViewBag.ProductManagers;
-    var claimCount = (int)ViewBag.ClaimCount;
+    var canEdit = (bool)ViewBag.CanEdit;
+    var canCalc = (bool)ViewBag.CanCalc;
+    var claimStatus = Model.Filter.ClaimStatus ?? new List<int>();
+   // var serializer = new JavaScriptSerializer();
 }
+
+<div class="panel panel-default" id="filter">
+    <div id="filterPanel" class="panel-collapse collapse">
+        <div class="panel-body">
+            <div class="form-horizontal val-form" role="form">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">ID</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="filterIdClaim" class="form-control input-sm" value='@(Model.Filter.IdClaim == 0 ? "" : Model.Filter.IdClaim.ToString())' />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">№ конкурса</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="filterTenderNumber" class="form-control input-sm" value='@Model.Filter.TenderNumber'/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Заказчик</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="filterCustomer" class="form-control input-sm" value='@Model.Filter.Customer' />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Статус заявки</label>
+                    <div class="col-sm-10" id="filterClaimStatusPanel">
+                        <input type="checkbox" id="filterClaimStatusCreated" value="1" @(claimStatus.Contains(1) ? "checked" : "") /><span>Создано</span>
+                        <input type="checkbox" id="filterClaimStatusTransmissed" value="2" @(claimStatus.Contains(2) ? "checked" : "") /><span>Передано</span>
+                        <input type="checkbox" id="filterClaimStatusInWork" value="3" @(claimStatus.Contains(3) ? "checked" : "") /><span>В работе</span>
+                        <input type="checkbox" id="filterClaimStatusStopped" value="4" @(claimStatus.Contains(4) ? "checked" : "") /><span>Приостановлено</span>
+                        <input type="checkbox" id="filterClaimStatusCancelled" value="5" @(claimStatus.Contains(5) ? "checked" : "") /><span>Отменено</span>
+                        <input type="checkbox" id="filterClaimStatusSameCalculated" value="6" @(claimStatus.Contains(6) ? "checked" : "") /><span>Частично расчитано</span>
+                        <input type="checkbox" id="filterClaimStatusCalculated" value="7" @(claimStatus.Contains(7) ? "checked" : "") /><span>Расчитано</span>
+                        <input type="checkbox" id="filterClaimStatusConfirmed" value="8" @(claimStatus.Contains(8) ? "checked" : "") /><span>Подтверждено</span>
+                        <input type="checkbox" id="filterClaimStatusActualize" value="9" @(claimStatus.Contains(9) ? "checked" : "") /><span>Актуализация</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Просрочено</label>
+                    <div class="col-sm-10">
+                        <div class="input-sm">
+                            <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNot" value="not" @(Model.Filter.Overdie == null ? "checked" : "")> все
+                            <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueYes" value="yes" @(Model.Filter.Overdie == true ? "checked" : "")>> да
+                            <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNo" value="no" @(Model.Filter.Overdie == false ? "checked" : "")>> нет
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Тип сделки</label>
+                    <div class="col-sm-10">
+                        <select size="1" id="filterDealType" class="form-control input-sm">
+                            <option selected value="">---Все---</option>
+                            @foreach (var dealType in ListViewModels.GetDealTypesList())
+                            {
+                                <Option @(dealType.Id == Model.Filter.DealTypeId ? "selected" : "") value=@dealType.Id>
+                                    @dealType.Value
+                                </Option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Менеджер</label>
+                    <div class="col-sm-10">
+                        <select size="1" id="filterManagers" class="form-control input-sm">
+                            <option selected value=@string.Join(",",Model.Managers.Select(m => m.Id))>---Все---</option>
+                            @foreach (var manager in Model.Managers)
+                            {
+                                <Option @(manager.Id==Model.Filter.IdManager ? "selected" : "") value=@manager.Id>
+                                    @manager.ShortName
+                                </Option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Снабженец</label>
+                    <div class="col-sm-10">
+                        <select size="1" id="filterProductManagers" class="form-control input-sm">
+                            <option selected value=@string.Join(",",Model.ProductManagers.Select(m => m.Id))>---Все---</option>
+                            @foreach (var product in Model.ProductManagers)
+                            {
+                                <Option @(product.Id==Model.Filter.IdProductManager ? "selected" : "") value=@product.Id>
+                                    @product.ShortName
+                                </Option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Срок сдачи</label>
+                    <div class="col-sm-2">
+                        <input type="text" id="filterTenderStartFrom" style="cursor: pointer;" class="form-control datepicker-btn input-sm" value='@Model.Filter.TenderStartFrom' placeholder="от"/>
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" id="filterTenderStartTo" style="cursor: pointer;" class="form-control datepicker-btn input-sm" value='@Model.Filter.TenderStartTo' placeholder="до"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Показать записей</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="filterRowCount" class="form-control input-sm" value='@Model.Filter.RowCount' />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" id="acceptFilter" class="btn btn-primary"><i class="fa fa-search"></i>&nbsp;найти</button>
+                        <button type="button" id="clearFilter" class="btn btn-default"><i class="fa fa-repeat"></i>&nbsp;очистить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="filterHead" class="panel-heading">
+        <div class="panel-title collapsed" data-toggle="collapse" data-target="#filterPanel">
+            <a class="title"><i class="fa fa-filter"></i></a>
+        </div>
+    </div>
+</div>
+
+<h5>
+    <span class="label label-default">
+        Всего записей:
+        <span id="claimCountLabel">@Model.TotalClaimsCount</span>
+    </span>
+    &nbsp;
+    <span class="label label-info">
+        из них показано:
+        <span id="showCountLabel">@Model.Claims.Count</span>
+    </span>
+</h5>
+<table class="table table-bordered small">
+    <thead>
+    <tr class="bg-primary">
+        @if (canCalc && canEdit)
+        {
+            <th class="max-width">&nbsp;&nbsp;</th>
+        }
+        <th>ID</th>
+        <th>№ конкурса</th>
+        <th class="width-300">Заказчик</th>
+        <th>Бюджет запроса</th>
+        <th>Менеджер<br/>Автор</th>
+        <th>Статус заявки</th>
+        <th>Создано</th>
+        <th>Срок сдачи</th>
+        <th class="text-nowrap"><table class="table table-bordered prod-manager-table"><tr class="text-primary"><td>Снабженец</td><td class="bg-default ligth num">запрос</td><td class="bg-success ligth num">расчет</td><td class="bg-info ligth num">позиций</td></tr></table></th>
+        <th style="width: 150px;">
+            Тип сделки
+        </th>
+        @if (canEdit)
+        {<th>&nbsp;</th>}
+    </tr>
+    </thead>
+    <tbody id="claimTable">
+    @foreach (var claim in Model.Claims)
+    {
+        var url = canEdit
+            ? Url.Action("Index", "Claim", new {claimId = claim.Id})
+            : canCalc && claim.ProductManagers.Count>0
+                ? Url.Action("Index", "Calc", new {claimId = claim.Id})
+                : "#";
+
+
+        <tr class="row-claim-item" url="@url">
+
+            @if (canCalc && canEdit)
+            {
+                <td>
+                    <a href=@Url.Action("Index", "Claim", new {claimId = claim.Id}) class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить' target="_blank"><i class='fa fa-edit'></i></a>
+                    @if (claim.ProductManagers.Count > 0)
+                    {
+                        <a href=@Url.Action("Index", "Calc", new {claimId = claim.Id}) class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить' target="_blank"><i class='fa fa-calculator'></i></a>
+                    }
+                </td>
+            }
+            <td>@claim.Id</td>
+            <td>@claim.TenderNumber</td>
+            <td>@claim.Customer@(!String.IsNullOrEmpty(claim.CustomerInn) ?"< br/>ИНН" + claim.CustomerInn : String.Empty)</td>
+            <td>@claim.Sum</td>
+            <td>
+                <div class='text-nowrap'>@claim.Manager.ShortName</div>
+                <div class='text-nowrap'>@claim.Author.ShortName</div>
+            </td>
+            <td>@ListViewModels.GetClaimStatus(claim.ClaimStatus)</td>
+            <td>@claim.RecordDateString.Split(' ')[0]</td>
+            <td>@claim.ClaimDeadlineString</td>
+            <td>
+                <table class='table table-bordered prod-manager-table'>
+                    <tr>
+                        <th>Всего</th>
+                        <td class='bg-default ligth text-right num'>@claim.PositionsCount</td>
+                        <td class='bg-success ligth text-right num'>@claim.CalculatePositionsCount</td>
+                        <td class='bg-info ligth text-right num'>@claim.CalculatesCount</td>
+                    </tr>
+                    @foreach (var product in claim.ProductManagers)
+                    {
+                        <tr>
+                            <td>@product.ShortName</td>
+                            <td class='bg-default ligth text-right num'>@product.PositionsCount</td>
+                            <td class='bg-success ligth text-right num'>@product.CalculatePositionsCount</td>
+                            <td class='bg-info light text-right num'>@product.CalculatesCount</td>
+                        </tr>
+                    }
+                </table>
+            </td>
+            <td>@ListViewModels.GetClaimDealType(claim.DealType)</td>
+            <td>
+                @if (canEdit && claim.ClaimStatus == 1)
+                {
+                    <button id=delbtn claimId="@claim.Id" type='button' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить'>
+                        <i class='fa fa-trash'></i>
+                    </button>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+<p>
+    <blockquote class="bg-warning">
+        Чтобы увидеть больше информации измените фильтр (сверху)!
+    </blockquote>
+</p>
+
 <link href="~/Content/bootstrap-datepicker3.css" rel="stylesheet" />
-@*<script src="~/Scripts/bootstrap-datepicker.js"></script>*@
 <script type="text/javascript">
-    var dealTypes = @Html.Raw(serializer.Serialize(dealTypes));
-    var claimStatus = @Html.Raw(serializer.Serialize(claimStatus));
-    var claims = @Html.Raw(serializer.Serialize(claims));
-    var managers = @Html.Raw(serializer.Serialize(managers));
-    var productManagers = @Html.Raw(serializer.Serialize(productManagers));
-    var settings = @Html.Raw(serializer.Serialize(ViewBag.Settings));
-    var tenderStatus = @Html.Raw(serializer.Serialize(ViewBag.TenderStatus));
-    var errorLoad = @ViewBag.Error;
+
+
 
     $(init);
 
-    //(function ($) {
-    //    $.fn.datepicker.dates['ru'] = {
-    //        days: ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"],
-    //        daysShort: ["Вск", "Пнд", "Втр", "Срд", "Чтв", "Птн", "Суб"],
-    //        daysMin: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
-    //        months: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
-    //        monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
-    //        today: "Сегодня",
-    //        clear: "Очистить",
-    //        format: "dd.mm.yyyy",
-    //        weekStart: 1
-    //    };
-    //}(jQuery));
-
     function init() {
-        if (errorLoad) {
-            alert("Произошла ошибка при загрузке");
-            return;
-        }
-
-        //$.fn.datepicker.dates['ru'] = {
-        //    days: ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"],
-        //    daysShort: ["Вск", "Пнд", "Втр", "Срд", "Чтв", "Птн", "Суб", "Вск"],
-        //    daysMin: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
-        //    months: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
-        //    monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
-        //    today: "Сегодня"
-        //};
-
-        messageUi.initProgressImage();
-        window.addEventListener("message", messageHandler, true);
-        if (settings.newClaim == "false") $("#newClaimNavButton").hide();
-
-        initClaimsElements(claims);
-        var managerId = (settings.filterManager != "") ? settings.filterManager : "";
-        initFilterManagersList(managerId);
-
-        var productId = (settings.filterProduct != "") ? settings.filterProduct : "";
-        initFilterProductManagersList(productId);
-
-        initFilterManagerSubDivisionsList();
-        if (settings.filterClaimStatus != null && settings.filterClaimStatus.length > 0) {
-            initFilterClaimStatus(settings.filterClaimStatus);
-        }
-
         $("#filterTenderStartFrom").datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
@@ -94,114 +268,44 @@
             $("#filterTenderStartFrom").val("");
             $("#filterTenderStartTo").val("");
         });
-
-        $("#acceptFilter").click(filter);
-        $("#clearFilter").click(clearFilter);
-        $("#saveFilterInExcel").click(filterInExcel);
-        $("#showCountLabel").text(claims.length);
-        if (!settings.reportExcel) {
-            $("#saveFilterInExcel").hide();
-        }
-    }
-
-    //Фильтрация
-    function filter(e) {
-        var obj = getFilterObj();
-        if (!obj.isValid) {
-            alert(obj.message);
-            return;
-        }
-        messageUi.progressShow();
-        $.ajax({
-            url: "/Claim/FilterClaim",
-            type: 'POST',
-            dataType: 'json',
-            data: JSON.stringify(obj.model),
-            processData: false,
-            contentType: 'application/json; charset = utf-8 ',
-            success: function(data) {
-                messageUi.progressHide();
-                if (data.IsComplete) {
-                    claims = data.Claims;
-                    initClaimsElements(claims);
-                    $("#claimCountLabel").text(data.Count);
-                    $("#showCountLabel").text(claims.length);
-                } else {
-                    alert("Ошибка при фильтрации заявок");
-                }
-            }
-        });
-    }
-
-    function filterInExcel(e) {
-        var obj = getFilterObj();
-        if (!obj.isValid) {
-            alert(obj.message);
-            return;
-        }
-        var json = JSON.stringify(obj.model);
-        var urlJson = encodeURI(json);
-        $("body").append("<iframe src='/Claim/GetListExcelFile?modelJson=" + urlJson + "' width='0' height='0' style='display: none;' align='left'></iframe>");
-    }
-
-    function clearFilter(e) {
-        var model = {};
-        var rowCount = $("#filterRowCount").val().trim();
-        rowCount = rowCount.replace(",", ".");
-        if (rowCount != "") {
-            if (!isNaN(rowCount)) {
-                if (rowCount.indexOf(".") == -1) {
-                    rowCount = Number(rowCount);
-                    if (rowCount < 0) {
-                        $("#filterRowCount").val();
-                    }
-                    if (rowCount > 0) {
-                        model.RowCount = rowCount;
-                    }
-                } else {
-                    $("#filterRowCount").val("");
-                }
+        $("#acceptFilter").click(function() {
+            var object = getFilterObj();
+            if (!object.isValid) {
+                alert(object.message)
             } else {
-                $("#filterRowCount").val("");
+                var filter = JSON.stringify(object.model);
+                document.location.replace("/Claim/List?filterString=" + filter);
             }
-        }
-        $("#filterIdClaim").val("");
-        $("#filterTenderNumber").val("");
-        $("#filterTenderStartFrom").val("");
-        $("#filterTenderStartTo").val("");
-        $("#filterClaimOverdueNot").get(0).checked = true;
-        $(":first", $("#filterManagers")).attr("selected", "selected");
-        $(":first", $("#filterClaimStatus")).attr("selected", "selected");
-        $(":first", $("#filterManagerSubDivisions")).attr("selected", "selected");
-        $(":first", $("#filterProductManagers")).attr("selected", "selected");
-        var filterStatusControls = ["filterClaimStatusCreated", "filterClaimStatusTransmissed", "filterClaimStatusInWork", "filterClaimStatusStopped", "filterClaimStatusCancelled", "filterClaimStatusSameCalculated", "filterClaimStatusCalculated", "filterClaimStatusConfirmed", "filterClaimStatusActualize"];
-        var controlsLength = filterStatusControls.length;
-        for (var i = 0; i < controlsLength; i++) {
-            var control = $("#" + filterStatusControls[i]);
-            control.get(0).checked = false;
-        }
-        messageUi.progressShow();
-        $.ajax({
-            url: "/Claim/FilterClaim",
-            type: 'POST',
-            dataType: 'json',
-            data: JSON.stringify(model),
-            processData: false,
-            contentType: 'application/json; charset = utf-8 ',
-            success: function(data) {
-                messageUi.progressHide();
-                if (data.IsComplete) {
-                    claims = data.Claims;
-                    initClaimsElements(claims);
-                    $("#claimCountLabel").text(data.Count);
-                    $("#showCountLabel").text(claims.length);
-                } else {
-                    alert("Ошибка при фильтрации заявок");
-                }
+
+        });
+        $("#clearFilter").click(function() {
+            document.location.replace("/Claim/List?filterString=");
+        });
+        $('[url]').click(function () {
+            if ($(this).attr("url") === "#") {
+                alert("Нет позиций для расчета");
             }
+            window.open($(this).attr("url"));
+        });
+        $('[id="delbtn"]').click(function (e) {
+            var id = parseInt($(this).attr("claimId"));
+            if (confirm("Вы действительно хотите удалить заявку №" + id)) {
+                var url = "@Url.Action("DeleteClaim","Claim")";
+                var btn = $(this);
+                $.getJSON(url, { id: id }, function (data) {
+                    if (data.IsComplete) {
+                        btn.remove();
+                        location.reload();
+                    }
+
+                });
+                
+            }; e.stopPropagation();
+        });
+        $('[class="btn btn-link btn-lg"]').click(function(e) {
+            e.stopPropagation();
         });
     }
-
     function getFilterObj() {
 
         //получение настроек фильтра из формы и проверка валидности введенных значений
@@ -267,6 +371,10 @@
         if (tenderNumber != "") {
             model.TenderNumber = tenderNumber;
         }
+        var customer = $("#filterCustomer").val().trim();
+        if (customer !== "") {
+            model.Customer = customer;
+        }
         var status = [];
         var filterStatusControls = ["filterClaimStatusCreated", "filterClaimStatusTransmissed", "filterClaimStatusInWork", "filterClaimStatusStopped", "filterClaimStatusCancelled", "filterClaimStatusSameCalculated", "filterClaimStatusCalculated", "filterClaimStatusConfirmed", "filterClaimStatusActualize"];
         var controlsLength = filterStatusControls.length;
@@ -277,17 +385,17 @@
             }
         }
         model.ClaimStatus = status;
-        var manager = $(":selected", $("#filterManagers")).val().trim();
-        if (manager != "-1") {
-            model.IdManager = manager;
+        var dealType = $(":selected", $("#filterDealType"));
+        if (dealType.text() !== "---Все---") {
+            model.DealTypeId = Number(dealType.val().trim());
         }
-        var productManager = $(":selected", $("#filterProductManagers")).val().trim();
-        if (productManager != -1) {
-            model.IdProductManager = productManager;
+        var manager = $(":selected", $("#filterManagers"));
+        if (manager.text() != "---Все---") {
+            model.IdManager = manager.val().trim();
         }
-        var managerSubDivision = $(":selected", $("#filterManagerSubDivisions")).val().trim();
-        if (managerSubDivision != -1) {
-            model.ManagerSubDivision = managerSubDivision;
+        var productManager = $(":selected", $("#filterProductManagers"));
+        if (productManager.text() != "---Все---") {
+            model.IdProductManager = productManager.val().trim();
         }
         var tenderStartFrom = $("#filterTenderStartFrom").val().trim();
         if (tenderStartFrom != "") {
@@ -325,501 +433,6 @@
         return obj;
     }
 
-    //инициализация эл. управления для фильтрации
-    function initFilterClaimStatus(status) {
-        var container = $("#filterClaimStatusPanel");
-        var statusLength = status.length;
-        for (var i = 0; i < statusLength; i++) {
-            var value = status[i];
-            var element = $("[value='" + value + "']", container).get(0);
-            if (element != null) {
-                element.checked = true;
-            }
-        }
-    }
 
-    function initFilterManagersList(id) {
-        var managersLength = managers.length;
-        var list = $("#filterManagers");
-        if(id == null || id == ""){
-            var option = $("<option value='-1'>---Все---</option>");
-            list.append(option);
-        }
-        for (var i = 0; i < managersLength; i++) {
-            var manager = managers[i];
-            option = $("<option value='" + manager.Id + "'>" + manager.ShortName + "</option>");
-            if (id != null && id != "" && manager.Id == id){ option.attr("selected", "selected");
-                list.append(option);}
-            if(id == null || id == ""){
-                list.append(option);
-            }
-        }
-
-        //if (id!='') {
-        //    $(list).prop( "disabled", true );
-        //}
-    }
-
-    function initFilterProductManagersList(id) {
-        var managersLength = productManagers.length;
-        var list = $("#filterProductManagers");
-        if(id == null || id == ""){
-            var option = $("<option value='-1'>---Все---</option>");
-            list.append(option);
-        }
-
-
-        for (var i = 0; i < managersLength; i++) {
-            var manager = productManagers[i];
-            option = $("<option value='" + manager.Id + "'>" + manager.ShortName + "</option>");
-            if (id != null && id != "" && manager.Id == id){ option.attr("selected", "selected");list.append(option);}
-            if(id == null || id == ""){
-                list.append(option);
-            }
-        }
-
-        //if (id!='') {
-            //$(list).prop( "disabled", true );
-        //}
-    }
-
-    function initFilterManagerSubDivisionsList() {
-        var managersLength = managers.length;
-        var list = $("#filterManagerSubDivisions");
-        var option = $("<option value='-1'>---Все---</option>");
-        list.append(option);
-        var subDivArr = [];
-        $.each(managers, function(index) {
-            var manSubDiv = managers[index].SubDivision;
-            subDivArr.push(manSubDiv);
-        });
-        var filterArr = [];
-        $.each(subDivArr, function(index) {
-            var filtSubDiv = subDivArr[index];
-            //if (!$.inArray(filtSubDiv, filterArr))
-            if (filterArr.length == 0 || (filterArr.length > 0 && filterArr.indexOf(filtSubDiv) == -1))
-            {filterArr.push(filtSubDiv);}
-            //else
-            //{alert(filterArr.indexOf(filtSubDiv));}
-        });
-        filterArr.sort();
-        // = $(managers).SubDivision;
-        for (var i = 0; i < filterArr.length; i++) {
-            var subDiv = filterArr[i];
-            option = $("<option value='" + subDiv + "'>" + subDiv + "</option>");
-            list.append(option);
-        }
-
-        //if (id != null && id > 0) {
-        //    $(list).prop( "disabled", true );
-        //}
-    }
-
-    //отображение списка заявок
-    function initClaimsElements(list) {
-        var container = $("#claimTable");
-        container.empty();
-        if (list == null) return;
-        var listLength = list.length;
-        for (var i = 0; i < listLength; i++) {
-            var claim = list[i];
-            var element = getClaimElement(claim);
-            container.append(element);
-        }
-    }
-
-    function getClaimElement(claim) {
-        //получение разметки для заявки с учетом настроек функциональности
-        var element = $("<tr claimId='" + claim.Id + "'></tr>");
-        element.attr("type", "claimRow");
-        if (settings.clickAction != "null") {
-            element.css("cursor", "pointer");
-        }
-        var editCell = $("<td class='min-width text-nowrap'>&nbsp;</td>");
-        element.append(editCell);
-        if (settings.showEdit)  {
-            var editButton = $("<a type='claimPage' target='_blank' href='/Claim/Index?claimId=" + claim.Id  + "' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></a>");
-            editCell.append(editButton);
-         }
-        if (settings.showCalculate)  {
-            var calculateButton = $("<a href='/Calc/Index?claimId=" + claim.Id  + "' target='_blank' class='btn btn-link btn-lg' data-toggle='tooltip' title='рассчитать'><i class='fa fa-calculator'></i></a>");
-            editCell.append(calculateButton);
-
-        }
-        element.append("<th><span>" + claim.Id + "</span></th>");
-
-        //var claimInfoCell = $("<td></td>");
-        //claimInfoCell.append("<div class='row'>");
-        //claimInfoCell.append("<div class='col-sm-2 text-nowrap'>" + claim.TenderNumber + "</div>");
-        //claimInfoCell.append("<div class='col-sm-3'>" + claim.Customer + "<br />ИНН " + claim.CustomerInn + "</div>");
-        var sum = "";
-        if (claim.Sum > 0) {
-            sum = claim.Sum.toFixed(2);
-        }
-        //claimInfoCell.append("<div class='col-sm-2'>" + sum + "</div>");
-        //claimInfoCell.append("<div class='col-sm-2 text-nowrap'>" + claim.Manager.ShortName + "</div>");
-        //claimInfoCell.append("<div class='col-sm-1'>" + getClaimStatusById(claim.ClaimStatus).Value + "</div>");
-        //claimInfoCell.append("<div class='col-sm-1'>" + claim.RecordDateString.split(" ")[0] + "</div>");
-        //claimInfoCell.append("<div class='col-sm-1'>" + claim.ClaimDeadlineString + "</div>");
-        //claimInfoCell.append("</div>");
-        //element.append(claimInfoCell);
-
-        element.append("<td class='text-nowrap'>" + claim.TenderNumber + "</td>");
-        element.append("<td>" + claim.Customer + "<br />ИНН " + claim.CustomerInn + "</td>");
-
-        element.append("<td class='text-nowrap'>" + claim.StrSum + "</td>");
-        element.append("<td><div class='text-nowrap'>" + claim.Manager.ShortName + "</div><div class='text-nowrap'>" + claim.Author.ShortName + "</div></td>");
-        element.append("<td>" + getClaimStatusById(claim.ClaimStatus).Value + "</td>");
-        element.append("<td>" + claim.RecordDateString.split(" ")[0] + "</td>");
-        element.append("<td>" + claim.ClaimDeadlineString + "</td>");
-
-        //element.append("<td><div class='text-nowrap'><strong>Всего</strong>&nbsp;<span class='label label-default ligth'>" + claim.PositionsCount + "</span>/<span class='label label-success ligth'>" + claim.CalculatePositionsCount + "</span>/<span class='label label-info ligth'>" + claim.CalculatesCount + "</span></div>" + getProductManagersString(claim.ProductManagers) + "</td>");
-        element.append("<td>" +
-            "<table class='table table-bordered prod-manager-table'><tr><th>Всего</th><td class='bg-default ligth text-right num'>" + claim.PositionsCount + "</td><td class='bg-success ligth text-right num'>" + claim.CalculatePositionsCount + "</td><td class='bg-info ligth text-right num'>" + claim.CalculatesCount + "</td></tr>" + getProductManagersString(claim.ProductManagers)
-            + "</table></td>");
-
-        var claimStateCell = $("<td></td>");
-        claimStateCell.append(getDealTypeById(claim.DealType).Value);
-        //claimStateCell.append("<div>" + getClaimStatusById(claim.ClaimStatus).Value + "</div>");
-        //claimStateCell.append("<div>" + claim.RecordDateString.split(" ")[0] + "</div>");
-        //claimStateCell.append("<div>" + claim.ClaimDeadlineString + "</div>");
-        element.append(claimStateCell);
-
-        var tenderStatusCell = $("<td></td>");
-        var tenderStatusPanel = $("<div></div>");
-        tenderStatusPanel.append("<span  class='text-nowrap' modetype='tenderStatusLabel'>" + getTenderStatusById(claim.TenderStatus).Value + "</span>");
-        element.append(tenderStatusCell);
-        tenderStatusCell.append(tenderStatusPanel);
-        if (settings.changeTenderStatus && claim.TenderStatus == 1) {
-            var butSetTenderStatusWin = $("<div class='text-nowrap'><a type='button' statusValue='2' modetype='butSetTenderStatusWin' class='btn-link btn-sm success' title='Выигран' data-toggle='tooltip'><i class='fa fa-thumbs-o-up'></i></a>");
-            var butSetTenderStatusLose = $("<a type='button' statusValue='3' modetype='butSetTenderStatusLose' class='btn-link btn-sm danger' title='Проигран' data-toggle='tooltip'><i class='fa fa-thumbs-o-down'></i></a>");
-            var butSetTenderStatusReject = $("<a type='button' statusValue='4' modetype='butSetTenderStatusReject' class='btn-link btn-sm warning' title='Отказ' data-toggle='tooltip'><i class='fa fa-ban'></i></a></div>");
-            //tenderStatusPanel.append("<br/>");
-            tenderStatusPanel.append(butSetTenderStatusWin);
-            //tenderStatusPanel.append("<br/>");
-            tenderStatusPanel.append(butSetTenderStatusLose);
-            //tenderStatusPanel.append("<br/>");
-            tenderStatusPanel.append(butSetTenderStatusReject);
-            butSetTenderStatusWin.click(changeTenderStatus);
-            butSetTenderStatusLose.click(changeTenderStatus);
-            butSetTenderStatusReject.click(changeTenderStatus);
-        }
-        //element.append("<td><span class='text-nowrap'>" + claim.Author.ShortName + "<span/></td>");
-        var actionCell = $("<td class='min-width'>&nbsp;</td>");
-        element.append(actionCell);
-        if (settings.deleteClaim != "none") {
-            if (settings.deleteClaim == "true" || ((settings.deleteClaim == "self" || settings.deleteClaim == "self&manager") && claim.Author.Id == settings.userId)
-                || (settings.deleteClaim == "self&manager" && claim.Manager.Id == settings.userId)) {
-                var deleteButton = $("<button type='button' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить'><i class='fa fa-trash'></i></button>");
-                deleteButton.click(deleteButtonClick);
-                actionCell.append(deleteButton);
-            }
-        }
-        if (settings.clickAction != "null") {
-            element.dblclick(function(e) {
-                var row = $(e.currentTarget);
-                var claimId = row.attr("claimId");
-                var href = "";
-                if (settings.clickAction == "editClaim") href = '@Url.Action("Index", "Claim")?claimId=' + claimId;//"/Claim/Index?claimId=" + claimId;
-                if (settings.clickAction == "calculateClaim") href = '@Url.Action("Index", "Calc")?claimId=' + claimId;//"/Calc/Index?claimId=" + claim.Id;
-                if (href != "") window.open(href);// document.location.href = href;
-            });
-        }
-        return element;
-    }
-
-    //действия
-    function changeTenderStatus(e) {
-        var button = $(e.currentTarget);
-        var row = button.closest("[type='claimRow']");
-        var claimId = row.attr("claimId");
-        var status = Number(button.attr("statusValue"));
-        messageUi.progressShow();
-        $.ajax({
-            url: "/Claim/ChangeClaimTenderStatus?idClaim=" + claimId + "&tenderStatus=" + status,
-            type: 'GET',
-            contentType: 'application/json; charset = utf-8 ',
-            success: function(data) {
-                messageUi.progressHide();
-                if (data.IsComplete) {
-                    $("[modetype='tenderStatusLabel']", row).text(getTenderStatusById(status).Value);
-                    var butTypes = ["butSetTenderStatusWin", "butSetTenderStatusLose", "butSetTenderStatusReject"];
-                    var typesLength = butTypes.length;
-                    for (var i = 0; i < typesLength; i++) {
-                        var type = butTypes[i];
-                        $("[modetype='" + type + "']", row).hide();
-                    }
-                } else {
-                    alert("Ошибка при изменении статуса конкурса");
-                }
-            }
-        });
-    }
-
-    function deleteButtonClick(e) {
-        var button = $(e.currentTarget);
-        var row = button.parent().parent();
-        var initalBackGround = row.css("background-color");
-        row.css("background-color", "#EAA4A4");
-        var deleteConfirm = confirm("Удалить выделенную заявку?");
-        row.css("backgroundColor", initalBackGround);
-        if (deleteConfirm) {
-            messageUi.progressShow();
-            var id = row.attr("claimId");
-            $.ajax({
-                url: "/Claim/DeleteClaim?id=" + id,
-                type: 'GET',
-                contentType: 'application/json; charset = utf-8 ',
-                success: function(data) {
-                    messageUi.progressHide();
-                    if (data.IsComplete) {
-                        row.remove();
-                    } else {
-                        alert("Запись не удалена");
-                    }
-                }
-            });
-        }
-    }
-
-    //Вспомогательные мтоды
-    function messageHandler(e) {
-        var data = e.data;
-        var obj = $.parseJSON(data);
-        if (obj.type.trim() == "DownloadExcel") {
-            if (obj.error == true) {
-                if (obj.message != "") {
-                    alert(obj.message);
-                } else {
-                    alert("Ошибка при скачивании файла!");
-                }
-            }
-        }
-    }
-
-    function containsProduct(managers, id) {
-        var managersLength = managers.length;
-        var result = false;
-        for (var i = 0; i < managersLength; i++) {
-            var model = managers[i];
-            if (model.Id == id) {
-                result = true;
-                break;
-            }
-        }
-        return result;
-    }
-
-    function getProductManagersString(managers) {
-        var result = "";
-        if (managers == null) return result;
-        var managersLength = managers.length;
-        for (var i = 0; i < managersLength; i++) {
-            var manager = managers[i];
-            result += "<tr><td>" + manager.ShortName + "</td><td class='bg-default ligth text-right num'>" + manager.PositionsCount + "</td><td class='bg-success ligth text-right num'>" + manager.CalculatePositionsCount + "</td><td class='bg-info light text-right num'>" + manager.CalculatesCount + "</td></tr>";
-
-            //result += "<div class='text-nowrap'>" + manager.ShortName + " <span class='pull-right'><span class='label label-default ligth'>" + manager.PositionsCount + "</span>/<span class='label label-success ligth'>" + manager.CalculatePositionsCount + "</span>/<span class='label label-info light'>" + manager.CalculatesCount + "</span></span></div>";
-        }
-        //if (result.length > 4) {
-        //    result = result.substr(0, result.length - 6);
-        //}
-        return result;
-    }
-
-    function getDealTypeById(id) {
-        id = Number(id);
-        var dealType = null;
-        var dealTypesLength = dealTypes.length;
-        for (var i = 0; i < dealTypesLength; i++) {
-            var model = dealTypes[i];
-            if (model.Id == id) {
-                dealType = model;
-                break;
-            }
-        }
-        return dealType;
-    }
-
-    function getClaimStatusById(id) {
-        id = Number(id);
-        var status = null;
-        var statusLength = claimStatus.length;
-        for (var i = 0; i < statusLength; i++) {
-            var model = claimStatus[i];
-            if (model.Id == id) {
-                status = model;
-                break;
-            }
-        }
-        return status;
-    }
-
-    function getTenderStatusById(id) {
-        id = Number(id);
-        var status = null;
-        var statusLength = tenderStatus.length;
-        for (var i = 0; i < statusLength; i++) {
-            var model = tenderStatus[i];
-            if (model.Id == id) {
-                status = model;
-                break;
-            }
-        }
-        return status;
-    }
 </script>
-
-<div>
-    <div class="panel-group" id="accordion">
-        <div class="panel panel-default" id="filter">
-            <div id="filterPanel" class="panel-collapse collapse">
-                <div class="panel-body">
-                    <div class="form-horizontal val-form" role="form">
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">ID</label>
-                            <div class="col-sm-10">
-                                <input type="text" id="filterIdClaim" class="form-control input-sm" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">№ конкурса</label>
-                            <div class="col-sm-10">
-                                <input type="text" id="filterTenderNumber" class="form-control input-sm" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Статус заявки</label>
-                            <div class="col-sm-10" id="filterClaimStatusPanel">
-                                <input type="checkbox" id="filterClaimStatusCreated" value="1" /><span>Создано</span>
-                                <input type="checkbox" id="filterClaimStatusTransmissed" value="2" /><span>Передано</span>
-                                <input type="checkbox" id="filterClaimStatusInWork" value="3" /><span>В работе</span>
-                                <input type="checkbox" id="filterClaimStatusStopped" value="4" /><span>Приостановлено</span>
-                                <input type="checkbox" id="filterClaimStatusCancelled" value="5" /><span>Отменено</span>
-                                <input type="checkbox" id="filterClaimStatusSameCalculated" value="6" /><span>Частично расчитано</span>
-                                <input type="checkbox" id="filterClaimStatusCalculated" value="7" /><span>Расчитано</span>
-                                <input type="checkbox" id="filterClaimStatusConfirmed" value="8"/><span>Подтверждено</span>
-                                <input type="checkbox" id="filterClaimStatusActualize" value="10" /><span>Актуализация</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Просрочено</label>
-                            <div class="col-sm-10">
-                                <div class="input-sm">
-                                    <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNot" value="not" checked> все
-                                    <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueYes" value="yes"> да
-                                    <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNo" value="no"> нет
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Менеджер</label>
-                            <div class="col-sm-10">
-                                <select size="1" id="filterManagers" class="form-control input-sm"></select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Снабженец</label>
-                            <div class="col-sm-10">
-                                <select size="1" id="filterProductManagers" class="form-control input-sm"></select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Подразделение</label>
-                            <div class="col-sm-10">
-                                <select size="1" id="filterManagerSubDivisions" class="form-control input-sm"></select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Срок сдачи</label>
-                            <div class="col-sm-2">
-                                <input type="text" id="filterTenderStartFrom" style="cursor: pointer;" class="form-control datepicker-btn input-sm" />
-                            </div>
-                            <div class="col-sm-2">
-                                <input type="text" id="filterTenderStartTo" style="cursor: pointer;" class="form-control datepicker-btn input-sm" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Показать записей</label>
-                            <div class="col-sm-10">
-                                <input type="text" id="filterRowCount" class="form-control input-sm" value="30" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-10">
-                                <button type="button" id="acceptFilter" class="btn btn-primary"><i class="fa fa-search"></i>&nbsp;найти</button>
-                                <button type="button" id="clearFilter" class="btn btn-default"><i class="fa fa-repeat"></i>&nbsp;очистить</button>
-                                <button type="button" id="saveFilterInExcel" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;в Excel</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="filterHead" class="panel-heading">
-                <div class="panel-title collapsed" data-toggle="collapse" data-target="#filterPanel">
-                    <a class="title"><i class="fa fa-filter"></i></a>
-                </div>
-            </div>
-        </div>
-        
-        <h5>
-            <span class="label label-default">
-                Всего записей:
-                <span id="claimCountLabel">@claimCount</span>
-            </span>
-            &nbsp;
-            <span class="label label-info">
-                из них показано:
-                <span id="showCountLabel"></span>
-            </span>
-        </h5>
-        <table class="table table-bordered small">
-            <thead>
-                <tr class="bg-primary">
-                    <th class="min-width text-nowrap">&nbsp;</th>
-                    <th>ID</th>
-                    @*<th class="text-nowrap">№ Конкурса</th>
-                <th>Контрагент</th>
-                <th>Сумма</th>
-                <th>Менеджер</th>
-                <th>Позиции</th>*@
-                    @*<th>
-                    <div class="row">
-                        <div class="col-sm-2">№ конкурса</div>
-                        <div class="col-sm-3">Заказчик</div>
-                        <div class="col-sm-2">Сумма</div>
-                        <div class="col-sm-2">Менеджер</div>
-                        <div class="col-sm-1">Статус заявки</div>
-                        <div class="col-sm-1">Создано</div>
-                        <div class="col-sm-1">Срок сдачи</div>
-                    </div>
-
-                </th>*@
-                    <th>№ конкурса</th>
-                    <th class="width-300">Заказчик</th>
-                    <th>Бюджет запроса</th>
-                    <th>Менеджер<br/>Автор</th>
-                    <th>Статус заявки</th>
-                    <th>Создано</th>
-                    <th>Срок сдачи</th>
-                    <th class="text-nowrap"><table class="table table-bordered prod-manager-table"><tr class="text-primary"><td>Снабженец</td><td class="bg-default ligth num">запрос</td><td class="bg-success ligth num">расчет</td><td class="bg-info ligth num">позиций</td></tr></table></th>
-                    @*<th class="text-nowrap">Тип сделки</th>*@
-                    <th style="width: 150px;">
-                        Тип сделки
-                    </th>
-                    <th>Статус<br />конкурса</th>
-                    @*<th>Автор</th>*@
-                    <th>&nbsp;</th>
-                </tr>
-            </thead>
-            <tbody id="claimTable">
-            
-            </tbody>
-        </table>
-        <p>
-            <blockquote class="bg-warning">
-                Чтобы увидеть больше информации измените  фильтр (сверху)!
-            </blockquote>
-        </p>
-    </div>
-</div>
 
