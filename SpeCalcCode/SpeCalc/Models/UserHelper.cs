@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using TenderProcessingDataAccessLayer.Models;
+using SpeCalcDataAccessLayer.Models;
 
 namespace TenderProcessing.Models
 {
