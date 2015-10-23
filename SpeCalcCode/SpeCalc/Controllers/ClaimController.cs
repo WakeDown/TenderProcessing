@@ -422,6 +422,7 @@ namespace SpeCalc.Controllers
             var isManager = UserHelper.IsManager(user);
             var isProduct = UserHelper.IsProductManager(user);
             var isController = UserHelper.IsController(user);
+            var isOperator = UserHelper.IsOperator(user);
             var subordinates = Employee.GetSubordinates(user.Id).ToList();
             subordinates.Add(new KeyValuePair<string, string>(user.Id, user.ShortName));
             var subSids = string.Join(",", subordinates.Select(s => s.Key));
@@ -439,6 +440,8 @@ namespace SpeCalc.Controllers
                         ? Role.Manager 
                         : isProduct 
                             ? Role.ProductManager 
+                            :  isOperator
+                            ? Role.Operator
                             : Role.Enter;
             if (mainRole == Role.Enter)
             {
@@ -448,7 +451,7 @@ namespace SpeCalc.Controllers
             }
             var listViewModel = new ListViewModels(filter, subordinates, mainRole);
             ViewBag.UserName = user.Name;
-            ViewBag.CanEdit = isManager || isController;
+            ViewBag.CanEdit = isManager || isOperator || isController;
             ViewBag.CanCalc = isProduct || isController;
             return View(listViewModel);
         }
@@ -2044,7 +2047,7 @@ namespace SpeCalc.Controllers
                 var user = GetUser();
                 var db = new DbEngine();
                 var claimStatus = db.LoadLastStatusHistoryForClaim(model.IdClaim);
-                if (claimStatus.Status.ToString() == "1")
+                if (claimStatus == null || claimStatus.Status == null ||  claimStatus.Status.ToString() == "1")
                     model.State = 1;
                 else model.State = 5;
                 model.Author = user.Id;

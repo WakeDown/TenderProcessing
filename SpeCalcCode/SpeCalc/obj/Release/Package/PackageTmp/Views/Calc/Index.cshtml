@@ -166,7 +166,7 @@
             //positionId
             //var rejectPostionsId = $("#rejectPositionCommentBox").attr("rejectedId");
             //var arrIds = rejectPostionsId.split(",");
-            var model = {idClaim:'@Request.QueryString["claimId"]', cv:'@Request.QueryString["cv"]', posIds:posIds};
+            var model = {idClaim:'@Request.QueryString["claimId"]', cv:'@Request.QueryString["cv"]', posIds:posIds, comment:comment};
             $.ajax({
                 url: "@Url.Action("SetPositionRejected")",
                 type: 'POST',

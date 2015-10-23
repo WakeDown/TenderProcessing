@@ -49,8 +49,10 @@ namespace SpeCalc.Helpers
                     user = new UserBase();
                     var domain = new PrincipalContext(ContextType.Domain);
                     var id = wi.User.Value;
+                    //id = "S-1-5-21-1970802976-3466419101-4042325969-1750";
                     user.Id = id;
                     var login = wi.Name.Remove(0, wi.Name.IndexOf("\\", StringComparison.CurrentCulture) + 1);
+                    //login = "Nadezda.Shumadbaeva";
                     var userPrincipal = UserPrincipal.FindByIdentity(domain, login);
                     if (userPrincipal != null)
                     {
@@ -61,6 +63,8 @@ namespace SpeCalc.Helpers
                         user.ShortName = GetShortName(user.Name);
                         user.Roles = new List<Role>();
                         var wp = new WindowsPrincipal(wi);
+                        //user.Roles.Add(Role.Operator);
+                        //user.Roles.Add(Role.Enter);
                         foreach (var role in _roles)
                         {
                             var grpSid = new SecurityIdentifier(role.Sid);

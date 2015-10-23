@@ -31,6 +31,12 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="col-sm-2 control-label">Заказчик</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="filterCustomer" class="form-control input-sm" value='@Model.Filter.Customer' />
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="col-sm-2 control-label">Статус заявки</label>
                     <div class="col-sm-10" id="filterClaimStatusPanel">
                         <input type="checkbox" id="filterClaimStatusCreated" value="1" @(claimStatus.Contains(1) ? "checked" : "") /><span>Создано</span>
@@ -52,6 +58,20 @@
                             <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueYes" value="yes" @(Model.Filter.Overdie == true ? "checked" : "")>> да
                             <input type="radio" name="filterClaimOverdue" id="filterClaimOverdueNo" value="no" @(Model.Filter.Overdie == false ? "checked" : "")>> нет
                         </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Тип сделки</label>
+                    <div class="col-sm-10">
+                        <select size="1" id="filterDealType" class="form-control input-sm">
+                            <option selected value="">---Все---</option>
+                            @foreach (var dealType in ListViewModels.GetDealTypesList())
+                            {
+                                <Option @(dealType.Id == Model.Filter.DealTypeId ? "selected" : "") value=@dealType.Id>
+                                    @dealType.Value
+                                </Option>
+                            }
+                        </select>
                     </div>
                 </div>
                 <div class="form-group">
@@ -114,109 +134,115 @@
 </div>
 
 <h5>
-            <span class="label label-default">
-                Всего записей:
-                <span id="claimCountLabel">@Model.TotalClaimsCount</span>
-            </span>
-            &nbsp;
-            <span class="label label-info">
-                из них показано:
-                <span id="showCountLabel">@Model.Claims.Count</span>
-            </span>
-        </h5>
-        <table class="table table-bordered small">
-            <thead>
-                <tr class="bg-primary">
-                    @if (canCalc || canEdit)
-                    {
-                        <th>&nbsp;</th>}
-                    <th>ID</th>
-                    <th>№ конкурса</th>
-                    <th class="width-300">Заказчик</th>
-                    <th>Бюджет запроса</th>
-                    <th>Менеджер<br />Автор</th>
-                    <th>Статус заявки</th>
-                    <th>Создано</th>
-                    <th>Срок сдачи</th>
-                    <th class="text-nowrap"><table class="table table-bordered prod-manager-table"><tr class="text-primary"><td>Снабженец</td><td class="bg-default ligth num">запрос</td><td class="bg-success ligth num">расчет</td><td class="bg-info ligth num">позиций</td></tr></table></th>
-                    <th style="width: 150px;">
-                        Тип сделки
-                    </th>
-                    @if (canEdit) {<th>&nbsp;</th>}
-                </tr>
-            </thead>
-            <tbody id="claimTable">
-                @foreach (var claim in Model.Claims)
-            {
-                    <tr>
-                        @if (canCalc || canEdit)
-                        {
-                            <td>
-                                @if (canEdit)
-                    {
-                                    <a href=@Url.Action("Index", "Claim", new {claimId = claim.Id}) class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></a>
-                                }
-                                @if (canCalc && claim.ProductManagers.Count>0)
-                    {
-                                    <a href=@Url.Action("Index", "Calc", new {claimId = claim.Id}) class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-calculator'></i></a>
-                                }
-                            </td>
-                        }
-                        <td>@claim.Id</td>
-                        <td>@claim.TenderNumber</td>
-                        <td>@claim.Customer<br />ИНН @claim.CustomerInn</td>
-                        <td>@claim.Sum</td>
-                        <td>
-                            <div class='text-nowrap'>@claim.Manager.ShortName</div>
-                            <div class='text-nowrap'>@claim.Author.ShortName</div>
-                        </td>
-                        <td>@ListViewModels.GetClaimStatus(claim.ClaimStatus)</td>
-                        <td>@claim.RecordDateString.Split(' ')[0]</td>
-                        <td>@claim.ClaimDeadlineString</td>
-                        <td>
-                            <table class='table table-bordered prod-manager-table'>
-                                <tr>
-                                    <th>Всего</th>
-                                    <td class='bg-default ligth text-right num'>@claim.PositionsCount</td>
-                                    <td class='bg-success ligth text-right num'>@claim.CalculatePositionsCount</td>
-                                    <td class='bg-info ligth text-right num'>@claim.CalculatesCount</td>
-                                </tr>
-                                @foreach (var product in claim.ProductManagers)
-                                {
-                                    <tr>
-                                        <td>@product.ShortName</td>
-                                        <td class='bg-default ligth text-right num'>@product.PositionsCount</td>
-                                        <td class='bg-success ligth text-right num'>@product.CalculatePositionsCount</td>
-                                        <td class='bg-info light text-right num'>@product.CalculatesCount</td>
-                                    </tr>
-                                }
-                            </table>
-                        </td>
-                        <td>@ListViewModels.GetClaimDealType(claim.DealType)</td>
-                        <td>
-                            @if (canEdit && claim.ClaimStatus == 1)
-                            {
-                                var id = "delete " + claim.Id;
-                                <button id=@id type='button' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить'><i class='fa fa-trash'></i></button>
-                            }
-                            else { <i class="text-danger  fa fa-lock" ></i>}
-                        </td>
+    <span class="label label-default">
+        Всего записей:
+        <span id="claimCountLabel">@Model.TotalClaimsCount</span>
+    </span>
+    &nbsp;
+    <span class="label label-info">
+        из них показано:
+        <span id="showCountLabel">@Model.Claims.Count</span>
+    </span>
+</h5>
+<table class="table table-bordered small">
+    <thead>
+    <tr class="bg-primary">
+        @if (canCalc && canEdit)
+        {
+            <th class="max-width">&nbsp;&nbsp;</th>
+        }
+        <th>ID</th>
+        <th>№ конкурса</th>
+        <th class="width-300">Заказчик</th>
+        <th>Бюджет запроса</th>
+        <th>Менеджер<br/>Автор</th>
+        <th>Статус заявки</th>
+        <th>Создано</th>
+        <th>Срок сдачи</th>
+        <th class="text-nowrap"><table class="table table-bordered prod-manager-table"><tr class="text-primary"><td>Снабженец</td><td class="bg-default ligth num">запрос</td><td class="bg-success ligth num">расчет</td><td class="bg-info ligth num">позиций</td></tr></table></th>
+        <th style="width: 150px;">
+            Тип сделки
+        </th>
+        @if (canEdit)
+        {<th>&nbsp;</th>}
+    </tr>
+    </thead>
+    <tbody id="claimTable">
+    @foreach (var claim in Model.Claims)
+    {
+        var url = canEdit
+            ? Url.Action("Index", "Claim", new {claimId = claim.Id})
+            : canCalc && claim.ProductManagers.Count>0
+                ? Url.Action("Index", "Calc", new {claimId = claim.Id})
+                : "#";
 
+
+        <tr class="row-claim-item" url="@url">
+
+            @if (canCalc && canEdit)
+            {
+                <td>
+                    <a href=@Url.Action("Index", "Claim", new {claimId = claim.Id}) class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить' target="_blank"><i class='fa fa-edit'></i></a>
+                    @if (claim.ProductManagers.Count > 0)
+                    {
+                        <a href=@Url.Action("Index", "Calc", new {claimId = claim.Id}) class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить' target="_blank"><i class='fa fa-calculator'></i></a>
+                    }
+                </td>
+            }
+            <td>@claim.Id</td>
+            <td>@claim.TenderNumber</td>
+            <td>@claim.Customer@(!String.IsNullOrEmpty(claim.CustomerInn) ?"< br/>ИНН" + claim.CustomerInn : String.Empty)</td>
+            <td>@claim.Sum</td>
+            <td>
+                <div class='text-nowrap'>@claim.Manager.ShortName</div>
+                <div class='text-nowrap'>@claim.Author.ShortName</div>
+            </td>
+            <td>@ListViewModels.GetClaimStatus(claim.ClaimStatus)</td>
+            <td>@claim.RecordDateString.Split(' ')[0]</td>
+            <td>@claim.ClaimDeadlineString</td>
+            <td>
+                <table class='table table-bordered prod-manager-table'>
+                    <tr>
+                        <th>Всего</th>
+                        <td class='bg-default ligth text-right num'>@claim.PositionsCount</td>
+                        <td class='bg-success ligth text-right num'>@claim.CalculatePositionsCount</td>
+                        <td class='bg-info ligth text-right num'>@claim.CalculatesCount</td>
                     </tr>
+                    @foreach (var product in claim.ProductManagers)
+                    {
+                        <tr>
+                            <td>@product.ShortName</td>
+                            <td class='bg-default ligth text-right num'>@product.PositionsCount</td>
+                            <td class='bg-success ligth text-right num'>@product.CalculatePositionsCount</td>
+                            <td class='bg-info light text-right num'>@product.CalculatesCount</td>
+                        </tr>
+                    }
+                </table>
+            </td>
+            <td>@ListViewModels.GetClaimDealType(claim.DealType)</td>
+            <td>
+                @if (canEdit && claim.ClaimStatus == 1)
+                {
+                    <button id=delbtn claimId="@claim.Id" type='button' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить'>
+                        <i class='fa fa-trash'></i>
+                    </button>
                 }
-            </tbody>
-        </table>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
 <p>
     <blockquote class="bg-warning">
-        Чтобы увидеть больше информации измените фильт (сверху)!
+        Чтобы увидеть больше информации измените фильтр (сверху)!
     </blockquote>
 </p>
 
 <link href="~/Content/bootstrap-datepicker3.css" rel="stylesheet" />
 <script type="text/javascript">
-    
-    
-    
+
+
+
     $(init);
 
     function init() {
@@ -250,15 +276,38 @@
                 var filter = JSON.stringify(object.model);
                 document.location.replace("/Claim/List?filterString=" + filter);
             }
-            
+
         });
         $("#clearFilter").click(function() {
             document.location.replace("/Claim/List?filterString=");
         });
-        $("#showCountLabel").text(claims.length);
+        $('[url]').click(function () {
+            if ($(this).attr("url") === "#") {
+                alert("Нет позиций для расчета");
+            }
+            window.open($(this).attr("url"));
+        });
+        $('[id="delbtn"]').click(function (e) {
+            var id = parseInt($(this).attr("claimId"));
+            if (confirm("Вы действительно хотите удалить заявку №" + id)) {
+                var url = "@Url.Action("DeleteClaim","Claim")";
+                var btn = $(this);
+                $.getJSON(url, { id: id }, function (data) {
+                    if (data.IsComplete) {
+                        btn.remove();
+                        location.reload();
+                    }
+
+                });
+                
+            }; e.stopPropagation();
+        });
+        $('[class="btn btn-link btn-lg"]').click(function(e) {
+            e.stopPropagation();
+        });
     }
     function getFilterObj() {
-        
+
         //получение настроек фильтра из формы и проверка валидности введенных значений
         var obj = { isValid: true, message: "", model: null };
         var model = {};
@@ -322,6 +371,10 @@
         if (tenderNumber != "") {
             model.TenderNumber = tenderNumber;
         }
+        var customer = $("#filterCustomer").val().trim();
+        if (customer !== "") {
+            model.Customer = customer;
+        }
         var status = [];
         var filterStatusControls = ["filterClaimStatusCreated", "filterClaimStatusTransmissed", "filterClaimStatusInWork", "filterClaimStatusStopped", "filterClaimStatusCancelled", "filterClaimStatusSameCalculated", "filterClaimStatusCalculated", "filterClaimStatusConfirmed", "filterClaimStatusActualize"];
         var controlsLength = filterStatusControls.length;
@@ -332,6 +385,10 @@
             }
         }
         model.ClaimStatus = status;
+        var dealType = $(":selected", $("#filterDealType"));
+        if (dealType.text() !== "---Все---") {
+            model.DealTypeId = Number(dealType.val().trim());
+        }
         var manager = $(":selected", $("#filterManagers"));
         if (manager.text() != "---Все---") {
             model.IdManager = manager.val().trim();

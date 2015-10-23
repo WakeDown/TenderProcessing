@@ -27,6 +27,7 @@
 
     function init() {
         window.addEventListener("message", messageHandler, true);
+        
         $("#file").change(function (e) {
             var file = $('#file').val().trim();
             if (file == "") return;
@@ -101,7 +102,8 @@
         @using (Html.BeginForm("UploadFileForm", "Calc", FormMethod.Post, new { enctype = "multipart/form-data", id = "uploadExcelForm" }))
         {
             <input type="file" name="file" id="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
-            <input type="hidden" name="claimId" value="@claimId" />
+            <input type="hidden" name="claimId" value="@claimId"/>
+            <input type="hidden"  name="cv" value="@Request.QueryString["cv"]" />
             <button type="submit">Submit</button>
         }
     </div>
