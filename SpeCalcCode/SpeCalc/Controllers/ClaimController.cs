@@ -422,6 +422,7 @@ namespace SpeCalc.Controllers
             var isManager = UserHelper.IsManager(user);
             var isProduct = UserHelper.IsProductManager(user);
             var isController = UserHelper.IsController(user);
+            var isOperator = UserHelper.IsOperator(user);
             var subordinates = Employee.GetSubordinates(user.Id).ToList();
             subordinates.Add(new KeyValuePair<string, string>(user.Id, user.ShortName));
             var subSids = string.Join(",", subordinates.Select(s => s.Key));
@@ -439,6 +440,8 @@ namespace SpeCalc.Controllers
                         ? Role.Manager 
                         : isProduct 
                             ? Role.ProductManager 
+                            :  isOperator
+                            ? Role.Operator
                             : Role.Enter;
             if (mainRole == Role.Enter)
             {
