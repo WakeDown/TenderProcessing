@@ -480,7 +480,8 @@ namespace SpeCalc.Controllers
             model.RecordDate = DateTime.Now;
             model.ClaimStatus = 1;
             model.TenderStatus = 1;
-            var success = new DbEngine().SaveTenderClaim(ref model);
+            var db = new DbEngine();
+            var success = db.SaveTenderClaim(ref model);
             if (success)
             {
                 string message = "";
@@ -500,7 +501,6 @@ namespace SpeCalc.Controllers
                                 {
                                     fileData = br.ReadBytes(file.ContentLength);
                                 }
-                                var db = new DbEngine();
                                 var claimFile = new TenderClaimFile() { IdClaim = idClaim, File = fileData, FileName = file.FileName };
                                 db.SaveTenderClaimFile(ref claimFile);
                             }
@@ -510,9 +510,44 @@ namespace SpeCalc.Controllers
                     }
                 }
                 TempData["error"] = message;
-                return RedirectToAction("Index", "Claim", new {claimId = model.Id});
+                if (success)
+                {
+                    //История изменения статуса
+                    var statusHistory = new ClaimStatusHistory()
+                    {
+                        Date = DateTime.Now,
+                        IdClaim = model.Id,
+                        IdUser = model.Author.Id,
+                        Status = new ClaimStatus() { Id = model.ClaimStatus },
+                        Comment = "Автор: " + model.Author.ShortName
+                    };
+                    db.SaveClaimStatusHistory(statusHistory);
+                    statusHistory.DateString = statusHistory.Date.ToString("dd.MM.yyyy HH:mm");
+                    //>>>>Уведомления
+                    if (model.Author.Id != model.Manager.Id)
+                    {
+                        var host = ConfigurationManager.AppSettings["AppHost"];
+                        var emessage = new StringBuilder();
+                        emessage.Append("Добрый день!");
+                        //message.Append(manager.Name);
+                        emessage.Append("<br/>");
+                        emessage.Append("Пользователь ");
+                        emessage.Append(model.Author.ShortName);
+                        emessage.Append(" создал заявку где Вы назначены менеджером.");
+                        emessage.Append("<br/><br />");
+                        emessage.Append(GetClaimInfo(model));
+                        emessage.Append("<br/>");
+                        emessage.Append("Ссылка на заявку: ");
+                        emessage.Append("<a href='" + host + "/Claim/Index?claimId=" + model.Id + "'>" + host +
+                                       "/Claim/Index?claimId=" + model.Id + "</a>");
+                        //message.Append("<br/>Сообщение от системы Спец расчет");
+                        Notification.SendNotification(new List<UserBase>() { manager.GetUserBase(new List<Role>() { Role.Manager }) }, emessage.ToString(),
+                            String.Format("{0} - {1} - Новая заявка СпецРасчет", model.TenderNumber, model.Customer));
+                    }
+                }
+                return RedirectToAction("Index", "Claim", new { claimId = model.Id });
             }
-            return RedirectToAction("NewClaim", "Claim", new {errorMessage = "при сохранении возникла ошибка"});
+            return RedirectToAction("NewClaim", "Claim", new { errorMessage = "при сохранении возникла ошибка" });
         }
 
         [HttpGet]
@@ -2251,8 +2286,9 @@ namespace SpeCalc.Controllers
         //>>>>Уведомления
         //передача заявки в работу
         [HttpPost]
-        public JsonResult SetClaimOnWork(int id, int cv)
+        public JsonResult SetClaimOnWork(int id, int? cv)
         {
+            cv = cv ?? 0;
             var isComplete = false;
             var message = string.Empty;
             ClaimStatusHistory model = null;
@@ -2263,7 +2299,7 @@ namespace SpeCalc.Controllers
                 if (hasPosition)
                 {
                     isComplete = DbEngine.ChangeTenderClaimClaimStatus(new TenderClaim() { Id = id, ClaimStatus = 2 });
-                    var productManagers = db.LoadProductManagersForClaim(id, cv);
+                    var productManagers = db.LoadProductManagersForClaim(id, cv.Value);
                     if (productManagers != null && productManagers.Any())
                     {
                         var productManagersFromAd = UserHelper.GetProductManagers();
@@ -2292,7 +2328,7 @@ namespace SpeCalc.Controllers
                         db.SaveClaimStatusHistory(model);
                         model.DateString = model.Date.ToString("dd.MM.yyyy HH:mm");
                         //>>>>Уведомления
-                        var claimPositions = db.LoadSpecificationPositionsForTenderClaim(id, cv);
+                        var claimPositions = db.LoadSpecificationPositionsForTenderClaim(id, cv.Value);
                         var productInClaim =
                             productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id)).ToList();
                         var claim = db.LoadTenderClaimById(id);
