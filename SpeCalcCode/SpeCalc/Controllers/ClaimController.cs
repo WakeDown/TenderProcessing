@@ -2467,7 +2467,7 @@ namespace SpeCalc.Controllers
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 isComplete = false;
             }
@@ -2575,7 +2575,7 @@ namespace SpeCalc.Controllers
                     //}
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 isComplete = false;
             }

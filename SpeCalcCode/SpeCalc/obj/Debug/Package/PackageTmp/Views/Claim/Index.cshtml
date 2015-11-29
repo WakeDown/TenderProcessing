@@ -715,7 +715,7 @@
         else {
             messageUi.progressShow();
             $.ajax({
-                url: "@Url.Action("SetClaimOnWork")",
+                url: "@Url.Action("SetClaimOnWork","Claim")",
                 method: 'POST',
                 data: JSON.stringify({id:claim.Id, cv: '@Request.QueryString["cv"]'}),
                 contentType: 'application/json; charset = utf-8 ',
@@ -764,7 +764,7 @@
                     }
                 }
             });
-            location.reload();
+
         }
 
     }
@@ -2112,7 +2112,7 @@
     function messageHandler(e) {
         var data = e.data;
         var obj = $.parseJSON(data);
-        
+
         if (obj.type.trim() == "UploadFrameLoaded") {
             if (initClaimIdNedded) {
                 var objM = {

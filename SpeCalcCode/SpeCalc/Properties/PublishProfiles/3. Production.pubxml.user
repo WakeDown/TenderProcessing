@@ -85,7 +85,7 @@
       <publishTime>01/03/2015 17:16:03</publishTime>
     </File>
     <File Include="bin/SpeCalc.dll">
-      <publishTime>10/23/2015 12:09:40</publishTime>
+      <publishTime>11/05/2015 11:21:30</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.dll">
       <publishTime>10/19/2015 10:16:16</publishTime>
@@ -442,7 +442,7 @@
       <publishTime>06/23/2015 16:51:12</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>10/23/2015 12:02:07</publishTime>
+      <publishTime>11/05/2015 11:21:31</publishTime>
     </File>
   </ItemGroup>
 </Project>

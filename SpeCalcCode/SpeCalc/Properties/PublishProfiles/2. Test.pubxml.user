@@ -40,10 +40,10 @@
       <publishTime>09/29/2015 14:37:48</publishTime>
     </File>
     <File Include="bin/App_global.asax.compiled">
-      <publishTime>10/16/2015 09:48:19</publishTime>
+      <publishTime>11/10/2015 13:10:39</publishTime>
     </File>
     <File Include="bin/App_global.asax.dll">
-      <publishTime>10/16/2015 09:48:19</publishTime>
+      <publishTime>11/10/2015 13:10:39</publishTime>
     </File>
     <File Include="bin/App_global.asax.pdb">
       <publishTime>07/08/2015 13:48:13</publishTime>
@@ -94,16 +94,16 @@
       <publishTime>09/28/2015 16:37:39</publishTime>
     </File>
     <File Include="bin/SpeCalc.dll">
-      <publishTime>10/16/2015 09:26:04</publishTime>
+      <publishTime>11/10/2015 13:10:30</publishTime>
     </File>
     <File Include="bin/SpeCalc.pdb">
-      <publishTime>10/16/2015 09:26:04</publishTime>
+      <publishTime>11/10/2015 13:10:30</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.dll">
-      <publishTime>10/16/2015 09:14:22</publishTime>
+      <publishTime>10/23/2015 11:24:23</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.pdb">
-      <publishTime>10/16/2015 09:14:22</publishTime>
+      <publishTime>10/23/2015 11:24:23</publishTime>
     </File>
     <File Include="bin/System.Net.Http.Formatting.dll">
       <publishTime>09/28/2015 16:37:39</publishTime>
@@ -256,7 +256,7 @@
       <publishTime>09/28/2015 16:37:39</publishTime>
     </File>
     <File Include="Content/Site.css">
-      <publishTime>10/16/2015 09:14:22</publishTime>
+      <publishTime>10/16/2015 10:15:54</publishTime>
     </File>
     <File Include="favicon.ico">
       <publishTime>09/28/2015 16:37:40</publishTime>
@@ -298,7 +298,7 @@
       <publishTime>09/29/2015 14:37:48</publishTime>
     </File>
     <File Include="PrecompiledApp.config">
-      <publishTime>10/16/2015 09:48:16</publishTime>
+      <publishTime>11/10/2015 13:10:33</publishTime>
     </File>
     <File Include="Properties/SlowCheetah/SlowCheetah.Transforms.targets">
       <publishTime>09/28/2015 16:37:40</publishTime>
@@ -373,7 +373,7 @@
       <publishTime>09/29/2015 14:37:48</publishTime>
     </File>
     <File Include="Views/Calc/Index.cshtml">
-      <publishTime>10/15/2015 15:03:43</publishTime>
+      <publishTime>10/16/2015 10:15:54</publishTime>
     </File>
     <File Include="Views/Calc/UploadFileForm.cshtml">
       <publishTime>09/30/2015 13:33:01</publishTime>
@@ -388,16 +388,16 @@
       <publishTime>09/29/2015 14:37:48</publishTime>
     </File>
     <File Include="Views/Claim/Index.cshtml">
-      <publishTime>10/05/2015 17:30:10</publishTime>
+      <publishTime>10/26/2015 09:16:59</publishTime>
     </File>
     <File Include="Views/Claim/List.cshtml">
-      <publishTime>10/16/2015 09:48:04</publishTime>
+      <publishTime>10/16/2015 10:15:54</publishTime>
     </File>
     <File Include="Views/Claim/ListOld.cshtml">
-      <publishTime>10/15/2015 15:03:44</publishTime>
+      <publishTime>10/16/2015 10:15:54</publishTime>
     </File>
     <File Include="Views/Claim/NewClaim.cshtml">
-      <publishTime>10/15/2015 15:03:44</publishTime>
+      <publishTime>10/16/2015 10:15:54</publishTime>
     </File>
     <File Include="Views/Claim/UploadFileForm.cshtml">
       <publishTime>10/05/2015 17:30:10</publishTime>
@@ -445,7 +445,7 @@
       <publishTime>09/29/2015 14:37:48</publishTime>
     </File>
     <File Include="Views/Shared/_Layout.cshtml">
-      <publishTime>10/16/2015 09:14:22</publishTime>
+      <publishTime>10/16/2015 10:15:54</publishTime>
     </File>
     <File Include="Views/Web.config">
       <publishTime>09/29/2015 14:37:48</publishTime>
@@ -454,7 +454,7 @@
       <publishTime>09/28/2015 16:37:40</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>10/16/2015 09:42:00</publishTime>
+      <publishTime>11/10/2015 13:10:32</publishTime>
     </File>
   </ItemGroup>
 </Project>
