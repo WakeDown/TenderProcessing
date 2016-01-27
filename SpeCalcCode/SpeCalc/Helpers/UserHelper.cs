@@ -14,6 +14,7 @@ using SpeCalc.Objects;
 using SpeCalcDataAccessLayer;
 using SpeCalcDataAccessLayer.Enums;
 using SpeCalcDataAccessLayer.Models;
+using SpeCalcDataAccessLayer.Objects;
 using Stuff.Objects;
 
 namespace SpeCalc.Helpers
@@ -34,6 +35,8 @@ namespace SpeCalc.Helpers
         //получение юзера из идентичности потока
         public static UserBase GetUser(IIdentity identity)
         {
+            
+
             using (WindowsImpersonationContextFacade impersonationContext
                 = new WindowsImpersonationContextFacade(
                     nc))

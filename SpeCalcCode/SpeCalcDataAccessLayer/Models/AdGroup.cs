@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace SpeCalc.Objects
+namespace SpeCalcDataAccessLayer.Objects
 {
     public enum AdGroup
     {

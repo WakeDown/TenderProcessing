@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SpeCalcDataAccessLayer.Enums;
 using SpeCalcDataAccessLayer.Models;
+using SpeCalcDataAccessLayer.Objects;
 
 namespace SpeCalcDataAccessLayer
 {
@@ -296,7 +297,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@claimStatus", model.ClaimStatus);
                 cmd.Parameters.AddWithValue("@recordDate", model.RecordDate);
                 cmd.Parameters.AddWithValue("@deleted", model.Deleted);
-                cmd.Parameters.AddWithValue("@author", model.Author.Id);
+                cmd.Parameters.AddWithValue("@author", model.Author.Sid);
                 if (model.SumCurrency > 0)
                 cmd.Parameters.AddWithValue("@idSumCurrency", model.SumCurrency);
                 conn.Open();
@@ -384,7 +385,7 @@ namespace SpeCalcDataAccessLayer
                         },
                         ClaimStatus = rd.GetInt32(14),
                         RecordDate = rd.GetDateTime(15),
-                        Author = new UserBase() {Id = rd.GetString(17)},
+                        Author = new AdUser() {Sid = rd.GetString(17)},
                         CurrencyUsd = (double) rd.GetDecimal(20),
                         CurrencyEur = (double) rd.GetDecimal(21),
                         DeliveryDate = rd[22] == DBNull.Value ? null : (DateTime?) rd.GetDateTime(22),
@@ -450,7 +451,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public bool DeleteTenderClaim(int id, UserBase user)
+        public bool DeleteTenderClaim(int id, AdUser user)
         {
             var result = false;
             using (var conn = new SqlConnection(_connectionString))
@@ -459,7 +460,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "DeleteTenderClaims";
                 cmd.Parameters.AddWithValue("@id", id);
-                cmd.Parameters.AddWithValue("@deletedUser", user.Id);
+                cmd.Parameters.AddWithValue("@deletedUser", user.Sid);
                 cmd.Parameters.AddWithValue("@date", DateTime.Now);
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;
@@ -515,7 +516,7 @@ namespace SpeCalcDataAccessLayer
                             },
                             ClaimStatus = rd.GetInt32(14),
                             RecordDate = rd.GetDateTime(15),
-                            Author = new UserBase() {Id = rd.GetString(17)},
+                            Author = new AdUser() {Sid = rd.GetString(17)},
                             CurrencyUsd = (double)rd.GetDecimal(20),
                             CurrencyEur = (double)rd.GetDecimal(21),
                             DeliveryDate = rd[22] == DBNull.Value ? null : (DateTime?)rd.GetDateTime(22),
@@ -811,7 +812,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public bool DeleteSpecificationPosition(int id, UserBase user)
+        public bool DeleteSpecificationPosition(int id, AdUser user)
         {
             var result = false;
             using (var conn = new SqlConnection(_connectionString))
@@ -820,7 +821,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "DeleteClaimPosition";
                 cmd.Parameters.AddWithValue("@id", id);
-                cmd.Parameters.AddWithValue("@deletedUser", user.Id);
+                cmd.Parameters.AddWithValue("@deletedUser", user.Sid);
                 cmd.Parameters.AddWithValue("@date", DateTime.Now);
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;
@@ -1161,7 +1162,7 @@ namespace SpeCalcDataAccessLayer
             return result;
         }
 
-        public bool DeleteCalculateSpecificationPosition(int id, UserBase user)
+        public bool DeleteCalculateSpecificationPosition(int id, AdUser user)
         {
             var result = false;
             using (var conn = new SqlConnection(_connectionString))
@@ -1170,7 +1171,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "DeleteCalculateClaimPosition";
                 cmd.Parameters.AddWithValue("@id", id);
-                cmd.Parameters.AddWithValue("@deletedUser", user.Id);
+                cmd.Parameters.AddWithValue("@deletedUser", user.Sid);
                 cmd.Parameters.AddWithValue("@date", DateTime.Now);
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;

@@ -2,6 +2,7 @@
 @using SpeCalc.Helpers
 @using SpeCalc.Models
 @using SpeCalc.Objects
+@using SpeCalcDataAccessLayer.Objects
 @model IEnumerable<SpeCalc.Models.Question>
 
 @if (Model.Any())
@@ -14,7 +15,8 @@
             <th>Статус</th>
             <th class="text-nowrap">Менеджер</th>
             @*<th>Вопрос</th>*@
-            @if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager))
+            @*@if (AdHelper.UserInGroup(User, AdGroup.SpeCalcManager))*@
+            @if (ViewBag.CurUser.HasAccess(AdGroup.SpeCalcManager))
             {
                 <th class="min-width"></th>
             }

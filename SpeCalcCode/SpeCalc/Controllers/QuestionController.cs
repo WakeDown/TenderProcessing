@@ -16,7 +16,14 @@ namespace SpeCalc.Controllers
     {
         private UserBase GetCurUser()
         {
-            return UserHelper.GetUser(User.Identity);
+
+            if (Session["CurUser"] != null)
+            {
+                return (UserBase)Session["CurUser"];
+            }
+            var user = UserHelper.GetUser(User.Identity);
+            Session["CurUser"] = user;
+            return user;
         }
 
         private void DisplayCurUser()

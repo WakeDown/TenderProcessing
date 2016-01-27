@@ -11,6 +11,7 @@ using SpeCalc.Objects;
 using SpeCalcDataAccessLayer;
 using SpeCalcDataAccessLayer.Enums;
 using SpeCalcDataAccessLayer.Models;
+using SpeCalcDataAccessLayer.Objects;
 using Stuff.Objects;
 
 namespace SpeCalc.Models
@@ -54,7 +55,7 @@ namespace SpeCalc.Models
             foreach (var claim in Claims)
             {
                 claim.Manager.ShortName = authorsSidNamePairs.Find(m => m.Key == claim.Manager.Id).Value;
-                claim.Author.ShortName = authorsSidNamePairs.Find(m => m.Key == claim.Author.Id).Value;
+                //claim.Author.DisplayName = authorsSidNamePairs.Find(m => m.Key == claim.Author.Sid).Value;
             }
             foreach (var claim in Claims)
             {

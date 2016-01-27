@@ -6,6 +6,7 @@ using System.Web.Caching;
 using System.Web.Mvc;
 using SpeCalc.Helpers;
 using SpeCalc.Models;
+using SpeCalcDataAccessLayer.Objects;
 
 namespace SpeCalc.Objects
 {

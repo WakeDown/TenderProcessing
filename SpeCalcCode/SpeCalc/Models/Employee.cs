@@ -10,6 +10,7 @@ using SpeCalc.Helpers;
 using SpeCalc.Objects;
 using SpeCalcDataAccessLayer.Enums;
 using SpeCalcDataAccessLayer.Models;
+using SpeCalcDataAccessLayer.Objects;
 using Stuff.Objects;
 
 namespace SpeCalc.Models

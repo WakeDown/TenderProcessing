@@ -153,6 +153,7 @@
     <Compile Include="Helpers\AdHelper.cs" />
     <Compile Include="Helpers\Db.cs" />
     <Compile Include="Helpers\DbHelper.cs" />
+    <Compile Include="Helpers\MainHelper.cs" />
     <Compile Include="Helpers\Notification.cs" />
     <Compile Include="Helpers\UserHelper.cs" />
     <Compile Include="Models\CalcPosition.cs" />
@@ -170,7 +171,6 @@
     <Compile Include="Models\TenderManagerPositionsReportFilter.cs" />
     <Compile Include="Models\TenderState.cs" />
     <Compile Include="Models\UserHelper.cs" />
-    <Compile Include="Objects\AdGroup.cs" />
     <Compile Include="Objects\AdUserGroup.cs" />
     <Compile Include="Objects\BaseController.cs" />
     <Compile Include="Objects\DbList.cs" />
@@ -306,6 +306,9 @@
     <Content Include="Views\Report\ManagerTenderPositionsList.cshtml" />
     <Content Include="Views\Claim\NewClaim.cshtml" />
     <Content Include="Views\Claim\ListOld.cshtml" />
+    <Content Include="Views\Claim\IndexManager.cshtml" />
+    <Content Include="Views\Claim\IndexProduct.cshtml" />
+    <Content Include="Views\Error\AccessDenied.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeCalcDataAccessLayer\SpeCalcDataAccessLayer.csproj">

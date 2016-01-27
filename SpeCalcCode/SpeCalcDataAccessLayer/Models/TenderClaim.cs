@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SpeCalcDataAccessLayer.Enums;
+using SpeCalcDataAccessLayer.Objects;
 
 namespace SpeCalcDataAccessLayer.Models
 {
@@ -51,7 +52,7 @@ namespace SpeCalcDataAccessLayer.Models
 
         public string RecordDateString { get; set; }
 
-        public UserBase Author { get; set; }
+        public AdUser Author { get; set; }
 
         public bool Deleted { get; set; }
 

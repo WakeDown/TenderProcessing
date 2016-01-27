@@ -353,7 +353,7 @@ namespace SpeCalcClaimDeadLineMonitor
         {
             var db = new DbEngine();
             var dealTypes = db.LoadDealTypes();
-            return "Заявка № " + claim.Id + ", Автор: " + GetUserById(claim.Author.Id).ShortName +
+            return "Заявка № " + claim.Id + ", Автор: " + GetUserById(claim.Author.Sid).ShortName +
                    ", Номер конкурса: " + claim.TenderNumber + ", Дата начала" +
                    claim.TenderStart.ToString("dd.MM.yyyy") + ", Срок сдачи: "
                    + claim.ClaimDeadline.ToString("dd.MM.yyyy") + ", Менеджер: " +

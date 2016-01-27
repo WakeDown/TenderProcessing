@@ -16,14 +16,16 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Vbe.Interop;
 using SpeCalc.Helpers;
 using SpeCalc.Models;
+using SpeCalc.Objects;
 using SpeCalcDataAccessLayer;
 using SpeCalcDataAccessLayer.Enums;
 using SpeCalcDataAccessLayer.Models;
+using SpeCalcDataAccessLayer.Objects;
 
 namespace SpeCalc.Controllers
 {
     [Authorize]
-    public class CalcController : Controller
+    public class CalcController : BaseController
     {
         [HttpPost]
         public JsonResult GetMinPrice(string partNum)
@@ -68,11 +70,12 @@ namespace SpeCalc.Controllers
         public ActionResult Index(int? claimId, int? cv)
         {
             var user = GetUser();
-            if (!UserHelper.IsController(user) && (UserHelper.IsManager(user) || UserHelper.IsOperator(user)))
+            //if (!UserHelper.IsController(user) && (UserHelper.IsManager(user) || UserHelper.IsOperator(user)))
+            if (!CurUser.HasAccess(AdGroup.SpeCalcKontroler, AdGroup.SpeCalcProduct))
                 return RedirectToAction("Index", "Claim", new { claimId = claimId, cv = cv });
 
             //проверка наличия доступа к странице
-            if (user == null || !UserHelper.IsUserAccess(user))
+            if (user == null || !CurUser.HasAccess(AdGroup.SpeCalcKontroler, AdGroup.SpeCalcProduct))
             {
                 var dict = new RouteValueDictionary();
                 dict.Add("message", "У Вас нет доступа к приложению");
@@ -86,9 +89,9 @@ namespace SpeCalc.Controllers
             }
 
             
-            ViewBag.UserName = user.Name;
-            var isController = UserHelper.IsController(user);
-            var isProduct = UserHelper.IsProductManager(user);
+            ViewBag.UserName = user.FullName;
+            var isController = user.Is(AdGroup.SpeCalcKontroler);//UserHelper.IsController(user);
+            var isProduct = user.Is(AdGroup.SpeCalcProduct);//UserHelper.IsProductManager(user);
             if (!isController && !isProduct)
             {
                 var dict = new RouteValueDictionary();
@@ -130,7 +133,7 @@ namespace SpeCalc.Controllers
                         if (!isController)
                         {
                             claim.Positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId.Value,
-                                user.Id, cv.Value);
+                                user.Sid, cv.Value);
                         }
                         else
                         {
@@ -149,7 +152,7 @@ namespace SpeCalc.Controllers
                                     Date = DateTime.Now,
                                     Comment = string.Empty,
                                     Status = new ClaimStatus() { Id = claim.ClaimStatus },
-                                    IdUser = user.Id
+                                    IdUser = user.Sid
                                 };
                                 db.SaveClaimStatusHistory(statusHistory);
                             }
@@ -167,12 +170,12 @@ namespace SpeCalc.Controllers
                             //    claim.Manager.ChiefShortName = managerFromAd.ChiefShortName;
                             //}
 
-                            var subordinateList = Employee.GetSubordinates(user.Id);
+                            var subordinateList = Employee.GetSubordinates(user.Sid);
 
 
                             var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
                             var prodManSelList = UserHelper.GetProductManagersSelectionList();
-                            bool hasAccess = isController || claim.Positions.Any(x => x.ProductManager.Id == user.Id);
+                            bool hasAccess = isController || claim.Positions.Any(x => x.ProductManager.Id == user.Sid);
 
                             foreach (var productManager in productManagers)
                             {
@@ -266,15 +269,17 @@ namespace SpeCalc.Controllers
                 var db = new DbEngine();
                 var positions = new List<SpecificationPosition>();
                 //получение позиций исходя из роли юзера
-                if (UserHelper.IsController(user) || UserHelper.IsManager(user))
+                //if (UserHelper.IsController(user) || UserHelper.IsManager(user))
+                if (CurUser.HasAccess(AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator))
                 {
                     positions = db.LoadSpecificationPositionsForTenderClaim(claimId, cv);
                 }
                 else
                 {
-                    if (UserHelper.IsProductManager(user))
+                    //if (UserHelper.IsProductManager(user))
+                    if (CurUser.HasAccess(AdGroup.SpeCalcProduct))
                     {
-                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId, user.Id, cv);
+                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId, user.Sid, cv);
                     }
                 }
                 if (positions.Any())
@@ -289,7 +294,8 @@ namespace SpeCalc.Controllers
                         {
                             foreach (var position in positions)
                             {
-                                if (UserHelper.IsManager(user) && position.State == 1 && !UserHelper.IsController(user) && !UserHelper.IsProductManager(user)) continue;
+                                //if (UserHelper.IsManager(user) && position.State == 1 && !UserHelper.IsController(user) && !UserHelper.IsProductManager(user)) continue;
+                                if (CurUser.HasAccess(AdGroup.SpeCalcManager, AdGroup.SpeCalcProduct) && position.State == 1) continue;
                                 position.Calculations =
                                     calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
                             }
@@ -821,7 +827,7 @@ namespace SpeCalc.Controllers
                                             model = new SpecificationPosition()
                                             {
                                                 Calculations = new List<CalculateSpecificationPosition>(),
-                                                Author = user.Id
+                                                Author = user.Sid
                                             };
                                             model.Id = id;
                                             idPos = id;
@@ -856,7 +862,7 @@ namespace SpeCalc.Controllers
                                 {
                                     IdSpecificationPosition = model.Id,
                                     IdTenderClaim = claimId,
-                                    Author = user.Id
+                                    Author = user.Sid
                                 };
 
                                 //получение значений расчета из ячеек
@@ -964,13 +970,15 @@ namespace SpeCalc.Controllers
 
                         //получение позиций для текущего юзера
                         var userPositions = new List<SpecificationPosition>();
-                        if (UserHelper.IsController(user))
+                        //if (UserHelper.IsController(user))
+                        if (CurUser.HasAccess(AdGroup.SpeCalcKontroler))
                         {
                             userPositions = db.LoadSpecificationPositionsForTenderClaim(claimId, cv);
                         }
-                        else if (UserHelper.IsProductManager(user))
+                        //else if (UserHelper.IsProductManager(user))
+                        else if (CurUser.Is(AdGroup.SpeCalcProduct))
                         {
-                            userPositions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId, user.Id, cv);
+                            userPositions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId, user.Sid, cv);
                         }
                         //позиции доступные для изменения
                         var possibleEditPosition = userPositions.Where(x => x.State == 1 || x.State == 3).ToList();
@@ -1010,11 +1018,11 @@ namespace SpeCalc.Controllers
                             message = "нет позиций для расчета<br/>Ошибки: " + errorPart;
                         }
                         //получение позиций и расчетов к ним для текущего юзера для передачи в ответ
-                        var isController = UserHelper.IsController(user);
+                        var isController = user.Is(AdGroup.SpeCalcKontroler);//UserHelper.IsController(user);
                         if (!isController)
                         {
                             positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId,
-                                user.Id, cv);
+                                user.Sid, cv);
                         }
                         else
                         {
@@ -1080,7 +1088,7 @@ namespace SpeCalc.Controllers
             var id = -1;
             try
             {
-                model.Author = GetUser().Id;
+                model.Author = GetUser().Sid;
                 var db = new DbEngine();
                 isComplete = db.SaveCalculateSpecificationPosition(model);
                 id = model.Id;
@@ -1099,7 +1107,7 @@ namespace SpeCalc.Controllers
             var isComplete = false;
             try
             {
-                model.Author = GetUser().Id;
+                model.Author = GetUser().Sid;
                 var db = new DbEngine();
                 isComplete = db.UpdateCalculateSpecificationPosition(model);
             }
@@ -1141,15 +1149,17 @@ namespace SpeCalc.Controllers
                 var db = new DbEngine();
                 //получение позиций для текущего юзера
                 var positions = new List<SpecificationPosition>();
-                if (UserHelper.IsController(user))
+                //if (UserHelper.IsController(user))
+                if (CurUser.HasAccess(AdGroup.SpeCalcKontroler))
                 {
                     positions = db.LoadSpecificationPositionsForTenderClaim(idClaim, cv);
                 }
                 else
                 {
-                    if (UserHelper.IsProductManager(user))
+                    //if (UserHelper.IsProductManager(user))
+                    if (CurUser.Is(AdGroup.SpeCalcProduct))
                     {
-                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(idClaim, user.Id, cv);
+                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(idClaim, user.Sid, cv);
                     }
                 }
                 //if (positions.Any())
@@ -1190,7 +1200,7 @@ namespace SpeCalc.Controllers
                                     Date = DateTime.Now,
                                     Comment = comment,
                                     IdClaim = idClaim,
-                                    IdUser = user.Id,
+                                    IdUser = user.Sid,
                                     Status = new ClaimStatus() {Id = claimStatus}
                                 };
                                 db.SaveClaimStatusHistory(statusHistory);
@@ -1204,7 +1214,7 @@ namespace SpeCalc.Controllers
                                     Date = DateTime.Now,
                                     Comment = comment,
                                     IdClaim = idClaim,
-                                    IdUser = user.Id,
+                                    IdUser = user.Sid,
                                     Status = new ClaimStatus() {Id = status}
                                 };
                                 db.SaveClaimStatusHistory(statusHistory);
@@ -1220,7 +1230,7 @@ namespace SpeCalc.Controllers
                                 productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id))
                                     .ToList();
                             var manager = UserHelper.GetUserById(claim.Manager.Id);
-                            var author = UserHelper.GetUserById(claim.Author.Id);
+                            var author = UserHelper.GetUserById(claim.Author.Sid);
                             var to = new List<UserBase>();
                             to.Add(manager);
                             if (author.Id != manager.Id)
@@ -1317,15 +1327,17 @@ namespace SpeCalc.Controllers
                 var db = new DbEngine();
                 //получение позиций для текущего юзера
                 var positions = new List<SpecificationPosition>();
-                if (UserHelper.IsController(user))
+                //if (UserHelper.IsController(user))
+                if (CurUser.HasAccess(AdGroup.SpeCalcKontroler))
                 {
                     positions = db.LoadSpecificationPositionsForTenderClaim(idClaim, cv);
                 }
                 else
                 {
-                    if (UserHelper.IsProductManager(user))
+                    //if (UserHelper.IsProductManager(user))
+                    if (CurUser.Is(AdGroup.SpeCalcProduct))
                     {
-                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(idClaim, user.Id, cv);
+                        positions = db.LoadSpecificationPositionsForTenderClaimForProduct(idClaim, user.Sid, cv);
                     }
                 }
                 var positionIds = new List<int>();
@@ -1364,9 +1376,9 @@ namespace SpeCalc.Controllers
                                 var statusHistory = new ClaimStatusHistory()
                                 {
                                     Date = DateTime.Now,
-                                    Comment = String.Format("Пользователь {0} отклонил {2} из {3} позиций.<br/>Комментарий: {1} ",user.ShortName,comment,positionIds.Count,allPositions.Count),
+                                    Comment = String.Format("Пользователь {0} отклонил {2} из {3} позиций.<br/>Комментарий: {1} ",user.DisplayName,comment,positionIds.Count,allPositions.Count),
                                     IdClaim = idClaim,
-                                    IdUser = user.Id,
+                                    IdUser = user.Sid,
                                     Status = new ClaimStatus() { Id = claimStatus }
                                 };
                                 db.SaveClaimStatusHistory(statusHistory);
@@ -1378,9 +1390,9 @@ namespace SpeCalc.Controllers
                                 var statusHistory = new ClaimStatusHistory()
                                 {
                                     Date = DateTime.Now,
-                                    Comment = String.Format("Пользователь {0} отклонил {2} из {3} позиций.<br/>Комментарий: {1} ", user.ShortName, comment, positionIds.Count, allPositions.Count),
+                                    Comment = String.Format("Пользователь {0} отклонил {2} из {3} позиций.<br/>Комментарий: {1} ", user.DisplayName, comment, positionIds.Count, allPositions.Count),
                                     IdClaim = idClaim,
-                                    IdUser = user.Id,
+                                    IdUser = user.Sid,
                                     Status = new ClaimStatus() { Id = lastClaimStatus }
                                 };
                                 db.SaveClaimStatusHistory(statusHistory);
@@ -1396,7 +1408,7 @@ namespace SpeCalc.Controllers
                                 productManagersFromAd.Where(x => productManagers.Select(y => y.Id).Contains(x.Id))
                                     .ToList();
                             var manager = UserHelper.GetUserById(claim.Manager.Id);
-                            var author = UserHelper.GetUserById(claim.Author.Id);
+                            var author = UserHelper.GetUserById(claim.Author.Sid);
                             var to = new List<UserBase>();
                             to.Add(manager);
                             if (author.Id != manager.Id)
@@ -1408,7 +1420,7 @@ namespace SpeCalc.Controllers
                             {
                                 var messageMail = new StringBuilder();
                                 messageMail.Append("Добрый день!<br/>");
-                                messageMail.Append("Позиции в заявке № " + claim.Id + " отклонены пользователем " + user.Name + ".<br/>");
+                                messageMail.Append("Позиции в заявке № " + claim.Id + " отклонены пользователем " + user.FullName + ".<br/>");
                                 messageMail.Append("Отклонены все позиции.<br/>");
                                 messageMail.Append("Комментарий:<br/>");
                                 messageMail.Append(comment+"<br/>");
@@ -1440,7 +1452,7 @@ namespace SpeCalc.Controllers
                                             .ToList();
                                     var messageMail = new StringBuilder();
                                     messageMail.Append("Добрый день!<br/>");
-                                    messageMail.Append("Позиции в заявке №" + claim.Id + " отклонены пльзователем "+             user.Name+".<br/>");
+                                    messageMail.Append("Позиции в заявке №" + claim.Id + " отклонены пльзователем "+             user.FullName+".<br/>");
                                     messageMail.Append("Отклонено позиций "+allPositions.Count(x => x.State==5)+" из "+allPositions.Count+".<br/>");
                                     
                                     //messageMail.Append("<br/>");
@@ -1487,13 +1499,14 @@ namespace SpeCalc.Controllers
             try
             {
                 var user = GetUser();
-                if (UserHelper.IsController(user)) deleted = false;
+                //if (UserHelper.IsController(user)) deleted = false;
+                if (CurUser.HasAccess(AdGroup.SpeCalcKontroler)) deleted = false;
                 var newProduct = UserHelper.GetUserById(productId);
                 var db = new DbEngine();
                 isComplete = db.ChangePositionsProduct(ids, productId);
                 if (isComplete)
                 {
-                    var comment = "Пользователь " + user.ShortName + " переназначил позиции (" + ids.Count() +
+                    var comment = "Пользователь " + user.DisplayName + " переназначил позиции (" + ids.Count() +
                                   " шт.) пользователю " + newProduct.ShortName;
                     var status = db.LoadLastStatusHistoryForClaim(idClaim).Status.Id;
                     var statusHistory = new ClaimStatusHistory()
@@ -1501,7 +1514,7 @@ namespace SpeCalc.Controllers
                         Date = DateTime.Now,
                         Comment = comment,
                         IdClaim = idClaim,
-                        IdUser = user.Id,
+                        IdUser = user.Sid,
                         Status = new ClaimStatus() { Id = status }
                     };
                     db.SaveClaimStatusHistory(statusHistory);
@@ -1534,7 +1547,7 @@ namespace SpeCalc.Controllers
                     messageMail.Append("Добрый день!");
                     //messageMail.Append(newProduct.Name);
                     messageMail.Append("<br/>");
-                    messageMail.Append("В заявке №" + claim.Id + " Вам переназначены позиции от пользователя " + user.ShortName + "<br/>");
+                    messageMail.Append("В заявке №" + claim.Id + " Вам переназначены позиции от пользователя " + user.DisplayName + "<br/>");
                     messageMail.Append("Кол-во позиций: " + ids.Count());
                     messageMail.Append("<br/>");
                     messageMail.Append(GetClaimInfo(claim));
@@ -1568,8 +1581,8 @@ namespace SpeCalc.Controllers
                 if (lastHistory != null)
                 {
                     lastHistory.Date = DateTime.Now;
-                    lastHistory.Comment = user.ShortName + ": " + comment;
-                    lastHistory.IdUser = user.Id;
+                    lastHistory.Comment = user.DisplayName + ": " + comment;
+                    lastHistory.IdUser = user.Sid;
                     isComplete = db.SaveClaimStatusHistory(lastHistory);
 
                     if (isComplete)
@@ -1585,7 +1598,7 @@ namespace SpeCalc.Controllers
                         messageMail.Append("Добрый день!");
                         messageMail.Append("<br/>");
                         messageMail.Append("В заявке № " + idClaim + " пользователь ");
-                        messageMail.Append(GetUser().ShortName);
+                        messageMail.Append(GetUser().DisplayName);
                         messageMail.Append(" создал комментарий: " + comment);
                         messageMail.Append("<br/>");
                         //messageMail.Append(GetClaimInfo(claim));
@@ -1595,7 +1608,7 @@ namespace SpeCalc.Controllers
                                        "/Claim/Index?claimId=" + claim.Id + "</a>");
                         //messageMail.Append("<br/>Сообщение от системы Спец расчет");
 
-                        var author = UserHelper.GetUserById(claim.Author.Id);
+                        var author = UserHelper.GetUserById(claim.Author.Sid);
                         var manager = UserHelper.GetUserById(claim.Manager.Id); ;
                         var to = new List<UserBase>();
                         to.Add(manager);
@@ -1640,17 +1653,26 @@ namespace SpeCalc.Controllers
             return result;
         }
 
-        private UserBase GetUser()
+        private AdUser GetUser()
         {
-            var user = UserHelper.GetUser(User.Identity);
-            return user;
+            return CurUser;
+            //if(Session["CurUser"] != null)
+            //{
+            //    return (UserBase)Session["CurUser"];
+            //}
+
+            //var user = UserHelper.GetUser(User.Identity);
+
+            //Session["CurUser"] = user;
+
+            //return user;
         }
 
         private string GetClaimInfo(TenderClaim claim)
         {
             var db = new DbEngine();
             var dealTypes = db.LoadDealTypes();
-            return "Заявка № " + claim.Id + "<br /><br />Автор: " + UserHelper.GetUserById(claim.Author.Id).ShortName +
+            return "Заявка № " + claim.Id + "<br /><br />Автор: " + UserHelper.GetUserById(claim.Author.Sid).ShortName +
                    "<br /><br />Номер конкурса: " + claim.TenderNumber + "<br /><br />Заказчик: " + claim.Customer + "<br /><br />ИНН заказчика: " + claim.CustomerInn + "<br /><br />Дата начала: " +
                    claim.TenderStart.ToString("dd.MM.yyyy") + "<br /><br />Срок сдачи: "
                    + claim.ClaimDeadline.ToString("dd.MM.yyyy") + "<br /><br />Менеджер: " +

@@ -15,5 +15,11 @@ namespace SpeCalc.Controllers
             TempData["url"] = Request.Url.GetLeftPart(UriPartial.Authority) +  url.Replace("|", "/");
             return View();
         }
-	}
+
+        public ViewResult AccessDenied()
+        {
+            Response.StatusCode = 403;
+            return View();
+        }
+    }
 }

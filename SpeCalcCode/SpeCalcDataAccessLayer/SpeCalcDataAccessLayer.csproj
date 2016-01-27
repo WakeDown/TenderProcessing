@@ -71,6 +71,8 @@
     <Compile Include="DbEngine.cs" />
     <Compile Include="Enums\PositionUnit.cs" />
     <Compile Include="Enums\Role.cs" />
+    <Compile Include="Models\AdGroup.cs" />
+    <Compile Include="Models\AdUser.cs" />
     <Compile Include="Models\CalculateSpecificationPosition.cs" />
     <Compile Include="Models\ClaimCert.cs" />
     <Compile Include="Models\ClaimStatus.cs" />
