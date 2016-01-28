@@ -245,9 +245,157 @@ namespace SpeCalc.Controllers
             return Json(new { IsComplete = isComplete, Message = message, Model = model }, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult IndexManager()
+        public ActionResult IndexManager(int? claimId, int? cv)
         {
-            return View();
+            var user = CurUser;
+
+            //Проверка версии, по умолчанию показываем первую если никакой не указано
+            if (claimId.HasValue && !cv.HasValue)
+            {
+                var verList = DbEngine.GetCalcVersionList(claimId.Value);
+                if (verList.Any())
+                {
+                    int lastVersion = verList.Last();
+                    return RedirectToAction("Index", new { claimId = claimId, cv = lastVersion });
+                }
+                else
+                {
+                    cv = 0;
+                }
+            }
+
+            //получения текущего юзера и проверка наличия у него доступа к странице
+            ViewBag.Error = false.ToString().ToLower();
+            TempData["tenderClaimFileFormats"] = WebConfigurationManager.AppSettings["FileFormat4TenderClaimFile"];
+
+            TenderClaim claim = null;
+
+            ViewBag.UserName = user.FullName;
+            var isController = user.Is(AdGroup.SpeCalcKontroler);//UserHelper.IsController(user);
+            var isManager = user.Is(AdGroup.SpeCalcManager);//UserHelper.IsManager(user);
+            var isOperator = user.Is(AdGroup.SpeCalcOperator);//UserHelper.IsOperator(user);
+            //if (!isController && !isManager && !isOperator)
+            //{
+            //    var dict = new RouteValueDictionary();
+            //    dict.Add("message", "У Вас нет доступа к этой странице");
+            //    return RedirectToAction("ErrorPage", "Auth", dict);
+            //}
+            try
+            {
+                //получение необходимой инфы из БД и ActiveDirectory
+                var managers = UserHelper.GetManagers();
+                ViewBag.Managers = managers;
+                ViewBag.DateStart = DateTime.Now.ToString("dd.MM.yyyy");
+                var db = new DbEngine();
+                ViewBag.NextDateMin = DateTime.Now.DayOfWeek == DayOfWeek.Friday
+                    ? DateTime.Now.AddDays(4).ToShortDateString()
+                    : DateTime.Now.AddDays(2).ToShortDateString();
+                ViewBag.DealTypes = db.LoadDealTypes();
+                ViewBag.ClaimStatus = db.LoadClaimStatus();
+                var adProductManagers = UserHelper.GetProductManagers();
+                ViewBag.ProductManagers = adProductManagers;
+                ViewBag.StatusHistory = new List<ClaimStatusHistory>();
+                ViewBag.Facts = db.LoadProtectFacts();
+                ViewBag.DeliveryTimes = db.LoadDeliveryTimes();
+                ViewBag.HasTransmissedPosition = false.ToString().ToLower();
+                ViewBag.Currencies = db.LoadCurrencies();
+                
+                var dealTypeString = String.Empty;
+                var tenderStatus = String.Empty;
+                if (claimId.HasValue && cv.HasValue)
+                {
+                    claim = new TenderClaim(claimId.Value);
+                    if (claim != null)
+                    {
+                        var allPositions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
+                        var editablePosIds = new List<int>();
+                        foreach (var position in allPositions)
+                        {
+                            if (position.State == 5) editablePosIds.Add(position.Id);
+                        }
+                        ViewBag.EditablePositions = editablePosIds;
+                        ViewBag.HasTransmissedPosition = db.HasTenderClaimTransmissedPosition(claimId.Value, cv.Value).ToString().ToLower();
+                        //проверка наличия доступа к данной заявке
+                        if (!isController)
+                        {
+                            if (claim.Manager.Id == user.Sid || claim.Author.Sid == user.Sid)
+                            {
+
+                            }
+                            else if (isManager)
+                            {
+                                var subs = Employee.GetSubordinates(user.Sid).ToList();
+                                if (!Employee.UserIsSubordinate(subs, claim.Manager.Id) && !Employee.UserIsSubordinate(subs, claim.Author.Sid))
+                                {
+                                    var dict = new RouteValueDictionary();
+                                    dict.Add("message", "У Вас нет доступа к этой странице");
+                                    return RedirectToAction("ErrorPage", "Auth", dict);
+                                }
+                            }
+                        }
+
+                        var managerFromAd = managers.FirstOrDefault(x => x.Id == claim.Manager.Id);
+                        if (managerFromAd != null)
+                        {
+                            claim.Manager.Name = managerFromAd.Name;
+                            claim.Manager.ShortName = managerFromAd.ShortName;
+                            claim.Manager.ChiefShortName = managerFromAd.ChiefShortName;
+                        }
+
+
+
+                        var dealTypes = db.LoadDealTypes();
+                        var dealType = dealTypes.FirstOrDefault(x => x.Id == claim.DealType);
+                        if (dealType != null)
+                        {
+                            dealTypeString = dealType.Value;
+                        }
+                        var tenderStatusList = db.LoadTenderStatus();
+                        var status = tenderStatusList.FirstOrDefault(x => x.Id == claim.TenderStatus);
+                        if (status != null)
+                        {
+                            tenderStatus = status.Value;
+                        }
+                        //получение позиций по заявке и расчета к ним
+                        claim.Certs = db.LoadClaimCerts(claimId.Value);
+                        claim.Files = db.LoadTenderClaimFiles(claimId.Value);
+                        claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
+                        if (claim.Positions != null && claim.Positions.Any())
+                        {
+                            var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
+                            foreach (var productManager in productManagers)
+                            {
+                                var productManagerFromAd =
+                                    adProductManagers.FirstOrDefault(x => x.Id == productManager.Id);
+                                if (productManagerFromAd != null)
+                                {
+                                    productManager.Name = productManagerFromAd.Name;
+                                }
+                            }
+                            var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
+                            if (calculations != null && calculations.Any())
+                            {
+                                foreach (var position in claim.Positions)
+                                {
+                                    if (position.State == 1) continue;
+                                    position.Calculations =
+                                        calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
+                                    position.Calculations.Reverse();
+                                }
+                            }
+                        }
+                        ViewBag.StatusHistory = db.LoadStatusHistoryForClaim(claimId.Value);
+                    }
+                }
+                //ViewBag.Claim = claim;
+                ViewBag.DealType = dealTypeString;
+                ViewBag.status = tenderStatus;
+            }
+            catch (Exception)
+            {
+                ViewBag.Error = true.ToString().ToLower();
+            }
+            return View(claim);
         }
 
 
@@ -268,9 +416,10 @@ namespace SpeCalc.Controllers
                 return RedirectToAction("ErrorPage", "Auth", dict);
             }
 
-            //if (CurUser.HasAccess(AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator))
-            //    return RedirectToAction("IndexManager");
+            if (CurUser.HasAccess(AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator))
+                return RedirectToAction("IndexManager", new { claimId , cv});
 
+            return null;
             //Проверка версии, по умолчанию показываем первую если никакой не указано
             if (claimId.HasValue && !cv.HasValue)
             {
@@ -2020,9 +2169,9 @@ namespace SpeCalc.Controllers
                     model.Author.DisplayName = CurUser.DisplayName;
                     //model.Author = AdHelper.GetUserBySid(user.Sid);//UserHelper.GetUserById(user.Sid);
                     isComplete = db.SaveTenderClaim(ref model);
-                    if (model.DeliveryDateString == null) model.DeliveryDateString = string.Empty;
-                    if (model.DeliveryDateEndString == null) model.DeliveryDateEndString = string.Empty;
-                    if (model.AuctionDateString == null) model.AuctionDateString = string.Empty;
+                    //if (model.DeliveryDateString == null) model.DeliveryDateString = string.Empty;
+                    //if (model.DeliveryDateEndString == null) model.DeliveryDateEndString = string.Empty;
+                    //if (model.AuctionDateString == null) model.AuctionDateString = string.Empty;
                     if (model.DeliveryPlace == null) model.DeliveryPlace = string.Empty;
                     if (isComplete)
                     {
@@ -2993,6 +3142,16 @@ namespace SpeCalc.Controllers
         {
             var res = CalcPosition.GetChanges(idCalcPosition);
             return Json(res);
+        }
+        [HttpPost]
+        public PartialViewResult GetClaimHistory(int? id, bool full=false)
+        {
+            if (!id.HasValue) return null;
+
+            int totalCount;
+            var list = TenderClaim.GetHistory(out totalCount, id.Value, full);
+            ViewBag.TotalHistory = totalCount;
+            return PartialView("History", list);
         }
     }
 }

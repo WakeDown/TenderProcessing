@@ -1,4 +1,577 @@
-﻿<div>
-    test
+﻿@using System.Configuration
+@using SpeCalcDataAccessLayer
+@using System.Web.Script.Serialization
+@using SpeCalcDataAccessLayer
+@using SpeCalcDataAccessLayer.Models
+@model SpeCalcDataAccessLayer.Models.TenderClaim
+
+@{
+    ViewBag.Title = "Карточка заявки";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var serializer = new JavaScriptSerializer();
+    var managers = (List<Manager>)ViewBag.Managers;
+    var dealTypes = (List<DealType>)ViewBag.DealTypes;
+
+    var claimStatus = (List<ClaimStatus>)ViewBag.ClaimStatus;
+    var productManagers = (List<ProductManager>)ViewBag.ProductManagers;
+    var claim = (TenderClaim)ViewBag.Claim;
+    var history = (List<ClaimStatusHistory>)ViewBag.StatusHistory;
+    var facts = (List<ProtectFact>)ViewBag.Facts;
+    var deliveryTimes = (List<DeliveryTime>)ViewBag.DeliveryTimes;
+    var editableposIds = (List<int>)ViewBag.EditablePositions;
+}
+
+<div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 id="headWithCalc" class="marg-sm">
+                Заявка №@Model.Id @Model.Customer
+                <div>
+                    Бюджет @Model.StrSum
+                </div>
+            </h4>
+        </div>
+        <div class="panel-body">
+            <div type="pnlClaimFormWithCalc" class="col-sm-4">
+                <table class="table table-condensed pad-xs">
+                    <tr>
+                        <td class="text-right">Тип сделки</td>
+                        <td><strong id="claimDealType">@Model.DealTypeName</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Дата начала</td>
+                        <td><strong id="claimTenderStart">@Model.TenderStartString</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Срок сдачи</td>
+                        <td><strong id="claimDeadline">@Model.ClaimDeadlineString</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Срок подачи КП</td>
+                        <td><strong id="kPDeadline">@Model.KPDeadlineString</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Менеджер</td>
+                        <td><strong id="claimManager">@Model.ManagerName</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right"><span>Подразделение</span></td>
+                        <td><span id="managerSubDivision">@Model.ManagerDepartment</span></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right"><span>Руководитель</span></td>
+                        <td><span id="managerChief">@Model.ManagerChief</span></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Файлы заявки</td>
+                        <td>
+                            <div id="claimFileList"> </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-right"></td>
+                        <td>
+                            @using (Html.BeginForm("SaveFile", "Claim", new { claimId = Request.QueryString["claimId"] }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                            {
+                                <div class="pull-left">
+                                    <input type="file" name="file" multiple="multiple" accept="@ConfigurationManager.AppSettings["FileFormat4TenderClaimFile"]" />
+                                    <input type="text" class="hidden" name="formClaimId" id="formClaimId" />
+                                </div><div class="pull-left"><button class="btn btn-success btn-xs" type="submit">сохранить файл</button></div>
+
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Сертификаты</td>
+                        <td>
+                            <div id="certList"> </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <div id="commentPanel">
+                    <button type="button" id="butSetClaimOnWork" style="" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> в работу</button>
+                    <div id="claimStatusPanel" style="">
+                        <button id="butСlaimStatusContined" type="button" class="btn btn-success btn-sm"><i class="fa fa-play"></i> возобновить</button>
+                        <button id="butСlaimStatusStopped" type="button" class="btn btn-warning btn-sm"><i class="fa fa-pause"></i> приостановить</button>
+                        <button id="butСlaimStatusCanceled" type="button" class="btn btn-danger btn-sm"><i class="fa fa-stop"></i> отменить</button>
+                    </div>
+                    <textarea id="commentWithCalc" rows="3" placeholder="Комментарий" class="form-control"></textarea>
+                    <div>
+                        @*<button type='button' class='btn btn-danger'><i class="fa fa-remove"></i> отклонить</button>*@
+                        @*<button type='button' id="butSendOnConfirm" class='btn btn-success'><i class="fa fa-bullhorn"></i> на подтверждение</button>*@
+                        <button type="button" id="butSendCommentWithCalc" class="btn btn-default"><i class="fa fa-comment"></i> сохранить комментарий</button>
+                    </div>
+                </div>
+            </div>
+            <div type="pnlClaimFormWithCalc" class="col-lg-4">
+                <table class="table table-condensed pad-xs">
+                    <tr>
+                        <td class="text-right">№ конкурса</td>
+                        <td><strong id="claimTenderNumber">@Model.TenderNumber</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Статус конкурса</td>
+                        <td><strong id="claimTenderStatus"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Срок поставки</td>
+                        <td><strong id="claimDeliveryDate"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Место поставки</td>
+                        <td><strong id="claimDeliveryPlace"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Дата аукциона</td>
+                        <td><strong id="claimAuctionDate"></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right text-nowrap">Ссылка на закупки</td>
+                        <td><small id="claimTenderUrl"></small></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-lg-4">
+                <h4 class="marg-sm">История изменения статуса</h4>
+                <div>
+                    <ul class="list-group small" id="claimStatusHistoryContainer"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="positionPanel" style=" margin-left: 4px; margin-right: 4px;">
+        <P>
+            <blockquote class="bg-warning pad-sm">
+                Каждая номенклатурная позиция должны оформляться отдельной строкой!
+            </blockquote>
+        </P>
+        <p>
+            <blockquote class="bg-warning pad-sm">
+                При загрузке спецификации удостоверьтесь, что в ячейках нет формул!
+            </blockquote>
+        </p>
+        <div>
+
+            <div class="pad-sm">
+                <button type="button" id="butAddPosition" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> добавить позицию</button>
+                <span id="excelPanel">
+                    <button id="butGetFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать шаблон</button>
+                    <button id="butUploadFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-upload"></i> загрузить спецификацию</button>
+                    <iframe id="uploadFile" src="/Claim/UploadFileForm" style=""></iframe>
+                </span>
+                <button id="butSetPositionReject" type="button" class="btn btn-danger btn-sm"><i class="fa fa-close"></i> отклонить отмеченные</button>
+                <button id="butSetPositionConfirm" type="button" class="btn btn-success btn-sm"><i class="fa fa-check"></i> принять все</button>
+                <button id="butSetPositionOnWork" type="button" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> В работу отмеченные</button>
+                <span id="excelCalculatePanel">
+                    @*<button id="butGetCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет (с позициями)</button>*@
+                    <button id="butGetCalculateOnlyCalculateFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</button>
+                </span>
+                @if (DateTime.Now > new DateTime(2015, 10, 2) && claim != null && (claim.ClaimStatus == 8 @*|| claim.ClaimStatus == 7*@))
+            {
+                    <button id="goACtual" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> Актуализировать отмеченные</button>
+                }
+                @if (DateTime.Now > new DateTime(2015, 10, 2) && claim != null && (claim.ClaimStatus == 2 || claim.ClaimStatus == 3 || claim.ClaimStatus == 6 || claim.ClaimStatus == 10))
+                {
+                    <button id="askReject" class="btn btn-danger btn-sm"><i class="fa fa-mail-reply"></i> Запросить отклонение для отмеченных</button>
+                }
+            </div>
+            <div id="delPanel" class="pull-right">
+                <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить отмеченные</button>
+
+            </div>
+            @if (claim != null && claim.Id > 0)
+            {
+                int[] versions = DbEngine.GetCalcVersionList(claim.Id);
+
+                <div class="pad-sm">
+                    <ul class="list-inline">
+                        <li class="bold">версия</li>
+                        @if (versions != null)
+                        {
+                            foreach (int ver in versions)
+                            {
+                                <li><a class="btn @(Request.QueryString["cv"] != null && Request.QueryString["cv"].Equals(ver.ToString()) ? "btn-danger selected" : "btn-primary")" href="@Url.Action("Index", new {claimId = claim.Id, cv = ver})">@ver</a></li>
+                            }
+                        }
+                    </ul>
+                </div>
+            }
+            <span>
+                Список позиций
+                <span class="label label-default">всего&nbsp;<span class="big" id="positionCountLabel">0</span></span>
+                <span class="label label-info">из них рассчитано&nbsp;<span class="big" id="positionCalculateCountLabel">0</span></span>
+            </span>
+            <table id="tblPositionsNoCalc" class="table table-bordered small" style="">
+                <thead>
+                    <tr>
+                        <P>
+                            <h4 id="rejectHead">
+                                Отклонено продактом/снабженцем
+                            </h4>
+                        </P>
+                    </tr>
+                    <tr class="bg-primary">
+                        <th class="min-width center"><input type="checkbox" id="cbSelectAllPosition" data-toggle="tooltip" title="все" /></th>
+                        <th>№</th>
+                        <th></th>
+                        <th>
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    Каталожный номер
+                                </div>
+                                <div class="col-sm-3">
+                                    Наименование
+                                </div>
+                                <div class="col-sm-1">
+                                    Количество
+                                </div>
+                                <div class="col-sm-1">
+                                    Единица
+                                </div>
+                                <div class="col-sm-2">
+                                    Продакт/Снабженец
+                                </div>
+                                <div class="col-sm-3">
+                                    Комментарий
+                                </div>
+                            </div>
+                        </th>
+                        <th></th>
+                    </tr>
+
+                </thead>
+                <tbody id="positionTable">
+                    <tr id="addPositionRow" style="">
+                        <td class="min-width center">
+                            <input type="checkbox" modetype="selectPositionElement" />
+                        </td>
+                        <td class="min-width center">
+                            <strong modetype="claimRowNumber"></strong>
+                            <div type="posState5" class="text-danger hidden">
+                                <i class="fa fa-reply" title="позиция отклонена снабженцем/продактом"></i>
+                            </div>
+                        </td>
+                        <td class="min-width">
+                            <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+                            <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                            <span type="editPositionPanel" style="">
+
+                                <button type='button' modetype='editButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></button>
+                                <span type="editPositionActionPanel" style="">
+                                    <button type='button' modetype='editPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-save'></i></button><br />
+                                    <button type='button' modetype='editPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                                </span>
+                            </span>
+                        </td>
+                        <td>
+                            <div type="editModeView" class="row">
+                                <div class="form-group col-sm-2">
+                                    <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" />
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
+                                </div>
+                                <div class="form-group col-sm-1">
+                                    <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество *" />
+                                </div>
+                                <div class="form-group col-sm-1">
+                                    <div id="unitCell"></div>
+                                </div>
+
+                                @*<div class="form-group col-sm-1">
+                                        <textarea rows="3" class="form-control input-sm" modeltype='replaceValue' placeholder="Замена" style=""></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <div id="currencyCell" style=""></div>
+                                    </div>
+                                    <div class="form-group col-sm-1">
+                                        <input type='text' modeltype='priceValue' class="form-control input-sm" placeholder="Цена за ед., макс." style="" />
+                                    </div>
+                                    <div class="form-group col-sm-1">
+                                        <input type='text' modeltype='sumValue' class="form-control input-sm" placeholder="Сумма, макс." style="" />
+                                    </div>
+                                    <div class="form-group col-sm-1">
+                                        <input type='text' modeltype='priceTzrValue' class="form-control input-sm" placeholder="Цена с ТЗР" style="" />
+                                    </div>
+                                    <div class="form-group col-sm-1">
+                                        <input type='text' modeltype='sumTzrValue' class="form-control input-sm" placeholder="Сумма с ТЗР" style="" />
+                                    </div>
+                                    <div class="form-group col-sm-1">
+                                        <input type='text' modeltype='priceNdsValue' class="form-control input-sm" placeholder="Цена с НДС" style="" />
+                                    </div>
+                                    <div class="form-group col-sm-1">
+                                        <input type='text' modeltype='sumNdsValue' class="form-control input-sm" placeholder="Сумма с НДС" style="" />
+                                    </div>*@
+                                <div class="form-group col-sm-2">
+                                    <div id="managersCell"></div>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <textarea rows='3' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
+                                </div>
+                            </div>
+                            @*<div type="editModeView" class="col-sm-5">
+                                    <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
+                                    <textarea rows="3" class="form-control input-sm" modeltype='replaceValue' placeholder="Замена" style=""></textarea>
+                                </div>
+                                <div type="editModeView" class="col-sm-4">
+                                    <div id="managersCell"></div>
+                                    <textarea rows='4' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
+                                </div>*@
+
+                            <div type="readOnlyModeView" style="" class="row">
+                                <div class="col-sm-2">
+                                    <span type='catalogNumberLabel'></span>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div type='nameLabel'></div>
+                                </div>
+                                <div class="col-sm-1">
+                                    <span type='valueLabel'></span>
+                                </div>
+                                <div class="col-sm-1">
+                                    <span type='unitLabel'></span>
+                                </div>
+                                @*<div style="">
+                                        <strong type='priceLabel'></strong>&nbsp;<span type='priceLabelPostfix'></span>
+                                    </div>
+                                    <div style="">
+                                        <strong type='sumLabel'></strong>&nbsp;<span type='sumLabelPostfix'></span>
+                                    </div>
+                                    <div style="">
+                                        <span>Цена с ТЗР:&nbsp;</span><strong type='priceTzrLabel'></strong>&nbsp;<span type='priceTzrLabelPostfix'></span>
+                                    </div>
+                                    <div style="">
+                                        <span>Сумма с ТЗР:&nbsp;</span><strong type='sumTzrLabel'></strong>&nbsp;<span type='sumTzrLabelPostfix'></span>
+                                    </div>
+                                    <div style="">
+                                        <span>Цена с НДС:&nbsp;</span><strong type='priceNdsLabel'></strong>&nbsp;<span type='priceNdsLabelPostfix'></span>
+                                    </div>
+                                    <div style="">
+                                        <span>Сумма с НДС:&nbsp;</span><strong type='sumNdsLabel'></strong>&nbsp;<span type='sumNdsLabelPostfix'></span>
+                                    </div>*@
+
+
+                                <div class="col-sm-2">
+                                    <span type='productManagerLabel'></span>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div type="commentLabel"></div>
+                                </div>
+                            </div>
+
+                            @*<div type="readOnlyModeView" style="" class="col-sm-4">
+                                    <div>
+                                        <strong>Наименование</strong>
+                                        <div type='nameLabel'></div>
+                                    </div>
+                                    <div style="">
+                                        <strong>Замена</strong>
+                                        <div type='replaceLabel'></div>
+                                    </div>
+                                </div>
+
+                                <div type="readOnlyModeView" style="" class="col-sm-3">
+                                    <div class="form-group">
+                                        <label>Комментарий</label>
+                                        <div type="commentLabel"></div>
+                                    </div>
+                                </div>
+                                <div type="readOnlyModeView" style="" class="col-sm-2">
+                                    <div>
+                                        <span type='productManagerLabel'></span>
+                                    </div>
+                                </div>*@
+                        </td>
+                        <td class="min-width">
+                            <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+                            <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                            <button type='button' modetype='deleteButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style=""><i class='fa fa-trash'></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <table id="tblPositionsWithCalc" class="table small table-bordered" style="display:none">
+            <thead>
+                <tr>
+                    <P>
+                        <h4 id="noRejectHead">
+                            В работе/расчитаны
+                        </h4>
+                    </P>
+                </tr>
+                <tr class="bg-primary">
+                    <th class="min-width center"><input type="checkbox" id="selectAllPositionsWithCalc" data-toggle="tooltip" title="все" /></th>
+                    <th></th>
+                    <th>Каталожный номер</th>
+                    <th style="width: 250px;">
+                        Запрос
+                    </th>
+                    <th>Количество</th>
+                    <th>Продакт</th>
+                    <th>Каталожный номер</th>
+                    <th>Ответ</th>
+                    @*<th>Замена</th>*@
+                    <th>Цена B2B</th>
+                    <th>Цена USD</th>
+                    <th>Цена EUR</th>
+                    <th>Цена EUR Ricoh</th>
+                    <th>Цена руб</th>
+                    <th>Поставщик</th>
+                    <th>Срок поставки</th>
+                    <th>Факт защиты</th>
+                    <th>Условия защиты</th>
+                    <th>Комментарий</th>
+                </tr>
+            </thead>
+            <tbody id="positionsTableWithCalc"></tbody>
+        </table>
+
+        <table>
+            <tr id="positionElementTemplateWithCalc" style="">
+                <td posdt='1' class="center min-width" rowspan="1">
+                    <input type="checkbox" modetype="selectPositionElement" />
+                </td>
+                <td posdt='1' class="min-width" rowspan="1">
+                    <strong modetype="rowNumber"></strong>
+                    <div type="posState2" class="text-warning hidden">
+                        <i class="fa fa-send-o" title="отправлена менеджеру для подтверждения"></i>
+                    </div>
+                    <div type="posState3" class="text-danger hidden">
+                        <i class="fa fa-warning" title="расчет позиции отклонен менеджерем"></i>
+                    </div>
+                    <div type="posState4" class="text-success hidden">
+                        <i class="fa fa-check" title="расчет позиции подтвержден менеджерем"></i>
+                    </div>
+                    <div type="posActualize" class="text-danger hidden">
+                        <i class="fa mail-forward" title="актуализация"></i>
+                    </div>
+                </td>
+                <td posdt='1' class="min-width" rowspan="1"><div type='catalogNumberLabel'></div></td>
+                <td posdt='1' class="min-width" rowspan="1">
+                    <div type='nameLabel'></div>
+                    <div type="commentLabel"></div>
+                </td>
+                <td posdt='1' class="min-width" rowspan="1">
+                    <span type='valueLabel'></span>&nbsp;<span type='unitLabel'></span>
+                </td>
+                <td posdt='1'><div type='productManagerLabel'></div></td>
+                <td colspan="12" class="positionsPlaceHolder"></td>
+            </tr>
+        </table>
+
+        <table>
+            <tr id="calcElementTemplateWithCalc" style="">
+
+                <td>
+                    <span modetype="calculateCatalogNumberValueLabel"></span>
+                </td>
+                <td>
+                    <span modetype="calculateNameValueLabel"></span>
+                    <br />
+                    <span modetype="calculateReplaceValueLabel"></span>
+                </td>
+                @*<td>
+                        <span modetype="calculateReplaceValueLabel"></span>
+                    </td>*@
+                <td>
+                    <span class="small" name="priceOnlineInfo"></span>
+                </td>
+                <td>
+                    <span modetype="calculatePriceUsdValueLabel"></span>
+                </td>
+                <td>
+                    <span modetype="calculatePriceEurValueLabel"></span>
+                </td>
+                <td>
+                    <span modetype="calculatePriceEurRicohValueLabel"></span>
+                </td>
+                <td>
+                    <span modetype="calculatePriceRublValueLabel"></span>
+                </td>
+                <td>
+                    <span modetype="calculateProviderValueLabel"></span>
+                </td>
+                <td>
+                    <span modetype="calculateDeliveryTimeValueLabel"></span>
+                </td>
+
+                <td>
+                    <span modetype="calculateProtectFactValueLabel"></span>
+                </td>
+                <td>
+                    <span modetype="calculateProtectConditionValueLabel"></span>
+                </td>
+                <td>
+                    <span modetype="calculateCommentValueLabel"></span>
+                </td>
+            </tr>
+        </table>
+        <div id="deadLineCorrectorBox" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Срок для расчета не может быть менее 2 суток</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        @*<label class="col-sm-9 control-label required-mark">Срок сдачи расчета</label>*@
+
+                        <input type="text" id="deadlineCorrector" style="cursor: pointer;" class="form-control datepicker-btn" placeholder="Срок сдачи расчета" />
+                        <span id="deadlineLabelCorrector" style="" class="form-control"></span>
+                        <small>не менее 2 рабочих дней</small>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+                        <button id="butDeadLineCorrect" type="button" class="btn btn-primary">Продолжить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="rejectPositionCommentBox" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Комментарий к отклонению</h4>
+                    </div>
+                    <div class="modal-body">
+                        <textarea id="rejectPositionComment" class="form-control" rows="7" placeholder="Комментарий"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+                        <button id="butRejectPositionOk" type="button" class="btn btn-primary">Продолжить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+@section scripts
+{
+    <script>
+        $(function() {
+            loadHistory();
+        });
+
+        function loadHistory() {
+
+            $.ajax({
+                url: '@Url.Action("GetClaimHistory")',
+                method: 'POST',
+                data: { id: @Model.Id, full:false },
+                success: function(html) {
+                    $('#claimStatusHistoryContainer').html(html);
+                },
+                error: function() {
+                    alert('Ошибка загрузки истории!');
+                }
+            });
+        }
+    </script>
+}

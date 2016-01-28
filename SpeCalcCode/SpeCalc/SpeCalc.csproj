@@ -309,6 +309,7 @@
     <Content Include="Views\Claim\IndexManager.cshtml" />
     <Content Include="Views\Claim\IndexProduct.cshtml" />
     <Content Include="Views\Error\AccessDenied.cshtml" />
+    <Content Include="Views\Claim\History.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeCalcDataAccessLayer\SpeCalcDataAccessLayer.csproj">

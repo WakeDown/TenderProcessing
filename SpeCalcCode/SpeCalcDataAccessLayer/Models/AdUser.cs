@@ -26,7 +26,7 @@ namespace SpeCalcDataAccessLayer.Objects
         public string Email { get; set; }
 
         public string DisplayName { get; set; }
-        
+        //public string DepartmentName { get; set; }
 
         public List<AdGroup> AdGroups { get; set; }
 

@@ -11,7 +11,7 @@ using SpeCalcDataAccessLayer.Objects;
 
 namespace SpeCalc.Objects
 {
-    [WhitespaceFilter]
+    //[WhitespaceFilter]
     public class BaseController:Controller
     {
         private static NetworkCredential nc = GetAdUserCredentials();
@@ -98,6 +98,7 @@ namespace SpeCalc.Objects
                             var name = userPrincipal.DisplayName;
                             user.Email = mail;
                             user.FullName = name;
+                            //user.DepartmentName = userPrincipal.
                             //user.AdGroups = new List<AdGroup>();
                             //var wp = new WindowsPrincipal(wi);
                             //foreach (var role in AdUserGroup.GetList())

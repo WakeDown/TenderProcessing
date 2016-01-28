@@ -1,0 +1,27 @@
+﻿@model IEnumerable<Stuff.Models.HistoryItem>
+@*<div class="card-panel">
+    <h5>История задачи</h5>*@
+@foreach (var st in Model)
+            {
+    <div class="history-item">
+        @*<div class="card-content white-text">*@
+        <strong>@st.StateName</strong>
+        <div>
+            <small>@String.Format("{0:dd.MM.yy hh:mm}", st.DateCreate) - @st.CreatorName</small>
+        </div>
+        @if (!String.IsNullOrEmpty(st.Descr))
+        {
+            <p>
+                @st.Descr
+            </p>
+        }
+        @*</div>*@
+    </div>
+}
+@if (ViewBag.TotalHistory != null && ViewBag.TotalHistory > @Model.Count())
+{
+    <div>
+        <button id="historyMore" class="btn btn-default btn-xs">еще...(@(ViewBag.TotalHistory - @Model.Count()))</button>
+    </div>
+}
+@*</div>*@

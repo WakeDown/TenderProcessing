@@ -9,6 +9,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using DataProvider.Helpers;
 using SpeCalcDataAccessLayer.Enums;
 using SpeCalcDataAccessLayer.Models;
 using SpeCalcDataAccessLayer.Objects;
@@ -18,7 +19,7 @@ namespace SpeCalcDataAccessLayer
 
     public class DbEngine
     {
-        private static readonly string _connectionString = ConfigurationManager.ConnectionStrings["SpeCalc"].ConnectionString;
+        private static readonly string _connectionString = ConfigurationManager.ConnectionStrings["SpeCalcConnectionString"].ConnectionString;
 
         public DbEngine()
         {
@@ -395,40 +396,39 @@ namespace SpeCalcDataAccessLayer
                         ,
                         SumCurrency = rd[25] == DBNull.Value ? 1 : rd.GetInt32(25),
                         DeliveryDateEnd = rd[26] == DBNull.Value ? null : (DateTime?)rd.GetDateTime(26)
-
                     };
                     if (model.Sum.Equals(-1)) model.Sum = 0;
                     if (model.CurrencyUsd.Equals(-1)) model.CurrencyUsd = 0;
                     if (model.CurrencyEur.Equals(-1)) model.CurrencyEur = 0;
-                    model.KPDeadlineString = model.KPDeadline.ToString("dd.MM.yyyy");
-                    model.TenderStartString = model.TenderStart.ToString("dd.MM.yyyy");
-                    model.ClaimDeadlineString = model.ClaimDeadline.ToString("dd.MM.yyyy");
-                    model.RecordDateString = model.RecordDate.ToString("dd.MM.yyyy HH:mm");
-                    model.DeliveryDateString = model.DeliveryDate.HasValue
-                        ? model.DeliveryDate.Value.ToString("dd.MM.yyyy")
-                        : string.Empty;
-                    model.DeliveryDateEndString = model.DeliveryDateEnd.HasValue
-                        ? model.DeliveryDateEnd.Value.ToString("dd.MM.yyyy")
-                        : string.Empty;
-                    model.AuctionDateString = model.AuctionDate.HasValue
-                        ? model.AuctionDate.Value.ToString("dd.MM.yyyy")
-                        : string.Empty;
+                    //model.KPDeadlineString = model.KPDeadline.ToString("dd.MM.yyyy");
+                    //model.TenderStartString = model.TenderStart.ToString("dd.MM.yyyy");
+                    //model.ClaimDeadlineString = model.ClaimDeadline.ToString("dd.MM.yyyy");
+                    //model.RecordDateString = model.RecordDate.ToString("dd.MM.yyyy HH:mm");
+                    //model.DeliveryDateString = model.DeliveryDate.HasValue
+                    //    ? model.DeliveryDate.Value.ToString("dd.MM.yyyy")
+                    //    : string.Empty;
+                    //model.DeliveryDateEndString = model.DeliveryDateEnd.HasValue
+                    //    ? model.DeliveryDateEnd.Value.ToString("dd.MM.yyyy")
+                    //    : string.Empty;
+                    //model.AuctionDateString = model.AuctionDate.HasValue
+                    //    ? model.AuctionDate.Value.ToString("dd.MM.yyyy")
+                    //    : string.Empty;
                     
 
-                    model.StrSum = String.Format("{0:### ### ### ### ###.##}", model.Sum);
+                    //model.StrSum = String.Format("{0:### ### ### ### ###.##}", model.Sum);
 
-                    switch (model.SumCurrency)
-                    {
-                        case 1:
-                            model.StrSum += " руб.";
-                            break;
-                        case 2:
-                            model.StrSum += " USD";
-                            break;
-                        case 3:
-                            model.StrSum += " EUR";
-                            break;
-                    }
+                    //switch (model.SumCurrency)
+                    //{
+                    //    case 1:
+                    //        model.StrSum += " руб.";
+                    //        break;
+                    //    case 2:
+                    //        model.StrSum += " USD";
+                    //        break;
+                    //    case 3:
+                    //        model.StrSum += " EUR";
+                    //        break;
+                    //}
                 }
                 rd.Dispose();
             }
@@ -523,7 +523,7 @@ namespace SpeCalcDataAccessLayer
                             DeliveryPlace = rd.GetString(23),
                             AuctionDate = rd[24] == DBNull.Value ? null : (DateTime?)rd.GetDateTime(24),
                             ProductManagers = new List<ProductManager>(),
-                            StrSum = String.Format("{0:### ### ### ### ###.##}", (double)rd.GetDecimal(8))
+                            //StrSum = String.Format("{0:### ### ### ### ###.##}", (double)rd.GetDecimal(8))
                         };
                         if (!rd.IsDBNull(7))
                         {
@@ -535,16 +535,16 @@ namespace SpeCalcDataAccessLayer
                         if (model.Sum.Equals(-1)) model.Sum = 0;
                         if (model.CurrencyUsd.Equals(-1)) model.CurrencyUsd = 0;
                         if (model.CurrencyEur.Equals(-1)) model.CurrencyEur = 0;
-                        model.KPDeadlineString = model.KPDeadline.ToString("dd.MM.yyyy");
-                        model.TenderStartString = model.TenderStart.ToString("dd.MM.yyyy");
-                        model.ClaimDeadlineString = model.ClaimDeadline.ToString("dd.MM.yyyy");
-                        model.RecordDateString = model.RecordDate.ToString("dd.MM.yyyy HH:mm");
-                        model.DeliveryDateString = model.DeliveryDate.HasValue
-                        ? model.DeliveryDate.Value.ToString("dd.MM.yyyy")
-                        : string.Empty;
-                        model.AuctionDateString = model.AuctionDate.HasValue
-                            ? model.AuctionDate.Value.ToString("dd.MM.yyyy")
-                            : string.Empty;
+                        //model.KPDeadlineString = model.KPDeadline.ToString("dd.MM.yyyy");
+                        //model.TenderStartString = model.TenderStart.ToString("dd.MM.yyyy");
+                        //model.ClaimDeadlineString = model.ClaimDeadline.ToString("dd.MM.yyyy");
+                        //model.RecordDateString = model.RecordDate.ToString("dd.MM.yyyy HH:mm");
+                        //model.DeliveryDateString = model.DeliveryDate.HasValue
+                        //? model.DeliveryDate.Value.ToString("dd.MM.yyyy")
+                        //: string.Empty;
+                        //model.AuctionDateString = model.AuctionDate.HasValue
+                        //    ? model.AuctionDate.Value.ToString("dd.MM.yyyy")
+                        //    : string.Empty;
                         list.Add(model);
                     }
                 }

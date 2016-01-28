@@ -267,3 +267,11 @@ input.required-mark,textarea.required-mark, select.required-mark, span.required-
     cursor: pointer;
     background-color: #f7ecb5;
 }
+
+.history-item {
+    /*margin-bottom: 10px;*/
+    padding: 5px;
+    /*border-radius: 4px;*/
+    border: 0;
+    border-bottom: 1px solid #d3d3d3;
+}

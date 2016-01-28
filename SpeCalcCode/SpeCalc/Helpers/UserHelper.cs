@@ -9,6 +9,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.UI;
 using Newtonsoft.Json;
 using SpeCalc.Objects;
 using SpeCalcDataAccessLayer;
@@ -120,6 +121,7 @@ namespace SpeCalc.Helpers
             return result;
         }
 
+        [OutputCache(Duration = 3600, Location = OutputCacheLocation.Server)]
         //получение снабженцев из ActiveDirectory
         public static List<ProductManager> GetProductManagers()
         {
@@ -173,6 +175,7 @@ namespace SpeCalc.Helpers
             }
         }
 
+        [OutputCache(Duration = 3600, Location = OutputCacheLocation.Server)]
         //получение менеджеров из ActiveDirectory
         public static List<Manager> GetManagers()
         {
@@ -240,6 +243,7 @@ namespace SpeCalc.Helpers
                 return list;
             }
         }
+        [OutputCache(Duration = 3600, Location = OutputCacheLocation.Server)]
         public static List<Manager> GetManagersSelectionList()
         {
             var list = new List<Manager>();
@@ -249,6 +253,7 @@ namespace SpeCalc.Helpers
             }
             return list;
         }
+        [OutputCache(Duration = 3600, Location = OutputCacheLocation.Server)]
         public static List<ProductManager> GetProductManagersSelectionList()
         {
            
@@ -260,7 +265,7 @@ namespace SpeCalc.Helpers
             return list;
         }
 
-
+        [OutputCache(Duration = 3600, Location = OutputCacheLocation.Server)]
         public static IEnumerable<KeyValuePair<string, string>> GetUserSelectionList(AdGroup group)
         {
             Uri uri = new Uri($"{OdataServiceUri}/Ad/GetUserListByAdGroup?group={group}");
