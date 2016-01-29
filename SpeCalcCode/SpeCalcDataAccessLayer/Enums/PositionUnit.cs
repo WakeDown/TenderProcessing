@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace SpeCalcDataAccessLayer.Enums
 {
-    public enum PositionUnit
-    {
-        Thing = 1,
-        Package = 2,
-        Metr=4
-    }
+    //public enum PositionUnit
+    //{
+    //    Thing = 1,
+    //    Package = 2,
+    //    Metr=4
+    //}
 }

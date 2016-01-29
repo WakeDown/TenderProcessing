@@ -14,5 +14,6 @@ namespace SpeCalcDataAccessLayer.Models
         public int CalculatesCount { get; set; }
 
         public int CalculatePositionsCount { get; set; }
+
     }
 }

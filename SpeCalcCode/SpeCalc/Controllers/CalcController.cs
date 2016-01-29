@@ -157,10 +157,10 @@ namespace SpeCalc.Controllers
                                 db.SaveClaimStatusHistory(statusHistory);
                             }
                             //менеджеры и снабженцы из ActiveDirectory
-                            var managerFromAd = UserHelper.GetUserById(claim.Manager.Id);
-                            claim.Manager.Name = managerFromAd.Name;
-                            claim.Manager.ShortName = managerFromAd.ShortName;
-                            claim.Manager.ChiefShortName = managerFromAd.ManagerName;
+                            //var managerFromAd = UserHelper.GetUserById(claim.Manager.Id);
+                            //claim.Manager.Name = managerFromAd.Name;
+                            //claim.Manager.ShortName = managerFromAd.ShortName;
+                            //claim.Manager.ChiefShortName = managerFromAd.ManagerName;
                             //var managers = UserHelper.GetManagers();
                             //var managerFromAd = managers.FirstOrDefault(x => x.Id == claim.Manager.Id);
                             //if (managerFromAd != null)
@@ -447,13 +447,14 @@ namespace SpeCalc.Controllers
 
                             workSheet.Cell(row, 3).Value = position.CatalogNumber;
                             var posCell = workSheet.Cell(row, 4);
-                            posCell.Value = String.Format("{2}\r\n{5}", position.Id, position.CatalogNumber, position.Name, GetUnitString(position.Unit), position.Value, position.Comment);
+                            //TODO: заменить GetUnitString
+                            //posCell.Value = String.Format("{2}\r\n{5}", position.Id, position.CatalogNumber, position.Name, GetUnitString(position.Unit), position.Value, position.Comment);
                             posCell.Style.Alignment.SetVertical(XLAlignmentVerticalValues.Top);
                             posCell.Style.Alignment.SetWrapText();
                             workSheet.Row(row).AdjustToContents();
 
-                            workSheet.Cell(row, 5).Value = String.Format("{1} {0}", GetUnitString(position.Unit),
-                                position.Value);
+                            //TODO: заменить GetUnitString
+                            //workSheet.Cell(row, 5).Value = String.Format("{1} {0}", GetUnitString(position.Unit), position.Value);
 
                             //Объединяем две ячейки чтобы удобнее было добавлять строки пользователям руками
                             workSheet.Range(workSheet.Cell(row, 1), workSheet.Cell(row + 1, 1)).Merge();
@@ -1635,23 +1636,23 @@ namespace SpeCalc.Controllers
             return Json(new { IsComplete = isComplete, Model = model }, JsonRequestBehavior.AllowGet);
         }
 
-        private string GetUnitString(PositionUnit unit)
-        {
-            var result = string.Empty;
-            switch (unit)
-            {
-                case PositionUnit.Package:
-                    result = "упак";
-                    break;
-                case PositionUnit.Thing:
-                    result = "шт";
-                    break;
-                case PositionUnit.Metr:
-                    result = "м";
-                    break;
-            }
-            return result;
-        }
+        //private string GetUnitString(PositionUnit unit)
+        //{
+        //    var result = string.Empty;
+        //    switch (unit)
+        //    {
+        //        case PositionUnit.Package:
+        //            result = "упак";
+        //            break;
+        //        case PositionUnit.Thing:
+        //            result = "шт";
+        //            break;
+        //        case PositionUnit.Metr:
+        //            result = "м";
+        //            break;
+        //    }
+        //    return result;
+        //}
 
         private AdUser GetUser()
         {

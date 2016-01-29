@@ -1,0 +1,151 @@
+﻿@model IEnumerable<SpeCalcDataAccessLayer.Models.SpecificationPosition>
+
+<table id="" class="table table-bordered small" style="">
+    <thead>
+        <tr></tr>
+        <tr class="bg-primary">
+            <th class="min-width center"><input type="checkbox" id="cbSelectAllPosition" data-toggle="tooltip" title="все" /></th>
+            <th>№</th>
+            <th></th>
+            <th>
+                <div class="row">
+                    <div class="col-sm-2">
+                        Каталожный номер
+                    </div>
+                    <div class="col-sm-3">
+                        Наименование
+                    </div>
+                    <div class="col-sm-1">
+                        Количество
+                    </div>
+                    <div class="col-sm-1">
+                        Единица
+                    </div>
+                    <div class="col-sm-2">
+                        Продакт/Снабженец
+                    </div>
+                    <div class="col-sm-3">
+                        Комментарий
+                    </div>
+                </div>
+            </th>
+            <th>
+                
+            </th>
+        </tr>
+    </thead>
+    <tbody id="positionTable">
+        @foreach (var pos in Model)
+        {
+            <tr style="">
+                <td class="min-width center">
+                    <input type="checkbox" modetype="selectPositionElement" />
+                </td>
+                <td class="min-width center">
+                    <strong modetype="claimRowNumber"></strong>
+                    <div type="posState5" class="text-danger">
+                        <i class="fa fa-reply" title="позиция отклонена снабженцем/продактом"></i>
+                    </div>
+                </td>
+                <td class="min-width">
+                </td>
+                <td>
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <span type='catalogNumberLabel'>@pos.CatalogNumber</span>
+                        </div>
+                        <div class="col-sm-3">
+                            <div type='nameLabel'>@pos.Name</div>
+                        </div>
+                        <div class="col-sm-1">
+                            <span type='valueLabel'>@pos.Value</span>
+                        </div>
+                        <div class="col-sm-1">
+                            <span type='unitLabel'>@pos.UnitName</span>
+                        </div>
+                        <div class="col-sm-2">
+                            <span type='productManagerLabel'>@pos.ProductManagerName</span>
+                        </div>
+                        <div class="col-sm-3">
+                            <div type="commentLabel">@pos.Comment</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="min-width">
+                </td>
+            </tr>
+        }
+
+
+    @*<tr id="addPositionRow" style="">
+        <td class="min-width center">
+            <input type="checkbox" modetype="selectPositionElement"/>
+        </td>
+        <td class="min-width center">
+            <strong modetype="claimRowNumber"></strong>
+            <div type="posState5" class="text-danger hidden">
+                <i class="fa fa-reply" title="позиция отклонена снабженцем/продактом"></i>
+            </div>
+        </td>
+        <td class="min-width">
+            <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br/>
+            <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+            <span type="editPositionPanel" style="">
+
+                    <button type='button' modetype='editButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></button>
+                    <span type="editPositionActionPanel" style="">
+                        <button type='button' modetype='editPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-save'></i></button><br />
+                        <button type='button' modetype='editPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                    </span>
+                </span>
+        </td>
+        <td>
+            <div type="editModeView" class="row">
+                <div class="form-group col-sm-2">
+                    <input type='text' modeltype='catalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер"/>
+                </div>
+                <div class="form-group col-sm-3">
+                    <textarea rows="3" class="form-control input-sm" modeltype='nameValue' placeholder="Наименование *"></textarea>
+                </div>
+                <div class="form-group col-sm-1">
+                    <input type='text' modeltype='valueValue' class="form-control input-sm" placeholder="Количество *"/>
+                </div>
+                <div class="form-group col-sm-1">
+                    <div id="unitCell"></div>
+                </div>
+                <div class="form-group col-sm-2">
+                    <div id="managersCell"></div>
+                </div>
+                <div class="form-group col-sm-3">
+                    <textarea rows='3' modeltype='commentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
+                </div>
+            </div>
+            <div type="readOnlyModeView" style="" class="row">
+                <div class="col-sm-2">
+                    <span type='catalogNumberLabel'></span>
+                </div>
+                <div class="col-sm-3">
+                    <div type='nameLabel'></div>
+                </div>
+                <div class="col-sm-1">
+                    <span type='valueLabel'></span>
+                </div>
+                <div class="col-sm-1">
+                    <span type='unitLabel'></span>
+                </div>
+                <div class="col-sm-2">
+                    <span type='productManagerLabel'></span>
+                </div>
+                <div class="col-sm-3">
+                    <div type="commentLabel"></div>
+                </div>
+            </div>
+        </td>
+        <td class="min-width">
+            <button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br/>
+            <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+            <button type='button' modetype='deleteButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style=""><i class='fa fa-trash'></i></button>
+        </td>
+    </tr>*@
+    </tbody>
+</table>

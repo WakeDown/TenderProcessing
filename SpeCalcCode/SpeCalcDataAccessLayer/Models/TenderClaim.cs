@@ -34,8 +34,10 @@ namespace SpeCalcDataAccessLayer.Models
         public string DealTypeName { get; set; }
         public string TenderUrl { get; set; }
         public int ClaimStatus { get; set; }
+        public string ClaimStatusName { get; set; }
         public Manager Manager { get; set; }
         public int TenderStatus { get; set; }
+        public string TenderStatusName { get; set; }
         public DateTime RecordDate { get; set; }
         public string RecordDateString => RecordDate.ToString("dd.MM.yyyy HH:mm");
         public AdUser Author { get; set; }
@@ -60,10 +62,12 @@ namespace SpeCalcDataAccessLayer.Models
         public int CalculatePositionsCount { get; set; }
         public List<ProductManager> ProductManagers { get; set; }
         public List<SpecificationPosition> Positions { get; set; }
-        public string ManagerName { get; set; }
-        public string ManagerDepartment { get; set; }
-        public string ManagerChief { get; set; }
-
+        //public string ManagerName { get; set; }
+        //public string ManagerDepartment { get; set; }
+        //public string ManagerChief { get; set; }
+        public int IdClaimType { get; set; }
+        public string ClaimTypeSysName { get; set; }
+        public string ClaimTypeName { get; set; }
         public string StrSum
         {
             get
@@ -87,6 +91,11 @@ namespace SpeCalcDataAccessLayer.Models
 
         public List<ClaimCert> Certs { get; set; }
         public List<TenderClaimFile> Files { get; set; }
+        public bool StateCanAddPositions { get; set; }
+        public bool StateIsEnd { get; set; }
+        public bool StateIsActive { get; set; }
+        public bool StateManagerPositionWork { get; set; }
+
 
         public TenderClaim()
         {
@@ -96,6 +105,7 @@ namespace SpeCalcDataAccessLayer.Models
         public TenderClaim(int id)
         {
             SqlParameter pId = new SqlParameter() { ParameterName = "id", SqlValue = id, SqlDbType = SqlDbType.Int };
+            
             var dt = Db.SpeCalc.ExecuteQueryStoredProcedure("LoadTenderClaimById", pId);
             if (dt.Rows.Count > 0)
             {
@@ -112,6 +122,10 @@ namespace SpeCalcDataAccessLayer.Models
 
         private void FillSelf(DataRow row)
         {
+            StateManagerPositionWork = Db.DbHelper.GetValueBool(row, "StateManagerPositionWork");
+            StateCanAddPositions = Db.DbHelper.GetValueBool(row, "StateCanAddPositions");
+            StateIsEnd = Db.DbHelper.GetValueBool(row, "StateIsEnd");
+            StateIsActive = Db.DbHelper.GetValueBool(row, "StateIsActive");
             Id = Db.DbHelper.GetValueIntOrDefault(row, "id");
             TenderNumber= Db.DbHelper.GetValueString(row, "TenderNumber");
             TenderStart = Db.DbHelper.GetValueDateTimeOrDefault(row, "TenderStart");
@@ -124,42 +138,31 @@ namespace SpeCalcDataAccessLayer.Models
             SumCurrency = Db.DbHelper.GetValueIntOrDefault(row, "IdSumCurrency");
             DealType = Db.DbHelper.GetValueIntOrDefault(row, "DealType");
             DealTypeName = Db.DbHelper.GetValueString(row, "DealTypeName");
+            TenderUrl = Db.DbHelper.GetValueString(row, "TenderUrl");
+            ClaimStatus = Db.DbHelper.GetValueIntOrDefault(row, "ClaimStatus");
+            ClaimStatusName = Db.DbHelper.GetValueString(row, "ClaimStatusName");
+            Manager = new Manager() {Id = Db.DbHelper.GetValueString(row, "Manager"), ShortName = Db.DbHelper.GetValueString(row, "manager_display_name"), ChiefShortName = Db.DbHelper.GetValueString(row, "chief_display_name"), SubDivision = Db.DbHelper.GetValueString(row, "manager_department_name") };
+            TenderStatus = Db.DbHelper.GetValueIntOrDefault(row, "TenderStatus");
+            TenderStatusName = Db.DbHelper.GetValueString(row, "TenderStatusName");
+            RecordDate = Db.DbHelper.GetValueDateTimeOrDefault(row, "RecordDate");
+            Author= new AdUser() {DisplayName = Db.DbHelper.GetValueString(row, "author_display_name"), Sid = Db.DbHelper.GetValueString(row, "Author") };
+            DeliveryDate = Db.DbHelper.GetValueDateTimeOrNull(row, "DeliveryDate");
+            DeliveryDateEnd = Db.DbHelper.GetValueDateTimeOrNull(row, "DeliveryDateEnd");
+            AuctionDate = Db.DbHelper.GetValueDateTimeOrNull(row, "DeliveryDateEnd");
+            DeliveryPlace = Db.DbHelper.GetValueString(row, "DeliveryPlace");
+            PositionsCount = Db.DbHelper.GetValueIntOrDefault(row, "PositionsCount");
+            CalculatesCount = Db.DbHelper.GetValueIntOrDefault(row, "CalculatesCount");
+            CalculatePositionsCount = Db.DbHelper.GetValueIntOrDefault(row, "CalculatePositionsCount");
+            IdClaimType = Db.DbHelper.GetValueIntOrDefault(row, "IdClaimType");
+            ClaimTypeSysName = Db.DbHelper.GetValueString(row, "ClaimTypeSysName");
+            ClaimTypeName = Db.DbHelper.GetValueString(row, "ClaimTypeName");
+            
+        }
 
-            //CreatorSid = Db.DbHelper.GetValueString(row, "creator_sid");
-            //CreatorName = Db.DbHelper.GetValueString(row, "creator_name");
-            //AuthorSid = Db.DbHelper.GetValueString(row, "author_sid");
-            //AuthorName = Db.DbHelper.GetValueString(row, "author_name");
-            //IdPosition = Db.DbHelper.GetValueIntOrDefault(row, "id_position");
-            //PositionName = Db.DbHelper.GetValueString(row, "position_name");
-            //IdDepartment = Db.DbHelper.GetValueIntOrDefault(row, "id_department");
-            //DepartmentName = Db.DbHelper.GetValueString(row, "department_name");
-            //ChiefSid = Db.DbHelper.GetValueString(row, "chief_sid");
-            //ChiefName = Db.DbHelper.GetValueString(row, "chief_name");
-            //IdCause = Db.DbHelper.GetValueIntOrDefault(row, "id_cause");
-            //CauseName = Db.DbHelper.GetValueString(row, "cause_name");
-            //MatcherSid = Db.DbHelper.GetValueString(row, "matcher_sid");
-            //MatcherName = Db.DbHelper.GetValueString(row, "matcher_name");
-            //PersonalManagerSid = Db.DbHelper.GetValueString(row, "personal_manager_sid");
-            //PersonalManagerName = Db.DbHelper.GetValueString(row, "personal_manager_name");
-            //DeadlineDate = Db.DbHelper.GetValueDateTimeOrNull(row, "deadline_date");
-            //EndDate = Db.DbHelper.GetValueDateTimeOrNull(row, "end_date");
-            //IdState = Db.DbHelper.GetValueIntOrDefault(row, "id_state");
-            //StateName = Db.DbHelper.GetValueString(row, "state_name");
-            //StateChangeDate = Db.DbHelper.GetValueDateTimeOrNull(row, "state_change_date");
-            //StateChangerSid = Db.DbHelper.GetValueString(row, "state_changer_sid");
-            //StateChangerName = Db.DbHelper.GetValueString(row, "state_changer_name");
-            //DateCreate = Db.DbHelper.GetValueDateTimeOrDefault(row, "dattim1");
-            //CandidateTotalCount = Db.DbHelper.GetValueIntOrDefault(row, "candidate_total_count");
-            //CandidateCancelCount = Db.DbHelper.GetValueIntOrDefault(row, "candidate_cancel_count");
-            ////CandidateAcceptCount = Db.DbHelper.GetValueIntOrDefault(row, "candidate_accept_count");
-            //StateBackgroundColor = Db.DbHelper.GetValueString(row, "state_background_color");
-            //StateIsActive = Db.DbHelper.GetValueBool(row, "state_is_active");
-            //OrderEndDate = Db.DbHelper.GetValueDateTimeOrNull(row, "order_end_date");
-            //ClaimEndDate = Db.DbHelper.GetValueDateTimeOrNull(row, "claim_end_date");
-            //IdCity = Db.DbHelper.GetValueIntOrNull(row, "id_city");
-            //CityName = Db.DbHelper.GetValueString(row, "city_name");
-            //IdBranchOffice = Db.DbHelper.GetValueIntOrDefault(row, "id_branch_office");
-            //BranchOfficeName = Db.DbHelper.GetValueString(row, "branch_office_name");
+        public static IEnumerable<SpecificationPosition> GetRejectedPositions(out int totalCount, int id, int version)
+        {
+            totalCount = 0;
+            return SpecificationPosition.GetList(id, version);
         }
 
         public static IEnumerable<HistoryItem> GetHistory(out int totalCount, int id, bool fullList = false)

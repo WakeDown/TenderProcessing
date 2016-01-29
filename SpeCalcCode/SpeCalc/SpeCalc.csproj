@@ -263,6 +263,7 @@
     <Content Include="Scripts\npm.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\site.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -310,6 +311,14 @@
     <Content Include="Views\Claim\IndexProduct.cshtml" />
     <Content Include="Views\Error\AccessDenied.cshtml" />
     <Content Include="Views\Claim\History.cshtml" />
+    <Content Include="Views\Claim\Positions.cshtml" />
+    <Content Include="Views\Claim\PositionEdit.cshtml" />
+    <Content Include="Views\Claim\PositionItem.cshtml" />
+    <Content Include="Views\Claim\CalculationEdit.cshtml" />
+    <Content Include="Views\Claim\CalculationItem.cshtml" />
+    <Content Include="Views\Claim\NewPositions.cshtml" />
+    <Content Include="Views\Claim\NewPosition.cshtml" />
+    <Content Include="Views\Claim\NewPositionEdit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeCalcDataAccessLayer\SpeCalcDataAccessLayer.csproj">

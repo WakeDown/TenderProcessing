@@ -14,5 +14,6 @@ namespace SpeCalcDataAccessLayer.Models
         public string Chief { get; set; }
 
         public string ChiefShortName { get; set; }
+
     }
 }

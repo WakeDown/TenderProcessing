@@ -301,6 +301,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@author", model.Author.Sid);
                 if (model.SumCurrency > 0)
                 cmd.Parameters.AddWithValue("@idSumCurrency", model.SumCurrency);
+                cmd.Parameters.AddWithValue("@ClaimTypeId", model.IdClaimType);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)
@@ -716,7 +717,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@name", model.Name);
                 cmd.Parameters.AddWithValue("@unit", model.Unit);
                 cmd.Parameters.AddWithValue("@value", model.Value);
-                cmd.Parameters.AddWithValue("@productManager", model.ProductManager.Id);
+                cmd.Parameters.AddWithValue("@productManager", model.ProductManagerId);
                 cmd.Parameters.AddWithValue("@comment", model.Comment);
                 cmd.Parameters.AddWithValue("@positionState", model.State);
                 cmd.Parameters.AddWithValue("@author", model.Author);
@@ -762,7 +763,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@name", model.Name);
                 cmd.Parameters.AddWithValue("@unit", model.Unit);
                 cmd.Parameters.AddWithValue("@value", model.Value);
-                cmd.Parameters.AddWithValue("@productManager", model.ProductManager.Id);
+                cmd.Parameters.AddWithValue("@productManager", model.ProductManagerId);
                 cmd.Parameters.AddWithValue("@comment", model.Comment);
                 cmd.Parameters.AddWithValue("@positionState", model.State);
                 cmd.Parameters.AddWithValue("@author", model.Author);
@@ -852,7 +853,9 @@ namespace SpeCalcDataAccessLayer
                             CatalogNumber = rd.GetString(3),
                             Name = rd.GetString(4),
                             Replace = rd.GetString(5),
-                            Unit = (PositionUnit)Enum.Parse(typeof(PositionUnit), rd.GetString(6)),
+                            //TODO: исправить Unit
+                            //Unit = (PositionUnit)Enum.Parse(typeof(PositionUnit), rd.GetString(6)),
+
                             Value = rd.GetInt32(7),
                             ProductManager = new ProductManager() {Id = rd.GetString(8)},
                             Comment = rd.GetString(9),
@@ -905,7 +908,9 @@ namespace SpeCalcDataAccessLayer
                             CatalogNumber = rd.GetString(3),
                             Name = rd.GetString(4),
                             Replace = rd.GetString(5),
-                            Unit = (PositionUnit)Enum.Parse(typeof(PositionUnit), rd.GetString(6)),
+                            //TODO: Исправить Unit
+                            //Unit = (PositionUnit)Enum.Parse(typeof(PositionUnit), rd.GetString(6)),
+
                             Value = rd.GetInt32(7),
                             ProductManager = new ProductManager() {Id = rd.GetString(8)},
                             Comment = rd.GetString(9),

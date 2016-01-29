@@ -1,0 +1,37 @@
+﻿
+@model SpeCalcDataAccessLayer.Models.SpecificationPosition
+
+
+<td class="min-width center">
+    <input type="checkbox" modetype="selectPositionElement" />
+</td>
+<td class="min-width center">
+    <strong modetype="claimRowNumber"></strong>
+    <div type="posState5" class="text-danger">
+        <i class="fa fa-reply" title="позиция отклонена снабженцем/продактом"></i>
+    </div>
+</td>
+<td class="min-width"></td>
+<td>
+    <div class="row">
+        <div class="col-sm-2">
+            <span type='catalogNumberLabel'>@Model.CatalogNumber</span>
+        </div>
+        <div class="col-sm-3">
+            <div type='nameLabel'>@Model.Name</div>
+        </div>
+        <div class="col-sm-1">
+            <span type='valueLabel'>@Model.Value</span>
+        </div>
+        <div class="col-sm-1">
+            <span type='unitLabel'>@Model.UnitName</span>
+        </div>
+        <div class="col-sm-2">
+            <span type='productManagerLabel'>@Model.ProductManager.ShortName</span>
+        </div>
+        <div class="col-sm-3">
+            <div type="commentLabel">@Model.Comment</div>
+        </div>
+    </div>
+</td>
+<td class="min-width"></td>

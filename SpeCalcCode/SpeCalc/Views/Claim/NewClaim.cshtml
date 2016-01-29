@@ -6,9 +6,18 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var errorMessage = (string) TempData["errorMessage"];
     var currencyList = new SelectList(new Dictionary<int, string>() {{1, "руб."}, {2, "USD"}, {3, "EUR"}},"Key", "Value");
-    var minDate = DateTime.Now.DayOfWeek == DayOfWeek.Friday
-                    ? DateTime.Now.AddDays(4).ToShortDateString()
-                    : DateTime.Now.AddDays(2).ToShortDateString();
+
+    string minDate = DateTime.Now.AddDays(2).ToShortDateString();
+    if (DateTime.Now.DayOfWeek == DayOfWeek.Wednesday)
+    { minDate= DateTime.Now.AddDays(6).ToShortDateString();}
+    if (DateTime.Now.DayOfWeek == DayOfWeek.Thursday)
+    { minDate = DateTime.Now.AddDays(5).ToShortDateString();}
+    if (DateTime.Now.DayOfWeek == DayOfWeek.Friday)
+    { minDate = DateTime.Now.AddDays(4).ToShortDateString(); }
+    //var minDate = DateTime.Now.DayOfWeek == DayOfWeek.Friday
+    //                ? DateTime.Now.AddDays(4).ToShortDateString()
+    //                : DateTime.Now.AddDays(2).ToShortDateString();
+
     var department = TempData["department"];
     var userSid = TempData["userSid"].ToString();
     var managerSid = userSid;
@@ -25,7 +34,18 @@
         </div>
         <div class="panel-body">
             <div id="pnlClaimFormNoCalc" class="form-horizontal val-form col-sm-8 small" role="form">
-                
+                <div class="row">
+                    <label class="col-lg-3 control-label required-mark">Тип заявки</label>
+                    <div class="col-lg-6">
+                        <div class=" form-control">
+                            @foreach (var type in ClaimType.GetList())
+                            {
+                                <input type="radio" value="@type.Id" name="IdClaimType" required="required" />
+                                @type.Name
+                            }
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <label class="col-lg-3 control-label">№ конкурса из Эталон</label>
                     <div class="col-lg-2">

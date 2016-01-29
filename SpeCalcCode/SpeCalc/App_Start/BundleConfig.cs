@@ -12,7 +12,8 @@ namespace SpeCalc
                         "~/Scripts/jquery-{version}.js",
                         "~/Scripts/jquery.mask.min.js",
                         "~/Scripts/message.js",
-                        "~/Scripts/helper.js"));
+                        "~/Scripts/helper.js",
+                        "~/Scripts/site.js"));
 
             // Используйте версию Modernizr для разработчиков, чтобы учиться работать. Когда вы будете готовы перейти к работе,
             // используйте средство построения на сайте http://modernizr.com, чтобы выбрать только нужные тесты.

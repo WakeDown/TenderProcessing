@@ -1,0 +1,43 @@
+﻿@using SpeCalc.Helpers
+@using SpeCalcDataAccessLayer.Models
+@model SpeCalcDataAccessLayer.Models.SpecificationPosition
+
+<tr id="newpos-@Model.Id" name="newpos">
+    <td class="min-width">
+        <input type="checkbox" name="newCheckbox" value="@Model.Id" />
+        @*<span type="editPositionPanel" style="display: none;">
+                <button type='button' modetype='editButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></button>
+                <span type="editPositionActionPanel" style="display: none;">
+                    <button type='button' modetype='editPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-save'></i></button><br />
+                    <button type='button' modetype='editPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+                </span>
+            </span>*@
+    </td>
+    <td>
+        <input type='text' name='newcatalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" value="@Model.CatalogNumber" /> 
+    </td>
+    <td>
+        <textarea rows="3" class="form-control input-sm" name='newnameValue' placeholder="Наименование *">@Model.Name</textarea>
+        
+    </td>
+    <td class="text-right">
+        <input type='text' name='newvalueValue' class="form-control input-sm" placeholder="Количество *" value="@Model.Value" />
+        
+    </td>
+    <td>
+        @Html.DropDownList("newUnit", new SelectList(PositionUnit.GetList(), "Id", "Name", Model.Unit), "--выберите--", new { @class = "form-control input-sm" })
+    </td>
+    <td class="text-center">
+        @Html.DropDownList("newProd", new SelectList(UserHelper.GetProductManagersSelectionList(), "Id", "ShortName", Model.ProductManagerId), "--выберите--", new {  @class = "form-control input-sm" })
+    </td>
+    <td>
+        <textarea rows='3' name='newcommentValue' class="form-control input-sm" placeholder="Комментарий">@Model.Comment</textarea>
+    </td>
+    <td class="min-width">
+            <button type='button' name='newEditSave' class='btn btn-primary' data-toggle='tooltip' title='сохранить' cid="@Model.Id"><i class='fa fa-save'></i></button>
+            <button type='button' name='newEditCancel' class='btn btn-default' data-toggle='tooltip' title='отмена' cid="@Model.Id"><i class='fa fa-undo'></i></button>
+            @*<button type='button' modetype='deleteButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить' style="display: none;"><i class='fa fa-trash'></i></button>*@
+        @*<button type='button' id='saveNew' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
+            <button type='button' id='Newcancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>*@
+    </td>
+</tr>

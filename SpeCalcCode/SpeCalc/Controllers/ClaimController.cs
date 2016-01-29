@@ -245,8 +245,17 @@ namespace SpeCalc.Controllers
             return Json(new { IsComplete = isComplete, Message = message, Model = model }, JsonRequestBehavior.AllowGet);
         }
 
+        //public ActionResult GetTenderClaimFile(string guid)
+        //{
+            
+        //}
+
+        
+
         public ActionResult IndexManager(int? claimId, int? cv)
         {
+            //if (!cv.HasValue)return RedirectToAction("IndexManager", new {claimId, cv=1});
+
             var user = CurUser;
 
             //Проверка версии, по умолчанию показываем первую если никакой не указано
@@ -260,7 +269,7 @@ namespace SpeCalc.Controllers
                 }
                 else
                 {
-                    cv = 0;
+                    return RedirectToAction("Index", new { claimId = claimId, cv = 1 });
                 }
             }
 
@@ -283,8 +292,8 @@ namespace SpeCalc.Controllers
             try
             {
                 //получение необходимой инфы из БД и ActiveDirectory
-                var managers = UserHelper.GetManagers();
-                ViewBag.Managers = managers;
+                //var managers = UserHelper.GetManagers();
+                //ViewBag.Managers = managers;
                 ViewBag.DateStart = DateTime.Now.ToString("dd.MM.yyyy");
                 var db = new DbEngine();
                 ViewBag.NextDateMin = DateTime.Now.DayOfWeek == DayOfWeek.Friday
@@ -307,14 +316,14 @@ namespace SpeCalc.Controllers
                     claim = new TenderClaim(claimId.Value);
                     if (claim != null)
                     {
-                        var allPositions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
-                        var editablePosIds = new List<int>();
-                        foreach (var position in allPositions)
-                        {
-                            if (position.State == 5) editablePosIds.Add(position.Id);
-                        }
-                        ViewBag.EditablePositions = editablePosIds;
-                        ViewBag.HasTransmissedPosition = db.HasTenderClaimTransmissedPosition(claimId.Value, cv.Value).ToString().ToLower();
+                        //////var allPositions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
+                        //////var editablePosIds = new List<int>();
+                        //////foreach (var position in allPositions)
+                        //////{
+                        //////    if (position.State == 5) editablePosIds.Add(position.Id);
+                        //////}
+                        //////ViewBag.EditablePositions = editablePosIds;
+                        //////ViewBag.HasTransmissedPosition = db.HasTenderClaimTransmissedPosition(claimId.Value, cv.Value).ToString().ToLower();
                         //проверка наличия доступа к данной заявке
                         if (!isController)
                         {
@@ -334,57 +343,57 @@ namespace SpeCalc.Controllers
                             }
                         }
 
-                        var managerFromAd = managers.FirstOrDefault(x => x.Id == claim.Manager.Id);
-                        if (managerFromAd != null)
-                        {
-                            claim.Manager.Name = managerFromAd.Name;
-                            claim.Manager.ShortName = managerFromAd.ShortName;
-                            claim.Manager.ChiefShortName = managerFromAd.ChiefShortName;
-                        }
+                        //var managerFromAd = managers.FirstOrDefault(x => x.Id == claim.Manager.Id);
+                        //if (managerFromAd != null)
+                        //{
+                        //    claim.Manager.Name = managerFromAd.Name;
+                        //    claim.Manager.ShortName = managerFromAd.ShortName;
+                        //    claim.Manager.ChiefShortName = managerFromAd.ChiefShortName;
+                        //}
 
 
 
-                        var dealTypes = db.LoadDealTypes();
-                        var dealType = dealTypes.FirstOrDefault(x => x.Id == claim.DealType);
-                        if (dealType != null)
-                        {
-                            dealTypeString = dealType.Value;
-                        }
-                        var tenderStatusList = db.LoadTenderStatus();
-                        var status = tenderStatusList.FirstOrDefault(x => x.Id == claim.TenderStatus);
-                        if (status != null)
-                        {
-                            tenderStatus = status.Value;
-                        }
+                        //var dealTypes = db.LoadDealTypes();
+                        //var dealType = dealTypes.FirstOrDefault(x => x.Id == claim.DealType);
+                        //if (dealType != null)
+                        //{
+                        //    dealTypeString = dealType.Value;
+                        //}
+                        //var tenderStatusList = db.LoadTenderStatus();
+                        //var status = tenderStatusList.FirstOrDefault(x => x.Id == claim.TenderStatus);
+                        //if (status != null)
+                        //{
+                        //    tenderStatus = status.Value;
+                        //}
                         //получение позиций по заявке и расчета к ним
                         claim.Certs = db.LoadClaimCerts(claimId.Value);
                         claim.Files = db.LoadTenderClaimFiles(claimId.Value);
-                        claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
-                        if (claim.Positions != null && claim.Positions.Any())
-                        {
-                            var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
-                            foreach (var productManager in productManagers)
-                            {
-                                var productManagerFromAd =
-                                    adProductManagers.FirstOrDefault(x => x.Id == productManager.Id);
-                                if (productManagerFromAd != null)
-                                {
-                                    productManager.Name = productManagerFromAd.Name;
-                                }
-                            }
-                            var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
-                            if (calculations != null && calculations.Any())
-                            {
-                                foreach (var position in claim.Positions)
-                                {
-                                    if (position.State == 1) continue;
-                                    position.Calculations =
-                                        calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
-                                    position.Calculations.Reverse();
-                                }
-                            }
-                        }
-                        ViewBag.StatusHistory = db.LoadStatusHistoryForClaim(claimId.Value);
+                        //////claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
+                        //////if (claim.Positions != null && claim.Positions.Any())
+                        //////{
+                        //////    var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
+                        //////    foreach (var productManager in productManagers)
+                        //////    {
+                        //////        var productManagerFromAd =
+                        //////            adProductManagers.FirstOrDefault(x => x.Id == productManager.Id);
+                        //////        if (productManagerFromAd != null)
+                        //////        {
+                        //////            productManager.Name = productManagerFromAd.Name;
+                        //////        }
+                        //////    }
+                        //////    var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
+                        //////    if (calculations != null && calculations.Any())
+                        //////    {
+                        //////        foreach (var position in claim.Positions)
+                        //////        {
+                        //////            if (position.State == 1) continue;
+                        //////            position.Calculations =
+                        //////                calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
+                        //////            position.Calculations.Reverse();
+                        //////        }
+                        //////    }
+                        //////}
+                        //ViewBag.StatusHistory = db.LoadStatusHistoryForClaim(claimId.Value);
                     }
                 }
                 //ViewBag.Claim = claim;
@@ -639,8 +648,7 @@ namespace SpeCalc.Controllers
                 ShortName = manager.DisplayName,
                 SubDivision = manager.DepartmentName
             };
-            model.Author.Sid = CurUser.Sid;
-            model.Author.DisplayName = CurUser.DisplayName;
+            model.Author = new AdUser() { Sid= CurUser.Sid, DisplayName = CurUser.DisplayName, FullName = CurUser.FullName};
             model.RecordDate = DateTime.Now;
             model.ClaimStatus = 1;
             model.TenderStatus = 1;
@@ -973,6 +981,8 @@ namespace SpeCalc.Controllers
         //получение excel файла, для определения позиций по заявке 
         public ActionResult GetSpecificationFile(int claimId)
         {
+            //if (!claimId.HasValue) return null;
+
             XLWorkbook excBook = null;
             var ms = new MemoryStream();
             var error = false;
@@ -991,13 +1001,16 @@ namespace SpeCalc.Controllers
                 }
                 //создание диапазона выбора снабженцев
                 var productManagers = UserHelper.GetProductManagers();
+                var units = PositionUnit.GetList().ToArray();
                 excBook = new XLWorkbook(ms);
                 var workSheet = excBook.Worksheet("Лот");
                 var userRangeSheet = excBook.Worksheet(2);
+                var unitRangeSheet = excBook.Worksheet(3);
 
                 if (workSheet != null && userRangeSheet != null)
                 {
                     userRangeSheet.Visibility = XLWorksheetVisibility.Hidden;
+                    unitRangeSheet.Visibility = XLWorksheetVisibility.Hidden;
                     //>>>>>>>>Шапка - Заполнение инфы о заявке<<<<<<
                     var dealTypes = db.LoadDealTypes();
 
@@ -1030,6 +1043,27 @@ namespace SpeCalc.Controllers
                     //workSheet.Cell(16, 3).Value = claim.AuctionDateString;
                     //workSheet.Cell(16, 3).DataType = XLCellValues.DateTime;
                     //workSheet.Cell(17, 3).Value = claim.Comment;
+
+                    for (var i = 0; i < units.Count(); i++)
+                    {
+                        var unit = units[i].Name;
+                        var cell = unitRangeSheet.Cell(i + 1, 2);
+                        if (cell != null)
+                        {
+                            cell.Value = unit;
+                        }
+                    }
+                    var namedRangeUnit = unitRangeSheet.Range(unitRangeSheet.Cell(1, 2), unitRangeSheet.Cell(units.Count(), 2));
+                    var workRangeUnit = workSheet.Cell(5, 4);
+                    if (workRangeUnit != null)
+                    {
+                        var validation = workRangeUnit.SetDataValidation();
+                        validation.AllowedValues = XLAllowedValues.List;
+                        validation.InCellDropdown = true;
+                        validation.Operator = XLOperator.Between;
+                        validation.List(namedRangeUnit);
+                    }
+
                     for (var i = 0; i < productManagers.Count(); i++)
                     {
                         var product = productManagers[i];
@@ -1104,25 +1138,25 @@ namespace SpeCalc.Controllers
             }
         }
 
-        private string GetUnitStr(PositionUnit unit)
-        {
-            string res = String.Empty;
+        //private string GetUnitStr(PositionUnit unit)
+        //{
+        //    string res = String.Empty;
 
-            switch (unit)
-            {
-                case PositionUnit.Thing:
-                    res = "шт";
-                    break;
-                case PositionUnit.Package:
-                    res = "упак";
-                    break;
-                case PositionUnit.Metr:
-                    res = "м";
-                    break;
-            }
+        //    switch (unit)
+        //    {
+        //        case PositionUnit.Thing:
+        //            res = "шт";
+        //            break;
+        //        case PositionUnit.Package:
+        //            res = "упак";
+        //            break;
+        //        case PositionUnit.Metr:
+        //            res = "м";
+        //            break;
+        //    }
 
-            return res;
-        }
+        //    return res;
+        //}
 
         //Excel
         //получение excel файла, содержащем только расчет по заявке
@@ -1315,8 +1349,10 @@ namespace SpeCalc.Controllers
                                 workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
                                 //workSheet.Cell(row, ++col).Value = calculation.Replace;
                                 //workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
-                                
-                                workSheet.Cell(row, ++col).Value = GetUnitStr(position.Unit);
+
+                                //TODO: заменить GetUnitString
+                                //workSheet.Cell(row, ++col).Value = GetUnitStr(position.Unit);
+
                                 workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                                 var countCell = workSheet.Cell(row, ++col);
                                 countCell.Value = position.Value;
@@ -1476,7 +1512,9 @@ namespace SpeCalc.Controllers
                             ++col;
                             //workSheet.Cell(row, ++col).Value = String.Empty;
                             workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
-                            workSheet.Cell(row, ++col).Value = GetUnitStr(position.Unit);
+                            //TODO: заменить GetUnitString
+                            //workSheet.Cell(row, ++col).Value = GetUnitStr(position.Unit);
+
                             workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                             workSheet.Cell(row, ++col).Value = position.Value;
                             workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
@@ -1730,13 +1768,16 @@ namespace SpeCalc.Controllers
         //Excel
         //получение excel файла, с инфой по позициям заявки
         [HttpPost]
-        public ActionResult UploadFileForm(HttpPostedFileBase file, int claimId)
+        public JsonResult UploadFileForm(int claimId)
         {
+            //int claimId;
+            //int.TryParse(Request.Form["Id"], out claimId);
             var error = false;
             var message = string.Empty;
             XLWorkbook excBook = null;
             Stream inputStream = null;
             var positions = new List<SpecificationPosition>();
+            var file = Request.Files[0];
             try
             {
                 if (file == null || !file.FileName.EndsWith(".xlsx"))
@@ -1747,6 +1788,7 @@ namespace SpeCalc.Controllers
                 else
                 {
                     var productManagers = UserHelper.GetProductManagers();
+                    var units = PositionUnit.GetList();
                     inputStream = file.InputStream;
                     inputStream.Seek(0, SeekOrigin.Begin);
                     excBook = new XLWorkbook(inputStream);
@@ -1771,6 +1813,7 @@ namespace SpeCalc.Controllers
                                 Comment = string.Empty,
                                 Name = string.Empty,
                                 ProductManager = new ProductManager() { Id = string.Empty, Name = string.Empty },
+                                
                                 Replace = string.Empty,
                                 IdClaim = claimId,
                                 State = 1,
@@ -1836,29 +1879,40 @@ namespace SpeCalc.Controllers
                             //{
                             //    model.Replace = replaceRange.Value.ToString();
                             //}
-                            if (unitRange != null && unitRange.Value != null)
+
+                            if (units != null && units.Any())
                             {
-                                var value = unitRange.Value.ToString();
-                                switch (value)
-                                {
-                                    case "шт":
-                                        model.Unit = PositionUnit.Thing;
-                                        break;
-                                    case "упак":
-                                        model.Unit = PositionUnit.Package;
-                                        break;
-                                    case "м":
-                                        model.Unit = PositionUnit.Metr;
-                                        break;
-                                    default:
-                                        model.Unit = PositionUnit.Thing;
-                                        break;
-                                }
+                                var unit = unitRange.Value.ToString();
+                                model.Unit = units.Single(x => x.Name.Equals(unit)).Id;
                             }
-                            else
-                            {
-                                model.Unit = PositionUnit.Thing;
-                            }
+
+                            //if (unitRange != null && unitRange.Value != null)
+                            //{
+                            //    var value = unitRange.Value.ToString();
+                            //    switch (value)
+                            //    {
+                            //        case "шт":
+                            //            model.Unit = PositionUnit.Thing;
+                            //            break;
+                            //        case "упак":
+                            //            model.Unit = PositionUnit.Package;
+                            //            break;
+                            //        case "м":
+                            //            model.Unit = PositionUnit.Metr;
+                            //            break;
+                            //        default:
+                            //            model.Unit = PositionUnit.Thing;
+                            //            break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    model.Unit = PositionUnit.Thing;
+                            //}
+
+
+
+
                             //разбор инфы по Количество
                             if (valueRange != null)
                             {
@@ -1897,7 +1951,11 @@ namespace SpeCalc.Controllers
                                 var managerFromAd =
                                     productManagers.FirstOrDefault(
                                         x => GetUniqueDisplayName(x) == managerRange.Value.ToString());
-                                if (managerFromAd != null) model.ProductManager = managerFromAd;
+                                if (managerFromAd != null)
+                                {
+                                    model.ProductManager = managerFromAd;
+                                    model.ProductManagerId = managerFromAd.Id;
+                                }
                                 else
                                 {
                                     rowValid = false;
@@ -2072,6 +2130,7 @@ namespace SpeCalc.Controllers
                         }
                         //сохранение полученых позиций в БД
                         
+
                         message = "Получено строк:    " + (row - 5);
                         if (repeatRowCount > 0)
                         {
@@ -2092,11 +2151,16 @@ namespace SpeCalc.Controllers
                         var errorMessage = errorStringBuilder.ToString();
                         if (!string.IsNullOrEmpty(errorMessage))
                         {
-                            message += "<br/>Ошибки:<br/>" + errorMessage;
+                            error = true;
+                            message += "<br/>Ошибки:<br/>" + errorMessage + "<br />Сохранить изменения?";
                         }
                         else
                         {
-                            message += "<br/>Ошибки:                   нет";
+                            message += "<br/>Ошибки: нет";
+                            //foreach (SpecificationPosition position in positions)
+                            //{
+                            //    db.SaveSpecificationPosition(position);
+                            //}
                         }
                     }
                     else
@@ -2124,12 +2188,17 @@ namespace SpeCalc.Controllers
                     excBook.Dispose();
                 }
             }
-            ViewBag.FirstLoad = false;
-            ViewBag.Error = error.ToString().ToLowerInvariant();
-            ViewBag.Message = message;
-            ViewBag.Positions = positions;
-            ViewBag.IdClaim = claimId;
-            return View();
+            //ViewBag.FirstLoad = false;
+            //ViewBag.Error = error.ToString().ToLowerInvariant();
+            //ViewBag.Message = message;
+            //ViewBag.Positions = positions;
+            //ViewBag.IdClaim = claimId;
+
+            
+
+            return Json(new { error, message, positions });
+            //return RedirectToAction("IndexManager", new {claimId});
+            //return View();
         }
 
         //>>>>Уведомления
@@ -2241,30 +2310,31 @@ namespace SpeCalc.Controllers
 
         //Изменение позиции
         [HttpPost]
-        public JsonResult EditClaimPosition(SpecificationPosition model)
+        public PartialViewResult EditClaimPosition(SpecificationPosition model)
         {
             var isComplete = false;
-            try
-            {
+            //try
+            //{
                 var user = GetUser();
                 var db = new DbEngine();
-                var claimStatus = db.LoadLastStatusHistoryForClaim(model.IdClaim);
-                if (claimStatus == null || claimStatus.Status == null ||  claimStatus.Status.ToString() == "1")
-                    model.State = 1;
-                else model.State = 5;
+                //var claimStatus = db.LoadLastStatusHistoryForClaim(model.IdClaim);
+                //if (claimStatus == null || claimStatus.Status == null ||  claimStatus.Status.ToString() == "1")
+                //    model.State = 1;
+                //else model.State = 5;
                 model.Author = user.Sid;
                 var modelValid = true;
-                if (string.IsNullOrEmpty(model.Name)) modelValid = false;
+                //if (string.IsNullOrEmpty(model.Name)) modelValid = false;
                 if (modelValid)
                 {
                     isComplete = db.UpdateSpecificationPosition(model);
                 }
-            }
-            catch (Exception)
-            {
-                isComplete = false;
-            }
-            return Json(new { IsComplete = isComplete });
+            return PartialView("NewPosition", model);
+            //}
+            //catch (Exception)
+            //{
+            //    isComplete = false;
+            //}
+            //return Json(new { IsComplete = isComplete });
         }
 
         //удаление позиции
@@ -2401,7 +2471,56 @@ namespace SpeCalc.Controllers
             }
             return Json(new { IsComplete = isComplete, Claims = list, Count = count });
         }
-        
+        [HttpGet]
+        public PartialViewResult GetNewPositions(int? claimId, int? cv)
+        {
+            if (!claimId.HasValue) return null;
+            if (!cv.HasValue) cv = 1;
+
+            var list = SpecificationPosition.GetList(claimId.Value, cv.Value);// db.LoadSpecificationPositionsForTenderClaim(); ;
+            return PartialView("NewPositions", list);
+        }
+
+        public PartialViewResult GetNewPosition(int? id)
+        {
+            if (!id.HasValue) return null;
+            var model = new SpecificationPosition(id.Value);
+            return PartialView("NewPosition", model);
+        }
+
+        [HttpPost]
+        public PartialViewResult AddPosition(SpecificationPosition model)
+        {
+            model.Author = CurUser.Sid;
+            var db = new DbEngine();
+            db.SaveSpecificationPosition(model);
+
+            return PartialView("NewPosition", model);
+            //var isComplete = false;
+            //try
+            //{
+            //    var user = GetUser();
+            //    model.State = 1;
+            //    model.Author = user.Sid;
+            //    model.Currency = 1;
+            //    var modelValid = true;
+            //    if (string.IsNullOrEmpty(model.Name)) modelValid = false;
+            //    if (modelValid)
+            //    {
+            //        var db = new DbEngine();
+
+            //        if (string.IsNullOrEmpty(model.CatalogNumber)) model.CatalogNumber = string.Empty;
+            //        if (string.IsNullOrEmpty(model.Replace)) model.Replace = string.Empty;
+            //        if (string.IsNullOrEmpty(model.Comment)) model.Comment = string.Empty;
+            //    }
+            //}
+            //catch (Exception)
+            //{
+            //    isComplete = false;
+            //}
+            //return Json(new { IsComplete = isComplete, Model = model });
+        }
+
         //добавление позиции по заявке
         [HttpPost]
         public JsonResult AddClaimPosition(SpecificationPosition model)
@@ -2431,12 +2550,20 @@ namespace SpeCalc.Controllers
             return Json(new { IsComplete = isComplete, Model = model });
         }
 
+        public PartialViewResult GetNewPositionEdit(int id)
+        {
+            var model = new SpecificationPosition(id);
+            return PartialView("NewPositionEdit", model);
+        }
+
         [HttpPost]
         public JsonResult AddClaimPositions(IEnumerable<SpecificationPosition> modelList)
         {
-            var isComplete = modelList.Count()>0;
+
+            var isComplete = false;
             try
-            {
+            { 
+                isComplete = modelList.Count() > 0;
                 var db = new DbEngine();
                 foreach (var model in modelList)
                 {
@@ -2445,24 +2572,24 @@ namespace SpeCalc.Controllers
                 }
                 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 
                 isComplete = false;
             }
-            return Json(new {IsComplete = isComplete, Positions = modelList},JsonRequestBehavior.AllowGet);
+            return Json(new {IsComplete = isComplete});
         }
         //>>>>Уведомления
         //передача заявки в работу
         [HttpPost]
         public JsonResult SetClaimOnWork(int id, int? cv)
         {
-            cv = cv ?? 0;
+            cv = cv ?? 1;
             var isComplete = false;
             var message = string.Empty;
             ClaimStatusHistory model = null;
-            try
-            {
+            //try
+            //{
                 var db = new DbEngine();
                 var hasPosition = db.HasClaimPosition(id);
                 if (hasPosition)
@@ -2529,11 +2656,12 @@ namespace SpeCalc.Controllers
                     message = "Невозможно передать заявку в работу без позиций спецификаций";
                 }
 
-            }
-            catch (Exception)
-            {
-                isComplete = false;
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    isComplete = false;
+            //}
+            //return RedirectToAction("IndexManager", new {claimId=id, cv});
             return Json(new { IsComplete = isComplete, Message = message, Model = model }, JsonRequestBehavior.AllowGet);
         }
 
@@ -2643,26 +2771,13 @@ namespace SpeCalc.Controllers
             return Json(new { IsComplete = isComplete, Model = model });
         }
         [HttpPost]
-        public ActionResult SaveFile(string formClaimId)
+        public ActionResult SaveFile(int? claimId, int? cv)
         {
             string message = "";
             if (Request.Files.Count > 0)
             {
-                int? idClaim = null;
-                try
-                {
-                    idClaim = Convert.ToInt32(formClaimId);
-                    //idClaim = Convert.ToInt32(RouteData.Values["claimId"]);
-
-
-                }
-                catch (Exception ex)
-                {
-                    idClaim = null;
-                }
-
-
-                if (idClaim != null && idClaim > 0)
+               
+                if (claimId.HasValue && claimId.Value > 0)
                 {
                     //foreach (HttpPostedFileWrapper file in Request.Files)
                     //{
@@ -2678,7 +2793,7 @@ namespace SpeCalc.Controllers
                             fileData = br.ReadBytes(file.ContentLength);
                         }
                         var db = new DbEngine();
-                        var claimFile = new TenderClaimFile() { IdClaim = idClaim.Value, File = fileData, FileName = file.FileName };
+                        var claimFile = new TenderClaimFile() { IdClaim = claimId.Value, File = fileData, FileName = file.FileName };
                         db.SaveTenderClaimFile(ref claimFile);  
                         }
                        else if (file.ContentLength > 0) message += String.Format("Файл {0} имеет недопустимое расширение.",file.FileName);
@@ -2687,7 +2802,7 @@ namespace SpeCalc.Controllers
                 }
             }
             TempData["error"] = message;
-            return RedirectToAction("Index", "Claim", new { claimId = formClaimId});
+            return RedirectToAction("Index", "Claim", new { claimId = claimId, cv=cv});
         }
  
 
@@ -3124,16 +3239,16 @@ namespace SpeCalc.Controllers
         {
             var db = new DbEngine();
             var dealTypes = db.LoadDealTypes();
-            return "Заявка № " + claim.Id + "<br /><br />Автор: " + UserHelper.GetUserById(claim.Author.Sid).ShortName +
-                   "<br /><br />Номер конкурса: " + claim.TenderNumber + "<br /><br />Заказчик: " + claim.Customer + "<br /><br />ИНН заказчика: " + claim.CustomerInn + "<br /><br />Дата начала: " +
-                   claim.TenderStart.ToString("dd.MM.yyyy") + "<br /><br />Срок сдачи: "
-                   + claim.ClaimDeadline.ToString("dd.MM.yyyy") + "<br /><br />Менеджер: " +
-                   UserHelper.GetUserById(claim.Manager.Id).ShortName + "<br /><br />Подразделение менеджера: " +
+            return "Заявка № " + claim.Id + "<br />Автор: " + UserHelper.GetUserById(claim.Author.Sid).ShortName +
+                   "<br />Номер конкурса: " + claim.TenderNumber + "<br />Заказчик: " + claim.Customer + "<br />ИНН заказчика: " + claim.CustomerInn + "<br />Дата начала: " +
+                   claim.TenderStart.ToString("dd.MM.yyyy") + "<br />Срок сдачи: "
+                   + claim.ClaimDeadline.ToString("dd.MM.yyyy") + "<br />Менеджер: " +
+                   UserHelper.GetUserById(claim.Manager.Id).ShortName + "<br />Подразделение менеджера: " +
                    claim.Manager.SubDivision +
-                   "<br /><br />Тип конкурса: " + dealTypes.First(x => x.Id == claim.DealType).Value + (claim.Sum > 0
-                       ? "<br /><br />Сумма: " + claim.Sum.ToString("N2")
+                   "<br />Тип конкурса: " + dealTypes.First(x => x.Id == claim.DealType).Value + (claim.Sum > 0
+                       ? "<br />Сумма: " + claim.Sum.ToString("N2")
                        : string.Empty) + (!string.IsNullOrEmpty(claim.TenderUrl)
-                           ? "<br /><br />Сcылка на конкурс: <a href='" + claim.TenderUrl + "'>[Ссылка]</a>]"
+                           ? "<br />Сcылка на конкурс: <a href='" + claim.TenderUrl + "'>[Ссылка]</a>]"
                            : "не указана");
         }
 
@@ -3152,6 +3267,15 @@ namespace SpeCalc.Controllers
             var list = TenderClaim.GetHistory(out totalCount, id.Value, full);
             ViewBag.TotalHistory = totalCount;
             return PartialView("History", list);
+        }
+
+        public PartialViewResult GetClaimRejectedPositions(int? id, int version = 1)
+        {
+            if (!id.HasValue) return null;
+            int totalCount;
+            var list = TenderClaim.GetRejectedPositions(out totalCount, id.Value, version);
+            ViewBag.TotalCount = totalCount;
+            return PartialView("Positions", list);
         }
     }
 }

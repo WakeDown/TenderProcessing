@@ -275,3 +275,49 @@ input.required-mark,textarea.required-mark, select.required-mark, span.required-
     border: 0;
     border-bottom: 1px solid #d3d3d3;
 }
+
+.fileUpload {
+    position: relative;
+    overflow: hidden;
+    margin: 10px;
+}
+.fileUpload input.upload {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+
+.spinner {
+  display: inline-block;
+  opacity: 0;
+  max-width: 0;
+
+  -webkit-transition: opacity 0.25s, max-width 0.45s; 
+  -moz-transition: opacity 0.25s, max-width 0.45s;
+  -o-transition: opacity 0.25s, max-width 0.45s;
+  transition: opacity 0.25s, max-width 0.45s; /* Duration fixed since we animate additional hidden width */
+}
+
+.spinner.on-input {
+    z-index:999;
+    position:absolute;
+    top: 7px;
+    left: 10px;
+}
+
+.spinner.on-element {
+    z-index:999;
+    position:absolute;
+}
+
+.spinner.active {
+    cursor:progress;
+  opacity: 1;
+  max-width: 50px; /* More than it will ever come, notice that this affects on animation duration */
+}

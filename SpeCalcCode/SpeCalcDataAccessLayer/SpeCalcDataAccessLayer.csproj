@@ -80,6 +80,7 @@
     <Compile Include="Models\ClaimCert.cs" />
     <Compile Include="Models\ClaimStatus.cs" />
     <Compile Include="Models\ClaimStatusHistory.cs" />
+    <Compile Include="Models\ClaimType.cs" />
     <Compile Include="Models\ControllerUser.cs" />
     <Compile Include="Models\Currency.cs" />
     <Compile Include="Models\DealType.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="Models\Operator.cs" />
     <Compile Include="Models\PositionCalculateCount.cs" />
     <Compile Include="Models\PositionState.cs" />
+    <Compile Include="Models\PositionUnit.cs" />
     <Compile Include="Models\ProductManager.cs" />
     <Compile Include="Models\ProtectFact.cs" />
     <Compile Include="Models\ServerDirectBase.cs" />
