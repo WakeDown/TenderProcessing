@@ -1100,7 +1100,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@idPosition", model.IdSpecificationPosition);
                 cmd.Parameters.AddWithValue("@name", model.Name);
                 cmd.Parameters.AddWithValue("@catalogNumber", model.CatalogNumber);
-                if (model.ProtectFact != null)cmd.Parameters.AddWithValue("@protectFact", model.ProtectFact.Id);
+                if (model.ProtectFact != null)cmd.Parameters.AddWithValue("@protectFact", model.ProtectFactId);
                 cmd.Parameters.AddWithValue("@sumRub", model.SumRub);
                 cmd.Parameters.AddWithValue("@author", model.Author);
                 //cmd.Parameters.AddWithValue("@currency", model.Currency);
@@ -1109,7 +1109,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@priceEur", model.PriceEur);
                 cmd.Parameters.AddWithValue("@priceEurRicoh", model.PriceEurRicoh);
                 cmd.Parameters.AddWithValue("@priceRubl", model.PriceRubl);
-                cmd.Parameters.AddWithValue("@deliveryTime", model.DeliveryTime.Id);
+                cmd.Parameters.AddWithValue("@deliveryTime", model.DeliveryTimeId);
 
                 conn.Open();
                 var rd = cmd.ExecuteReader();
@@ -1150,7 +1150,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@id", model.Id);
                 cmd.Parameters.AddWithValue("@name", model.Name);
                 cmd.Parameters.AddWithValue("@catalogNumber", model.CatalogNumber);
-                if (model.ProtectFact != null) cmd.Parameters.AddWithValue("@protectFact", model.ProtectFact.Id);
+                if (model.ProtectFact != null) cmd.Parameters.AddWithValue("@protectFact", model.ProtectFactId);
                 cmd.Parameters.AddWithValue("@sumRub", model.SumRub);
                 cmd.Parameters.AddWithValue("@author", model.Author);
                 //cmd.Parameters.AddWithValue("@currency", model.Currency);
@@ -1159,7 +1159,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@priceEur", model.PriceEur);
                 cmd.Parameters.AddWithValue("@priceEurRicoh", model.PriceEurRicoh);
                 cmd.Parameters.AddWithValue("@priceRubl", model.PriceRubl);
-                cmd.Parameters.AddWithValue("@deliveryTime", model.DeliveryTime.Id);
+                cmd.Parameters.AddWithValue("@deliveryTime", model.DeliveryTimeId);
 
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;

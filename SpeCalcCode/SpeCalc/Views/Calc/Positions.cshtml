@@ -1,0 +1,12 @@
+﻿@model IEnumerable<SpeCalcDataAccessLayer.Models.SpecificationPosition>
+
+@{
+    int i = 1;
+}
+@foreach (var pos in Model)
+{
+    @(pos.RowNumber = i)
+    @Html.Partial("Position", pos)
+    @(i++)
+}
+

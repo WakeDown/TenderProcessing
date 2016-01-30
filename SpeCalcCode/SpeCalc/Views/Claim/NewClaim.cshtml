@@ -7,16 +7,19 @@
     var errorMessage = (string) TempData["errorMessage"];
     var currencyList = new SelectList(new Dictionary<int, string>() {{1, "руб."}, {2, "USD"}, {3, "EUR"}},"Key", "Value");
 
-    string minDate = DateTime.Now.AddDays(2).ToShortDateString();
+    DateTime mind = new DateTime();
+    mind = DateTime.Now.AddDays(2);
     if (DateTime.Now.DayOfWeek == DayOfWeek.Wednesday)
-    { minDate= DateTime.Now.AddDays(6).ToShortDateString();}
+    { mind = DateTime.Now.AddDays(6); }
     if (DateTime.Now.DayOfWeek == DayOfWeek.Thursday)
-    { minDate = DateTime.Now.AddDays(5).ToShortDateString();}
+    { mind = DateTime.Now.AddDays(5); }
     if (DateTime.Now.DayOfWeek == DayOfWeek.Friday)
-    { minDate = DateTime.Now.AddDays(4).ToShortDateString(); }
-    //var minDate = DateTime.Now.DayOfWeek == DayOfWeek.Friday
-    //                ? DateTime.Now.AddDays(4).ToShortDateString()
-    //                : DateTime.Now.AddDays(2).ToShortDateString();
+    { mind = DateTime.Now.AddDays(4); }
+    if (DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
+    { mind = DateTime.Now.AddDays(4); }
+    if (DateTime.Now.DayOfWeek == DayOfWeek.Sunday)
+    { mind = DateTime.Now.AddDays(3); }
+    string minDate = mind.ToString("MM-dd-yyyy");
 
     var department = TempData["department"];
     var userSid = TempData["userSid"].ToString();
@@ -37,7 +40,7 @@
                 <div class="row">
                     <label class="col-lg-3 control-label required-mark">Тип заявки</label>
                     <div class="col-lg-6">
-                        <div class=" form-control">
+                        <div class=" form-control input-sm">
                             @foreach (var type in ClaimType.GetList())
                             {
                                 <input type="radio" value="@type.Id" name="IdClaimType" required="required" />
@@ -49,44 +52,44 @@
                 <div class="row">
                     <label class="col-lg-3 control-label">№ конкурса из Эталон</label>
                     <div class="col-lg-2">
-                        @Html.TextBoxFor(cl => cl.TenderNumber, new {id = "tenderNumber", @class = "form-control"})
+                        @Html.TextBoxFor(cl => cl.TenderNumber, new {id = "tenderNumber", @class = "form-control input-sm"})
                     </div>
                 </div><!--№ конкурса из Эталон-->
                 <div class="row">
                     <label class="col-lg-3 control-label required-mark">Дата начала</label>
                     <div class="col-lg-2">
-                        @Html.TextBoxFor(cl => cl.TenderStart, "{0:dd.MM.yyyy}", new {style = "cursor: pointer;", @class = "form-control datepicker-btn", required = "required"})
+                        @Html.TextBoxFor(cl => cl.TenderStart, "{0:dd.MM.yyyy}", new {style = "cursor: pointer;", @class = "form-control input-sm datepicker-btn", required = "required"})
                     </div>
                 </div><!--Дата начала-->
                 <div class="row">
                     <label class="col-lg-3 control-label required-mark">Срок сдачи расчета</label>
                     <div class="col-lg-2">
-                        @Html.TextBoxFor(cl => cl.ClaimDeadline, "{0:dd.MM.yyyy}", new {id = "claimDeadline", style = "cursor: pointer;", @class = "form-control datepicker-btn", required = "required"})
+                        @Html.TextBoxFor(cl => cl.ClaimDeadline, "{0:dd.MM.yyyy}", new {id = "claimDeadline", style = "cursor: pointer;", @class = "form-control  input-sm datepicker-btn", required = "required" })
                     </div>
                 </div> <!--Срок сдачи расчета-->
                 <div class="row">
                     <label class="col-lg-3 control-label required-mark">Срок подачи КП</label>
                     <div class="col-lg-2">
-                        @Html.TextBoxFor(cl => cl.KPDeadline, "{0:dd.MM.yyyy}", new {id = "kPDeadline", style = "cursor: pointer;", @class = "form-control datepicker-btn", required = "required"})
+                        @Html.TextBoxFor(cl => cl.KPDeadline, "{0:dd.MM.yyyy}", new {id = "kPDeadline", style = "cursor: pointer;", @class = "form-control input-sm datepicker-btn", required = "required"})
                     </div>
                 </div><!--Срок подачи КП-->
                 <div class="row">
                     <label class="col-lg-3 control-label required-mark">Заказчик</label>
                     <div class="col-lg-6">
-                        @Html.TextBoxFor(cl => cl.Customer, new {id = "customer", @class = "form-control", required = "required"})
+                        @Html.TextBoxFor(cl => cl.Customer, new {id = "customer", @class = "form-control input-sm", required = "required"})
                     </div>
                 </div><!--Заказчик-->
                 <div class="row">
                     <label class="col-lg-3 control-label">ИНН заказчика</label>
                     <div class="col-lg-6">
-                        @Html.TextBoxFor(cl => cl.CustomerInn, new {id = "innCustomer", @class = "form-control"})
+                        @Html.TextBoxFor(cl => cl.CustomerInn, new {id = "innCustomer", @class = "form-control input-sm" })
                     </div>
                 </div><!--ИНН заказчика-->
                 <div class="row">
                     <label class="col-lg-3 control-label required-mark">Бюджет запроса</label>
                     <div class="col-lg-6">
                         <div id="sumPanel" class="input-group">
-                            @Html.TextBoxFor(cl => cl.Sum,"{0:C}", new {id = "sum", @class = "form-control", required = "required"})
+                            @Html.TextBoxFor(cl => cl.Sum,"{0:C}", new {id = "sum", @class = "form-control input-sm", required = "required"})
                             <span class="input-group-addon">
                                 @Html.DropDownListFor(cl => cl.SumCurrency, currencyList)
                             </span>
@@ -97,25 +100,25 @@
                 <div class="row">
                     <label class="col-lg-3 control-label required-mark">Тип сделки</label>
                     <div class="col-lg-6">
-                        @Html.DropDownListFor(cl => cl.DealType, DealType.GetList(), "--выберите--", new {size = "1", id = "listDealTypes", @class = "form-control", required = "required" })
+                        @Html.DropDownListFor(cl => cl.DealType, DealType.GetList(), "--выберите--", new {size = "1", id = "listDealTypes", @class = "form-control input-sm", required = "required" })
                     </div>
                 </div><!--Тип сделки-->
                 <div class="row">
                     <label class="col-lg-3 control-label">Ссылка на закупки</label>
                     <div class="col-lg-6">
-                        @Html.TextBoxFor(cl => cl.TenderUrl, new {@class = "form-control"})
+                        @Html.TextBoxFor(cl => cl.TenderUrl, new {@class = "form-control input-sm" })
                     </div>
                 </div><!--Ссылка на закупки-->
                 <div class="row">
                     <label class="col-lg-3 control-label required-mark">Менеджер</label>
                     <div class="col-lg-2">
-                        @Html.DropDownListFor(m => managerSid, Employee.GetManagerSelectList(userSid),"--выберите--", new {size = "1", id = "listManagers", @class = "form-control", required = "required"})
+                        @Html.DropDownListFor(m => managerSid, Employee.GetManagerSelectList(userSid),"--выберите--", new {size = "1", id = "listManagers", @class = "form-control input-sm", required = "required"})
                     </div>
                 </div><!--Менеджер-->
                 <div class="row">
                     <label class="col-lg-3 control-label">Подразделение</label>
                     <div class="col-lg-6">
-                        @Html.TextBoxFor(d => department, new {id = "managerSubDivision", @class = "form-control", @readonly = "true"})
+                        @Html.TextBoxFor(d => department, new {id = "managerSubDivision", @class = "form-control input-sm", @readonly = "true"})
                         <span ></span>
                         <span id="managerSubDivisionLabel" style="display: none;" class="form-control"></span>
                     </div>
@@ -123,31 +126,31 @@
                 <div class="row">
                     <label class="col-lg-3 control-label">Срок поставки начало</label>
                     <div class="col-lg-2">
-                        @Html.TextBoxFor(cl => cl.DeliveryDate, new {id = "deliveryDate", style = "cursor: pointer;", @class = "form-control datepicker-btn"})
+                        @Html.TextBoxFor(cl => cl.DeliveryDate, new {id = "deliveryDate", style = "cursor: pointer;", @class = "form-control input-sm datepicker-btn" })
                     </div>
                 </div><!--Срок поставки начало-->
                 <div class="row">
                     <label class="col-lg-3 control-label">Срок поставки окончание</label>
                     <div class="col-lg-2">
-                        @Html.TextBoxFor(cl => cl.DeliveryDateEnd, new {id = "deliveryDateEnd", style = "cursor: pointer;", @class = "form-control datepicker-btn"})
+                        @Html.TextBoxFor(cl => cl.DeliveryDateEnd, new {id = "deliveryDateEnd", style = "cursor: pointer;", @class = "form-control input-sm datepicker-btn" })
                     </div>
                 </div><!--Срок поставки окончание-->
                 <div class="row">
                     <label class="col-lg-3 control-label">Место поставки</label>
                     <div class="col-lg-6">
-                        @Html.TextBoxFor(cl => cl.DeliveryPlace, new {id = "deliveryPlace", @class="form-control"})
+                        @Html.TextBoxFor(cl => cl.DeliveryPlace, new {id = "deliveryPlace", @class= "form-control input-sm" })
                     </div>
                 </div><!--Место поставки-->
                 <div class="row">
                     <label class="col-lg-3 control-label">Дата аукциона</label>
                     <div class="col-lg-2">
-                        @Html.TextBoxFor(cl => cl.AuctionDate, new {id = "auctionDate", style = "cursor: pointer;", @class = "form-control datepicker-btn"})
+                        @Html.TextBoxFor(cl => cl.AuctionDate, new {id = "auctionDate", style = "cursor: pointer;", @class = "form-control input-sm datepicker-btn" })
                     </div>
                 </div><!--Дата аукциона-->
                 <div class="row">
                     <label class="col-lg-3 control-label">Комментарий</label>
                     <div class="col-lg-6">
-                        @Html.TextAreaFor(cl => cl.Comment, new {rows = "1", id = "comment", @class = "form-control"})
+                        @Html.TextAreaFor(cl => cl.Comment, new {rows = "1", id = "comment", @class = "form-control input-sm" })
                     </div>
                 </div><!--Комментарий-->
                 <p>
@@ -173,10 +176,13 @@
         $(".datepicker-btn").datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
-            todayBtn: "linked",
             language: "ru"
         });
         $("#claimDeadline").datepicker("setStartDate", startDate);
+        //{
+        //    //todayBtn:false,
+        //    startDate: new Date(startDate)
+        //});
         $("#sum").change(function() {
             var sum = Number($("#sum").val().replace(",", "."));
             if (isNaN(sum)) {

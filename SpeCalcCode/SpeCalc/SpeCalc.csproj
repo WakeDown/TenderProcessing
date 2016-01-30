@@ -308,17 +308,19 @@
     <Content Include="Views\Claim\NewClaim.cshtml" />
     <Content Include="Views\Claim\ListOld.cshtml" />
     <Content Include="Views\Claim\IndexManager.cshtml" />
-    <Content Include="Views\Claim\IndexProduct.cshtml" />
+    <Content Include="Views\Calc\IndexProduct.cshtml" />
     <Content Include="Views\Error\AccessDenied.cshtml" />
     <Content Include="Views\Claim\History.cshtml" />
-    <Content Include="Views\Claim\Positions.cshtml" />
-    <Content Include="Views\Claim\PositionEdit.cshtml" />
-    <Content Include="Views\Claim\PositionItem.cshtml" />
-    <Content Include="Views\Claim\CalculationEdit.cshtml" />
-    <Content Include="Views\Claim\CalculationItem.cshtml" />
+    <Content Include="Views\Claim\CalcPositions.cshtml" />
+    <Content Include="Views\Claim\CalcPosition.cshtml" />
+    <Content Include="Views\Calc\CalculationEdit.cshtml" />
+    <Content Include="Views\Calc\Calculation.cshtml" />
     <Content Include="Views\Claim\NewPositions.cshtml" />
     <Content Include="Views\Claim\NewPosition.cshtml" />
     <Content Include="Views\Claim\NewPositionEdit.cshtml" />
+    <Content Include="Views\Calc\Positions.cshtml" />
+    <Content Include="Views\Calc\Position.cshtml" />
+    <Content Include="Views\Calc\CalculationEmpty.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeCalcDataAccessLayer\SpeCalcDataAccessLayer.csproj">

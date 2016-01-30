@@ -1,16 +1,9 @@
 ﻿@model SpeCalcDataAccessLayer.Models.SpecificationPosition
     
 
-<tr id="newpos-@Model.Id" name="newpos">
-    <td class="min-width">
+<tr id="newpos-@Model.Id" name="newpos" pid="@Model.Id">
+    <td class="min-width text-center">
         <input type="checkbox" name="newCheckbox" value="@Model.Id" />
-        @*<span type="editPositionPanel" style="display: none;">
-                <button type='button' modetype='editButton' class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-edit'></i></button>
-                <span type="editPositionActionPanel" style="display: none;">
-                    <button type='button' modetype='editPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='изменить'><i class='fa fa-save'></i></button><br />
-                    <button type='button' modetype='editPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
-                </span>
-            </span>*@
     </td>
     <td>
         @Model.CatalogNumber
@@ -31,11 +24,7 @@
         @Model.Comment
     </td>
     <td class="min-width">
-        @*<button type='button' modetype='addPositionButtonOK' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
-            <button type='button' modetype='addPositionButtonCancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>*@
         <button type='button' name="newEdit" class='btn btn-warning' data-toggle='tooltip' title='изменить' cid="@Model.Id"><i class='fa fa-edit'></i></button>
-            <button type='button' name="newDelete" class='btn btn-danger' data-toggle='tooltip' title='удалить' cid="@Model.Id"><i class='fa fa-trash'></i></button>
-        @*<button type='button' id='saveNew' class='btn btn-primary btn-lg' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></button><br />
-        <button type='button' id='Newcancel' class='btn btn-default btn-lg' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>*@
+        <button type='button' name="newDelete" class='btn btn-danger' data-toggle='tooltip' title='удалить' cid="@Model.Id"><i class='fa fa-trash'></i></button>
     </td>
 </tr>

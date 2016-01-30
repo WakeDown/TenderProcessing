@@ -321,3 +321,15 @@ input.required-mark,textarea.required-mark, select.required-mark, span.required-
   opacity: 1;
   max-width: 50px; /* More than it will ever come, notice that this affects on animation duration */
 }
+
+.input-xs {
+    height: 25px;
+  padding: 2px 5px;
+  font-size: 10px;
+  line-height: 1.5;
+  border-radius: 3px; 
+}
+
+.calcDeleted {
+    background-color: red;
+}

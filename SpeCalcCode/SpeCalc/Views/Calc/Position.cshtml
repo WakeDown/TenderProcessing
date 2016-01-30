@@ -1,0 +1,45 @@
+﻿@model SpeCalcDataAccessLayer.Models.SpecificationPosition
+
+<tr id="calcpos-@Model.Id" name="calcpos" pid="@Model.Id" style="background-color: #@Model.StateBackgroundColor">
+    <td name="pos" class="min-widtd  text-center" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">
+        @if (Model.StateCanEditProduct)
+        {
+            <input type="checkbox" name="calcCheckbox" value="@Model.Id"/>
+        }
+    </td>
+    <th name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)" class="text-center">@Model.RowNumber</th>
+    <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.CatalogNumber</td>
+    <td name="pos" style="width: 250px;" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 0)">
+        @Model.Name
+        <div class="text-danger text-sm">@Model.Comment</div>
+    </td>
+    <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.Value @Model.UnitName</td>
+    <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)" class="text-nowrap">@Model.ProductManagerName</td>
+    <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">
+        @if (Model.StateCanEditProduct)
+        {
+            <button type="button" name="addCalc" class="btn btn-warning btn-sm" data-toggle="tooltip" title="добавить расчет" cpid="@Model.Id"><i class="fa fa-plus"></i> <i class="fa fa-calculator"></i></button>
+        }
+    </td>
+    @if (Model.Calculations != null && Model.Calculations.Any())
+    {
+        @Html.Partial("Calculation", Model.Calculations[0])
+    }
+    else
+    {
+        @Html.Partial("CalculationEmpty")
+    }
+
+</tr>
+
+@if (Model.Calculations != null && Model.Calculations.Any() && Model.Calculations.Count > 1)
+{
+   
+        foreach (var calc in Model.Calculations.Skip(1))
+        {
+            <tr pid="@Model.Id" style="background-color: #@Model.StateBackgroundColor">
+                    @Html.Partial("Calculation", calc)
+</tr>
+
+        }
+}

@@ -95,6 +95,12 @@ namespace SpeCalcDataAccessLayer.Models
         public bool StateIsEnd { get; set; }
         public bool StateIsActive { get; set; }
         public bool StateManagerPositionWork { get; set; }
+        public string StateSysName { get; set; }
+        public bool StateCanStop { get; set; }
+        public bool StateCanPause { get; set; }
+        public bool StateCanStart { get; set; }
+        public bool StateCanConfirmOrDiscartPositions { get; set; }
+        public bool StateCanChangeProduct { get; set; }
 
 
         public TenderClaim()
@@ -156,7 +162,12 @@ namespace SpeCalcDataAccessLayer.Models
             IdClaimType = Db.DbHelper.GetValueIntOrDefault(row, "IdClaimType");
             ClaimTypeSysName = Db.DbHelper.GetValueString(row, "ClaimTypeSysName");
             ClaimTypeName = Db.DbHelper.GetValueString(row, "ClaimTypeName");
-            
+            StateSysName = Db.DbHelper.GetValueString(row, "StateSysName");
+            StateCanStop = Db.DbHelper.GetValueBool(row, "StateCanStop");
+            StateCanPause = Db.DbHelper.GetValueBool(row, "StateCanPause");
+            StateCanStart = Db.DbHelper.GetValueBool(row, "StateCanStart");
+            StateCanConfirmOrDiscartPositions = Db.DbHelper.GetValueBool(row, "StateCanConfirmOrDiscartPositions");
+            StateCanChangeProduct = Db.DbHelper.GetValueBool(row, "StateCanChangeProduct");
         }
 
         public static IEnumerable<SpecificationPosition> GetRejectedPositions(out int totalCount, int id, int version)

@@ -11,8 +11,8 @@
         </div>
         @if (!String.IsNullOrEmpty(st.Descr))
         {
-            <p>
-                @st.Descr
+            <p class="marg-sm">
+                @Html.Raw(@st.Descr)
             </p>
         }
         @*</div>*@
@@ -21,7 +21,7 @@
 @if (ViewBag.TotalHistory != null && ViewBag.TotalHistory > @Model.Count())
 {
     <div>
-        <button id="historyMore" class="btn btn-default btn-xs">еще...(@(ViewBag.TotalHistory - @Model.Count()))</button>
+        <button id="historyMore" class="btn btn-primary btn-xs">смотреть все...(еще @(ViewBag.TotalHistory - @Model.Count()))</button>
     </div>
 }
 @*</div>*@

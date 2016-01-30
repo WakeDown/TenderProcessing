@@ -39,10 +39,15 @@ namespace SpeCalcDataAccessLayer.Models
         public string PositionStateName { get; set; }
         public string UnitName { get; set; }
         public string ProductManagerName { get; set; }
+        public bool StateCanEditManager { get; set; }
+        public bool StateCanEditProduct { get; set; }
+        public bool StateIsEnd { get; set; }
+        public string StateBackgroundColor { get; set; }
+        public string StateSysName { get; set; }
 
         public SpecificationPosition()
         {
-
+            Calculations = new List<CalculateSpecificationPosition>();
         }
 
         public SpecificationPosition(int id)
@@ -64,7 +69,12 @@ namespace SpeCalcDataAccessLayer.Models
 
         private void FillSelf(DataRow row)
         {
-            Id = Db.DbHelper.GetValueIntOrDefault(row, "id");
+            StateBackgroundColor = Db.DbHelper.GetValueString(row, "StateBackgroundColor");
+            StateSysName = Db.DbHelper.GetValueString(row, "StateSysName");
+            StateCanEditManager = Db.DbHelper.GetValueBool(row, "StateCanEditManager");
+            StateCanEditProduct = Db.DbHelper.GetValueBool(row, "StateCanEditProduct");
+            StateIsEnd = Db.DbHelper.GetValueBool(row, "StateIsEnd");
+            Id = Db.DbHelper.GetValueIntOrDefault(row, "Id");
             IdClaim = Db.DbHelper.GetValueIntOrDefault(row, "IdClaim");
             RowNumber = Db.DbHelper.GetValueIntOrDefault(row, "RowNumber");
             CatalogNumber = Db.DbHelper.GetValueString(row, "CatalogNumber");
@@ -90,11 +100,12 @@ namespace SpeCalcDataAccessLayer.Models
             Unit = Db.DbHelper.GetValueIntOrDefault(row, "Unit");
         }
 
-        public static IEnumerable<SpecificationPosition> GetList(int idClaim, int version)
+        public static IEnumerable<SpecificationPosition> GetList(int idClaim, int version, string productSid = null)
         {
             SqlParameter pId = new SqlParameter() { ParameterName = "id", SqlValue = idClaim, SqlDbType = SqlDbType.Int };
             SqlParameter pVersion = new SqlParameter() { ParameterName = "calcVersion", SqlValue = version, SqlDbType = SqlDbType.Int };
-            var dt = Db.SpeCalc.ExecuteQueryStoredProcedure("LoadClaimPositionForTenderClaim", pId, pVersion);
+            SqlParameter pproductSid = new SqlParameter() { ParameterName = "productSid", SqlValue = productSid, SqlDbType = SqlDbType.VarChar };
+            var dt = Db.SpeCalc.ExecuteQueryStoredProcedure("LoadClaimPositionForTenderClaim", pId, pVersion, pproductSid);
 
             var lst = new List<SpecificationPosition>();
 
@@ -107,6 +118,21 @@ namespace SpeCalcDataAccessLayer.Models
                 }
             }
             return lst;
+        }
+
+        public static IEnumerable<SpecificationPosition> GetListWithCalc(int idClaim, int version, string productSid = null)
+        {
+            var posList = GetList(idClaim, version, productSid);
+            var calcList = CalculateSpecificationPosition.GetList(idClaim, version, productSid);
+
+            foreach (SpecificationPosition position in posList)
+            {
+                var calcs = calcList.Where(x => x.IdSpecificationPosition == position.Id);
+                position.Calculations.AddRange(calcs);
+            }
+
+            
+            return posList;
         }
     }
 }

@@ -66,6 +66,184 @@ namespace SpeCalc.Controllers
             //Response.AppendHeader("Content-Disposition", cd.ToString());
             return File(claimFile.File, "text/plain", claimFile.FileName);
         }
+
+        public ActionResult IndexProduct(int? claimId, int? cv)
+        {
+            if (claimId.HasValue && !cv.HasValue)
+            {
+                int lastVersion = DbEngine.GetCalcVersionList(claimId.Value).Last();
+                return RedirectToAction("IndexProduct", new { claimId = claimId, cv = lastVersion });
+            }
+            if (!CurUser.HasAccess(AdGroup.SpeCalcKontroler, AdGroup.SpeCalcProduct))
+                return RedirectToAction("Index", "Claim", new { claimId = claimId, cv = cv });
+            var user = GetUser();
+            ViewBag.UserName = user.FullName;
+            var isController = user.Is(AdGroup.SpeCalcKontroler);//UserHelper.IsController(user);
+            var isProduct = user.Is(AdGroup.SpeCalcProduct);//UserHelper.IsProductManager(user);
+            if (!isController && !isProduct)
+            {
+                var dict = new RouteValueDictionary();
+                dict.Add("message", "У Вас нет доступа к этой странице");
+                return RedirectToAction("ErrorPage", "Auth", dict);
+            }
+            //ViewBag.Error = false.ToString().ToLower();
+            //ViewBag.DealType = string.Empty;
+            //ViewBag.Status = string.Empty;
+            //ViewBag.StatusHistory = new List<ClaimStatusHistory>();
+            var newClaim = true;
+            if (!isController) newClaim = false;
+            ViewBag.NewClaim = newClaim.ToString().ToLower();
+            TenderClaim claim = null;
+            try
+            {
+                //получение инфы по заявке и сопутствующих справочников
+                var db = new DbEngine();
+                
+                var dealTypeString = string.Empty;
+                var tenderStatus = string.Empty;
+                //ViewBag.ClaimStatus = db.LoadClaimStatus();
+                //ViewBag.Currencies = db.LoadCurrencies();
+                //ViewBag.DeliveryTimes = db.LoadDeliveryTimes();
+                if (claimId.HasValue)
+                {
+                    claim = new TenderClaim(claimId.Value); //db.LoadTenderClaimById(claimId.Value);
+                    claim.Certs = db.LoadClaimCerts(claimId.Value);
+                    claim.Files = db.LoadTenderClaimFiles(claimId.Value);
+                    var adProductsManager = UserHelper.GetProductManagers();
+                    if (claim != null)
+                    {
+                        //if (claim.ClaimStatus == 1)
+                        //{
+                        //    var dict = new RouteValueDictionary();
+                        //    dict.Add("message", "Статус заявки не позволяет производить расчет позиций");
+                        //    return RedirectToAction("ErrorPage", "Auth", dict);
+                        //}
+                        //позиции заявки, в зависимости от роли юзера
+                        if (!isController)
+                        {
+                            claim.Positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId.Value,
+                                user.Sid, cv.Value);
+                        }
+                        else
+                        {
+                            claim.Positions = db.LoadSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
+                        }
+                        if (claim.Positions != null && claim.Positions.Any())
+                        {
+                            //изменение статуса  в Работе если это первая загрузка для расчета по данной заявке
+                            if (claim.ClaimStatus == 2)
+                            {
+                                claim.ClaimStatus = 3;
+                                DbEngine.ChangeTenderClaimClaimStatus(claim);
+                                var statusHistory = new ClaimStatusHistory()
+                                {
+                                    IdClaim = claim.Id,
+                                    Date = DateTime.Now,
+                                    Comment = string.Empty,
+                                    Status = new ClaimStatus() { Id = claim.ClaimStatus },
+                                    IdUser = user.Sid
+                                };
+                                db.SaveClaimStatusHistory(statusHistory);
+                            }
+                            //менеджеры и снабженцы из ActiveDirectory
+                            //var managerFromAd = UserHelper.GetUserById(claim.Manager.Id);
+                            //claim.Manager.Name = managerFromAd.Name;
+                            //claim.Manager.ShortName = managerFromAd.ShortName;
+                            //claim.Manager.ChiefShortName = managerFromAd.ManagerName;
+                            //var managers = UserHelper.GetManagers();
+                            //var managerFromAd = managers.FirstOrDefault(x => x.Id == claim.Manager.Id);
+                            //if (managerFromAd != null)
+                            //{
+                            //    claim.Manager.Name = managerFromAd.Name;
+                            //    claim.Manager.ShortName = managerFromAd.ShortName;
+                            //    claim.Manager.ChiefShortName = managerFromAd.ChiefShortName;
+                            //}
+
+                            var subordinateList = Employee.GetSubordinates(user.Sid);
+
+
+                            var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
+                            var prodManSelList = UserHelper.GetProductManagersSelectionList();
+                            bool hasAccess = isController || claim.Positions.Any(x => x.ProductManager.Id == user.Sid);
+
+                            foreach (var productManager in productManagers)
+                            {
+                                hasAccess = hasAccess || (subordinateList.Any() && Employee.UserIsSubordinate(subordinateList, productManager.Id));// subordinateList.ToList().Contains(productManager.Id);
+                                productManager.ShortName = prodManSelList.FirstOrDefault(x => x.Id == productManager.Id)?.ShortName;
+                                //var productUser = UserHelper.GetUserById(productManager.Id);
+                                //if (productUser != null)
+                                //{
+                                //    productManager.Name = productUser.Name;
+                                //    productManager.ShortName = productUser.ShortName;
+                                //}
+                                //var productManagerFromAd = adProductsManager.First(x => x.Id == productManager.Id);
+                                //if (productManagerFromAd != null)
+                                //{
+                                //    productManager.Name = productManagerFromAd.Name;
+                                //    productManager.ShortName = productManagerFromAd.ShortName;
+                                //}
+                            }
+                            if (!hasAccess)
+                            {
+                                var dict = new RouteValueDictionary();
+                                dict.Add("message", "У Вас нет доступа к этой заявке, Вам не назначены позиции для расчета");
+                                return RedirectToAction("ErrorPage", "Auth", dict);
+                            }
+                            //Расчет по позициям
+                            var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId.Value, cv.Value);
+                            if (calculations != null && calculations.Any())
+                            {
+                                foreach (var position in claim.Positions)
+                                {
+                                    position.Calculations =
+                                        calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
+                                    position.Calculations.Reverse();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (isController)
+                            {
+                                var dict = new RouteValueDictionary();
+                                dict.Add("message", "У заявки нет позиций");
+                                return RedirectToAction("ErrorPage", "Auth", dict);
+                            }
+                            else
+                            {
+                                var dict = new RouteValueDictionary();
+                                dict.Add("message", "У Вас нет доступа к этой заявке, Вам не назначены позиции для расчета");
+                                return RedirectToAction("ErrorPage", "Auth", dict);
+                            }
+                        }
+                        var dealTypes = db.LoadDealTypes();
+                        var dealType = dealTypes.FirstOrDefault(x => x.Id == claim.DealType);
+                        if (dealType != null)
+                        {
+                            dealTypeString = dealType.Value;
+                        }
+                        var tenderStatusList = db.LoadTenderStatus();
+                        var status = tenderStatusList.FirstOrDefault(x => x.Id == claim.TenderStatus);
+                        if (status != null)
+                        {
+                            tenderStatus = status.Value;
+                        }
+                        ViewBag.StatusHistory = db.LoadStatusHistoryForClaim(claimId.Value);
+                        ViewBag.ProductManagers = adProductsManager;
+                    }
+                }
+                //ViewBag.Claim = claim;
+                //ViewBag.DealType = dealTypeString;
+                //ViewBag.Status = tenderStatus;
+                //ViewBag.ProtectFacts = db.LoadProtectFacts();
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = true.ToString().ToLower();
+            }
+            return View(claim);
+        }
+
         //Страница расчета позиций по заявке
         public ActionResult Index(int? claimId, int? cv)
         {
@@ -88,7 +266,8 @@ namespace SpeCalc.Controllers
                 return RedirectToAction("Index", new { claimId = claimId, cv = lastVersion });
             }
 
-            
+            return RedirectToAction("IndexProduct", new { claimId, cv });
+
             ViewBag.UserName = user.FullName;
             var isController = user.Is(AdGroup.SpeCalcKontroler);//UserHelper.IsController(user);
             var isProduct = user.Is(AdGroup.SpeCalcProduct);//UserHelper.IsProductManager(user);
@@ -1087,17 +1266,25 @@ namespace SpeCalc.Controllers
         {
             var isComplete = false;
             var id = -1;
-            try
+            //try
+            //{
+            var db = new DbEngine();
+            if (model.Id <= 0)
             {
                 model.Author = GetUser().Sid;
-                var db = new DbEngine();
+                
                 isComplete = db.SaveCalculateSpecificationPosition(model);
                 id = model.Id;
             }
-            catch (Exception ex)
+            else
             {
-                isComplete = false;
+                db.UpdateCalculateSpecificationPosition(model);
             }
+            //}
+            //catch (Exception ex)
+            //{
+            //    isComplete = false;
+            //}
             return Json(new { IsComplete = isComplete, Id = id });
         }
 
@@ -1123,16 +1310,16 @@ namespace SpeCalc.Controllers
         public JsonResult Delete(int id)
         {
             var isComplete = false;
-            try
-            {
+            //try
+            //{
                 var user = GetUser();
                 var db = new DbEngine();
                 isComplete = db.DeleteCalculateSpecificationPosition(id, user);
-            }
-            catch (Exception)
-            {
-                isComplete = false;
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    isComplete = false;
+            //}
             return Json(new { IsComplete = isComplete }, JsonRequestBehavior.AllowGet);
         }
 
@@ -1568,9 +1755,44 @@ namespace SpeCalc.Controllers
             }
             return Json(new { IsComplete = isComplete, Model = model, Deleted = deleted });
         }
+
+        [HttpGet]
+        public PartialViewResult GetPositions(int? claimId, int? cv)
+        {
+            if (!claimId.HasValue) return null;
+            if (!cv.HasValue) cv = 1;
+            string productSid = null;
+            if (CurUser.Is(AdGroup.SpeCalcProduct))
+                productSid = CurUser.Sid;
+            var list = SpecificationPosition.GetListWithCalc(claimId.Value, cv.Value, productSid);// db.LoadSpecificationPositionsForTenderClaim(); ;
+            return PartialView("Positions", list);
+        }
+
+        [HttpPost]
+        public PartialViewResult GetCalculation(int? id)
+        {
+            var model = new CalculateSpecificationPosition();
+            if (id.HasValue) { model = new CalculateSpecificationPosition(id.Value); }
+            return PartialView("Calculation", model);
+        }
+
+        [HttpPost]
+        public PartialViewResult GetCalculationEdit(int? id)
+        {
+            var model = new CalculateSpecificationPosition();
+            if (id.HasValue && id.Value > 0) { model = new CalculateSpecificationPosition(id.Value);}
+            return PartialView("CalculationEdit", model);
+        }
+
+        [HttpPost]
+        public PartialViewResult GetCalculationEmpty()
+        {
+            return PartialView("CalculationEmpty");
+        }
+
         [HttpPost]
         //добавление комментария
-        public JsonResult AddComment(int idClaim, string comment)
+        public JsonResult AddComment(int idClaim, string comment, int cv)
         {
             var isComplete = false;
             ClaimStatusHistory model = null;
