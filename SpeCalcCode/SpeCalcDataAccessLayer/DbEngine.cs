@@ -723,6 +723,11 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@author", model.Author);
                 cmd.Parameters.AddWithValue("@currency", model.Currency);
                 cmd.Parameters.AddWithValue("@version", model.Version);
+                cmd.Parameters.AddWithValue("@ContractDeliveryTime", model.ContractDeliveryTime);
+                cmd.Parameters.AddWithValue("@Brand", model.Brand);
+                cmd.Parameters.AddWithValue("@RecipientDetails", model.RecipientDetails);
+                cmd.Parameters.AddWithValue("@QuestionnaireNum", model.QuestionnaireNum);
+                cmd.Parameters.AddWithValue("@MaxPrice", model.MaxPrice);
                 conn.Open();
                 var rd = cmd.ExecuteReader();
                 if (rd.HasRows)

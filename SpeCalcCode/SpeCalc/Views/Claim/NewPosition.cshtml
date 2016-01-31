@@ -1,9 +1,19 @@
 ﻿@model SpeCalcDataAccessLayer.Models.SpecificationPosition
-
+@{
+    bool IsTransneft = ViewBag.ClaimType != null && ViewBag.ClaimType == "TRANS";
+}
 <tr id="newpos-@Model.Id" name="newpos" pid="@Model.Id"  style="background-color: #@Model.StateBackgroundColor">
     <td class="min-width text-center">
-        <input type="checkbox" name="newCheckbox" value="@Model.Id" />
+        <input type="checkbox" name="newCheckbox" value="@Model.Id"/>
     </td>
+    @if (IsTransneft)
+    {
+        <td>@Model.ContractDeliveryTime</td>
+        <td>@Model.Brand</td>
+        <td>@Model.RecipientDetails</td>
+        <td>@Model.QuestionnaireNum</td>
+        <td>@Model.MaxPrice</td>
+    }
     <td>
         @Model.CatalogNumber
     </td>

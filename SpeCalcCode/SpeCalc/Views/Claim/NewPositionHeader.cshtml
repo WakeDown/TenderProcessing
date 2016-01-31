@@ -1,0 +1,22 @@
+﻿@{
+    bool IsTransneft = ViewBag.ClaimType != null && ViewBag.ClaimType == "TRANS";
+}
+
+<tr class="bg-primary">
+    <th class=" text-center"><input type="checkbox" id="newCheckAll"/></th>
+    @if (IsTransneft)
+    {
+        <th style="width: 10%">Срок поставки по договору</th>
+        <th style="width: 10%">Бренд</th>
+        <th style="width: 10%">Реквизиты получателя</th>
+        <th style="width: 10%">ГОСТ, ТУ, ОСТ, опросный лист и пр.</th>
+        <th style="width: 10%">Максимальная цена по лоту с НДС</th>
+    }
+    <th style="width: 10%">Каталожный номер</th>
+    <th style="width: 20%">Наименование</th>
+    <th style="width: 5%">Количество</th>
+    <th style="width: 10%">Единица</th>
+    <th style="width: 10%">Продакт/Снабженец</th>
+    <th style="width: 25%">Комментарий</th>
+    <th></th>
+</tr>

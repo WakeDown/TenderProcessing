@@ -1,0 +1,49 @@
+﻿@using SpeCalc.Helpers
+@using SpeCalcDataAccessLayer.Models
+
+@{
+    bool IsTransneft = ViewBag.ClaimType != null && ViewBag.ClaimType == "TRANS";
+}
+<tr class="bg-warning">
+    <td class="min-width"></td>
+    @if (IsTransneft)
+    {
+        <td>
+            <input type='text' id='newContractDeliveryTime' class="form-control input-sm" placeholder="Срок поставки по договору" />
+        </td>
+        <td>
+            <input type='text' id='newBrand' class="form-control input-sm" placeholder="Бренд" />
+        </td>
+        <td>
+            <input type='text' id='newRecipientDetails' class="form-control input-sm" placeholder="Реквизиты получателя" />
+        </td>
+        <td>
+            <input type='text' id='newQuestionnaireNum' class="form-control input-sm" placeholder="ГОСТ, ТУ, ОСТ, опросный лист и пр." />
+        </td>
+        <td>
+            <input type='text' id='newMaxPrice' class="form-control input-sm" placeholder="Максимальная цена по лоту с НДС" />
+        </td>
+    }
+    <td>
+        <input type='text' id='newcatalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер" />
+    </td>
+    <td>
+        <textarea rows="3" class="form-control input-sm" id='newnameValue' placeholder="Наименование *"></textarea>
+    </td>
+    <td>
+        <input type='text' id='newvalueValue' class="form-control input-sm" placeholder="Количество *" />
+    </td>
+    <td>
+        @Html.DropDownList("units", PositionUnit.GetSelectionList(), "--выберите--", new { id = "newUnit", @class = "form-control input-sm" })
+    </td>
+    <td>
+        @Html.DropDownList("prods", new SelectList(UserHelper.GetProductManagersSelectionList(), "Id", "ShortName"), "--выберите--", new { id = "newProd", @class = "form-control input-sm" })
+    </td>
+    <td>
+        <textarea rows='3' id='newcommentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
+    </td>
+    <td class="min-width">
+        <a id='saveNew' class='btn btn-primary' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></a>
+        <a id='Newcancel' class='btn btn-default' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></a>
+    </td>
+</tr>

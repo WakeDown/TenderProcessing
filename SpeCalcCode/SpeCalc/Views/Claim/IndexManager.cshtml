@@ -22,6 +22,9 @@
     if (DateTime.Now.DayOfWeek == DayOfWeek.Sunday)
     { mind = DateTime.Now.AddDays(3); }
     string minDate = mind.ToString("MM-dd-yyyy");
+
+    ViewBag.ClaimType = Model.ClaimTypeSysName;
+    bool IsTransneft = ViewBag.ClaimType != null && ViewBag.ClaimType == "TRANS";
 }
 
 <div>
@@ -334,9 +337,16 @@
                                 <span class="label label-info">из них рассчитано&nbsp;<span class="big" id="positionCalculateCountLabel">@Model.CalculatePositionsCount</span></span>
                             </span>
                         </li>
-                        
+
                         <li>
-                            <a id="butGetFile" href="@Url.Action("GetSpecificationFile")?claimId=@Model.Id" target="_blank" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать шаблон</a>
+                            @if (IsTransneft)
+                            {
+                                <a id="butGetFile" href="@Url.Action("GetSpecificationFileTrans")?claimId=@Model.Id" target="_blank" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать шаблон</a>
+                            }
+                            else
+                            {
+                                <a id="butGetFile" href="@Url.Action("GetSpecificationFile")?claimId=@Model.Id" target="_blank" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать шаблон</a>
+                            }
                         </li>
                         <li>
                             @Html.HiddenFor(m => m.Id)
@@ -351,43 +361,10 @@
                     </ul>
                     <table class="table table-bordered small">
                         <tbody>
-                        <tr class="bg-warning">
-                            <td class="min-width"></td>
-                            <td>
-                                <input type='text' id='newcatalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер"/>
-                            </td>
-                            <td>
-                                <textarea rows="3" class="form-control input-sm" id='newnameValue' placeholder="Наименование *"></textarea>
-                            </td>
-                            <td>
-                                <input type='text' id='newvalueValue' class="form-control input-sm" placeholder="Количество *"/>
-                            </td>
-                            <td>
-                                @Html.DropDownList("units", PositionUnit.GetSelectionList(), "--выберите--", new {id = "newUnit", @class = "form-control input-sm"})
-                            </td>
-                            <td>
-                                @Html.DropDownList("prods", new SelectList(UserHelper.GetProductManagersSelectionList(), "Id", "ShortName"), "--выберите--", new {id = "newProd", @class = "form-control input-sm"})
-                            </td>
-                            <td>
-                                <textarea rows='3' id='newcommentValue' class="form-control input-sm" placeholder="Комментарий"></textarea>
-                            </td>
-                            <td class="min-width">
-                                <a id='saveNew' class='btn btn-primary' data-toggle='tooltip' title='сохранить'><i class='fa fa-save'></i></a>
-                                <a id='Newcancel' class='btn btn-default' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></a>
-                            </td>
-                        </tr>
+                            @Html.Partial("NewPositionAdd")
                         </tbody>
                         <tbody>
-                        <tr class="bg-primary">
-                            <th class=" text-center"><input type="checkbox" id="newCheckAll"/></th>
-                            <th style="width: 10%">Каталожный номер</th>
-                            <th style="width: 30%">Наименование</th>
-                            <th style="width: 5%">Количество</th>
-                            <th style="width: 10%">Единица</th>
-                            <th style="width: 10%">Продакт/Снабженец</th>
-                            <th style="width: 25%">Комментарий</th>
-                            <th></th>
-                        </tr>
+                            @Html.Partial("NewPositionHeader")
                         </tbody>
                         <tbody id="newPositionsContainer"></tbody>
                     </table>
@@ -529,10 +506,10 @@
             if (!confirm('Вы уверены что хотите запросить оклонение позиций?'))return;
             showSpinnerAppendAndDisable($this);
             $.ajax({
-                url:'@Url.Action("AskPositionReject")',
+                url: '@Url.Action("AskPositionReject")',
                 method: 'POST',
                 datatype: 'json',
-                data: JSON.stringify({posIds:ids, idClaim:@Model.Id, cv:'@Request.QueryString["cv"]'}),
+                data: JSON.stringify({ posIds: ids, idClaim: @Model.Id, cv: '@Request.QueryString["cv"]' }),
                 contentType: 'application/json;charset=utf-8 ',
                 success: function() {
                     location.reload();
@@ -559,11 +536,11 @@
                 url: '@Url.Action("GoActual")',
                 method: 'POST',
                 dataType: 'json',
-                data: JSON.stringify({selIds:ids, claimId:@Model.Id, cv: @Request.QueryString["cv"] }),
+                data: JSON.stringify({ selIds: ids, claimId: @Model.Id, cv: @Request.QueryString["cv"] }),
                 processData: false,
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
-                    window.location = "@Url.Action("Index")?claimId=" +data.claimId+"&cv="+data.newVersion;
+                    window.location = "@Url.Action("Index")?claimId=" + data.claimId + "&cv=" + data.newVersion;
                     hideSpinnerAndEnabled($this);
                 },
                 error: function(error) {
@@ -581,17 +558,17 @@
             $.ajax({
                 url: '@Url.Action("SetClaimAllPositonConfirmed")',
                 method: 'GET',
-                data: {idClaim:@Model.Id, cv:@Request.QueryString["cv"]},
+                data: { idClaim: @Model.Id, cv: @Request.QueryString["cv"] },
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
                     location.reload();
                     hideSpinnerAndEnabled($this);
                 },
-                error:function() {
+                error: function() {
                     alert('Ошибка при принятии позиций!');
                     hideSpinnerAndEnabled($this);
                 }
-        });
+            });
         }
 
         function setPositionReject() {
@@ -616,7 +593,7 @@
                     url: '@Url.Action("SetPositonRejected")', // "/Claim/SetPositonRejected?comment=" + encodeURI(comment) + "&idClaim=" + claim.Id+"&cv=",
                     method: 'POST',
                     dataType: 'json',
-                    data: JSON.stringify({ positionsId:ids, idClaim:@Model.Id, cv:@Request.QueryString["cv"], comment:comment }),
+                    data: JSON.stringify({ positionsId: ids, idClaim: @Model.Id, cv: @Request.QueryString["cv"], comment: comment }),
                     processData: false,
                     contentType: 'application/json; charset = utf-8 ',
                     success: function(data) {
@@ -909,21 +886,24 @@
             }
             showSpinnerAppendAndDisable(this);
             $.ajax({
-                url: '@Url.Action("AddPosition")',
-                method: 'POST',
-                data: { IdClaim: @Model.Id, ProductManagerName: ProductManagerName, UnitName: UnitName, CatalogNumber: CatalogNumber, Name: Name, Value: Value, Unit: Unit, ProductManagerId: ProductManagerId, Comment: Comment },
-                success: function(html) {
-                    $('#newPositionsContainer').append(html);
-                    fillCount();
-                    clearNewFields();
-                    initNewPositionBtns();
-                    hideSpinnerAndEnabled();
-                },
-                error: function() {
-                    alert('Ошибка при сохранении позиции');
-                    hideSpinnerAndEnabled();
-                }
-            });
+                    url: '@Url.Action("AddPosition")',
+                    method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ IdClaim: @Model.Id, ProductManagerName: ProductManagerName, UnitName: UnitName, CatalogNumber: CatalogNumber, Name: Name, Value: Value, Unit: Unit, ProductManagerId: ProductManagerId, Comment: Comment }),
+                success:
+
+            function(html) {
+                $('#newPositionsContainer').append(html);
+                fillCount();
+                clearNewFields();
+                initNewPositionBtns();
+                hideSpinnerAndEnabled();
+            },
+            error: function() {
+                alert('Ошибка при сохранении позиции');
+                hideSpinnerAndEnabled();
+            }
+        });
         }
 
         function showHistoryAll() {
@@ -989,7 +969,18 @@
                     showSpinnerAppendAndDisable($(this).parent('.btn'));
                     $.ajax({
                         type: "POST",
+                        @if (IsTransneft)
+                        {
+                            <text>
+                        url: '@Url.Action("UploadFileFormTrans")?claimId=' + @Model.Id,
+                        </text>
+                        }
+                        else
+                        {
+                            <text>
                         url: '@Url.Action("UploadFileForm")?claimId=' + @Model.Id,
+                        </text>
+                        }
                         contentType: false,
                         processData: false,
                         data: data,
@@ -1026,7 +1017,7 @@
             var count = 0;
             var newcount = $('#newPositionsContainer [name="newpos"]').length;
             //var calccount = $('#calcPositionsContainer [name="calcpos"]').length;
-            count = newcount;// + calccount;
+            count = newcount; // + calccount;
             $('#positionCountLabel').text(count);
         }
 
@@ -1097,7 +1088,7 @@
             $.ajax({
                 url: '@Url.Action("GetNewPositions")',
                 method: 'GET',
-                data: { claimId: @Model.Id, cv: @Request.QueryString["cv"] },
+                data: { claimId: @Model.Id, cv: @Request.QueryString["cv"], ClaimType:'@ViewBag.ClaimType' },
                 success: function(html) {
                     $('#newPositionsContainer').html(html);
                     //fillCount();

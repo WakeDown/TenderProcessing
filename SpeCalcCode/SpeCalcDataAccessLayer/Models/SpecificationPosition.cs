@@ -50,6 +50,13 @@ namespace SpeCalcDataAccessLayer.Models
         public string StateForegroundColor { get; set; }
         public bool ClaimStateIsActive { get; set; }
 
+        //для Транснефти
+        public string ContractDeliveryTime { get; set; }
+        public string Brand { get; set; }
+        public string RecipientDetails { get; set; }
+        public string QuestionnaireNum { get; set; }
+        public string MaxPrice { get; set; }
+
         public SpecificationPosition()
         {
             Calculations = new List<CalculateSpecificationPosition>();
@@ -74,6 +81,11 @@ namespace SpeCalcDataAccessLayer.Models
 
         private void FillSelf(DataRow row)
         {
+            ContractDeliveryTime = Db.DbHelper.GetValueString(row, "ContractDeliveryTime");
+            Brand = Db.DbHelper.GetValueString(row, "Brand");
+            RecipientDetails = Db.DbHelper.GetValueString(row, "RecipientDetails");
+            QuestionnaireNum = Db.DbHelper.GetValueString(row, "QuestionnaireNum");
+            MaxPrice = Db.DbHelper.GetValueString(row, "MaxPrice");
             StateShowStateName = Db.DbHelper.GetValueBool(row, "StateShowStateName");
             StateForegroundColor = Db.DbHelper.GetValueString(row, "StateForegroundColor");
             StateImageColorClass = Db.DbHelper.GetValueString(row, "StateImageColorClass");

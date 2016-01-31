@@ -19,7 +19,7 @@
     { mind = DateTime.Now.AddDays(4); }
     if (DateTime.Now.DayOfWeek == DayOfWeek.Sunday)
     { mind = DateTime.Now.AddDays(3); }
-    string minDate = mind.ToString("MM-dd-yyyy");
+    string minDate = mind.ToString("dd-MM-yyyy");
 
     var department = TempData["department"];
     var userSid = TempData["userSid"].ToString();

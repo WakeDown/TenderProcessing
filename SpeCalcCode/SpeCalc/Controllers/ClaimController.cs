@@ -296,20 +296,20 @@ namespace SpeCalc.Controllers
                 //получение необходимой инфы из БД и ActiveDirectory
                 //var managers = UserHelper.GetManagers();
                 //ViewBag.Managers = managers;
-                ViewBag.DateStart = DateTime.Now.ToString("dd.MM.yyyy");
+                //ViewBag.DateStart = DateTime.Now.ToString("dd.MM.yyyy");
                 var db = new DbEngine();
-                ViewBag.NextDateMin = DateTime.Now.DayOfWeek == DayOfWeek.Friday
-                    ? DateTime.Now.AddDays(4).ToShortDateString()
-                    : DateTime.Now.AddDays(2).ToShortDateString();
-                ViewBag.DealTypes = db.LoadDealTypes();
-                ViewBag.ClaimStatus = db.LoadClaimStatus();
-                var adProductManagers = UserHelper.GetProductManagers();
-                ViewBag.ProductManagers = adProductManagers;
-                ViewBag.StatusHistory = new List<ClaimStatusHistory>();
-                ViewBag.Facts = db.LoadProtectFacts();
-                ViewBag.DeliveryTimes = db.LoadDeliveryTimes();
-                ViewBag.HasTransmissedPosition = false.ToString().ToLower();
-                ViewBag.Currencies = db.LoadCurrencies();
+                //ViewBag.NextDateMin = DateTime.Now.DayOfWeek == DayOfWeek.Friday
+                //    ? DateTime.Now.AddDays(4).ToShortDateString()
+                //    : DateTime.Now.AddDays(2).ToShortDateString();
+                //ViewBag.DealTypes = db.LoadDealTypes();
+                //ViewBag.ClaimStatus = db.LoadClaimStatus();
+                //var adProductManagers = UserHelper.GetProductManagers();
+                //ViewBag.ProductManagers = adProductManagers;
+                //ViewBag.StatusHistory = new List<ClaimStatusHistory>();
+                //ViewBag.Facts = db.LoadProtectFacts();
+                //ViewBag.DeliveryTimes = db.LoadDeliveryTimes();
+                //ViewBag.HasTransmissedPosition = false.ToString().ToLower();
+                //ViewBag.Currencies = db.LoadCurrencies();
                 
                 var dealTypeString = String.Empty;
                 var tenderStatus = String.Empty;
@@ -402,7 +402,7 @@ namespace SpeCalc.Controllers
                 ViewBag.DealType = dealTypeString;
                 ViewBag.status = tenderStatus;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 ViewBag.Error = true.ToString().ToLower();
             }
@@ -1017,34 +1017,9 @@ namespace SpeCalc.Controllers
                     var dealTypes = db.LoadDealTypes();
 
                     var manager = UserHelper.GetUserById(claim.Manager.Id);
-                    //workSheet.Cell(1, 3).Value = !claim.CurrencyUsd.Equals(0)
-                    //    ? claim.CurrencyUsd.ToString("N2")
-                    //    : string.Empty;
-                    //workSheet.Cell(2, 3).Value = !claim.CurrencyEur.Equals(0)
-                    //    ? claim.CurrencyEur.ToString("N2")
-                    //    : string.Empty;
-                    //workSheet.Cell(1, 3).DataType = XLCellValues.Number;
-                    //workSheet.Cell(2, 3).DataType = XLCellValues.Number;
                     workSheet.Cell(1, 3).Value = claim.TenderNumber;
-                    //workSheet.Cell(4, 3).Value = claim.TenderStartString;
-                    //workSheet.Cell(4, 3).DataType = XLCellValues.DateTime;
-                    //workSheet.Cell(5, 3).Value = claim.ClaimDeadlineString;
-                    //workSheet.Cell(5, 3).DataType = XLCellValues.DateTime;
-                    //workSheet.Cell(6, 3).Value = claim.KPDeadlineString;
-                    //workSheet.Cell(6, 3).DataType = XLCellValues.DateTime;
                     workSheet.Cell(2, 3).Value = claim.Customer;
-                    //workSheet.Cell(8, 3).Value = claim.CustomerInn;
-                    //workSheet.Cell(9, 3).Value = !claim.Sum.Equals(0) ? claim.Sum.ToString("N2") : string.Empty;
-                    //workSheet.Cell(10, 3).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
-                    //workSheet.Cell(11, 3).Value = claim.TenderUrl;
                     workSheet.Cell(3, 3).Value = manager != null ? manager.ShortName : string.Empty;
-                    //workSheet.Cell(13, 3).Value = claim.Manager.SubDivision;
-                    //workSheet.Cell(14, 3).Value = claim.DeliveryDateString;
-                    //workSheet.Cell(14, 3).DataType = XLCellValues.DateTime;
-                    //workSheet.Cell(15, 3).Value = claim.DeliveryPlace;
-                    //workSheet.Cell(16, 3).Value = claim.AuctionDateString;
-                    //workSheet.Cell(16, 3).DataType = XLCellValues.DateTime;
-                    //workSheet.Cell(17, 3).Value = claim.Comment;
 
                     for (var i = 0; i < units.Count(); i++)
                     {
@@ -1090,33 +1065,8 @@ namespace SpeCalc.Controllers
                             validation.List(namedRange);
                         }
                     }
-
-                    
-                    //var currencies = db.LoadCurrencies();
-                    //for (var i = 0; i < currencies.Count(); i++)
-                    //{
-                    //    var currency = currencies[i];
-                    //    var cell = userRangeSheet.Cell(i + 1, 3);
-                    //    if (cell != null)
-                    //    {
-                    //        cell.Value = currency.Value;
-                    //    }
-                    //}
-                    //var currenciesRange = userRangeSheet.Range(userRangeSheet.Cell(1, 3), userRangeSheet.Cell(currencies.Count(), 3));
-                    
-                    //workRange = workSheet.Cell(14, 8);
-                    //if (workRange != null)
-                    //{
-                    //    var validation = workRange.SetDataValidation();
-                    //    validation.AllowedValues = XLAllowedValues.List;
-                    //    validation.InCellDropdown = true;
-                    //    validation.Operator = XLOperator.Between;
-                    //    validation.List(currenciesRange);
-                    //}
                     
                     workSheet.Select();
-                    //workSheet.Column(3).AdjustToContents();
-                    //workSheet.Column(6).Style.Alignment.WrapText = true;
                     excBook.SaveAs(ms);
                 }
                 excBook.Dispose();
@@ -1145,6 +1095,129 @@ namespace SpeCalc.Controllers
             else
             {
                 return View();
+            }
+        }
+
+        /// <summary>
+        /// Шаблон для Транснефти
+        /// </summary>
+        /// <param name="claimId"></param>
+        /// <returns></returns>
+        public ActionResult GetSpecificationFileTrans(int claimId)
+        {
+            //if (!claimId.HasValue) return null;
+
+            XLWorkbook excBook = null;
+            var ms = new MemoryStream();
+            var error = false;
+            try
+            {
+                var db = new DbEngine();
+                var claim = db.LoadTenderClaimById(claimId);
+                //получение файла-шаблона
+                var filePath = Path.Combine(Server.MapPath("~"), "App_Data", "SpecificationTrans.xlsx");
+                using (var fs = System.IO.File.OpenRead(filePath))
+                {
+                    var buffer = new byte[fs.Length];
+                    fs.Read(buffer, 0, buffer.Count());
+                    ms.Write(buffer, 0, buffer.Count());
+                    ms.Seek(0, SeekOrigin.Begin);
+                }
+                //создание диапазона выбора снабженцев
+                var productManagers = UserHelper.GetProductManagers();
+                var units = PositionUnit.GetList().ToArray();
+                excBook = new XLWorkbook(ms);
+                var workSheet = excBook.Worksheet("Лот");
+                var userRangeSheet = excBook.Worksheet(2);
+                var unitRangeSheet = excBook.Worksheet(3);
+
+                if (workSheet != null && userRangeSheet != null)
+                {
+                    userRangeSheet.Visibility = XLWorksheetVisibility.Hidden;
+                    unitRangeSheet.Visibility = XLWorksheetVisibility.Hidden;
+                    //>>>>>>>>Шапка - Заполнение инфы о заявке<<<<<<
+                    var dealTypes = db.LoadDealTypes();
+
+                    var manager = UserHelper.GetUserById(claim.Manager.Id);
+                    workSheet.Cell(1, 3).Value = claim.TenderNumber;
+                    workSheet.Cell(2, 3).Value = claim.Customer;
+                    workSheet.Cell(3, 3).Value = manager != null ? manager.ShortName : string.Empty;
+
+                    for (var i = 0; i < units.Count(); i++)
+                    {
+                        var unit = units[i].Name;
+                        var cell = unitRangeSheet.Cell(i + 1, 1);
+                        if (cell != null)
+                        {
+                            cell.Value = unit;
+                        }
+                    }
+                    var namedRangeUnit = unitRangeSheet.Range(unitRangeSheet.Cell(1, 1), unitRangeSheet.Cell(units.Count(), 1));
+
+                    for (var i = 0; i < productManagers.Count(); i++)
+                    {
+                        var product = productManagers[i];
+                        var cell = userRangeSheet.Cell(i + 1, 1);
+                        if (cell != null)
+                        {
+                            cell.Value = GetUniqueDisplayName(product);
+                        }
+                    }
+                    var namedRange = userRangeSheet.Range(userRangeSheet.Cell(1, 1), userRangeSheet.Cell(productManagers.Count(), 1));
+
+                    for (int uc = 0; uc <= 1000; uc++)
+                    {
+                        var workRangeUnit = workSheet.Cell(uc + 5, 9);
+                        if (workRangeUnit != null)
+                        {
+
+                            var validation = workRangeUnit.SetDataValidation();
+                            validation.AllowedValues = XLAllowedValues.List;
+                            validation.InCellDropdown = true;
+                            validation.Operator = XLOperator.Between;
+                            validation.List(namedRangeUnit);
+                        }
+
+                        var workRange = workSheet.Cell(uc + 5, 11);
+                        if (workRange != null)
+                        {
+                            var validation = workRange.SetDataValidation();
+                            validation.AllowedValues = XLAllowedValues.List;
+                            validation.InCellDropdown = true;
+                            validation.Operator = XLOperator.Between;
+                            validation.List(namedRange);
+                        }
+                    }
+
+                    workSheet.Select();
+                    excBook.SaveAs(ms);
+                }
+                excBook.Dispose();
+                excBook = null;
+                ms.Seek(0, SeekOrigin.Begin);
+
+            }
+            catch (Exception)
+            {
+                error = true;
+            }
+            finally
+            {
+                if (excBook != null)
+                {
+                    excBook.Dispose();
+                }
+            }
+            if (!error)
+            {
+                return new FileStreamResult(ms, "application/vnd.ms-excel")
+                {
+                    FileDownloadName = "SpecificationTrans.xlsx"
+                };
+            }
+            else
+            {
+                return null;
             }
         }
 
@@ -1724,6 +1797,248 @@ namespace SpeCalc.Controllers
                 return View();
             }
         }
+       
+        //Excel
+        //получение excel файла, с инфой по позициям заявки
+        [HttpPost]
+        public JsonResult UploadFileFormTrans(int claimId)
+        {
+            //int claimId;
+            //int.TryParse(Request.Form["Id"], out claimId);
+            var error = false;
+            var message = string.Empty;
+            XLWorkbook excBook = null;
+            Stream inputStream = null;
+            var positions = new List<SpecificationPosition>();
+            var file = Request.Files[0];
+            //try
+            //{
+            if (file == null || !file.FileName.EndsWith(".xlsx"))
+            {
+                error = true;
+                message = "Файл не предоставлен или имеет неверный формат";
+            }
+            else
+            {
+                var productManagers = UserHelper.GetProductManagers();
+                var units = PositionUnit.GetList();
+                inputStream = file.InputStream;
+                inputStream.Seek(0, SeekOrigin.Begin);
+                excBook = new XLWorkbook(inputStream);
+                //разбор файла
+                var workSheet = excBook.Worksheet("Лот");
+                if (workSheet != null)
+                {
+                    var user = GetUser();
+                    //<<<<<<<Номер строки - начало разбора инфы>>>>>>
+                    var row = 5;
+                    var errorStringBuilder = new StringBuilder();
+                    var repeatRowCount = 0;
+                    var db = new DbEngine();
+                    //проход по всем строкам
+                    while (true)
+                    {
+                        var rowValid = true;
+                        var model = new SpecificationPosition()
+                        {
+                            CatalogNumber = string.Empty,
+                            Comment = string.Empty,
+                            Name = string.Empty,
+                            ProductManager = new ProductManager() { Id = string.Empty, Name = string.Empty },
+
+                            Replace = string.Empty,
+                            IdClaim = claimId,
+                            State = 1,
+                            Author = user.Sid,
+                            Currency = 1,
+                        };
+                        //получение ячеек с инфой по позициям
+                       
+                        var numberRange = workSheet.Cell(row, 1);
+                        var deliveryTime = workSheet.Cell(row, 2);
+                        var brand = workSheet.Cell(row, 3);
+                        var recipientDetails = workSheet.Cell(row, 4);
+                        var questionaryNum = workSheet.Cell(row, 5);
+                        var maxPrice = workSheet.Cell(row, 6);
+                        var catalogNumberRange = workSheet.Cell(row, 7);
+                        var nameRange = workSheet.Cell(row, 8);
+                        var unitRange = workSheet.Cell(row, 9);
+                        var valueRange = workSheet.Cell(row, 10);
+                        var managerRange = workSheet.Cell(row, 11);
+                        var commentRange = workSheet.Cell(row, 12);
+                        //наименование
+                        if (nameRange != null && nameRange.Value != null)
+                        {
+                            string nameValue = nameRange.Value.ToString();
+                            if (string.IsNullOrEmpty(nameValue))
+                            {
+                                break;
+                            }
+                            model.Name = nameValue;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                        //разбор инфы по Порядковый номер
+                        if (numberRange != null && numberRange.Value != null)
+                        {
+                            string numberValue = numberRange.Value.ToString();
+                            if (!string.IsNullOrEmpty(numberValue))
+                            {
+                                int intValue;
+                                var isValidInt = int.TryParse(numberValue, out intValue);
+                                if (!isValidInt)
+                                {
+                                    rowValid = false;
+                                    errorStringBuilder.Append("Строка: " + row +
+                                                              ", значение '" + numberValue + "' в поле Порядковый номер не является целым числом<br/>");
+                                }
+                                else
+                                {
+                                    model.RowNumber = intValue;
+                                }
+                            }
+                        }
+
+                        model.ContractDeliveryTime = deliveryTime.Value.ToString();
+                        model.Brand = brand.Value.ToString();
+                        model.RecipientDetails= recipientDetails.Value.ToString();
+                        model.QuestionnaireNum = questionaryNum.Value.ToString();
+                        model.MaxPrice = maxPrice.Value.ToString();
+
+                        //разбор инфы по Каталожный номер, Замена, Единицы
+                        if (catalogNumberRange != null && catalogNumberRange.Value != null)
+                        {
+                            model.CatalogNumber = catalogNumberRange.Value.ToString();
+                        }
+
+                        if (units != null && units.Any())
+                        {
+                            var unit = unitRange.Value.ToString();
+                            model.Unit = units.Single(x => x.Name.Equals(unit)).Id;
+                        }
+
+
+
+
+                        //разбор инфы по Количество
+                        if (valueRange != null)
+                        {
+                            if (valueRange.Value == null || string.IsNullOrEmpty(valueRange.Value.ToString()))
+                            {
+                                rowValid = false;
+                                errorStringBuilder.Append("Строка: " + row +
+                                                          ", не задано обязательное значение Количество<br/>");
+                            }
+                            else
+                            {
+                                string valueValue = valueRange.Value.ToString();
+                                int intValue;
+                                var isValidInt = int.TryParse(valueValue, out intValue);
+                                if (!isValidInt)
+                                {
+                                    rowValid = false;
+                                    errorStringBuilder.Append("Строка: " + row +
+                                                              ", значение '" + valueValue + "' в поле Количество не является целым числом<br/>");
+                                }
+                                else
+                                {
+                                    model.Value = intValue;
+                                }
+                            }
+                        }
+                        //разбор инфы по Снабженец
+                        if (managerRange == null || managerRange.Value == null || string.IsNullOrEmpty(managerRange.Value.ToString()))
+                        {
+                            rowValid = false;
+                            errorStringBuilder.Append("Строка: " + row +
+                                                      ", не задано обязательное значение Снабженец<br/>");
+                        }
+                        else
+                        {
+                            var managerFromAd =
+                                productManagers.FirstOrDefault(
+                                    x => GetUniqueDisplayName(x) == managerRange.Value.ToString());
+                            if (managerFromAd != null)
+                            {
+                                model.ProductManager = managerFromAd;
+                                model.ProductManagerId = managerFromAd.Id;
+                            }
+                            else
+                            {
+                                rowValid = false;
+                                errorStringBuilder.Append("Строка: " + row +
+                                                          ", не найден Снабженец: " + managerRange.Value + "<br/>");
+                            }
+                        }
+                        if (commentRange != null && commentRange.Value != null)
+                        {
+                            model.Comment = commentRange.Value.ToString();
+                        }
+                        if (rowValid)
+                        {
+                            var isUnique = IsPositionUnique(model, positions);
+                            if (isUnique)
+                            {
+                                isUnique = db.ExistsSpecificationPosition(model);
+                            }
+                            if (isUnique)
+                            {
+                                positions.Add(model);
+                            }
+                            else
+                            {
+                                repeatRowCount++;
+                            }
+                        }
+                        row++;
+                    }
+                    //сохранение полученых позиций в БД
+
+
+                    message = "Получено строк:    " + (row - 5);
+                    if (repeatRowCount > 0)
+                    {
+                        message += "<br/>Из них повторных: " + repeatRowCount;
+                    }
+                    else
+                    {
+                        message += "<br/>Из них повторных: 0";
+                    }
+                    if (positions.Any())
+                    {
+                        message += "<br/>Сохранено строк:   " + positions.Count();
+                    }
+                    else
+                    {
+                        message += "<br/>Сохранено строк:   0";
+                    }
+                    var errorMessage = errorStringBuilder.ToString();
+                    if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        error = true;
+                        message += "<br/>Ошибки:<br/>" + errorMessage + "<br />Сохранить изменения?";
+                    }
+                    else
+                    {
+                        message += "<br/>Ошибки: нет";
+                    }
+                }
+                else
+                {
+                    error = true;
+                    message = "Не найден рабочий лист со спецификациями";
+                }
+                excBook.Dispose();
+                excBook = null;
+            }
+
+
+
+            return Json(new { error, message, positions });
+        }
+
 
         //страница с функциональностью загрузки файла excel по позициям на сервер
         public ActionResult UploadFileForm()
@@ -2442,11 +2757,11 @@ namespace SpeCalc.Controllers
             return Json(new { IsComplete = isComplete, Claims = list, Count = count });
         }
         [HttpGet]
-        public PartialViewResult GetNewPositions(int? claimId, int? cv)
+        public PartialViewResult GetNewPositions(int? claimId, int? cv, string ClaimType)
         {
             if (!claimId.HasValue) return null;
             if (!cv.HasValue) cv = 1;
-
+            ViewBag.ClaimType = ClaimType;
             var list = SpecificationPosition.GetList(claimId.Value, cv.Value);// db.LoadSpecificationPositionsForTenderClaim(); ;
             return PartialView("NewPositions", list);
         }
@@ -2475,6 +2790,7 @@ namespace SpeCalc.Controllers
         {
             if (!id.HasValue) return null;
             var model = new SpecificationPosition(id.Value);
+            
             return PartialView("NewPosition", model);
         }
 
@@ -2484,7 +2800,6 @@ namespace SpeCalc.Controllers
             model.Author = CurUser.Sid;
             var db = new DbEngine();
             db.SaveSpecificationPosition(model);
-
             return PartialView("NewPosition", model);
             //var isComplete = false;
             //try

@@ -38,7 +38,8 @@ namespace SpeCalcDataAccessLayer.Models
         public bool StateCanEditManager { get; set; }
         public bool StateCanEditProduct { get; set; }
         public double? b2bPrice { get; set; }
-
+        //Для транснефти
+        public string Brand { get; set; }
         public CalculateSpecificationPosition()
         {
             ProtectFact=new ProtectFact();
@@ -91,6 +92,7 @@ namespace SpeCalcDataAccessLayer.Models
             Author = Db.DbHelper.GetValueString(row, prefix + "Author");
             Currency = Db.DbHelper.GetValueIntOrNull(row, prefix + "Currency");
             Provider = Db.DbHelper.GetValueString(row, prefix + "Provider");
+            Brand = Db.DbHelper.GetValueString(row, prefix + "Brand");
         }
 
         public static IEnumerable<CalculateSpecificationPosition> GetList(int idClaim, int version, string productSid = null)
