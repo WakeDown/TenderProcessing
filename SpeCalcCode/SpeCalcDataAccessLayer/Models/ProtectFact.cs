@@ -12,8 +12,8 @@ namespace SpeCalcDataAccessLayer.Models
     //класс - факт получения защиты
     public class ProtectFact : ServerDirectBase
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
+        //public int Id { get; set; }
+        //public string Name { get; set; }
         //public string SysName { get; set; }
 
         public ProtectFact()
@@ -24,7 +24,7 @@ namespace SpeCalcDataAccessLayer.Models
         public ProtectFact(DataRow row)
         {
             Id = Db.DbHelper.GetValueIntOrDefault(row, "Id");
-            Name = Db.DbHelper.GetValueString(row, "Value");
+            Value = Db.DbHelper.GetValueString(row, "Value");
             //SysName = Db.DbHelper.GetValueString(row, "SysName");
         }
         [OutputCache(Duration = 3600)]
@@ -42,7 +42,7 @@ namespace SpeCalcDataAccessLayer.Models
         [OutputCache(Duration = 3600)]
         public static SelectList GetSelectionList()
         {
-            return new SelectList(GetList(), "Id", "Name");
+            return new SelectList(GetList(), "Id", "Value");
         }
     }
 }

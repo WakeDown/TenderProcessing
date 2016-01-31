@@ -35,6 +35,9 @@ namespace SpeCalcDataAccessLayer.Models
         public DeliveryTime DeliveryTime { get; set; }
         public int? DeliveryTimeId { get; set; }
         public int? ProtectFactId { get; set; }
+        public bool StateCanEditManager { get; set; }
+        public bool StateCanEditProduct { get; set; }
+        public double? b2bPrice { get; set; }
 
         public CalculateSpecificationPosition()
         {
@@ -61,6 +64,8 @@ namespace SpeCalcDataAccessLayer.Models
 
         private void FillSelf(DataRow row, string prefix = null)
         {
+            StateCanEditManager = Db.DbHelper.GetValueBool(row, prefix + "StateCanEditManager");
+            StateCanEditProduct = Db.DbHelper.GetValueBool(row, prefix + "StateCanEditProduct");
             Id = Db.DbHelper.GetValueIntOrDefault(row, prefix + "Id");
             IdSpecificationPosition = Db.DbHelper.GetValueIntOrDefault(row, prefix + "IdPosition");
             IdTenderClaim = Db.DbHelper.GetValueIntOrDefault(row, prefix + "IdClaim");

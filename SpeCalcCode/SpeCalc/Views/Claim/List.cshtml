@@ -193,7 +193,7 @@
             }
             <td>@claim.Id</td>
             <td>@claim.TenderNumber</td>
-            <td>@claim.Customer@(!String.IsNullOrEmpty(claim.CustomerInn) ?"< br/>ИНН" + claim.CustomerInn : String.Empty)</td>
+            <td>@claim.Customer<br/>@(!String.IsNullOrEmpty(claim.CustomerInn) ?"ИНН " + claim.CustomerInn : String.Empty)</td>
             <td>@claim.Sum</td>
             <td>
                 <div class='text-nowrap'>@claim.Manager.ShortName</div>

@@ -39,7 +39,7 @@
                 <div class="pull-left" style="padding-left: 10px">
                     @if (Model.StateCanAddPositions)
                     {
-                        <button type="button" id="butSetClaimOnWork" style="" class="btn btn-success btn-sm" href=""><i class="fa fa-mail-forward"></i> в работу</button>
+                        <button type="button" id="butSetClaimOnWork" style="" class="btn btn-success btn-lg" href=""><i class="fa fa-mail-forward"></i> в работу</button>
                     }
                     else
                     {
@@ -209,26 +209,8 @@
             </p>
         }
         <div>
-            @*@if (Model != null && Model.Id > 0)
-                {
-                    int[] versions = DbEngine.GetCalcVersionList(Model.Id);
-
-                    <div class="pad-sm">
-                        <ul class="list-inline">
-                            <li class="bold">версия</li>
-                            @if (versions != null)
-                            {
-                                foreach (int ver in versions)
-                                {
-                                    <li><a class="btn @(Request.QueryString["cv"] != null && Request.QueryString["cv"].Equals(ver.ToString()) ? "btn-danger selected" : "btn-primary")" href="@Url.Action("Index", new {claimId = claim.Id, cv = ver})">@ver</a></li>
-                                }
-                            }
-                        </ul>
-                    </div>
-                }*@
             @*Позиции*@
-            
-            @if (Model.StateIsActive)
+            @if (Model.StateIsActive && Model.HasStateProductCanceled)
             {
                 <div>
                     <ul class="list-inline">
@@ -262,7 +244,7 @@
                     </table>
                 </div>
             }
-            @if (Model.StateIsActive || Model.StateIsEnd) { 
+            @if (!Model.StateCanAddPositions) { 
                 <ul class="list-inline">
                     <li>
                         <h4>Все позиции</h4>
@@ -290,7 +272,24 @@
                     @if (DateTime.Now > new DateTime(2015, 10, 2) && Model.StateIsEnd)
                     {
                         <li>
-                            <button id="goACtual" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> Актуализировать отмеченные</button>
+                            <button id="goActual" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> Актуализировать отмеченные</button>
+                        </li>
+                    }
+                    @if (Model != null && Model.Id > 0)
+                    {
+                        int[] versions = DbEngine.GetCalcVersionList(Model.Id);
+
+                        <li class="pull-right" style="background-color: #F7ECB5">
+                            <ul class="list-inline">
+                                <li class="bold"><h4>Версия</h4></li>
+                                @if (versions != null)
+                                {
+                                    foreach (int ver in versions)
+                                    {
+                                        <li><a class="btn-sm btn @(Request.QueryString["cv"] != null && Request.QueryString["cv"].Equals(ver.ToString()) ? "btn-danger selected" : "btn-primary")" href="@Url.Action("Index", new {claimId = Model.Id, cv = ver})">@ver</a></li>
+                                    }
+                                }
+                            </ul>
                         </li>
                     }
                 </ul>
@@ -508,6 +507,8 @@
             $('#butSetPositionOnWork').click(setPositionOnWork);
             $('#butSetPositionReject').click(setPositionReject);
             $('#butSetPositionConfirm').click(setPositionConfirm);
+            $('#goActual').click(goActual);
+            $('#askReject').click(askReject);
 
             loadHistory();
             //loadrejectedPositions();
@@ -515,6 +516,63 @@
             loadCalcPositions();
             loadCancelPositions();
         });
+
+        function askReject() {
+
+            var $this = $(this);
+            var $cont = $('#calcPositionsContainer');
+            var ids = getCheckedIds($cont, 'calcCheckbox');
+            if (ids.length <= 0) {
+                alert("Ни одной позиции не выбрано!");
+                return;
+            }
+            if (!confirm('Вы уверены что хотите запросить оклонение позиций?'))return;
+            showSpinnerAppendAndDisable($this);
+            $.ajax({
+                url:'@Url.Action("AskPositionReject")',
+                method: 'POST',
+                datatype: 'json',
+                data: JSON.stringify({posIds:ids, idClaim:@Model.Id, cv:'@Request.QueryString["cv"]'}),
+                contentType: 'application/json;charset=utf-8 ',
+                success: function() {
+                    location.reload();
+                },
+                error: function() {
+                    alert('Ошибка при выполнении запроса!');
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        }
+
+        function goActual() {
+            var $this = $(this);
+            var $cont = $('#calcPositionsContainer');
+            var ids = getCheckedIds($cont, 'calcCheckbox');
+            if (ids.length <= 0) {
+                alert("Ни одной позиции не выбрано!");
+                return;
+            }
+
+            showSpinnerAppendAndDisable($this);
+            $.ajax(
+            {
+                url: '@Url.Action("GoActual")',
+                method: 'POST',
+                dataType: 'json',
+                data: JSON.stringify({selIds:ids, claimId:@Model.Id, cv: @Request.QueryString["cv"] }),
+                processData: false,
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    window.location = "@Url.Action("Index")?claimId=" +data.claimId+"&cv="+data.newVersion;
+                    hideSpinnerAndEnabled($this);
+                },
+                error: function(error) {
+                    alert('Ошибка при переводе на актуализацию!');
+                    messageUi.progressHide();
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        }
 
         function setPositionConfirm() {
             var $this = $(this);
@@ -707,6 +765,8 @@
         function setClaimOnWork() {
             var minDate = new Date('@minDate');
             var deadlineDate = new Date('@Model.ClaimDeadline.ToString("M-dd-yyyy")');
+            var $this = $(this);
+            showSpinnerAppendAndDisable($this);
             if (deadlineDate < minDate) {
                 $("#deadlineCorrector").datepicker({
                     format: "dd.mm.yyyy",
@@ -766,15 +826,48 @@
 
         }
 
+        function setB2bPrice($container) {
+            if (!$container) $container = $('#calcPositionsContainer');
+
+            var $elems = $('[name="priceOnlineInfo"]', $container);
+
+            for (var i = 0; i < $elems.length; i++) {
+                var $elem = $($elems[i]);
+                var partNum = $elem.attr('catnum');
+                if (!partNum)continue;
+
+                (function(i) {
+                    var $elem = $($elems[i]);
+                    var partNum = $elem.attr('catnum');
+                    var minPriceOnline = '';
+                    $.ajax({
+                        url: '@Url.Action("GetMinPrice", "Claim")',
+                        method: 'POST',
+                        data: { partNum: partNum },
+                        success: function(data) {
+                            minPriceOnline = data.priceStr;
+                            $elem.text = minPriceOnline;
+                        },
+                        error: function() {
+                            var error = 'Не удалось получить цену!';
+                        }
+                    });
+                })(i);
+            }
+        }
+
         function loadCalcPositions() {
-            showSpinner($('#calcPositionsContainer'));
+            var $cont = $('#calcPositionsContainer');
+            $cont.html('');
+            showSpinner($cont);
             $.ajax({
                 url: '@Url.Action("GetCalcPositions")',
                 method: 'GET',
                 data: { claimId: @Model.Id, cv: @Request.QueryString["cv"] },
                 success: function(html) {
                     $('#calcPositionsContainer').html(html);
-                    fillCount();
+                    setB2bPrice($cont);
+                    //fillCount();
                     //initNewPositionBtns();
                     hideSpinner($('#calcPositionsContainer'));
                 },
@@ -885,6 +978,7 @@
         }
 
         $('#txtUploadFile').on('change', function(e) {
+
             var files = e.target.files;
             if (files.length > 0) {
                 if (window.FormData !== undefined) {
@@ -910,6 +1004,7 @@
                                 alert(data.message.replace(/<br\s*[\/]?>/gi, "\n"));
                             }
                             hideSpinnerAndEnabled();
+                            $('#txtUploadFile').val('');
                         },
                         error: function(xhr, status, p3, p4) {
                             var err = "Error " + " " + status + " " + p3 + " " + p4;
@@ -917,6 +1012,7 @@
                                 err = JSON.parse(xhr.responseText).Message;
                             console.log(err);
                             hideSpinnerAndEnabled();
+                            $('#txtUploadFile').val('');
                         }
                     });
                 } else {
@@ -929,8 +1025,8 @@
         function fillCount() {
             var count = 0;
             var newcount = $('#newPositionsContainer [name="newpos"]').length;
-            var calccount = $('#calcPositionsContainer [name="calcpos"]').length;
-            count = newcount + calccount;
+            //var calccount = $('#calcPositionsContainer [name="calcpos"]').length;
+            count = newcount;// + calccount;
             $('#positionCountLabel').text(count);
         }
 
@@ -1004,7 +1100,7 @@
                 data: { claimId: @Model.Id, cv: @Request.QueryString["cv"] },
                 success: function(html) {
                     $('#newPositionsContainer').html(html);
-                    fillCount();
+                    //fillCount();
                     initNewPositionBtns();
 
                     hideSpinner($('#newPositionsContainer'));

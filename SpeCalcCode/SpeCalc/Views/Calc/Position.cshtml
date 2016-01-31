@@ -12,6 +12,12 @@
         <div class="@Model.StateImageColorClass">
             <i class="fa @Model.StateImageClass" title="@Model.PositionStateName"></i>
         </div>
+        @if (Model.StateShowStateName)
+        {
+            <h4 style="color: #@Model.StateForegroundColor">
+                @Model.PositionStateName
+            </h4>
+        }
     </th>
     <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.CatalogNumber</td>
     <td name="pos" style="width: 250px;" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 0)">
@@ -21,7 +27,7 @@
     <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.Value @Model.UnitName</td>
     <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)" class="text-nowrap">@Model.ProductManagerName</td>
     <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">
-        @if (Model.StateCanEditProduct)
+        @if (Model.StateCanEditProduct && Model.ClaimStateIsActive)
         {
             <button type="button" name="addCalc" class="btn btn-warning btn-sm" data-toggle="tooltip" title="добавить расчет" cpid="@Model.Id"><i class="fa fa-plus"></i> <i class="fa fa-calculator"></i></button>
         }

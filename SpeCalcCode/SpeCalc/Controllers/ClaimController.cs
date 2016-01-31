@@ -127,14 +127,16 @@ namespace SpeCalc.Controllers
             {
                 positionIds = posIds;
             }
-
-            isComplete = db.ChangePositionsState(positionIds, 7);
+            var rejectState = new PositionState("CALLREJECT");
+            isComplete = db.ChangePositionsState(positionIds, rejectState.Id);
             if (!isComplete) message = "Запрос не отправлен";
             else
             {
-                var allPositions = db.LoadSpecificationPositionsForTenderClaim(idClaim, cv);
+
+
+                var allPositions = SpecificationPosition.GetList(idClaim, cv).ToList(); //db.LoadSpecificationPositionsForTenderClaim(idClaim, cv);
                 var isAllRejected = allPositions.Count() ==
-                                     allPositions.Count(x => x.State == 7);
+                                     allPositions.Count(x => x.State == rejectState.Id);
                 var lastClaimStatus = db.LoadLastStatusHistoryForClaim(idClaim).Status.Id;
                 var claimStatus = lastClaimStatus;
                 //Изменение статуса заявки и истроии изменения статусов
@@ -1180,20 +1182,20 @@ namespace SpeCalc.Controllers
 
                 //получение позиций по заявке и расчетов к ним
                 var db = new DbEngine();
-                var positions = db.LoadSpecificationPositionsForTenderClaim(claimId, cv);
-                var facts = db.LoadProtectFacts();
+                var positions = SpecificationPosition.GetListWithCalc(claimId, cv);//db.LoadSpecificationPositionsForTenderClaim(claimId, cv);
+                //var facts = db.LoadProtectFacts();
                 if (positions.Any())
                 {
-                    var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId, cv);
-                    if (calculations != null && calculations.Any())
-                    {
-                        foreach (var position in positions)
-                        {
-                            if (position.State == 1) continue;
-                            position.Calculations =
-                                calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
-                        }
-                    }
+                    //var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId, cv);
+                    //if (calculations != null && calculations.Any())
+                    //{
+                    //    foreach (var position in positions)
+                    //    {
+                    //        if (position.State == 1) continue;
+                    //        position.Calculations =
+                    //            calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
+                    //    }
+                    //}
                     var filePath = Path.Combine(Server.MapPath("~"), "App_Data", "Specification_fin.xlsx");
                     using (var fs = System.IO.File.OpenRead(filePath))
                     {
@@ -1273,52 +1275,6 @@ namespace SpeCalc.Controllers
                     workSheet.Cell(rowHead, 4).DataType = XLCellValues.DateTime;
                     workSheet.Cell(++rowHead, 4).Value = claim.Comment;
 
-
-                    //workSheet.Cell(3, 4).Value = claim.TenderNumber;
-                    //workSheet.Cell(4, 4).Value = claim.TenderStartString;
-                    //workSheet.Cell(4, 4).DataType = XLCellValues.DateTime;
-                    //workSheet.Cell(5, 4).Value = claim.ClaimDeadlineString;
-                    //workSheet.Cell(5, 4).DataType = XLCellValues.DateTime;
-                    //workSheet.Cell(8, 4).Value = claim.CustomerInn;
-                    //workSheet.Cell(9, 4).Value = !claim.Sum.Equals(0) ? claim.Sum.ToString("N2") : string.Empty;
-                    //workSheet.Cell(11, 4).Value = claim.TenderUrl;
-                    //workSheet.Cell(13, 4).Value = claim.Manager.SubDivision;
-                    //workSheet.Cell(14, 4).DataType = XLCellValues.DateTime;
-
-
-
-                    //заголовок для расчетов
-                    //workSheet.Cell(18, 1).Value = "№ пп";
-                    //workSheet.Cell(18, 2).Value = "Каталожный номер*";
-                    //workSheet.Cell(18, 3).Value = "Наименование*";
-                    //workSheet.Cell(18, 4).Value = "Замена";
-                    //workSheet.Cell(18, 5).Value = "Цена за ед.";
-                    //workSheet.Cell(18, 6).Value = "Сумма вход";
-                    //workSheet.Cell(18, 7).Value = "Валюта";
-                    ////workSheet.Cell(13, 7).Value = "Цена за ед. руб";
-                    ////workSheet.Cell(13, 8).Value = "Сумма вход руб*";
-                    //workSheet.Cell(18, 8).Value = "Поставщик";
-                    //workSheet.Cell(18, 9).Value = "Факт получ.защиты*";
-                    //workSheet.Cell(18, 10).Value = "Условия защиты";
-                    //workSheet.Cell(18, 11).Value = "Цена с ТЗР";
-                    //workSheet.Cell(18, 12).Value = "Сумма с ТЗР";
-                    //workSheet.Cell(18, 13).Value = "Цена с НДС";
-                    //workSheet.Cell(18, 14).Value = "Сумма с НДС";
-                    //workSheet.Cell(18, 15).Value = "Комментарий";
-                    //var calcHeaderRange = workSheet.Range(workSheet.Cell(18, 1), workSheet.Cell(18, 15));
-                    //calcHeaderRange.Style.Font.SetBold(true);
-                    //calcHeaderRange.Style.Fill.BackgroundColor = XLColor.FromArgb(0, 204, 255, 209);
-                    //calcHeaderRange.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                    //calcHeaderRange.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
-                    //calcHeaderRange.Style.Border.SetBottomBorderColor(XLColor.Gray);
-                    //calcHeaderRange.Style.Border.SetTopBorder(XLBorderStyleValues.Thin);
-                    //calcHeaderRange.Style.Border.SetTopBorderColor(XLColor.Gray);
-                    //calcHeaderRange.Style.Border.SetRightBorder(XLBorderStyleValues.Thin);
-                    //calcHeaderRange.Style.Border.SetRightBorderColor(XLColor.Gray);
-                    //calcHeaderRange.Style.Border.SetLeftBorder(XLBorderStyleValues.Thin);
-                    //calcHeaderRange.Style.Border.SetLeftBorderColor(XLColor.Gray);
-                    //var currencies = db.LoadCurrencies();
-                    //<<<<<<<Номер строки - начало вывода инфы>>>>>>
                     var row = rowHead+2;
                     int firstRow = row;
                     var rowNumber = 1;
@@ -1329,21 +1285,23 @@ namespace SpeCalc.Controllers
 
                         if (position.Calculations != null && position.Calculations.Any())
                         {
+                            int calcNum = 0;
                             foreach (var calculation in position.Calculations)
                             {
+                                calcNum++;
                                 calculation.Name = calculation.Name.Replace("\n", "").Replace("\r", "");
 
                                 int col = 0;
                                 workSheet.Cell(row, ++col).Value = rowNumber;
                                 workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-
-                                workSheet.Cell(row, ++col).Value = position.CatalogNumber;
+                                //Не показываем подряд одни и те же надписи названия и каталожника
+                                workSheet.Cell(row, ++col).Value = calcNum > 1 ? String.Empty : position.CatalogNumber;
                                     //? position.CatalogNumber
                                     //: calculation.CatalogNumber;
                                 double hPosCatNum = GetCellHeight(workSheet.Cell(row, col).Value.ToString().Length, 30);
                                 workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-
-                                workSheet.Cell(row, ++col).Value = position.Name;
+                                //Не показываем подряд одни и те же надписи названия и каталожника
+                                workSheet.Cell(row, ++col).Value = calcNum > 1 ? String.Empty : position.Name;
                                 double hPosName = GetCellHeight(workSheet.Cell(row, col).Value.ToString().Length, 40);
                                     //String.IsNullOrEmpty(calculation.Name)? position.Name: calculation.Name;
                                 workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
@@ -1358,20 +1316,25 @@ namespace SpeCalc.Controllers
                                 //workSheet.Cell(row, ++col).Value = calculation.Replace;
                                 //workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
 
-                                //TODO: заменить GetUnitString
-                                //workSheet.Cell(row, ++col).Value = GetUnitStr(position.Unit);
-
+                                
+                                workSheet.Cell(row, ++col).Value = position.UnitName;
                                 workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
                                 var countCell = workSheet.Cell(row, ++col);
                                 countCell.Value = position.Value;
                                 
                                 countCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                                if (position.ProductManager != null)
+                                if (!String.IsNullOrEmpty(position.ProductManagerName))
                                 {
-                                    var prodManager = UserHelper.GetUserById(position.ProductManager.Id);
-                                    workSheet.Cell(row, ++col).Value = prodManager == null
-                                        ? String.Empty
-                                        : prodManager.ShortName;
+                                    //var prodManager = UserHelper.GetUserById(position.ProductManager.Id);
+                                    //workSheet.Cell(row, ++col).Value = prodManager == null
+                                    //    ? String.Empty
+                                    //    : prodManager.ShortName;
+                                    workSheet.Cell(row, ++col).Value = position.ProductManagerName;
+                                }
+                                else
+                                {
+                                    ++col;
                                 }
                                 double hProdManager = GetCellHeight(workSheet.Cell(row, col).Value.ToString().Length, 16);
                                 workSheet.Cell(row, ++col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
@@ -1520,8 +1483,7 @@ namespace SpeCalc.Controllers
                             ++col;
                             //workSheet.Cell(row, ++col).Value = String.Empty;
                             workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
-                            //TODO: заменить GetUnitString
-                            //workSheet.Cell(row, ++col).Value = GetUnitStr(position.Unit);
+                            workSheet.Cell(row, ++col).Value = position.UnitName;
 
                             workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                             workSheet.Cell(row, ++col).Value = position.Value;
@@ -1786,8 +1748,8 @@ namespace SpeCalc.Controllers
             Stream inputStream = null;
             var positions = new List<SpecificationPosition>();
             var file = Request.Files[0];
-            try
-            {
+            //try
+            //{
                 if (file == null || !file.FileName.EndsWith(".xlsx"))
                 {
                     error = true;
@@ -2179,23 +2141,23 @@ namespace SpeCalc.Controllers
                     excBook.Dispose();
                     excBook = null;
                 }
-            }
-            catch (Exception)
-            {
-                error = true;
-                message = "Ошибка сервера";
-            }
-            finally
-            {
-                if (inputStream != null)
-                {
-                    inputStream.Dispose();
-                }
-                if (excBook != null)
-                {
-                    excBook.Dispose();
-                }
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    error = true;
+            //    message = "Ошибка сервера";
+            //}
+            //finally
+            //{
+            //    if (inputStream != null)
+            //    {
+            //        inputStream.Dispose();
+            //    }
+            //    if (excBook != null)
+            //    {
+            //        excBook.Dispose();
+            //    }
+            //}
             //ViewBag.FirstLoad = false;
             //ViewBag.Error = error.ToString().ToLowerInvariant();
             //ViewBag.Message = message;

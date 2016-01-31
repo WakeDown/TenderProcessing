@@ -832,6 +832,8 @@ namespace SpeCalcDataAccessLayer
 
         public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaim(int claimId, int version)
         {
+            return SpecificationPosition.GetList(idClaim: claimId, version: version).ToList();
+
             var list = new List<SpecificationPosition>();
             using (var conn = new SqlConnection(_connectionString))
             {
@@ -1110,6 +1112,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@priceEurRicoh", model.PriceEurRicoh);
                 cmd.Parameters.AddWithValue("@priceRubl", model.PriceRubl);
                 cmd.Parameters.AddWithValue("@deliveryTime", model.DeliveryTimeId);
+                cmd.Parameters.AddWithValue("@b2bPrice", model.b2bPrice);
 
                 conn.Open();
                 var rd = cmd.ExecuteReader();
@@ -1160,6 +1163,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@priceEurRicoh", model.PriceEurRicoh);
                 cmd.Parameters.AddWithValue("@priceRubl", model.PriceRubl);
                 cmd.Parameters.AddWithValue("@deliveryTime", model.DeliveryTimeId);
+                cmd.Parameters.AddWithValue("@b2bPrice", model.b2bPrice);
 
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;

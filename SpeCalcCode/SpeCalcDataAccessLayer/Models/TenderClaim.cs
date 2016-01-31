@@ -103,6 +103,7 @@ namespace SpeCalcDataAccessLayer.Models
         public bool StateCanDiscartPositions { get; set; }
         public bool StateCanChangeProduct { get; set; }
         public bool StateCanCallRejectPositions { get; set; }
+        public bool HasStateProductCanceled { get; set; }
 
         public TenderClaim()
         {
@@ -129,6 +130,7 @@ namespace SpeCalcDataAccessLayer.Models
 
         private void FillSelf(DataRow row)
         {
+            HasStateProductCanceled = Db.DbHelper.GetValueBool(row, "HasStateProductCanceled");
             StateCanCallRejectPositions = Db.DbHelper.GetValueBool(row, "StateCanCallRejectPositions");
             StateManagerPositionWork = Db.DbHelper.GetValueBool(row, "StateManagerPositionWork");
             StateCanAddPositions = Db.DbHelper.GetValueBool(row, "StateCanAddPositions");

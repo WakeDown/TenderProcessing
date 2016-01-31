@@ -442,8 +442,8 @@ namespace SpeCalc.Controllers
             var ms = new MemoryStream();
             var error = false;
             var message = string.Empty;
-            try
-            {
+            //try
+            //{
                 var user = GetUser();
                 var db = new DbEngine();
                 var positions = new List<SpecificationPosition>();
@@ -626,14 +626,12 @@ namespace SpeCalc.Controllers
 
                             workSheet.Cell(row, 3).Value = position.CatalogNumber;
                             var posCell = workSheet.Cell(row, 4);
-                            //TODO: заменить GetUnitString
-                            //posCell.Value = String.Format("{2}\r\n{5}", position.Id, position.CatalogNumber, position.Name, GetUnitString(position.Unit), position.Value, position.Comment);
+                            posCell.Value = String.Format("{2}\r\n{5}", position.Id, position.CatalogNumber, position.Name, position.UnitName, position.Value, position.Comment);
                             posCell.Style.Alignment.SetVertical(XLAlignmentVerticalValues.Top);
                             posCell.Style.Alignment.SetWrapText();
                             workSheet.Row(row).AdjustToContents();
 
-                            //TODO: заменить GetUnitString
-                            //workSheet.Cell(row, 5).Value = String.Format("{1} {0}", GetUnitString(position.Unit), position.Value);
+                            workSheet.Cell(row, 5).Value = String.Format("{1} {0}", position.UnitName, position.Value);
 
                             //Объединяем две ячейки чтобы удобнее было добавлять строки пользователям руками
                             workSheet.Range(workSheet.Cell(row, 1), workSheet.Cell(row + 1, 1)).Merge();
@@ -740,7 +738,9 @@ namespace SpeCalc.Controllers
                                     if (calculation.DeliveryTime != null) workSheet.Cell(row, 14).Value = deliveryTimes.First(x => x.Id == calculation.DeliveryTime.Id).Value;
                                     workSheet.Cell(row, 14).Style.Alignment.SetWrapText();
 
-                                    if (calculation.ProtectFact != null) workSheet.Cell(row, 15).Value = facts.First(x => x.Id == calculation.ProtectFact.Id).Value;
+                                    if (calculation.ProtectFact != null)
+                                        workSheet.Cell(row, 15).Value = calculation.ProtectFact.Value;
+                                        //facts.First(x => x.Id == calculation.ProtectFact.Id).Value;
 
                                     workSheet.Cell(row, 16).Value = calculation.ProtectCondition;
                                     workSheet.Cell(row, 16).Style.Alignment.SetWrapText();
@@ -852,19 +852,19 @@ namespace SpeCalc.Controllers
                     error = true;
                     message = "Нет позиций для расчета";
                 }
-            }
-            catch (Exception)
-            {
-                error = true;
-                message = "Ошибка сервера";
-            }
-            finally
-            {
-                if (excBook != null)
-                {
-                    excBook.Dispose();
-                }
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    error = true;
+            //    message = "Ошибка сервера";
+            //}
+            //finally
+            //{
+            //    if (excBook != null)
+            //    {
+            //        excBook.Dispose();
+            //    }
+            //}
             if (!error)
             {
                 return new FileStreamResult(ms, "application/vnd.ms-excel")
@@ -1269,9 +1269,14 @@ namespace SpeCalc.Controllers
             //try
             //{
             var db = new DbEngine();
+            model.Author = GetUser().Sid;
+            string priceOnline = CatalogProduct.PriceRequest(model.CatalogNumber);
+            double price;
+            double.TryParse(priceOnline, out price);
+            if (price > 0) model.b2bPrice = price;
             if (model.Id <= 0)
             {
-                model.Author = GetUser().Sid;
+                
                 
                 isComplete = db.SaveCalculateSpecificationPosition(model);
                 id = model.Id;
@@ -1279,6 +1284,7 @@ namespace SpeCalc.Controllers
             else
             {
                 db.UpdateCalculateSpecificationPosition(model);
+                id = model.Id;
             }
             //}
             //catch (Exception ex)

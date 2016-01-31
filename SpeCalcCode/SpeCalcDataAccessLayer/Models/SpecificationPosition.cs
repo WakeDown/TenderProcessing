@@ -46,6 +46,9 @@ namespace SpeCalcDataAccessLayer.Models
         public string StateSysName { get; set; }
         public string StateImageClass { get; set; }
         public string StateImageColorClass { get; set; }
+        public bool StateShowStateName { get; set; }
+        public string StateForegroundColor { get; set; }
+        public bool ClaimStateIsActive { get; set; }
 
         public SpecificationPosition()
         {
@@ -71,6 +74,8 @@ namespace SpeCalcDataAccessLayer.Models
 
         private void FillSelf(DataRow row)
         {
+            StateShowStateName = Db.DbHelper.GetValueBool(row, "StateShowStateName");
+            StateForegroundColor = Db.DbHelper.GetValueString(row, "StateForegroundColor");
             StateImageColorClass = Db.DbHelper.GetValueString(row, "StateImageColorClass");
             StateImageClass = Db.DbHelper.GetValueString(row, "StateImageClass");
             StateBackgroundColor = Db.DbHelper.GetValueString(row, "StateBackgroundColor");
@@ -102,6 +107,7 @@ namespace SpeCalcDataAccessLayer.Models
             PositionStateName = Db.DbHelper.GetValueString(row, "PositionStateName");
             UnitName = Db.DbHelper.GetValueString(row, "UnitName");
             Unit = Db.DbHelper.GetValueIntOrDefault(row, "Unit");
+            ClaimStateIsActive = Db.DbHelper.GetValueBool(row, "ClaimStateIsActive");
         }
 
         public static IEnumerable<SpecificationPosition> GetList(int idClaim, int version, string productSid = null, int? stateId = null)
