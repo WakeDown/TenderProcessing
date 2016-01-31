@@ -228,7 +228,7 @@
                 }*@
             @*Позиции*@
             
-            @if (!Model.StateCanAddPositions)
+            @if (Model.StateIsActive)
             {
                 <div>
                     <ul class="list-inline">
@@ -261,7 +261,8 @@
                         <tbody id="cancelPositionsContainer"></tbody>
                     </table>
                 </div>
-                
+            }
+            @if (Model.StateIsActive || Model.StateIsEnd) { 
                 <ul class="list-inline">
                     <li>
                         <h4>Все позиции</h4>
@@ -323,7 +324,7 @@
                 </table>
             }
 
-@if (Model.StateCanAddPositions)
+            @if (Model.StateCanAddPositions)
             {
                 <div>
                     <ul class="list-inline">
@@ -525,9 +526,7 @@
                 data: {idClaim:@Model.Id, cv:@Request.QueryString["cv"]},
                 contentType: 'application/json; charset = utf-8 ',
                 success: function(data) {
-                    loadHistory();
-                    loadCalcPositions();
-                    loadCancelPositions();
+                    location.reload();
                     hideSpinnerAndEnabled($this);
                 },
                 error:function() {
