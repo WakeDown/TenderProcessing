@@ -44,6 +44,8 @@ namespace SpeCalcDataAccessLayer.Models
         public bool StateIsEnd { get; set; }
         public string StateBackgroundColor { get; set; }
         public string StateSysName { get; set; }
+        public string StateImageClass { get; set; }
+        public string StateImageColorClass { get; set; }
 
         public SpecificationPosition()
         {
@@ -69,6 +71,8 @@ namespace SpeCalcDataAccessLayer.Models
 
         private void FillSelf(DataRow row)
         {
+            StateImageColorClass = Db.DbHelper.GetValueString(row, "StateImageColorClass");
+            StateImageClass = Db.DbHelper.GetValueString(row, "StateImageClass");
             StateBackgroundColor = Db.DbHelper.GetValueString(row, "StateBackgroundColor");
             StateSysName = Db.DbHelper.GetValueString(row, "StateSysName");
             StateCanEditManager = Db.DbHelper.GetValueBool(row, "StateCanEditManager");
@@ -100,12 +104,13 @@ namespace SpeCalcDataAccessLayer.Models
             Unit = Db.DbHelper.GetValueIntOrDefault(row, "Unit");
         }
 
-        public static IEnumerable<SpecificationPosition> GetList(int idClaim, int version, string productSid = null)
+        public static IEnumerable<SpecificationPosition> GetList(int idClaim, int version, string productSid = null, int? stateId = null)
         {
             SqlParameter pId = new SqlParameter() { ParameterName = "id", SqlValue = idClaim, SqlDbType = SqlDbType.Int };
             SqlParameter pVersion = new SqlParameter() { ParameterName = "calcVersion", SqlValue = version, SqlDbType = SqlDbType.Int };
             SqlParameter pproductSid = new SqlParameter() { ParameterName = "productSid", SqlValue = productSid, SqlDbType = SqlDbType.VarChar };
-            var dt = Db.SpeCalc.ExecuteQueryStoredProcedure("LoadClaimPositionForTenderClaim", pId, pVersion, pproductSid);
+            SqlParameter pstateId = new SqlParameter() { ParameterName = "stateId", SqlValue = stateId, SqlDbType = SqlDbType.Int };
+            var dt = Db.SpeCalc.ExecuteQueryStoredProcedure("LoadClaimPositionForTenderClaim", pId, pVersion, pproductSid, pstateId);
 
             var lst = new List<SpecificationPosition>();
 

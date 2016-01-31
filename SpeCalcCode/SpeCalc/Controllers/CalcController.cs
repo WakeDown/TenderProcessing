@@ -1331,8 +1331,8 @@ namespace SpeCalc.Controllers
             var isComplete = false;
             var message = string.Empty;
             ClaimStatusHistory model = null;
-            try
-            {
+            //try
+            //{
                 var user = GetUser();
                 var db = new DbEngine();
                 //получение позиций для текущего юзера
@@ -1495,12 +1495,12 @@ namespace SpeCalc.Controllers
                 {
                     message = "Выберите хотябы одну позицию!";
                 }
-            }
-            catch (Exception)
-            {
-                isComplete = false;
-                message = "Ошибка сервера";
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    isComplete = false;
+            //    message = "Ошибка сервера";
+            //}
             return Json(new { IsComplete = isComplete, Message = message, Model = model }, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]

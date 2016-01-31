@@ -7,7 +7,12 @@
             <input type="checkbox" name="calcCheckbox" value="@Model.Id"/>
         }
     </td>
-    <th name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)" class="text-center">@Model.RowNumber</th>
+    <th name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)" class="text-center">
+        @Model.RowNumber
+        <div class="@Model.StateImageColorClass">
+            <i class="fa @Model.StateImageClass" title="@Model.PositionStateName"></i>
+        </div>
+    </th>
     <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.CatalogNumber</td>
     <td name="pos" style="width: 250px;" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 0)">
         @Model.Name
@@ -39,7 +44,7 @@
         {
             <tr pid="@Model.Id" style="background-color: #@Model.StateBackgroundColor">
                     @Html.Partial("Calculation", calc)
-</tr>
+            </tr>
 
         }
 }

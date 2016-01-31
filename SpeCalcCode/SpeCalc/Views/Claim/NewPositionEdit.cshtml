@@ -2,7 +2,7 @@
 @using SpeCalcDataAccessLayer.Models
 @model SpeCalcDataAccessLayer.Models.SpecificationPosition
 
-<tr id="newpos-@Model.Id" name="newpos">
+<tr id="newpos-@Model.Id" name="newpos" style="background-color: #@Model.StateBackgroundColor">
     <td class="min-width">
         <input type="checkbox" name="newCheckbox" value="@Model.Id" />
         @*<span type="editPositionPanel" style="display: none;">

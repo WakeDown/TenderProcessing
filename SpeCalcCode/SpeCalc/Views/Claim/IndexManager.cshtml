@@ -55,6 +55,10 @@
                         {
                             <button id="btnSetClaimStop" type="button" class="btn btn-danger btn-sm"><i class="fa fa-stop"></i> отменить</button>
                         }
+                        if (Model.StateCanConfirmPositions)
+                        {
+                                <button id="butSetPositionConfirm" type="button" class="btn btn-success btn-lg"><i class="fa fa-check"></i> принять расчет</button>
+                        }
                     }
                 </div>
                 <div class=" pull-right">
@@ -178,8 +182,6 @@
 
                     @if (!Model.StateCanAddPositions)
                     {
-
-
                         <textarea id="comment" rows="2" placeholder="Введите текст комментария" class="form-control input-sm"></textarea>
                         <div>
                             @*<button type='button' class='btn btn-danger'><i class="fa fa-remove"></i> отклонить</button>*@
@@ -207,83 +209,6 @@
             </p>
         }
         <div>
-            <div class="pad-sm">
-                <ul class="list-inline">
-                    <li>
-                        <span>
-                            Список позиций
-                            <span class="label label-default">всего&nbsp;<span class="big" id="positionCountLabel">@Model.PositionsCount</span></span>
-                            <span class="label label-info">из них рассчитано&nbsp;<span class="big" id="positionCalculateCountLabel">@Model.CalculatePositionsCount</span></span>
-                        </span>
-                    </li>
-                    @if (Model.StateCanAddPositions)
-                    {
-                        //using (Html.BeginForm("UploadFileForm", "Claim", FormMethod.Post, new { enctype = "multipart/form-data", id = "uploadExcelForm" }))
-                        //{
-                        @*<form action="@Url.Action("UploadFileForm", "Claim")" method="post" enctype="multipart/form-data" onsubmit="return handleSubmit(this);">*@
-
-                        <li>
-                            @*<a id="butAddPosition" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> добавить позицию</a>*@
-                            <a id="butGetFile" href="@Url.Action("GetSpecificationFile")?claimId=@Model.Id" target="_blank" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать шаблон</a>
-                        </li>
-                        @*<li>
-                    <button id="butUploadFile" type="submit" class="btn btn-default btn-sm"><i class="fa fa-upload"></i> загрузить спецификацию</button>
-                </li>*@
-                        <li>
-                            @Html.HiddenFor(m => m.Id)
-                            <div class="fileUpload btn btn-default btn-sm">
-                                <span><i class="fa fa-upload"></i> загрузить спецификацию</span>
-                                <input type="file" name="file" id="txtUploadFile" class="upload" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
-                            </div>
-                        </li>
-
-
-                        @*<button id="butUploadFile" type="button" class="btn btn-default btn-sm"><i class="fa fa-upload"></i> загрузить спецификацию</button>
-                <iframe id="uploadFile" src="@Url.Action("UploadFileForm")" style="display: none"></iframe>*@
-                        @*</form>*@
-                        //}
-                    }
-                    @if (Model.StateCanConfirmOrDiscartPositions)
-                    {
-
-                        <li>
-                            <button id="butSetPositionReject" type="button" class="btn btn-danger btn-sm"><i class="fa fa-close"></i> отклонить отмеченные</button>
-                        </li>
-                        <li>
-                            <button id="butSetPositionConfirm" type="button" class="btn btn-success btn-sm"><i class="fa fa-check"></i> принять все</button>
-                        </li>
-                        <li>
-                            <button id="butSetPositionOnWork" type="button" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> В работу отмеченные</button>
-                        </li>
-
-                    }
-                    @if (!Model.StateCanAddPositions)
-                    {
-                        <li>
-                            <a id="butGetCalculateOnlyCalculateFile" href="@Url.Action("GetSpecificationFileOnlyCalculation")?claimId=@Model.Id&cv=@Request.QueryString["cv"]" target="_blank" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</a>
-                        </li>
-                    }
-                    @if (DateTime.Now > new DateTime(2015, 10, 2) && Model.StateIsEnd)
-                    {
-                        <li>
-                            <button id="goACtual" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> Актуализировать отмеченные</button>
-                        </li>
-                    }
-                    @if (DateTime.Now > new DateTime(2015, 10, 2) && Model.StateIsActive)
-                    {
-                        <li>
-                            <button id="askReject" class="btn btn-danger btn-sm"><i class="fa fa-mail-reply"></i> Запросить отклонение для отмеченных</button>
-                        </li>
-                    }
-                    @if (Model.StateManagerPositionWork || Model.StateCanAddPositions)
-                    {
-                        <li>
-                            <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить отмеченные</button>
-                        </li>
-                    }
-                </ul>
-            </div>
-
             @*@if (Model != null && Model.Id > 0)
                 {
                     int[] versions = DbEngine.GetCalcVersionList(Model.Id);
@@ -302,15 +227,132 @@
                     </div>
                 }*@
             @*Позиции*@
-            @if (Model.StateCanAddPositions)
+            
+            @if (!Model.StateCanAddPositions)
             {
                 <div>
-                    <table class="table table-bordered small">
+                    <ul class="list-inline">
+                        <li>
+                            <h4>Отклонены продактом</h4>
+                        </li>
+                        <li>
+                            <button id="butSetPositionOnWork" type="button" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> В работу отмеченные</button>
+                        </li>
+                        <li>
+                            <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить отмеченные</button>
+                        </li>
+                    </ul>
 
+                    <table class="table table-bordered small">
+                        <thead>
+                        <tr class="bg-primary">
+                            <th class=" text-center">
+                                <input type="checkbox" id="cancelCheckAll"/>
+                            </th>
+                            <th style="width: 10%">Каталожный номер</th>
+                            <th style="width: 30%">Наименование</th>
+                            <th style="width: 5%">Количество</th>
+                            <th style="width: 10%">Единица</th>
+                            <th style="width: 10%">Продакт/Снабженец</th>
+                            <th style="width: 25%">Комментарий</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id="cancelPositionsContainer"></tbody>
+                    </table>
+                </div>
+                
+                <ul class="list-inline">
+                    <li>
+                        <h4>Все позиции</h4>
+                    </li>
+                    <li>
+                        <span class="label label-default">всего&nbsp;<span class="big" id="positionCountLabel">@Model.PositionsCount</span></span>
+                        <span class="label label-info">из них рассчитано&nbsp;<span class="big" id="positionCalculateCountLabel">@Model.CalculatePositionsCount</span></span>
+                    </li>
+                    <li>
+                        <a id="butGetCalculateOnlyCalculateFile" href="@Url.Action("GetSpecificationFileOnlyCalculation")?claimId=@Model.Id&cv=@Request.QueryString["cv"]" target="_blank" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</a>
+                    </li>
+                    @if (Model.StateCanDiscartPositions)
+                    {
+
+                        <li>
+                            <button id="butSetPositionReject" type="button" class="btn btn-danger btn-sm"><i class="fa fa-close"></i> отклонить отмеченные</button>
+                        </li>
+                    }
+                    @if (Model.StateCanCallRejectPositions)
+                    {
+                        <li>
+                            <button id="askReject" class="btn btn-danger btn-sm"><i class="fa fa-mail-reply"></i> Запросить отклонение для отмеченных</button>
+                        </li>
+                    }
+                    @if (DateTime.Now > new DateTime(2015, 10, 2) && Model.StateIsEnd)
+                    {
+                        <li>
+                            <button id="goACtual" class="btn btn-success btn-sm"><i class="fa fa-mail-forward"></i> Актуализировать отмеченные</button>
+                        </li>
+                    }
+                </ul>
+                <table id="tblPositionsWithCalc" class="table small table-bordered">
+                    <thead>
+                    <tr class="bg-primary">
+                        <th class="min-width text-center">
+                            <input type="checkbox" id="calcPositionsCheckAll" data-toggle="tooltip" title="все"/>
+                        </th>
+                        <th></th>
+                        <th>Каталожный номер</th>
+                        <th style="width: 250px;">Запрос
+                        </th>
+                        <th>Количество</th>
+                        <th>Продакт</th>
+                        <th>Каталожный номер</th>
+                        <th>Ответ</th>
+                        <th>Цена B2B</th>
+                        <th>Цена USD</th>
+                        <th>Цена EUR</th>
+                        <th>Цена EUR Ricoh</th>
+                        <th>Цена руб</th>
+                        <th>Поставщик</th>
+                        <th>Срок поставки</th>
+                        <th>Факт защиты</th>
+                        <th>Условия защиты</th>
+                        <th>Комментарий</th>
+                    </tr>
+                    </thead>
+                    <tbody id="calcPositionsContainer"></tbody>
+                </table>
+            }
+
+@if (Model.StateCanAddPositions)
+            {
+                <div>
+                    <ul class="list-inline">
+                        <li>
+                            <span>
+                                Список позиций
+                                <span class="label label-default">всего&nbsp;<span class="big" id="positionCountLabel">@Model.PositionsCount</span></span>
+                                <span class="label label-info">из них рассчитано&nbsp;<span class="big" id="positionCalculateCountLabel">@Model.CalculatePositionsCount</span></span>
+                            </span>
+                        </li>
+                        
+                        <li>
+                            <a id="butGetFile" href="@Url.Action("GetSpecificationFile")?claimId=@Model.Id" target="_blank" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать шаблон</a>
+                        </li>
+                        <li>
+                            @Html.HiddenFor(m => m.Id)
+                            <div class="fileUpload btn btn-default btn-sm">
+                                <span><i class="fa fa-upload"></i> загрузить спецификацию</span>
+                                <input type="file" name="file" id="txtUploadFile" class="upload" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+                            </div>
+                        </li>
+                        <li>
+                            <button id="butDeleteSelected" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> удалить отмеченные</button>
+                        </li>
+                    </ul>
+                    <table class="table table-bordered small">
                         <tbody>
                         <tr class="bg-warning">
-                            <td class="min-width">
-                            </td>
+                            <td class="min-width"></td>
                             <td>
                                 <input type='text' id='newcatalogNumberValue' class="form-control input-sm" placeholder="Каталожный номер"/>
                             </td>
@@ -350,52 +392,7 @@
                         <tbody id="newPositionsContainer"></tbody>
                     </table>
                 </div>
-            }
-            else
-            {
-                <table id="tblPositionsWithCalc" class="table small table-bordered">
-                    <thead>
-                        <tr>
-                            <P>
-                                <h4 id="noRejectHeadCheckAll">
-                                    В работе/расчитаны
-                                </h4>
-                            </P>
-                        </tr>
-                        <tr class="bg-primary">
-                            <th class="min-width  text-center">
-                                <input type="checkbox" id="calcPositionsCheckAll" data-toggle="tooltip" title="все"/>
-                            </th>
-                            <th>Каталожный номер</th>
-                            <th style="width: 250px;">Запрос
-                            </th>
-                            <th>Количество</th>
-                            <th>Продакт</th>
-                            <th>Каталожный номер</th>
-                            <th>Ответ</th>
-                            <th>Цена B2B</th>
-                            <th>Цена USD</th>
-                            <th>Цена EUR</th>
-                            <th>Цена EUR Ricoh</th>
-                            <th>Цена руб</th>
-                            <th>Поставщик</th>
-                            <th>Срок поставки</th>
-                            <th>Факт защиты</th>
-                            <th>Условия защиты</th>
-                            <th>Комментарий</th>
-                        </tr>
-                    </thead>
-                    <tbody id="calcPositionsContainer"></tbody>
-                </table>
-            }
-            @*<P>
-                    <h4 id="rejectHead">
-                        Отклонено продактом/снабженцем
-                    </h4>
-                    <div id="rejectedPositions">
-
-                    </div>
-                </P>*@
+}
         </div>
 
     <div id="deadLineCorrectorBox" class="modal fade">
@@ -496,20 +493,148 @@
             $('#newCheckAll').click(function() {
                 $('[name="newCheckbox"]').prop('checked', $(this).is(':checked'));
             });
+            $('#cancelCheckAll').click(function() {
+                $('[name="newCheckbox"]').prop('checked', $(this).is(':checked'));
+            });
             $('#calcPositionsCheckAll').click(function() {
-                $('[name="calcpos"]').prop('checked', $(this).is(':checked'));
+                $('[name="calcCheckbox"]').prop('checked', $(this).is(':checked'));
             });
             $('#butSetClaimOnWork').click(setClaimOnWork);
             $("#butSendComment").click(sendComment);
             $('#btnSetClaimContinue').click(SetClaimContinue);
             $('#btnSetClaimPause').click(SetClaimPause);
             $('#btnSetClaimStop').click(SetClaimStop);
+            $('#butSetPositionOnWork').click(setPositionOnWork);
+            $('#butSetPositionReject').click(setPositionReject);
+            $('#butSetPositionConfirm').click(setPositionConfirm);
 
             loadHistory();
             //loadrejectedPositions();
             loadNewPositions();
             loadCalcPositions();
+            loadCancelPositions();
         });
+
+        function setPositionConfirm() {
+            var $this = $(this);
+            showSpinnerAppendAndDisable($this);
+
+            $.ajax({
+                url: '@Url.Action("SetClaimAllPositonConfirmed")',
+                method: 'GET',
+                data: {idClaim:@Model.Id, cv:@Request.QueryString["cv"]},
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    loadHistory();
+                    loadCalcPositions();
+                    loadCancelPositions();
+                    hideSpinnerAndEnabled($this);
+                },
+                error:function() {
+                    alert('Ошибка при принятии позиций!');
+                    hideSpinnerAndEnabled($this);
+                }
+        });
+        }
+
+        function setPositionReject() {
+            var $cont = $('#calcPositionsContainer');
+            var ids = getCheckedIds($cont, 'calcCheckbox');
+            if (ids.length <= 0) {
+                alert("Ни одной позиции не выбрано!");
+                return;
+            }
+
+            $('#rejectPositionCommentBox').modal('show');
+            $('#butRejectPositionOk').click(function() {
+                var $this = $(this);
+
+                var comment = $("#rejectPositionComment").val().trim();
+                if (!comment) {
+                    alert('Укажите комментарий!');
+                    return;
+                }
+                showSpinnerAppendAndDisable($this);
+                $.ajax({
+                    url: '@Url.Action("SetPositonRejected")', // "/Claim/SetPositonRejected?comment=" + encodeURI(comment) + "&idClaim=" + claim.Id+"&cv=",
+                    method: 'POST',
+                    dataType: 'json',
+                    data: JSON.stringify({ positionsId:ids, idClaim:@Model.Id, cv:@Request.QueryString["cv"], comment:comment }),
+                    processData: false,
+                    contentType: 'application/json; charset = utf-8 ',
+                    success: function(data) {
+                        loadHistory();
+                        loadCalcPositions();
+                        loadCancelPositions();
+                        hideSpinnerAndEnabled($this);
+                        $('#rejectPositionCommentBox').modal('hide');
+                    },
+                    error: function() {
+                        alert('Ошибка при отклонении позиций!');
+                        hideSpinnerAndEnabled($this);
+                        $('#rejectPositionCommentBox').modal('hide');
+                    }
+                });
+            });
+        }
+
+        function getCheckedIds($container, name) {
+            var ids = [];
+            var checks = $('[name="' + name + '"]:checked', $container);
+            for (var i = 0; i < checks.length; i++) {
+                ids.push($(checks[i]).val());
+            }
+            return ids;
+        }
+
+        function setPositionOnWork() {
+            var $this = $(this);
+            var $cont = $('#cancelPositionsContainer');
+            var ids = getCheckedIds($cont, 'newCheckbox');
+            if (ids.length <= 0) {
+                alert("Ни одной позиции не выбрано!");
+                return;
+            }
+            showSpinnerAppendAndDisable($this);
+            $.ajax({
+                url: '@Url.Action("SendPositonOnWork")', //"/Claim/SendPositonOnWork?comment=" + encodeURI(comment) + "&idClaim=" + claim.Id+"&cv=,
+                method: 'POST',
+                dataType: 'json',
+                data: JSON.stringify({ positionsId: ids, idClaim: @Model.Id, cv: @Request.QueryString["cv"], comment: null }),
+                processData: false,
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    loadHistory();
+                    loadCalcPositions();
+                    loadCancelPositions();
+                    hideSpinnerAndEnabled($this);
+                },
+                error: function() {
+                    alert('Ошибка при передаче позиций!');
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        }
+
+        function loadCancelPositions() {
+            var $cont = $('#cancelPositionsContainer');
+            $cont.html('');
+            showSpinner($cont);
+            $.ajax({
+                url: '@Url.Action("GetCancelPositions")',
+                method: 'GET',
+                data: { claimId: @Model.Id, cv: @Request.QueryString["cv"] },
+                success: function(html) {
+                    $cont.html(html);
+                    initNewPositionBtns();
+                    hideSpinner($cont);
+                },
+                error: function() {
+                    alert('Ошибка загрузки позиций!');
+                    hideSpinner($cont);
+                }
+            });
+        }
 
         function SetClaimPause() {
             //if (!confirm('Вы уверены что хотите приостановить заявку?'))return;
@@ -544,7 +669,7 @@
                     format: "dd.mm.yyyy",
                     autoclose: true,
                     language: "ru",
-                    startDate:minDate
+                    startDate: minDate
                 });
                 //$('#deadlineCorrector').datepicker("setStartDate", minDate);
                 $('#deadLineCorrectorBox').modal("show");
@@ -557,7 +682,7 @@
             }
         }
 
-        function confirmSetClaimContinue(deadlineDate, btn){
+        function confirmSetClaimContinue(deadlineDate, btn) {
 
             $('#stateChangeCommentModal').modal('show');
             $('#stateChangeConfirm').click(function() {
@@ -567,7 +692,7 @@
                     url: '@Url.Action("SetClaimContinued")',
                     method: 'POST',
                     contentType: "application/json",
-                    data: JSON.stringify({ IdClaim: @Model.Id, Comment: Comment, Version: @Request.QueryString["cv"], deadlineDate:deadlineDate }),
+                    data: JSON.stringify({ IdClaim: @Model.Id, Comment: Comment, Version: @Request.QueryString["cv"], deadlineDate: deadlineDate }),
                     success: function() {
                         location.reload();
                         hideSpinnerAndEnabled();
@@ -606,7 +731,7 @@
             $.ajax({
                 url: '@Url.Action("SetClaimOnWork")',
                 method: 'POST',
-                contentType:'application/json',
+                contentType: 'application/json',
                 data: JSON.stringify({ id: @Model.Id, cv: @Request.QueryString["cv"], deadlineDate: deadlineDate }),
                 success: function() {
                     location.reload();
@@ -804,8 +929,8 @@
 
         function fillCount() {
             var count = 0;
-            var newcount = $('[name="newpos"]').length;
-            var calccount = $('[name="calcpos"]').length;
+            var newcount = $('#newPositionsContainer [name="newpos"]').length;
+            var calccount = $('#calcPositionsContainer [name="calcpos"]').length;
             count = newcount + calccount;
             $('#positionCountLabel').text(count);
         }

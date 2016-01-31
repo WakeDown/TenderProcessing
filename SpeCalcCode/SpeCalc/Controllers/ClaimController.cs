@@ -2490,6 +2490,16 @@ namespace SpeCalc.Controllers
         }
 
         [HttpGet]
+        public PartialViewResult GetCancelPositions(int? claimId, int? cv)
+        {
+            if (!claimId.HasValue) return null;
+            if (!cv.HasValue) cv = 1;
+
+            var list = SpecificationPosition.GetList(claimId.Value, cv.Value, stateId: new PositionState("CANCELPROD").Id);// db.LoadSpecificationPositionsForTenderClaim(); ;
+            return PartialView("NewPositions", list);
+        }
+
+        [HttpGet]
         public PartialViewResult GetCalcPositions(int? claimId, int? cv)
         {
             if (!claimId.HasValue) return null;
@@ -2907,11 +2917,11 @@ namespace SpeCalc.Controllers
         {
             var isComplete = false;
             ClaimStatusHistory model = null;
-            try
-            {
+            //try
+            //{
                 var user = GetUser();
                 var db = new DbEngine();
-                isComplete = db.ChangePositionsState(positionsId, 3);
+                isComplete = db.ChangePositionsState(positionsId, new PositionState("CANCELMAN").Id);
                 var allPositions = db.LoadSpecificationPositionsForTenderClaim(idClaim, cv);
                 int claimStatus = 3;
                 bool isSameCalculate = allPositions.Any(x => x.State == 2 || x.State == 4);
@@ -2966,11 +2976,11 @@ namespace SpeCalc.Controllers
                              String.Format("{0} - {1} - Отклонение расчета позиций СпецРасчет", claim.TenderNumber, claim.Customer));
                     }
                 }
-            }
-            catch (Exception)
-            {
-                isComplete = false;
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    isComplete = false;
+            //}
             return Json(new { IsComplete = isComplete, Model = model });
         }
         [HttpPost]
@@ -2982,11 +2992,11 @@ namespace SpeCalc.Controllers
         {
             var isComplete = false;
             ClaimStatusHistory model = null;
-            try
-            {
+            //try
+            //{
                 var user = GetUser();
                 var db = new DbEngine();
-                isComplete = db.ChangePositionsState(positionsId, 1);
+                isComplete = db.ChangePositionsState(positionsId, new PositionState("SEND").Id);
                 var lastStatus = db.LoadLastStatusHistoryForClaim(idClaim);
                 int claimStatus; var allPositions = db.LoadSpecificationPositionsForTenderClaim(idClaim, cv);
                 if (lastStatus.Status.Id == 9) claimStatus = 2;
@@ -3053,11 +3063,11 @@ namespace SpeCalc.Controllers
                              String.Format("{0} - {1} - Повторная передача позиций СпецРасчет для расчета", claim.TenderNumber, claim.Customer));
                     }
                 }
-            }
-            catch (Exception)
-            {
-                isComplete = false;
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    isComplete = false;
+            //}
             return Json(new { IsComplete = isComplete, Model = model });
         }
         //>>>>Уведомления
@@ -3067,8 +3077,8 @@ namespace SpeCalc.Controllers
             var isComplete = false;
             ClaimStatusHistory model = null;
             var message = string.Empty;
-            try
-            {
+            //try
+            //{
                 var user = GetUser();
                 var db = new DbEngine();
                 var positions = db.LoadSpecificationPositionsForTenderClaim(idClaim, cv);
@@ -3130,11 +3140,11 @@ namespace SpeCalc.Controllers
                 {
                     message = "Невозможно отправить позиции на подтверждение\rВ заявке нет позиций";
                 }
-            }
-            catch (Exception)
-            {
-                isComplete = false;
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    isComplete = false;
+            //}
             return Json(new { IsComplete = isComplete, Model = model, Message = message }, JsonRequestBehavior.AllowGet);
         }
 

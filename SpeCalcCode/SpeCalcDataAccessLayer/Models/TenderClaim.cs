@@ -99,9 +99,10 @@ namespace SpeCalcDataAccessLayer.Models
         public bool StateCanStop { get; set; }
         public bool StateCanPause { get; set; }
         public bool StateCanStart { get; set; }
-        public bool StateCanConfirmOrDiscartPositions { get; set; }
+        public bool StateCanConfirmPositions { get; set; }
+        public bool StateCanDiscartPositions { get; set; }
         public bool StateCanChangeProduct { get; set; }
-
+        public bool StateCanCallRejectPositions { get; set; }
 
         public TenderClaim()
         {
@@ -128,6 +129,7 @@ namespace SpeCalcDataAccessLayer.Models
 
         private void FillSelf(DataRow row)
         {
+            StateCanCallRejectPositions = Db.DbHelper.GetValueBool(row, "StateCanCallRejectPositions");
             StateManagerPositionWork = Db.DbHelper.GetValueBool(row, "StateManagerPositionWork");
             StateCanAddPositions = Db.DbHelper.GetValueBool(row, "StateCanAddPositions");
             StateIsEnd = Db.DbHelper.GetValueBool(row, "StateIsEnd");
@@ -166,7 +168,8 @@ namespace SpeCalcDataAccessLayer.Models
             StateCanStop = Db.DbHelper.GetValueBool(row, "StateCanStop");
             StateCanPause = Db.DbHelper.GetValueBool(row, "StateCanPause");
             StateCanStart = Db.DbHelper.GetValueBool(row, "StateCanStart");
-            StateCanConfirmOrDiscartPositions = Db.DbHelper.GetValueBool(row, "StateCanConfirmOrDiscartPositions");
+            StateCanConfirmPositions = Db.DbHelper.GetValueBool(row, "StateCanConfirmPositions");
+            StateCanDiscartPositions = Db.DbHelper.GetValueBool(row, "StateCanDiscartPositions");
             StateCanChangeProduct = Db.DbHelper.GetValueBool(row, "StateCanChangeProduct");
         }
 
