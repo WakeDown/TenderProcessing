@@ -1,5 +1,7 @@
 ﻿@model SpeCalcDataAccessLayer.Models.SpecificationPosition
-
+@{
+    bool IsTransneft = ViewBag.ClaimType != null && ViewBag.ClaimType == "TRANS";
+}
 <tr id="calcpos-@Model.Id" name="calcpos" pid="@Model.Id" style="background-color: #@Model.StateBackgroundColor">
     <td name="pos" class="min-widtd  text-center" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">
         @if (Model.StateCanEditProduct)
@@ -19,6 +21,14 @@
             </h4>
         }
     </th>
+    @if (IsTransneft)
+    {
+        <td name="pos" secol="secol" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.ContractDeliveryTime</td>
+        <td name="pos" secol="secol" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.Brand</td>
+        <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.RecipientDetails</td>
+        <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.QuestionnaireNum</td>
+        <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.MaxPrice</td>
+    }
     <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.CatalogNumber</td>
     <td name="pos" style="width: 250px;" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 0)">
         @Model.Name

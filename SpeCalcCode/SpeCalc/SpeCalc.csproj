@@ -246,6 +246,10 @@
     <Content Include="App_Data\SpecificationTrans.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="App_Data\Specification_finTrans.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="App_Data\TemplateTrans.xlsx" />
     <None Include="Properties\PublishProfiles\romanov.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootbox.js" />
@@ -326,6 +330,8 @@
     <Content Include="Views\Calc\CalculationEmpty.cshtml" />
     <Content Include="Views\Claim\NewPositionHeader.cshtml" />
     <Content Include="Views\Claim\NewPositionAdd.cshtml" />
+    <Content Include="Views\Claim\CalcPositionHeader.cshtml" />
+    <Content Include="Views\Calc\PositionHeader.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeCalcDataAccessLayer\SpeCalcDataAccessLayer.csproj">

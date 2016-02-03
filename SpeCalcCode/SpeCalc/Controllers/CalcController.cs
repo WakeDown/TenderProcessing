@@ -879,6 +879,339 @@ namespace SpeCalc.Controllers
             }
         }
 
+        public ActionResult GetSpecificationFileTrans(int claimId, bool forManager, int cv)
+        {
+            XLWorkbook excBook = null;
+            var ms = new MemoryStream();
+            var error = false;
+            var message = string.Empty;
+            //try
+            //{
+            var user = GetUser();
+            var db = new DbEngine();
+            var positions = new List<SpecificationPosition>();
+            //получение позиций исходя из роли юзера
+            //if (UserHelper.IsController(user) || UserHelper.IsManager(user))
+            if (CurUser.HasAccess(AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator))
+            {
+                positions = db.LoadSpecificationPositionsForTenderClaim(claimId, cv);
+            }
+            else
+            {
+                //if (UserHelper.IsProductManager(user))
+                if (CurUser.HasAccess(AdGroup.SpeCalcProduct))
+                {
+                    positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId, user.Sid, cv);
+                }
+            }
+            if (positions.Any())
+            {
+                //if (forManager) positions = positions.Where(x => x.State == 2 || x.State == 4).ToList();
+                //else positions = positions.Where(x => x.State == 1 || x.State == 3).ToList();
+                if (positions.Any())
+                {
+                    //расчет к позициям
+                    var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId, cv);
+                    if (calculations != null && calculations.Any())
+                    {
+                        foreach (var position in positions)
+                        {
+                            //if (UserHelper.IsManager(user) && position.State == 1 && !UserHelper.IsController(user) && !UserHelper.IsProductManager(user)) continue;
+                            if (CurUser.HasAccess(AdGroup.SpeCalcManager, AdGroup.SpeCalcProduct) && position.State == 1) continue;
+                            position.Calculations =
+                                calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
+                        }
+                    }
+                    var filePath = Path.Combine(Server.MapPath("~"), "App_Data", "TemplateTrans.xlsx");
+                    using (var fs = System.IO.File.OpenRead(filePath))
+                    {
+                        var buffer = new byte[fs.Length];
+                        fs.Read(buffer, 0, buffer.Count());
+                        ms.Write(buffer, 0, buffer.Count());
+                        ms.Seek(0, SeekOrigin.Begin);
+                    }
+                    //создание excel файла
+                    excBook = new XLWorkbook(ms);
+                    var workSheet = excBook.Worksheet("WorkSheet");
+                    workSheet.Name = "Расчет";
+                    var claim = db.LoadTenderClaimById(claimId);
+                    //>>>>>>>>Шапка - Заполнение инфы о заявке<<<<<<
+                    var dealTypes = db.LoadDealTypes();
+                    var manager = UserHelper.GetUserById(claim.Manager.Id);
+                    workSheet.Cell(1, 4).Value = claim.TenderNumber;
+                    workSheet.Cell(2, 4).Value = claim.Customer;
+                    
+                    workSheet.Cell(3, 4).Value = manager != null ? manager.ShortName : string.Empty;
+                    
+                    var directRangeSheet = excBook.AddWorksheet("Справочники");
+                    //создание дипазона выбора значений Факт получения защиты 
+                    var facts = db.LoadProtectFacts();
+                    //var currencies = db.LoadCurrencies();
+                    var deliveryTimes = db.LoadDeliveryTimes();
+
+                    var deliveryTimesList = deliveryTimes.Select(x => x.Value).ToList();
+                    for (var i = 0; i < deliveryTimesList.Count(); i++)
+                    {
+                        var time = deliveryTimesList[i];
+                        var cell = directRangeSheet.Cell(i + 1, 3);
+                        if (cell != null)
+                        {
+                            cell.Value = time;
+                        }
+                    }
+
+                    var protectFactList = facts.Select(x => x.Value).ToList();
+                    for (var i = 0; i < protectFactList.Count(); i++)
+                    {
+                        var protectFact = protectFactList[i];
+                        var cell = directRangeSheet.Cell(i + 1, 1);
+                        if (cell != null)
+                        {
+                            cell.Value = protectFact;
+                        }
+                    }
+
+                    
+
+
+
+
+                    var protectFactRange = directRangeSheet.Range(directRangeSheet.Cell(1, 1),
+                        directRangeSheet.Cell(protectFactList.Count(), 1));
+                    //var currenciesRange = directRangeSheet.Range(directRangeSheet.Cell(1, 2),
+                    //    directRangeSheet.Cell(currencies.Count(), 2));
+                    var deliveryTimeRange = directRangeSheet.Range(directRangeSheet.Cell(1, 3),
+                        directRangeSheet.Cell(deliveryTimes.Count(), 3));
+
+                    directRangeSheet.Visibility = XLWorksheetVisibility.Hidden;
+                    //>>>>>>>номер строки начало вывода инфы<<<<<<
+                    var row = 4;
+
+                    //В первой колонке храним id шники
+                    workSheet.Column(1).Hide();
+
+                    //вывод инфы по позициям
+                    //workSheet.Cell(row, 2).Value = "Запрос";
+
+                    //заголовок для строк расчета
+                   
+                    var posCounter = 0;
+
+                    foreach (var position in positions)
+                    {
+                        //заголовок и данные по позиции
+
+                        row++;
+                        var col = 1;
+                        var idCell = workSheet.Cell(row, col);
+                        idCell.Value = position.Id;
+                        workSheet.Cell(row, ++col).Value = ++posCounter;
+                        workSheet.Cell(row, col).Style.Font.SetBold();
+                        workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                        workSheet.Cell(row, col).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+                        workSheet.Range(workSheet.Cell(row, col), workSheet.Cell(row + 1, col)).Merge();
+
+                        workSheet.Cell(row, ++col).Value = position.ContractDeliveryTime;
+                        workSheet.Range(workSheet.Cell(row, col), workSheet.Cell(row + 1, col)).Merge();
+
+                        workSheet.Cell(row, ++col).Value = position.Brand;
+                        workSheet.Range(workSheet.Cell(row, col), workSheet.Cell(row + 1, col)).Merge();
+
+                        workSheet.Cell(row, ++col).Value = position.RecipientDetails;
+                        workSheet.Range(workSheet.Cell(row, col), workSheet.Cell(row + 1, col)).Merge();
+
+                        workSheet.Cell(row, ++col).Value = position.QuestionnaireNum;
+                        workSheet.Range(workSheet.Cell(row, col), workSheet.Cell(row + 1, col)).Merge();
+
+                        workSheet.Cell(row, ++col).Value = position.MaxPrice;
+                        workSheet.Range(workSheet.Cell(row, col), workSheet.Cell(row + 1, col)).Merge();
+
+                        workSheet.Cell(row, ++col).Value = position.CatalogNumber;
+                        workSheet.Range(workSheet.Cell(row, col), workSheet.Cell(row + 1, col)).Merge();
+                        var posCell = workSheet.Cell(row, ++col);
+                        posCell.Value = String.Format("{2}\r\n{5}", position.Id, position.CatalogNumber, position.Name, position.UnitName, position.Value, position.Comment);
+                        posCell.Style.Alignment.SetVertical(XLAlignmentVerticalValues.Top);
+                        posCell.Style.Alignment.SetWrapText();
+                        workSheet.Row(row).AdjustToContents();
+                        workSheet.Range(workSheet.Cell(row, col), workSheet.Cell(row + 1, col)).Merge();
+
+                        workSheet.Cell(row, ++col).Value = String.Format("{1} {0}", position.UnitName, position.Value);
+                        workSheet.Range(workSheet.Cell(row, col), workSheet.Cell(row + 1, col)).Merge();
+
+                        //Объединяем две ячейки чтобы удобнее было добавлять строки пользователям руками
+
+                        //workSheet.Range(workSheet.Cell(row, 2), workSheet.Cell(row + 1, 2)).Merge();
+                        //workSheet.Range(workSheet.Cell(row, 3), workSheet.Cell(row + 1, 3)).Merge();
+                        //workSheet.Range(workSheet.Cell(row, 4), workSheet.Cell(row + 1, 4)).Merge();
+                        //workSheet.Range(workSheet.Cell(row, 5), workSheet.Cell(row + 1, 5)).Merge();
+
+
+                        var firstPosRow = row;
+                        //вывод инфы по расчету к позиции
+                        if (position.Calculations != null && position.Calculations.Any())
+                        {
+                            var calcCount = 1;
+                            int curCol = col;
+
+                            foreach (var calculation in position.Calculations)
+                            {
+                                col = curCol;
+                                ExcelDataFormatCalcRowTrans(ref workSheet, row, deliveryTimeRange, protectFactRange);
+
+                                if (calcCount > 1)
+                                {
+                                    row++;
+
+                                    ExcelDataFormatCalcRowTrans(ref workSheet, row, deliveryTimeRange, protectFactRange);
+
+                                    workSheet.Range(workSheet.Cell(firstPosRow, 1), workSheet.Cell(row, 1)).Merge();
+                                    workSheet.Range(workSheet.Cell(firstPosRow, 2), workSheet.Cell(row, 2)).Merge();
+                                    workSheet.Range(workSheet.Cell(firstPosRow, 3), workSheet.Cell(row, 3)).Merge();
+                                    workSheet.Range(workSheet.Cell(firstPosRow, 4), workSheet.Cell(row, 4)).Merge();
+                                    workSheet.Range(workSheet.Cell(firstPosRow, 5), workSheet.Cell(row, 5)).Merge();
+                                    workSheet.Range(workSheet.Cell(firstPosRow, 6), workSheet.Cell(row, 6)).Merge();
+                                    workSheet.Range(workSheet.Cell(firstPosRow, 7), workSheet.Cell(row, 7)).Merge();
+                                    workSheet.Range(workSheet.Cell(firstPosRow, 8), workSheet.Cell(row, 8)).Merge();
+                                    workSheet.Range(workSheet.Cell(firstPosRow, 9), workSheet.Cell(row, 9)).Merge();
+                                    workSheet.Range(workSheet.Cell(firstPosRow, 10), workSheet.Cell(row, 10)).Merge();
+                                }
+                                workSheet.Cell(row, ++col).Value = calculation.Brand;
+                                workSheet.Cell(row, ++col).Value = calculation.CatalogNumber;
+                                workSheet.Cell(row, ++col).Value = calculation.Name;
+                                workSheet.Cell(row, col).Style.Alignment.SetWrapText();
+                                workSheet.Cell(row, ++col).Value = calculation.Replace;
+                                workSheet.Cell(row, col).Style.Alignment.SetWrapText();
+
+                                workSheet.Cell(row, ++col).Value = calculation.PriceUsd;
+                                workSheet.Cell(row, ++col).Value = calculation.PriceEur;
+                                workSheet.Cell(row, ++col).Value = calculation.PriceEurRicoh;
+                                workSheet.Cell(row, ++col).Value = calculation.PriceRubl;
+                                workSheet.Cell(row, ++col).Value = calculation.Provider;
+                                workSheet.Cell(row, col).Style.Alignment.SetWrapText();
+
+                                if (calculation.DeliveryTime != null) workSheet.Cell(row, ++col).Value = deliveryTimes.First(x => x.Id == calculation.DeliveryTime.Id).Value;
+                                workSheet.Cell(row, col).Style.Alignment.SetWrapText();
+
+                                if (calculation.ProtectFact != null)
+                                    workSheet.Cell(row, ++col).Value = calculation.ProtectFact.Value;
+                                //facts.First(x => x.Id == calculation.ProtectFact.Id).Value;
+
+                                workSheet.Cell(row, ++col).Value = calculation.ProtectCondition;
+                                workSheet.Cell(row, col).Style.Alignment.SetWrapText();
+                                workSheet.Cell(row, ++col).Value = calculation.Comment;
+                                workSheet.Cell(row, col).Style.Alignment.SetWrapText();
+
+                                calcCount++;
+                            }
+                            
+                            //}
+                        }
+                        else
+                        {
+
+
+                            ExcelDataFormatCalcRowTrans(ref workSheet, row, deliveryTimeRange, protectFactRange);
+                            //Специально добавляем строчу так как мы делаем специально две на позицию чтобы ыбло удобнее добавлять руками в Экселе
+                            row++;
+                            ExcelDataFormatCalcRowTrans(ref workSheet, row, deliveryTimeRange, protectFactRange);
+                            
+                        }
+                        //row++;
+                    }
+
+                    var list = workSheet.Range(workSheet.Cell(4, 1), workSheet.Cell(row, 23));
+
+                    list.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
+                    list.Style.Border.SetBottomBorderColor(XLColor.Gray);
+                    list.Style.Border.SetTopBorder(XLBorderStyleValues.Thin);
+                    list.Style.Border.SetTopBorderColor(XLColor.Gray);
+                    list.Style.Border.SetRightBorder(XLBorderStyleValues.Thin);
+                    list.Style.Border.SetRightBorderColor(XLColor.Gray);
+                    list.Style.Border.SetLeftBorder(XLBorderStyleValues.Thin);
+                    list.Style.Border.SetLeftBorderColor(XLColor.Gray);
+
+                    //workSheet.Columns(1, 11).AdjustToContents();
+                    //workSheet.Column(8).Hide();
+                    excBook.SaveAs(ms);
+                    excBook.Dispose();
+                    ms.Seek(0, SeekOrigin.Begin);
+                }
+                else
+                {
+                    error = true;
+                    message = "Нет позиций для расчета";
+                }
+            }
+            else
+            {
+                error = true;
+                message = "Нет позиций для расчета";
+            }
+            //}
+            //catch (Exception)
+            //{
+            //    error = true;
+            //    message = "Ошибка сервера";
+            //}
+            //finally
+            //{
+            //    if (excBook != null)
+            //    {
+            //        excBook.Dispose();
+            //    }
+            //}
+            if (!error)
+            {
+                return new FileStreamResult(ms, "application/vnd.ms-excel")
+                {
+                    FileDownloadName = "Specification_" + claimId + ".xlsx"
+                };
+            }
+            else
+            {
+                ViewBag.Message = message;
+                return null;
+            }
+        }
+
+        public void ExcelDataFormatCalcRowTrans(ref IXLWorksheet workSheet, int row, IXLRange deliveryTimeRange, IXLRange protectFactRange)
+        {
+            int col = 14;
+
+            workSheet.Cell(row, col).DataType = XLCellValues.Number;
+            workSheet.Cell(row, col).DataValidation.Decimal.GreaterThan(0);
+            workSheet.Cell(row, col).DataValidation.ErrorTitle = "Введите число";
+            workSheet.Cell(row, col).DataValidation.ErrorMessage = "Введите число";
+
+            workSheet.Cell(row, ++col).DataType = XLCellValues.Number;
+            workSheet.Cell(row, col).DataValidation.Decimal.GreaterThan(0);
+            workSheet.Cell(row, col).DataValidation.ErrorTitle = "Введите число";
+            workSheet.Cell(row, col).DataValidation.ErrorMessage = "Введите число";
+
+            workSheet.Cell(row, ++col).DataType = XLCellValues.Number;
+            workSheet.Cell(row, col).DataValidation.Decimal.GreaterThan(0);
+            workSheet.Cell(row, col).DataValidation.ErrorTitle = "Введите число";
+            workSheet.Cell(row, col).DataValidation.ErrorMessage = "Введите число";
+            workSheet.Cell(row, ++col).DataType = XLCellValues.Number;
+            workSheet.Cell(row, col).DataValidation.Decimal.GreaterThan(0);
+            workSheet.Cell(row, col).DataValidation.ErrorTitle = "Введите число";
+            workSheet.Cell(row, col).DataValidation.ErrorMessage = "Введите число";
+            ++col;
+            var validation = workSheet.Cell(row, ++col).SetDataValidation();
+            validation.AllowedValues = XLAllowedValues.List;
+            validation.InCellDropdown = true;
+            validation.Operator = XLOperator.Between;
+            validation.List(deliveryTimeRange);
+            validation.ErrorMessage = "Выберите из списка";
+
+            validation = workSheet.Cell(row, ++col).SetDataValidation();
+            validation.AllowedValues = XLAllowedValues.List;
+            validation.InCellDropdown = true;
+            validation.Operator = XLOperator.Between;
+            validation.List(protectFactRange);
+            validation.ErrorMessage = "Выберите из списка";
+        }
+
         public void ExcelDataFormatCalcRow(ref IXLWorksheet workSheet, int row, IXLRange deliveryTimeRange, IXLRange protectFactRange)
         {
             workSheet.Cell(row, 9).DataType = XLCellValues.Number;
@@ -1763,30 +2096,33 @@ namespace SpeCalc.Controllers
         }
 
         [HttpGet]
-        public PartialViewResult GetPositions(int? claimId, int? cv)
+        public PartialViewResult GetPositions(int? claimId, int? cv, string ClaimType)
         {
             if (!claimId.HasValue) return null;
             if (!cv.HasValue) cv = 1;
             string productSid = null;
             if (CurUser.Is(AdGroup.SpeCalcProduct))
                 productSid = CurUser.Sid;
+            ViewBag.ClaimType = ClaimType;
             var list = SpecificationPosition.GetListWithCalc(claimId.Value, cv.Value, productSid);// db.LoadSpecificationPositionsForTenderClaim(); ;
             return PartialView("Positions", list);
         }
 
         [HttpPost]
-        public PartialViewResult GetCalculation(int? id)
+        public PartialViewResult GetCalculation(int? id, string ClaimType)
         {
             var model = new CalculateSpecificationPosition();
             if (id.HasValue) { model = new CalculateSpecificationPosition(id.Value); }
+            ViewBag.ClaimType = ClaimType;
             return PartialView("Calculation", model);
         }
 
         [HttpPost]
-        public PartialViewResult GetCalculationEdit(int? id)
+        public PartialViewResult GetCalculationEdit(int? id, string ClaimType)
         {
             var model = new CalculateSpecificationPosition();
             if (id.HasValue && id.Value > 0) { model = new CalculateSpecificationPosition(id.Value);}
+            ViewBag.ClaimType = ClaimType;
             return PartialView("CalculationEdit", model);
         }
 

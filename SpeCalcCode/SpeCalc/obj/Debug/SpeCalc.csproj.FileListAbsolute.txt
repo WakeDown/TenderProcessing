@@ -283,3 +283,4 @@ C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.dll
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.pdb
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\App_Data\SpecificationTrans.xlsx
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\App_Data\Specification_finTrans.xlsx

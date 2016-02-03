@@ -267,3 +267,69 @@ input.required-mark,textarea.required-mark, select.required-mark, span.required-
     cursor: pointer;
     background-color: #f7ecb5;
 }
+
+.history-item {
+    /*margin-bottom: 10px;*/
+    padding: 5px;
+    /*border-radius: 4px;*/
+    border: 0;
+    border-bottom: 1px solid #d3d3d3;
+}
+
+.fileUpload {
+    position: relative;
+    overflow: hidden;
+    margin: 10px;
+}
+.fileUpload input.upload {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+
+.spinner {
+  display: inline-block;
+  opacity: 0;
+  max-width: 0;
+
+  -webkit-transition: opacity 0.25s, max-width 0.45s; 
+  -moz-transition: opacity 0.25s, max-width 0.45s;
+  -o-transition: opacity 0.25s, max-width 0.45s;
+  transition: opacity 0.25s, max-width 0.45s; /* Duration fixed since we animate additional hidden width */
+}
+
+.spinner.on-input {
+    z-index:999;
+    position:absolute;
+    top: 7px;
+    left: 10px;
+}
+
+.spinner.on-element {
+    z-index:999;
+    position:absolute;
+}
+
+.spinner.active {
+    cursor:progress;
+  opacity: 1;
+  max-width: 50px; /* More than it will ever come, notice that this affects on animation duration */
+}
+
+.input-xs {
+    height: 25px;
+  padding: 2px 5px;
+  font-size: 10px;
+  line-height: 1.5;
+  border-radius: 3px; 
+}
+
+.calcDeleted {
+    background-color: red;
+}

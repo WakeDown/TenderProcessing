@@ -72,7 +72,7 @@ namespace SpeCalcDataAccessLayer.Models
             IdTenderClaim = Db.DbHelper.GetValueIntOrDefault(row, prefix + "IdClaim");
             CatalogNumber = Db.DbHelper.GetValueString(row, prefix + "CatalogNumber");
             Name = Db.DbHelper.GetValueString(row, prefix + "Name");
-            Replace = Db.DbHelper.GetValueString(row, prefix + "Replace");
+            Replace = Db.DbHelper.GetValueString(row, prefix + "ReplaceValue");
             //Value = Db.DbHelper.GetValueIntOrDefault(row, "Value");
             //ProductManagerId = Db.DbHelper.GetValueString(row, "ProductManager");
             //ProductManagerName = Db.DbHelper.GetValueString(row, "product_manager_display_name");

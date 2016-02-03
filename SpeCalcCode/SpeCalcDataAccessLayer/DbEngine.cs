@@ -1118,6 +1118,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@priceRubl", model.PriceRubl);
                 cmd.Parameters.AddWithValue("@deliveryTime", model.DeliveryTimeId);
                 cmd.Parameters.AddWithValue("@b2bPrice", model.b2bPrice);
+                cmd.Parameters.AddWithValue("@Brand", model.Brand);
 
                 conn.Open();
                 var rd = cmd.ExecuteReader();
@@ -1169,6 +1170,7 @@ namespace SpeCalcDataAccessLayer
                 cmd.Parameters.AddWithValue("@priceRubl", model.PriceRubl);
                 cmd.Parameters.AddWithValue("@deliveryTime", model.DeliveryTimeId);
                 cmd.Parameters.AddWithValue("@b2bPrice", model.b2bPrice);
+                cmd.Parameters.AddWithValue("@Brand", model.Brand);
 
                 conn.Open();
                 result = cmd.ExecuteNonQuery() > 0;

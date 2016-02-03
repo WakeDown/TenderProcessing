@@ -1,0 +1,48 @@
+﻿@{
+    bool IsTransneft = ViewBag.ClaimType != null && ViewBag.ClaimType == "TRANS";
+}
+
+<tr class="bg-primary">
+    <th class="min-width text-center">
+        <input type="checkbox" id="calcPositionsCheckAll" data-toggle="tooltip" title="все" />
+    </th>
+    <th></th>
+    @if (IsTransneft)
+    {
+        <th>Срок поставки по договору</th>
+        <th>Бренд</th>
+        <th>Реквизиты получателя</th>
+        <th>ГОСТ, ТУ, ОСТ, опросный лист и пр.</th>
+        <th>Максимальная цена по лоту с НДС</th>
+    }
+    <th>Каталожный номер</th>
+    <th style="width: 250px;">
+        Запрос
+    </th>
+    <th>Количество</th>
+    <th>Продакт</th>
+@if (IsTransneft)
+{
+    <th>Бренд</th>
+}
+    <th>Каталожный номер</th>
+@if (IsTransneft)
+{
+    <th>Наименование</th>
+    <th>Замена</th>
+}
+else
+{
+    <th>Ответ</th>
+}
+    <th>Цена B2B</th>
+    <th>Цена USD</th>
+    <th>Цена EUR</th>
+    <th>Цена EUR Ricoh</th>
+    <th>Цена руб</th>
+    <th>Поставщик</th>
+    <th>Срок поставки</th>
+    <th>Факт защиты</th>
+    <th>Условия защиты</th>
+    <th>Комментарий</th>
+</tr>

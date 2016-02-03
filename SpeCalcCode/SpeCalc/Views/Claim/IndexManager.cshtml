@@ -257,7 +257,14 @@
                         <span class="label label-info">из них рассчитано&nbsp;<span class="big" id="positionCalculateCountLabel">@Model.CalculatePositionsCount</span></span>
                     </li>
                     <li>
-                        <a id="butGetCalculateOnlyCalculateFile" href="@Url.Action("GetSpecificationFileOnlyCalculation")?claimId=@Model.Id&cv=@Request.QueryString["cv"]" target="_blank" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</a>
+                        @if (IsTransneft)
+                        {
+                            <a  href="@Url.Action("GetSpecificationFileOnlyCalculationTrans")?claimId=@Model.Id&cv=@Request.QueryString["cv"]" target="_blank" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</a>
+                        }
+                        else
+                        {
+                            <a id="butGetCalculateOnlyCalculateFile" href="@Url.Action("GetSpecificationFileOnlyCalculation")?claimId=@Model.Id&cv=@Request.QueryString["cv"]" target="_blank" class="btn btn-default btn-sm"><i class="fa fa-download"></i> скачать расчет</a>
+                        }
                     </li>
                     @if (Model.StateCanDiscartPositions)
                     {
@@ -298,29 +305,7 @@
                 </ul>
                 <table id="tblPositionsWithCalc" class="table small table-bordered">
                     <thead>
-                    <tr class="bg-primary">
-                        <th class="min-width text-center">
-                            <input type="checkbox" id="calcPositionsCheckAll" data-toggle="tooltip" title="все"/>
-                        </th>
-                        <th></th>
-                        <th>Каталожный номер</th>
-                        <th style="width: 250px;">Запрос
-                        </th>
-                        <th>Количество</th>
-                        <th>Продакт</th>
-                        <th>Каталожный номер</th>
-                        <th>Ответ</th>
-                        <th>Цена B2B</th>
-                        <th>Цена USD</th>
-                        <th>Цена EUR</th>
-                        <th>Цена EUR Ricoh</th>
-                        <th>Цена руб</th>
-                        <th>Поставщик</th>
-                        <th>Срок поставки</th>
-                        <th>Факт защиты</th>
-                        <th>Условия защиты</th>
-                        <th>Комментарий</th>
-                    </tr>
+                    @Html.Partial("CalcPositionHeader")
                     </thead>
                     <tbody id="calcPositionsContainer"></tbody>
                 </table>
@@ -840,17 +825,17 @@
             $.ajax({
                 url: '@Url.Action("GetCalcPositions")',
                 method: 'GET',
-                data: { claimId: @Model.Id, cv: @Request.QueryString["cv"] },
+                data: { claimId: @Model.Id, cv: @Request.QueryString["cv"], ClaimType: '@ViewBag.ClaimType' },
                 success: function(html) {
-                    $('#calcPositionsContainer').html(html);
+                    $cont.html(html);
                     setB2bPrice($cont);
                     //fillCount();
                     //initNewPositionBtns();
-                    hideSpinner($('#calcPositionsContainer'));
+                    hideSpinner($cont);
                 },
                 error: function() {
                     alert('Ошибка загрузки позиций!');
-                    hideSpinner($('#calcPositionsContainer'));
+                    hideSpinner($cont);
                 }
             });
         }
@@ -886,8 +871,8 @@
             }
             showSpinnerAppendAndDisable(this);
             $.ajax({
-                    url: '@Url.Action("AddPosition")',
-                    method: 'POST',
+                url: '@Url.Action("AddPosition")',
+                method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ IdClaim: @Model.Id, ProductManagerName: ProductManagerName, UnitName: UnitName, CatalogNumber: CatalogNumber, Name: Name, Value: Value, Unit: Unit, ProductManagerId: ProductManagerId, Comment: Comment }),
                 success:
@@ -899,11 +884,11 @@
                 initNewPositionBtns();
                 hideSpinnerAndEnabled();
             },
-            error: function() {
-                alert('Ошибка при сохранении позиции');
-                hideSpinnerAndEnabled();
-            }
-        });
+                error: function() {
+                    alert('Ошибка при сохранении позиции');
+                    hideSpinnerAndEnabled();
+                }
+            });
         }
 
         function showHistoryAll() {

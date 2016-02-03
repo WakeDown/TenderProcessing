@@ -133,17 +133,19 @@
     </div>
 </div>
 
-<h5>
-    <span class="label label-default">
-        Всего записей:
-        <span id="claimCountLabel">@Model.TotalClaimsCount</span>
-    </span>
-    &nbsp;
-    <span class="label label-info">
-        из них показано:
-        <span id="showCountLabel">@Model.Claims.Count</span>
-    </span>
-</h5>
+<div>
+    <h5>
+        <span class="label label-default">
+            Всего записей:
+            <span id="claimCountLabel">@Model.TotalClaimsCount</span>
+        </span>
+        &nbsp;
+        <span class="label label-info">
+            из них показано:
+            <span id="showCountLabel">@Model.Claims.Count</span>
+        </span>
+    </h5>
+</div>
 <table class="table table-bordered small">
     <thead>
     <tr class="bg-primary">
@@ -191,11 +193,11 @@
             }
             <td>@claim.Id</td>
             <td>@claim.TenderNumber</td>
-            <td>@claim.Customer@(!String.IsNullOrEmpty(claim.CustomerInn) ?"< br/>ИНН" + claim.CustomerInn : String.Empty)</td>
+            <td>@claim.Customer<br/>@(!String.IsNullOrEmpty(claim.CustomerInn) ?"ИНН " + claim.CustomerInn : String.Empty)</td>
             <td>@claim.Sum</td>
             <td>
                 <div class='text-nowrap'>@claim.Manager.ShortName</div>
-                <div class='text-nowrap'>@claim.Author.ShortName</div>
+                <div class='text-nowrap'>@claim.Author.DisplayName</div>
             </td>
             <td>@ListViewModels.GetClaimStatus(claim.ClaimStatus)</td>
             <td>@claim.RecordDateString.Split(' ')[0]</td>
@@ -240,9 +242,6 @@
 
 <link href="~/Content/bootstrap-datepicker3.css" rel="stylesheet" />
 <script type="text/javascript">
-
-
-
     $(init);
 
     function init() {

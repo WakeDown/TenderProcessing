@@ -1252,7 +1252,6 @@ namespace SpeCalc.Controllers
             try
             {
                 
-
                 //получение позиций по заявке и расчетов к ним
                 var db = new DbEngine();
                 var positions = SpecificationPosition.GetListWithCalc(claimId, cv);//db.LoadSpecificationPositionsForTenderClaim(claimId, cv);
@@ -1632,6 +1631,422 @@ namespace SpeCalc.Controllers
                 return new FileStreamResult(ms, "application/vnd.ms-excel")
                 {
                     FileDownloadName = "Calculation_" + claimId + ".xlsx"
+                };
+            }
+            else
+            {
+                ViewBag.Message = message;
+                return null;
+            }
+        }
+
+        [HttpGet]
+        public ActionResult GetSpecificationFileOnlyCalculationTrans(int claimId, int cv)
+        {
+            XLWorkbook excBook = null;
+            var ms = new MemoryStream();
+            var error = false;
+            var message = string.Empty;
+            try
+            {
+
+                //получение позиций по заявке и расчетов к ним
+                var db = new DbEngine();
+                var positions = SpecificationPosition.GetListWithCalc(claimId, cv);//db.LoadSpecificationPositionsForTenderClaim(claimId, cv);
+                //var facts = db.LoadProtectFacts();
+                if (positions.Any())
+                {
+                    //var calculations = db.LoadCalculateSpecificationPositionsForTenderClaim(claimId, cv);
+                    //if (calculations != null && calculations.Any())
+                    //{
+                    //    foreach (var position in positions)
+                    //    {
+                    //        if (position.State == 1) continue;
+                    //        position.Calculations =
+                    //            calculations.Where(x => x.IdSpecificationPosition == position.Id).ToList();
+                    //    }
+                    //}
+                    var filePath = Path.Combine(Server.MapPath("~"), "App_Data", "Specification_finTrans.xlsx");
+                    using (var fs = System.IO.File.OpenRead(filePath))
+                    {
+                        var buffer = new byte[fs.Length];
+                        fs.Read(buffer, 0, buffer.Count());
+                        ms.Write(buffer, 0, buffer.Count());
+                        ms.Seek(0, SeekOrigin.Begin);
+                    }
+                    //создание файла excel с инфой по расчетам
+                    excBook = new XLWorkbook(ms);
+                    var workSheet = excBook.Worksheet("WorkSheet");
+                    workSheet.Name = "лот";
+                    var claim = db.LoadTenderClaimById(claimId);
+                    //>>>>>>>>Шапка - Заполнение инфы о заявке<<<<<<
+
+                    //Менеджер из Москвы
+                    bool managerIsMoscou = false;
+                    string managerSid = GetUser().Sid;
+                    var dtUserIsMoscou = Db.CheckManagerIsMoscou(managerSid);
+                    if (dtUserIsMoscou.Rows.Count > 0)
+                    {
+                        managerIsMoscou = dtUserIsMoscou.Rows[0]["result"].ToString().Equals("1");
+                    }
+                    // />Менеджер из Москвы
+
+                    var dealTypes = db.LoadDealTypes();
+                    var deliveryTimes = db.LoadDeliveryTimes();
+                    UserBase manager;
+                    try
+                    {
+                        manager = UserHelper.GetUserById(claim.Manager.Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        manager = new UserBase();
+                    }
+                    var dt = Db.GetExchangeRatesOnDate(DateTime.Now);
+
+                    double? usdRate = null;
+                    double? eurRate = null;
+
+                    if (dt.Rows.Count >= 3)
+                    {
+                        usdRate = Convert.ToDouble(dt.Rows[1]["price"].ToString()) * 1.03;
+                        eurRate = Convert.ToDouble(dt.Rows[2]["price"].ToString()) * 1.03;
+                    }
+
+                    int rowHead = 1;
+
+                    var usdCell = workSheet.Cell(rowHead, 4);
+                    usdCell.Value =
+                        usdRate.HasValue
+                            ? usdRate.Value.ToString("N2")
+                            : string.Empty;
+                    workSheet.Cell(rowHead, 4).DataType = XLCellValues.Number;
+
+                    var eurCell = workSheet.Cell(++rowHead, 4);
+                    eurCell.Value = eurRate.HasValue
+                            ? eurRate.Value.ToString("N2")
+                            : string.Empty;
+                    workSheet.Cell(rowHead, 4).DataType = XLCellValues.Number;
+
+                    var eurRicohCell = workSheet.Cell(++rowHead, 4);
+                    var profitCell = workSheet.Cell(++rowHead, 4);//Рентабельность
+                    workSheet.Cell(++rowHead, 4).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
+                    workSheet.Cell(++rowHead, 4).Value = manager != null ? manager.ShortName : string.Empty;
+                    workSheet.Cell(++rowHead, 4).Value = claim.Customer;
+                    //срок готовности цен от снабжения???
+                    rowHead++;
+                    workSheet.Cell(++rowHead, 4).Value = claim.Sum;//Максимальная цена контракта???
+                    workSheet.Cell(++rowHead, 4).Value = claim.DeliveryDateString;
+                    workSheet.Cell(rowHead, 4).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(++rowHead, 4).Value = claim.DeliveryPlace;
+                    workSheet.Cell(++rowHead, 4).Value = claim.KPDeadlineString;
+                    workSheet.Cell(rowHead, 4).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(++rowHead, 4).Value = claim.AuctionDateString;
+                    workSheet.Cell(rowHead, 4).DataType = XLCellValues.DateTime;
+                    workSheet.Cell(++rowHead, 4).Value = claim.Comment;
+
+                    var row = rowHead + 2;
+                    int firstRow = row;
+                    var rowNumber = 1;
+                    //строки расчета
+                    foreach (var position in positions)
+                    {
+                        position.Name = position.Name.Replace("\n", "").Replace("\r", "");
+
+                        if (position.Calculations != null && position.Calculations.Any())
+                        {
+                            int calcNum = 0;
+                            foreach (var calculation in position.Calculations)
+                            {
+                                calcNum++;
+                                calculation.Name = calculation.Name.Replace("\n", "").Replace("\r", "");
+
+                                int col = 0;
+                                workSheet.Cell(row, ++col).Value = rowNumber;
+                                workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                workSheet.Cell(row, ++col).Value = position.ContractDeliveryTime;
+                                workSheet.Cell(row, ++col).Value = position.Brand;
+                                workSheet.Cell(row, ++col).Value = position.RecipientDetails;
+                                workSheet.Cell(row, ++col).Value = position.QuestionnaireNum;
+                                workSheet.Cell(row, ++col).Value = position.MaxPrice;
+                               
+                                //Не показываем подряд одни и те же надписи названия и каталожника
+                                workSheet.Cell(row, ++col).Value = calcNum > 1 ? String.Empty : position.CatalogNumber;
+                                //? position.CatalogNumber
+                                //: calculation.CatalogNumber;
+                                double hPosCatNum = GetCellHeight(workSheet.Cell(row, col).Value.ToString().Length, 30);
+                                workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                //Не показываем подряд одни и те же надписи названия и каталожника
+                                workSheet.Cell(row, ++col).Value = calcNum > 1 ? String.Empty : position.Name;
+                                double hPosName = GetCellHeight(workSheet.Cell(row, col).Value.ToString().Length, 40);
+                                //String.IsNullOrEmpty(calculation.Name)? position.Name: calculation.Name;
+                                workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                workSheet.Cell(row, ++col).Value = calculation.Brand;
+                                workSheet.Cell(row, ++col).Value = calculation.CatalogNumber;
+                                double hCalcCatNum = GetCellHeight(workSheet.Cell(row, col).Value.ToString().Length, 30);
+                                workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                                workSheet.Cell(row, ++col).Value = calculation.Name;
+                                //+ (!String.IsNullOrEmpty(calculation.Name) ? "\r\n" : "") + (!String.IsNullOrEmpty(calculation.Replace) ? "Замена:\r\n" + calculation.Replace : String.Empty);
+                                double hCalcName = GetCellHeight(workSheet.Cell(row, col).Value.ToString().Length, 40);
+                                workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+
+                                workSheet.Cell(row, ++col).Value = calculation.Replace.Replace("\n", "").Replace("\r", "");
+                                //workSheet.Cell(row, ++col).Value = calculation.Replace;
+                                //workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+
+
+                                workSheet.Cell(row, ++col).Value = position.UnitName;
+                                workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                                var countCell = workSheet.Cell(row, ++col);
+                                countCell.Value = position.Value;
+
+                                countCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                if (!String.IsNullOrEmpty(position.ProductManagerName))
+                                {
+                                    //var prodManager = UserHelper.GetUserById(position.ProductManager.Id);
+                                    //workSheet.Cell(row, ++col).Value = prodManager == null
+                                    //    ? String.Empty
+                                    //    : prodManager.ShortName;
+                                    workSheet.Cell(row, ++col).Value = position.ProductManagerName;
+                                }
+                                else
+                                {
+                                    ++col;
+                                }
+                                double hProdManager = GetCellHeight(workSheet.Cell(row, col).Value.ToString().Length, 16);
+                                workSheet.Cell(row, ++col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                if (calculation.DeliveryTime != null)
+                                {
+                                    var delivTime = deliveryTimes.First(x => x.Id == calculation.DeliveryTime.Id);
+                                    workSheet.Cell(row, col).Value = delivTime == null ? String.Empty : delivTime.Value;
+                                }
+                                double hCalcDeliv = GetCellHeight(workSheet.Cell(row, col).Value.ToString().Length, 16);
+                                workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                string partNum4Online = String.IsNullOrEmpty(position.CatalogNumber) ? calculation.CatalogNumber : position.CatalogNumber;
+                                string onlinePrice = String.Empty;
+                                try
+                                { onlinePrice = CatalogProduct.PriceRequest(partNum4Online); }
+                                catch
+                                {
+
+                                }
+                                workSheet.Cell(row, ++col).Value = onlinePrice;//Цена B2B
+                                workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                                var priceUsdCell = workSheet.Cell(row, ++col);
+                                priceUsdCell.Value = calculation.PriceUsd;
+                                priceUsdCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                                priceUsdCell.Style.NumberFormat.Format = "$ #,##0.00";
+                                var priceEurCell = workSheet.Cell(row, ++col);
+                                priceEurCell.Value = calculation.PriceEur;
+                                priceEurCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                                priceEurCell.Style.NumberFormat.Format = "€ #,##0.00";
+                                var priceEurRicohCell = workSheet.Cell(row, ++col);
+                                priceEurRicohCell.Value = calculation.PriceEurRicoh;
+                                priceEurRicohCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                                priceEurRicohCell.Style.NumberFormat.Format = "€ #,##0.00";
+                                var priceRublCell = workSheet.Cell(row, ++col);
+                                priceRublCell.Value = calculation.PriceRubl;
+                                priceRublCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+
+                                //Вход за ед
+                                if (String.IsNullOrEmpty(priceRublCell.Value.ToString().Trim()))
+                                {
+                                    if (!String.IsNullOrEmpty(priceEurRicohCell.Value.ToString().Trim()))
+                                    {
+                                        priceRublCell.FormulaR1C1 = String.Format("{0}*{1}", eurRicohCell.Address.ToStringFixed(), priceEurRicohCell.Address);
+                                    }
+                                    if (!String.IsNullOrEmpty(priceEurCell.Value.ToString().Trim()))
+                                    {
+                                        priceRublCell.FormulaR1C1 = String.Format("{0}*{1}", eurCell.Address.ToStringFixed(), priceEurCell.Address);
+                                    }
+                                    if (!String.IsNullOrEmpty(priceUsdCell.Value.ToString().Trim()))
+                                    {
+                                        priceRublCell.FormulaR1C1 = String.Format("{0}*{1}", usdCell.Address.ToStringFixed(), priceUsdCell.Address);
+                                    }
+
+                                }
+                                // />Вход за ед
+                                priceRublCell.Style.NumberFormat.Format = "₽ #,##0.00";
+                                //Сумма
+                                var priceSumCell = workSheet.Cell(row, ++col);
+                                priceSumCell.Style.NumberFormat.Format = "₽ #,##0.00";
+                                priceSumCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                                priceSumCell.FormulaR1C1 = String.Format("{0}*{1}", countCell.Address,
+                                    priceRublCell.Address);
+                                // />Сумма
+
+                                //Цена с ТЗР
+                                var priceTzrCell = workSheet.Cell(row, ++col);
+                                string formulaPriceTzrCell = String.Format("(({0}*1.02)*1.02)", priceRublCell.Address);
+                                if (managerIsMoscou)
+                                {
+                                    formulaPriceTzrCell = String.Format("({0}*1.02)", priceRublCell.Address);
+                                }
+                                priceTzrCell.FormulaR1C1 = formulaPriceTzrCell;
+                                priceTzrCell.Style.NumberFormat.Format = "₽ #,##0.00";
+                                priceTzrCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                                // /> Цена с ТЗР
+
+                                //Сумма с ТЗР
+                                var sumTzrCell = workSheet.Cell(row, ++col);
+                                string formulaSumTzrCell = String.Format("{0}*{1}", countCell.Address, priceTzrCell.Address);
+                                sumTzrCell.FormulaR1C1 = formulaSumTzrCell;
+                                sumTzrCell.Style.NumberFormat.Format = "₽ #,##0.00";
+                                sumTzrCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                                // /> Сумма с ТЗР
+
+                                //Цена С НДС
+                                var priceNdsCell = workSheet.Cell(row, ++col);
+                                string formulaPriceNdsCell = String.Format("{0}*(1+({1}/100))", priceTzrCell.Address, profitCell.Address);
+                                priceNdsCell.FormulaR1C1 = formulaPriceNdsCell;
+                                priceNdsCell.Style.NumberFormat.Format = "₽ #,##0.00";
+                                priceNdsCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                                // /> Цена с НДС
+
+                                //Сумма с НДС
+                                var sumNdsCell = workSheet.Cell(row, ++col);
+                                string formulaSumNdsCell = String.Format("{0}*{1}", countCell.Address, priceNdsCell.Address);
+                                sumNdsCell.FormulaR1C1 = formulaSumNdsCell;
+                                sumNdsCell.Style.NumberFormat.Format = "₽ #,##0.00";
+                                sumNdsCell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                                // /> Сумма с НДС
+
+                                //workSheet.Cell(row, 5).Value = !calculation.PriceCurrency.Equals(0)
+                                //    ? calculation.PriceCurrency.ToString("N2")
+                                //    : string.Empty;
+                                //workSheet.Cell(row, 6).Value = !calculation.SumCurrency.Equals(0)
+                                //    ? calculation.SumCurrency.ToString("N2")
+                                //    : string.Empty;
+                                //workSheet.Cell(row, 7).Value = "";//currencies.First(x => x.Id == calculation.Currency).Value;
+                                //workSheet.Cell(row, 7).Value = !calculation.PriceRub.Equals(0)
+                                //    ? calculation.PriceRub.ToString("N2")
+                                //    : string.Empty;
+                                //workSheet.Cell(row, 8).Value = !calculation.SumRub.Equals(0)
+                                //    ? calculation.SumRub.ToString("N2")
+                                //    : string.Empty;
+
+                                workSheet.Cell(row, ++col).Value = calculation.Provider;
+                                workSheet.Cell(row, col)
+                                    .Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                //workSheet.Cell(row, 9).Value = calculation.ProtectFact != null ?
+                                //    facts.First(x => x.Id == calculation.ProtectFact.Id).Value : String.Empty;
+                                //workSheet.Cell(row, 10).Value = calculation.ProtectCondition;
+                                workSheet.Cell(row, ++col).Value = calculation.Comment;
+                                workSheet.Cell(row, col).Style.Font.SetFontColor(XLColor.Red);
+                                double hComent = GetCellHeight(workSheet.Cell(row, col).Value.ToString().Length, 40);
+
+
+                                double[] arr = { hPosCatNum, hPosName, hCalcName, hCalcDeliv, hProdManager, hComent, hCalcCatNum };
+                                workSheet.Row(row).Height = arr.Max();
+                                row++;
+                                rowNumber++;
+                            }
+                        }
+
+                        else
+                        {
+                            int col = 0;
+                            workSheet.Cell(row, ++col).Value = rowNumber;
+                            workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            workSheet.Cell(row, ++col).Value = position.ContractDeliveryTime;
+                            workSheet.Cell(row, ++col).Value = position.Brand;
+                            workSheet.Cell(row, ++col).Value = position.RecipientDetails;
+                            workSheet.Cell(row, ++col).Value = position.QuestionnaireNum;
+                            workSheet.Cell(row, ++col).Value = position.MaxPrice;
+                            
+                            workSheet.Cell(row, ++col).Value = position.CatalogNumber;
+                            workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                            workSheet.Cell(row, ++col).SetValue(position.Name);
+                            workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+
+                            workSheet.Row(row).Height = GetCellHeight(position.CatalogNumber.Length, 10);
+                            workSheet.Row(row).Height = GetCellHeight(position.Name.Length, 40);
+                            ++col;//Бренд
+                            ++col;//Кат номер
+                            ++col;//Наименование
+                            ++col;//Замена
+                            //workSheet.Cell(row, ++col).Value = String.Empty;
+                            workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            workSheet.Cell(row, ++col).Value = position.UnitName;
+
+                            workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            workSheet.Cell(row, ++col).Value = position.Value;
+                            workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            if (position.ProductManager != null)
+                            {
+                                var prodManager = UserHelper.GetUserById(position.ProductManager.Id);
+                                workSheet.Cell(row, ++col).Value = prodManager == null
+                                    ? String.Empty
+                                    : prodManager.ShortName;
+                            }
+                            workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            workSheet.Cell(row, ++col).Value = String.Empty;
+                            workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                            ++col;//Цена B2B
+
+                            workSheet.Cell(row, ++col).Value = String.Empty;
+                            workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            workSheet.Cell(row, col).Style.NumberFormat.Format = "$ #,###";
+                            workSheet.Cell(row, ++col).Value = String.Empty;
+                            workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            workSheet.Cell(row, col).Style.NumberFormat.Format = "€ #,###";
+                            workSheet.Cell(row, ++col).Value = String.Empty;
+                            workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            workSheet.Cell(row, col).Style.NumberFormat.Format = "€ #,###";
+                            workSheet.Cell(row, ++col).Value = String.Empty;
+                            workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            workSheet.Cell(row, col).Style.NumberFormat.Format = "₽ #,###";
+                            col = col + 6;
+                            workSheet.Cell(row, col).Value = String.Empty;
+                            workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            row++;
+                            rowNumber++;
+                        }
+                    }
+
+
+                    var range = workSheet.Range(workSheet.Cell(firstRow, 1), workSheet.Cell(row - 1, 28));
+                    range.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
+                    range.Style.Border.SetBottomBorderColor(XLColor.Gray);
+                    range.Style.Border.SetTopBorder(XLBorderStyleValues.Thin);
+                    range.Style.Border.SetTopBorderColor(XLColor.Gray);
+                    range.Style.Border.SetRightBorder(XLBorderStyleValues.Thin);
+                    range.Style.Border.SetRightBorderColor(XLColor.Gray);
+                    range.Style.Border.SetLeftBorder(XLBorderStyleValues.Thin);
+                    range.Style.Border.SetLeftBorderColor(XLColor.Gray);
+
+                    excBook.SaveAs(ms);
+                    excBook.Dispose();
+                    ms.Seek(0, SeekOrigin.Begin);
+                }
+                else
+                {
+                    error = true;
+                    message = "Нет позиций для расчета";
+                }
+            }
+            catch (Exception ex)
+            {
+                error = true;
+                message = "Ошибка сервера " + ex.Message;
+            }
+            finally
+            {
+                if (excBook != null)
+                {
+                    excBook.Dispose();
+                }
+            }
+            if (!error)
+            {
+                return new FileStreamResult(ms, "application/vnd.ms-excel")
+                {
+                    FileDownloadName = "CalculationTrans_" + claimId + ".xlsx"
                 };
             }
             else
@@ -2777,11 +3192,11 @@ namespace SpeCalc.Controllers
         }
 
         [HttpGet]
-        public PartialViewResult GetCalcPositions(int? claimId, int? cv)
+        public PartialViewResult GetCalcPositions(int? claimId, int? cv, string ClaimType)
         {
             if (!claimId.HasValue) return null;
             if (!cv.HasValue) cv = 1;
-
+            ViewBag.ClaimType = ClaimType;
             var list = SpecificationPosition.GetListWithCalc(claimId.Value, cv.Value);// db.LoadSpecificationPositionsForTenderClaim(); ;
             return PartialView("CalcPositions", list);
         }
