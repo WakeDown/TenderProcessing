@@ -30,13 +30,24 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.0.0\lib\net45\System.Web.Helpers.dll</HintPath>
       <Private>True</Private>
@@ -103,10 +114,99 @@
     <Compile Include="Models\TenderStatusUser.cs" />
     <Compile Include="Models\UserBase.cs" />
     <Compile Include="Models\UserRole.cs" />
+    <Compile Include="ProjectClientRelationships.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectConditions.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectFiles.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectFolders.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectPositionCalculations.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectPositionQuantityUnits.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectPositions.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectProtectionFacts.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectRoles.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Projects.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectSaleDirectionResponsibles.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectSaleDirections.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectSaleSubjects.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectTeams.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectWorkCalculations.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectWorkQuantityUnits.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectWorks.cs">
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpeCalcProjectsDb.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SpeCalcProjectsDb.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SpeCalcProjectsDb.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SpeCalcProjectsDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SpeCalcProjectsDb.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SpeCalcProjectsDb.edmx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.Config" />
     <None Include="packages.config" />
+    <EntityDeploy Include="SpeCalcProjectsDb.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>SpeCalcProjectsDb.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="SpeCalcProjectsDb.edmx.diagram">
+      <DependentUpon>SpeCalcProjectsDb.edmx</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SpeCalcProjectsDb.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>SpeCalcProjectsDb.edmx</DependentUpon>
+      <LastGenOutput>SpeCalcProjectsDb.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="SpeCalcProjectsDb.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>SpeCalcProjectsDb.edmx</DependentUpon>
+      <LastGenOutput>SpeCalcProjectsDb.cs</LastGenOutput>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
