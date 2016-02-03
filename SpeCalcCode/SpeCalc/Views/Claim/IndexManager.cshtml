@@ -1069,21 +1069,23 @@
         }
 
         function loadNewPositions() {
-            showSpinner($('#newPositionsContainer'));
+            var $cont = $('#newPositionsContainer');
+            $cont.html('');
+            showSpinner($cont);
             $.ajax({
                 url: '@Url.Action("GetNewPositions")',
                 method: 'GET',
                 data: { claimId: @Model.Id, cv: @Request.QueryString["cv"], ClaimType:'@ViewBag.ClaimType' },
                 success: function(html) {
-                    $('#newPositionsContainer').html(html);
+                    $cont.html(html);
                     //fillCount();
                     initNewPositionBtns();
 
-                    hideSpinner($('#newPositionsContainer'));
+                    hideSpinner($cont);
                 },
                 error: function() {
                     alert('Ошибка загрузки позиций!');
-                    hideSpinner($('#newPositionsContainer'));
+                    hideSpinner($cont);
                 }
             });
         }
