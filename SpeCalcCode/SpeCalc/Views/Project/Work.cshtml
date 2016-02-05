@@ -1,0 +1,59 @@
+﻿@using System.Web.Mvc.Html
+@model SpeCalcDataAccessLayer.ProjectModels.ProjectWorkModel
+work
+@{
+    var work = Model.Work;
+    var calculations = Model.Calculations;
+    var rowspan = (Model.HasCalculations && calculations.Count > 0 ? calculations.Count: 1);
+}
+
+<tr id="work-@work.Id" name="work" wid="@work.Id" style="background-color: @Model.Work.ProjectWorkStates.BackgroundColor">
+    <td name="work" class="min-widtd  text-center" rowspan="@rowspan">
+            <input type="checkbox" name="calcCheckbox" value="@work.Id"/>
+    </td>
+    <th name="work" rowspan="@rowspan" class="text-center">
+        @work.RowNum
+        <div class="@work.ProjectWorkStates.IconColor">
+            <i class="fa @work.ProjectWorkStates.Icon" title="@work.ProjectWorkStates.Name"></i>
+        </div>
+    </th>
+    <td name="work"  rowspan="@rowspan">
+        <button type="button" name="editWork" class="btn btn-warning btn-sm" data-toggle="tooltip" title="резактировать позицию" wid="@work.Id"><i class="fa fa-edit"></i></button>
+        <button type="button" name="deleteWork" class="btn btn-danger btn-sm" data-toggle="tooltip" title="удалить позицию" wid="@work.Id"><i class="fa fa-trash"></i></button>
+    </td>
+    <td name="work" style="width: 250px;" rowspan="@rowspan">@work.Name
+    </td>
+    <td name="work" rowspan="@rowspan">@work.Quantity</td>
+    <td name="work" rowspan="@rowspan">@work.ProjectWorkQuantityUnits.Name</td>
+    <td name="work" rowspan="@rowspan" class="text-nowrap">@work.CalculatorName</td>
+    <td name="work" rowspan="@rowspan" class="bg-primary text-center">
+        <h2 class="" name="calcount">@calculations.Count()</h2>
+    </td>
+    <td name="work" rowspan="@rowspan">
+        <button type="button" name="addCalc" class="btn btn-warning btn-sm" data-toggle="tooltip" title="добавить расчет" wid="@work.Id"><i class="fa fa-plus"></i> <i class="fa fa-calculator"></i></button>
+        <div calcol="calcol">
+        </div>
+    </td>
+    
+    @if (Model.HasCalculations)
+    {
+        @Html.Partial("WorkCalculation", calculations[0])
+    }
+    else
+    {
+        @Html.Partial("WorkCalculationEmpty")
+    }
+
+</tr>
+
+@if (Model.HasCalculations && calculations.Count > 1)
+{
+   
+        foreach (var calc in calculations.Skip(1))
+        {
+            <tr wid="@work.Id" style="background-color: #@Model.Work.ProjectWorkStates.BackgroundColor">
+                    @Html.Partial("WorkCalculation", calc)
+            </tr>
+
+        }
+}

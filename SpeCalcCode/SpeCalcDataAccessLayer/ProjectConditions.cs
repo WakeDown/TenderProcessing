@@ -14,10 +14,22 @@ namespace SpeCalcDataAccessLayer
     
     public partial class ProjectConditions
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public ProjectConditions()
+        {
+            this.ProjectConditionHistory = new HashSet<ProjectConditionHistory>();
+            this.Projects = new HashSet<Projects>();
+        }
+    
         public int Id { get; set; }
         public string Name { get; set; }
         public int OrderNum { get; set; }
         public string SysName { get; set; }
         public bool Enabled { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ProjectConditionHistory> ProjectConditionHistory { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Projects> Projects { get; set; }
     }
 }

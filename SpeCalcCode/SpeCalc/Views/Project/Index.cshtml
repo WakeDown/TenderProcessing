@@ -1,8 +1,123 @@
-﻿
+﻿@using SpeCalc.Models
+@using SpeCalcDataAccessLayer
+@model SpeCalcDataAccessLayer.Models.ListResult<SpeCalcDataAccessLayer.Projects>
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Проекты";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Index</h2>
+<div>
+    <h5>
+        <span class="label label-default">
+            Всего записей:
+            <span id="claimCountLabel">@Model.TotalCount</span>
+        </span>
+        &nbsp;
+        <span class="label label-info">
+            из них показано:
+            <span id="showCountLabel">@Model.ListCount</span>
+        </span>
+    </h5>
+</div>
+<table class="table table-bordered small">
+    <thead>
+        <tr class="bg-primary">
+            <th>ID</th>
+            <th>№ конкурса</th>
+            <th class="width-300">Заказчик</th>
+            <th>Бюджет</th>
+            <th>Направление</th>
+            <th>Предмет сделки</th>
+            <th>Вероятность</th>
+            <th>Менеджер<br/>Автор</th>
+            <th>Команда</th>
+            <th>Срок сдачи</th>
+            <th>Статус</th>
+            <th class="text-nowrap">
+                <table class="table table-bordered prod-manager-table"><tr class="text-primary"><td>Снабженец</td><td class="bg-default ligth num">запрос</td><td class="bg-success ligth num">расчет</td><td class="bg-info ligth num">позиций</td></tr></table>
+            </th>
+            <th>Создано</th>
+        </tr>
+    </thead>
+    <tbody id="claimTable">
+    @if (Model.ListCount > 0)
+    {
 
+        foreach (var project in Model.List)
+        {
+
+            <tr class="row-item" name="project-item" pid="@project.Id">
+                <td>@project.Id</td>
+                <td>@project.AuctionNumber</td>
+                <td>@project.ClientName</td>
+                <td class='text-nowrap'>@(project.Budget.HasValue ? project.Budget.Value.ToString("F2") : null) @(project.CurrencyId.HasValue ? project.ProjectCurrencies.Name : null)</td>
+                <td>@(project.SaleDirectionId.HasValue ? project.ProjectSaleDirections.Name : null)</td>
+                <td>@(project.SaleSubjectId.HasValue ? project.ProjectSaleSubjects.Name : null)</td>
+                <td class="@(project.Probability < 0 ? "bg-info" :  project.Probability >= 0 && project.Probability <= 30 ? "bg-success" : project.Probability > 30 && project.Probability <= 60 ? "bg-warning" : project.Probability > 60 ? "bg-danger" : null )">
+                    @project.Probability%
+                </td>
+                <td class='text-nowrap'>
+                    @project.ManagerName
+                </td>
+                <td></td>
+                <td>@project.DeadlineDate</td>
+                <td><strong>@(project.StateId.HasValue ? project.ProjectStates.Name : null)</strong>
+                    <div>
+                        <small>@(project.StateChangeDate.HasValue ? project.StateChangeDate.Value.ToString("dd.MM.yyyy HH:mm") : null)</small>
+                        <br/>
+                        <small class='text-nowrap'>@project.ChangerName</small>
+                    </div>
+                </td>
+                <td>
+                    @*<table class='table table-bordered prod-manager-table'>
+                        <tr>
+                            <th>Всего</th>
+                            <td class='bg-default ligth text-right num'>@claim.PositionsCount</td>
+                            <td class='bg-success ligth text-right num'>@claim.CalculatePositionsCount</td>
+                            <td class='bg-info ligth text-right num'>@claim.CalculatesCount</td>
+                        </tr>
+                        @foreach (var product in claim.ProductManagers)
+                        {
+                            <tr>
+                                <td>@product.ShortName</td>
+                                <td class='bg-default ligth text-right num'>@product.PositionsCount</td>
+                                <td class='bg-success ligth text-right num'>@product.CalculatePositionsCount</td>
+                                <td class='bg-info light text-right num'>@product.CalculatesCount</td>
+                            </tr>
+                        }
+                    </table>*@
+                </td>
+                <td>
+                    <strong>Создано</strong>
+                    <div>
+                        <small>@project.CreateDate.ToString("dd.MM.yyyy")</small>
+                        <br/>
+                        <small class='text-nowrap'>@project.CreatorName</small>
+                    </div>
+                </td>
+                <td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr><td>пусто</td></tr>
+    }
+    </tbody>
+</table>
+
+@section scripts
+{
+    <script>
+        $(function () {
+            $('tr[name="project-item"]').click(function () {
+                var id = $(this).attr('pid');
+                window.location = '@Url.Action("Card")?id=' + id;
+            });
+            $('tr[name="project-item"]').on('contextmenu', function () {
+                var id = $(this).attr('pid');
+                window.open('@Url.Action("Card")?id=' + id);
+            });
+        });
+    </script>
+}

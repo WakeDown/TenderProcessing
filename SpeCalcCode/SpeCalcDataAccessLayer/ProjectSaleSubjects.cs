@@ -14,11 +14,21 @@ namespace SpeCalcDataAccessLayer
     
     public partial class ProjectSaleSubjects
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public ProjectSaleSubjects()
+        {
+            this.Projects = new HashSet<Projects>();
+        }
+    
         public int Id { get; set; }
         public Nullable<int> IdSaleDirection { get; set; }
         public string Name { get; set; }
         public int OrderNum { get; set; }
         public string SysName { get; set; }
         public bool Enabled { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Projects> Projects { get; set; }
+        public virtual ProjectSaleDirections ProjectSaleDirections { get; set; }
     }
 }

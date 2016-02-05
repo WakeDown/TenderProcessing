@@ -14,10 +14,21 @@ namespace SpeCalcDataAccessLayer
     
     public partial class ProjectClientRelationships
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public ProjectClientRelationships()
+        {
+            this.Projects = new HashSet<Projects>();
+        }
+    
         public int Id { get; set; }
         public string Name { get; set; }
         public int OrderNum { get; set; }
         public string SysName { get; set; }
         public bool Enabled { get; set; }
+        public string Descr { get; set; }
+        public int ProbabilityValue { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Projects> Projects { get; set; }
     }
 }

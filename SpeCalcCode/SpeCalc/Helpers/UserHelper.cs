@@ -485,5 +485,17 @@ namespace SpeCalc.Helpers
             }
             return shortName.ToString();
         }
+
+        [OutputCache(Duration = 3600)]
+        public static IEnumerable<KeyValuePair<string, string>> GetProductManagersList()
+        {
+            return AdHelper.GetUserListByAdGroup(AdGroup.SpeCalcProduct);
+        }
+
+        [OutputCache(Duration = 3600)]
+        public static IEnumerable<KeyValuePair<string, string>> GetManagersList()
+        {
+            return AdHelper.GetUserListByAdGroup(AdGroup.SpeCalcProduct);
+        }
     }
 }

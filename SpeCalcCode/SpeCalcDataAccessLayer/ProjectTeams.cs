@@ -18,7 +18,7 @@ namespace SpeCalcDataAccessLayer
         public int ProjectId { get; set; }
         public string UserSid { get; set; }
         public string UserName { get; set; }
-        public int ProjectRoleId { get; set; }
+        public int RoleId { get; set; }
         public System.DateTime CreateDate { get; set; }
         public string CreatorSid { get; set; }
         public string CreatorName { get; set; }
@@ -26,5 +26,8 @@ namespace SpeCalcDataAccessLayer
         public Nullable<System.DateTime> DeleteDate { get; set; }
         public string DeleterSid { get; set; }
         public string DeleterName { get; set; }
+    
+        public virtual ProjectRoles ProjectRoles { get; set; }
+        public virtual Projects Projects { get; set; }
     }
 }

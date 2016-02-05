@@ -53,12 +53,19 @@
       <Private>True</Private>
       <HintPath>..\packages\DocumentFormat.OpenXml.2.5\lib\DocumentFormat.OpenXml.dll</HintPath>
     </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.Entity" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.DirectoryServices.Protocols" />
@@ -195,6 +202,7 @@
     <Content Include="Content\font-awesome.min.css" />
     <Content Include="Content\images\bg3.png" />
     <Content Include="Content\images\body_bg.gif" />
+    <Content Include="Content\images\logo-unit.png" />
     <Content Include="Content\images\ui-bg_diagonals-thick_18_b81900_40x40.png" />
     <Content Include="Content\images\ui-bg_diagonals-thick_20_666666_40x40.png" />
     <Content Include="Content\images\ui-bg_flat_10_000000_40x100.png" />
@@ -216,6 +224,7 @@
     <Content Include="Content\jquery-ui.structure.min.css" />
     <Content Include="Content\jquery-ui.theme.css" />
     <Content Include="Content\jquery-ui.theme.min.css" />
+    <Content Include="Content\left-menu.css" />
     <Content Include="Content\loading.gif" />
     <Content Include="Content\message.css" />
     <Content Include="Content\progress.gif" />
@@ -266,6 +275,10 @@
     <Content Include="Scripts\jquery-ui.js" />
     <Content Include="Scripts\jquery-ui.min.js" />
     <Content Include="Scripts\jquery.mask.min.js" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.min.js" />
+    <Content Include="Scripts\left-menu.js" />
     <Content Include="Scripts\message.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\npm.js" />
@@ -334,6 +347,27 @@
     <Content Include="Views\Claim\CalcPositionHeader.cshtml" />
     <Content Include="Views\Calc\PositionHeader.cshtml" />
     <Content Include="Views\Project\Index.cshtml" />
+    <Content Include="Views\Project\New.cshtml" />
+    <Content Include="Views\Claim\Dashboard.cshtml" />
+    <Content Include="Views\Project\Card.cshtml" />
+    <Content Include="Views\Project\CardInfo.cshtml" />
+    <Content Include="Views\Project\CardInfoEdit.cshtml" />
+    <Content Include="Views\Project\Positions.cshtml" />
+    <Content Include="Views\Project\Position.cshtml" />
+    <Content Include="Views\Project\PositionCalculation.cshtml" />
+    <Content Include="Views\Project\PositionCalculationEdit.cshtml" />
+    <Content Include="Views\Project\PositionCalculationEmpty.cshtml" />
+    <Content Include="Views\Project\PositionHeader.cshtml" />
+    <Content Include="Views\Project\PositionEdit.cshtml" />
+    <Content Include="Views\Project\PositionNew.cshtml" />
+    <Content Include="Views\Project\WorkHeader.cshtml" />
+    <Content Include="Views\Project\Work.cshtml" />
+    <Content Include="Views\Project\Works.cshtml" />
+    <Content Include="Views\Project\WorkNew.cshtml" />
+    <Content Include="Views\Project\WorkEdit.cshtml" />
+    <Content Include="Views\Project\WorkCalculation.cshtml" />
+    <Content Include="Views\Project\WorkCalculationEdit.cshtml" />
+    <Content Include="Views\Project\WorkCalculationEmpty.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeCalcDataAccessLayer\SpeCalcDataAccessLayer.csproj">

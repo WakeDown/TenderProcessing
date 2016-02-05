@@ -1,0 +1,73 @@
+﻿@using System.Web.Mvc.Html
+@using SpeCalc.Helpers
+@using SpeCalcDataAccessLayer.Models
+@model SpeCalcDataAccessLayer.ProjectModels.ProjectPositionModel
+
+@{
+    var position = Model.Position;
+    var calculations = Model.Calculations;
+    var rowspan = (Model.HasCalculations && calculations.Count > 0 ? calculations.Count : 1);
+}
+
+<tr id="pos-@position.Id" name="pos" pid="@position.Id" style="background-color: #@Model.Position.ProjectPositionStates.BackgroundColor">
+    <td name="pos" class="min-width text-center" rowspan="@rowspan">
+        <input type="checkbox" name="calcCheckbox" value="@position.Id" />
+    </td>
+    <th name="pos" rowspan="@rowspan" class="text-center">
+        @*@position.RowNum*@
+        <div class="@position.ProjectPositionStates.IconColor">
+            <i class="fa @position.ProjectPositionStates.Icon" title="@position.ProjectPositionStates.Name"></i>
+        </div>
+    </th>
+    <td>
+        <button type="button" name="savePosition" class="btn btn-success btn" data-toggle="tooltip" title="сохранить"><i class="fa fa-save"></i></button>
+        <button type='button' name='cancelPosition' class='btn btn-default btn' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+    </td>
+    <td name="pos" rowspan="@rowspan">
+        <input name="PositionCatalogNumber" class="form-control input-xs" value="@position.CatalogNumber"/>
+    </td>
+    <td name="pos" rowspan="@rowspan">
+        <input name="PositionVendor" class="form-control input-xs" value="@position.Vendor" />
+    </td>
+    <td name="pos" style="width: 250px;" rowspan="@rowspan">
+        <input name="PositionName" class="form-control input-xs" value="@position.Name" />
+</td>
+    <td name="pos" rowspan="@rowspan">
+        <input name="PositionQuantity" class="form-control input-xs" value="@position.Quantity"/>
+
+    </td>
+    <td name="pos" rowspan="@rowspan">
+        @foreach (var qu in ProjectHelper.GetPositionQuantityUnitList())
+        {
+            <div><input name="PositionQuantityUnit" type="radio" value="@qu.Id" @(position.QuantityUnitId == qu.Id ? "checked=checked" : null) /> @qu.Name</div>
+        }
+    </td>
+    <td name="pos" rowspan="@rowspan" class="text-nowrap">
+       @Html.DropDownList("Calculator", new SelectList(UserHelper.GetProductManagersList(), "Key", "Value", @position.CalculatorSid), "--выберите--", new { @class = "form-control input-xs" }) 
+    </td>
+    <td name="pos" rowspan="@rowspan">
+
+    </td>
+    <td name="pos" rowspan="@rowspan"></td>
+@if (Model.HasCalculations)
+{
+    @Html.Partial("PositionCalculation", calculations[0])
+}
+else
+{
+    @Html.Partial("PositionCalculationEmpty")
+}
+
+</tr>
+
+@if (Model.HasCalculations && calculations.Count > 1)
+{
+
+    foreach (var calc in calculations.Skip(1))
+    {
+        <tr pid="@position.Id" style="background-color: #@Model.Position.ProjectPositionStates.BackgroundColor">
+            @Html.Partial("PositionCalculation", calc)
+        </tr>
+
+    }
+}

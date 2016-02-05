@@ -1,0 +1,67 @@
+﻿@using System.Web.Mvc.Html
+@using SpeCalc.Helpers
+@using SpeCalcDataAccessLayer.Models
+@model SpeCalcDataAccessLayer.ProjectModels.ProjectWorkModel
+
+@{
+    var work = Model.Work;
+    var calculations = Model.Calculations;
+    var rowspan = (Model.HasCalculations && calculations.Count > 0 ? calculations.Count : 1);
+}
+
+<tr id="work-@work.Id" name="work" wid="@work.Id" style="background-color: #@Model.Work.ProjectWorkStates.BackgroundColor">
+    <td name="work" class="min-width text-center" rowspan="@rowspan">
+        <input type="checkbox" name="calcCheckbox" value="@work.Id" />
+    </td>
+    <th name="work" rowspan="@rowspan" class="text-center">
+        @*@work.RowNum*@
+        <div class="@work.ProjectWorkStates.IconColor">
+            <i class="fa @work.ProjectWorkStates.Icon" title="@work.ProjectWorkStates.Name"></i>
+        </div>
+    </th>
+    <td>
+        <button type="button" name="saveWork" class="btn btn-success btn" data-toggle="tooltip" title="сохранить"><i class="fa fa-save"></i></button>
+        <button type='button' name='cancelWork' class='btn btn-default btn' data-toggle='tooltip' title='отмена'><i class='fa fa-undo'></i></button>
+    </td>
+    <td name="work" style="width: 250px;" rowspan="@rowspan">
+        <input name="WorkName" class="form-control input-xs" value="@work.Name" />
+</td>
+    <td name="work" rowspan="@rowspan">
+        <input name="WorkQuantity" class="form-control input-xs" value="@work.Quantity"/>
+
+    </td>
+    <td name="work" rowspan="@rowspan">
+        @foreach (var qu in ProjectHelper.GetWorkQuantityUnitList())
+        {
+            <div><input name="WorkQuantityUnit" type="radio" value="@qu.Id" @(work.QuantityUnitId == qu.Id ? "checked=checked" : null) /> @qu.Name</div>
+        }
+    </td>
+    <td name="work" rowspan="@rowspan" class="text-nowrap">
+       @Html.DropDownList("Calculator", new SelectList(UserHelper.GetProductManagersList(), "Key", "Value", @work.CalculatorSid), "--выберите--", new { @class = "form-control input-xs" }) 
+    </td>
+    <td name="work" rowspan="@rowspan">
+
+    </td>
+    <td name="work" rowspan="@rowspan"></td>
+@if (Model.HasCalculations)
+{
+    @Html.Partial("WorkCalculation", calculations[0])
+}
+else
+{
+    @Html.Partial("WorkCalculationEmpty")
+}
+
+</tr>
+
+@if (Model.HasCalculations && calculations.Count > 1)
+{
+
+    foreach (var calc in calculations.Skip(1))
+    {
+        <tr wid="@work.Id" style="background-color: #@Model.Work.ProjectWorkStates.BackgroundColor">
+            @Html.Partial("WorkCalculation", calc)
+        </tr>
+
+    }
+}

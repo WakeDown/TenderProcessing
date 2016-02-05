@@ -14,10 +14,25 @@ namespace SpeCalcDataAccessLayer
     
     public partial class ProjectSaleDirections
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public ProjectSaleDirections()
+        {
+            this.Projects = new HashSet<Projects>();
+            this.ProjectSaleDirectionResponsibles = new HashSet<ProjectSaleDirectionResponsibles>();
+            this.ProjectSaleSubjects = new HashSet<ProjectSaleSubjects>();
+        }
+    
         public int Id { get; set; }
         public string Name { get; set; }
         public int OrderNum { get; set; }
         public string SysName { get; set; }
         public bool Enabled { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Projects> Projects { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ProjectSaleDirectionResponsibles> ProjectSaleDirectionResponsibles { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ProjectSaleSubjects> ProjectSaleSubjects { get; set; }
     }
 }

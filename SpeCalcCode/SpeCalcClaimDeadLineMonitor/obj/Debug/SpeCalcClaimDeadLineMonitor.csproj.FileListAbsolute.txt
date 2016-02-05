@@ -16,3 +16,6 @@ D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcClaimDeadLineMonitor\bin\Debug\S
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcClaimDeadLineMonitor\obj\Debug\SpeCalcClaimDeadLineMonitor.csprojResolveAssemblyReference.cache
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcClaimDeadLineMonitor\obj\Debug\SpeCalcClaimDeadLineMonitor.exe
 D:\Projects\TenderProcessing\SpeCalcCode\SpeCalcClaimDeadLineMonitor\obj\Debug\SpeCalcClaimDeadLineMonitor.pdb
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcClaimDeadLineMonitor\obj\Debug\SpeCalcClaimDeadLineMonitor.csprojResolveAssemblyReference.cache
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcClaimDeadLineMonitor\obj\Debug\SpeCalcClaimDeadLineMonitor.exe
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcClaimDeadLineMonitor\obj\Debug\SpeCalcClaimDeadLineMonitor.pdb

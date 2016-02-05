@@ -1,0 +1,11 @@
+﻿@model IEnumerable<SpeCalcDataAccessLayer.ProjectModels.ProjectPositionModel>
+
+@{
+    int i = 1;
+}
+@foreach (var pos in Model)
+{
+    @Html.Partial("Position", pos)
+    @(i++)
+}
+

@@ -16,10 +16,21 @@ namespace SpeCalcDataAccessLayer
     {
         public int Id { get; set; }
         public int ProjectId { get; set; }
-        public int FilderId { get; set; }
+        public int FolderId { get; set; }
         public byte[] fileDATA { get; set; }
         public bool Enabled { get; set; }
         public System.Guid FileGUID { get; set; }
         public string FileName { get; set; }
+        public string CreatorSid { get; set; }
+        public string CreatorName { get; set; }
+        public System.DateTime CreateDate { get; set; }
+        public string DeleterSid { get; set; }
+        public string DeleterName { get; set; }
+        public Nullable<System.DateTime> DeleterDate { get; set; }
+        public Nullable<int> PreviousFileId { get; set; }
+        public int VersionNumber { get; set; }
+    
+        public virtual ProjectFolders ProjectFolders { get; set; }
+        public virtual Projects Projects { get; set; }
     }
 }

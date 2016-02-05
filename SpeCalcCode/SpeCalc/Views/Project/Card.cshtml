@@ -1,0 +1,960 @@
+﻿@using SpeCalc.Helpers
+@using SpeCalc.Models
+@using SpeCalcDataAccessLayer.Models
+@model SpeCalcDataAccessLayer.Projects
+@{
+    ViewBag.Title = "Крточка проекта";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="marg-sm">
+            Крточка проекта №@Model.Id
+        </h4>
+        <div>
+            <strong>@(Model.ClientName)</strong><br/>
+            <small>@(Model.Budget.HasValue ? Model.Budget.Value.ToString("F2") : null) @(Model.CurrencyId.HasValue ? Model.ProjectCurrencies.Name : null)</small>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-3">
+                @*<h4 class="no-pad">Информация</h4>*@
+
+                @Html.Partial("CardInfo", Model)
+            </div>
+            <div class="col-lg-3">
+                <h4 class="no-pad">Файлы</h4>
+            </div>
+            <div class="col-lg-3">
+                <h4 class="no-pad">Переписка</h4>
+            </div>
+            <div class="col-lg-3">
+                <h4 class="no-pad">История</h4>
+            </div>
+        </div>
+        <hr/>
+        <div>
+            <ul class="list-inline">
+                @*<li><span class="h4">Расчет</span></li>*@
+                <li>
+                    <a id="addPosition" class="btn btn-sm btn-warning"><i class="fa fa-plus"></i> добавить оборудование</a>
+                </li>
+                <li>
+                    <a id="addWork" class="btn btn-sm btn-warning"><i class="fa fa-plus"></i> добавить работу</a>
+                </li>
+                <li class=" pull-right">
+                    <a id="displayCalcs" class="btn btn-sm btn-info">показать расчеты</a>
+                </li>
+            </ul>
+        </div>
+        <hr/>
+            <ul class="list-inline">
+                <li><strong>Оборудование</strong></li>
+                <li>
+                    <span id="totalPositions" class="text-info h4">0</span> / <span id="calcedPositions" class="text-success h4">0</span> / <span id="notCalcedPositions" class="text-danger h4">0</span>
+                </li>
+                <li>
+                    <input name="positionClacFilter" type="radio" value="" checked="checked"/> все
+                    <input name="positionClacFilter" type="radio" value="1"/> расчитанные
+                    <input name="positionClacFilter" type="radio" value="0" /> нерасчитанные
+                </li>
+            </ul>
+            <div style="overflow-x: scroll">
+                <table id="positionTable" class="table small table-bordered">
+                    <thead>
+                        @Html.Partial("PositionHeader")
+                    </thead>
+                    <tbody id="positionsContainer"></tbody>
+                </table>
+            </div>
+        <hr />
+        <ul class="list-inline">
+            <li><strong>Работы</strong></li>
+            <li>
+                <span id="totalWorks" class="text-info h4">0</span> / <span id="calcedWorks" class="text-success h4">0</span> / <span id="notCalcedWorks" class="text-danger h4">0</span>
+            </li>
+            <li>
+                <input name="workClacFilter" type="radio" value="" checked="checked" /> все
+                <input name="workClacFilter" type="radio" value="1" /> расчитанные
+                <input name="workClacFilter" type="radio" value="0" /> нерасчитанные
+            </li>
+        </ul>
+        <div style="overflow-x: scroll">
+            <table id="workTable" class="table small table-bordered">
+                <thead>
+                    @Html.Partial("WorkHeader")
+                </thead>
+                <tbody id="worksContainer"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    var showCalcs = false;
+    $(function() {
+        loadPositions();
+        $('#addPosition').click(addPosition);
+        loadWorks();
+        $('#addWork').click(addWork);
+        $('#displayCalcs').click(function() {
+            showCalcs = !showCalcs;
+            displayCalcs();
+        });
+    });
+
+    function displayCalcs(display) {
+        if (display != null) {
+            showCalcs = display;
+        }
+
+        if (showCalcs == false) {
+            $('[name="btnEditCalcCancel"]').click();
+        }
+
+        if (showCalcs) {
+            $('[calcol="calcol"]').show();
+            $('#displayCalcs').text('скрыть расчеты');
+            $('#positionTable').width(2500);
+
+        } else {
+            $('[calcol="calcol"]').hide();
+            $('#displayCalcs').text('показать расчеты');
+            $('#positionTable').width('');
+        }
+    }
+
+
+    function loadWorks() {
+        var $cont = $('#worksContainer');
+        $cont.html('');
+        showSpinner($cont);
+        $.ajax({
+            url: '@Url.Action("GetWorks")',
+            method: 'GET',
+            data:{id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                displayCalcs();
+                hideSpinner($cont);
+                initWorkBtns();
+                initWorkCalcBns();
+            },
+            error: function(data) {
+                alert('Ошибка при загрузке позиций!');
+                console.log(data);
+                hideSpinner($cont);
+            }
+        });
+    }
+
+    function addWork() {
+        var $this = $(this);
+
+        showSpinnerAppendAndDisable($this);
+        $.ajax({
+            url: '@Url.Action("GetWorkNew")',
+            method: 'GET',
+            data:{id:0},
+            success: function(html) {
+                var $cont = $('#worksContainer');
+                $cont.append(html);
+                displayCalcs();
+                hideSpinnerAndEnabled($this);
+                $('[name="WorkName"]').focus();
+                $('[name="createWork"]').click(saveNewWork);
+            },
+            error: function(data) {
+                alert('Ошибка при добавлении работы!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
+
+    function getWorkValues($row) {
+        if (!$row) return;
+
+        var WorkName = $row.find('[name=WorkName]').val();
+        var WorkQuantity = $row.find('[name=WorkQuantity]').val();
+        var WorkQuantityUnit = $row.find('[name=WorkQuantityUnit]:checked').val();
+        var Calculator = $row.find('[name=Calculator]').val();
+
+        var model = {
+            ProjectId: @Model.Id,
+            Name: WorkName,
+            Quantity: WorkQuantity,
+            QuantityUnitId: WorkQuantityUnit,
+            CalculatorSid: Calculator
+        };
+        return model;
+    }
+
+    function saveNewWork() {
+        var $this = $(this);
+        var $row = $this.closest('tr');
+
+        showSpinnerAppendAndDisable($this);
+        $.ajax({
+            url: '@Url.Action("CreateWork")',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(getWorkValues($row)),
+            success: function(data) {
+                hideSpinnerAndEnabled($this);
+                $.ajax({
+                    url: '@Url.Action("GetWork")',
+                    method: 'GET',
+                    data: { id: data.id },
+                    success: function(html) {
+                        $row.replaceWith(html);
+                        displayCalcs();
+                        initWorkBtns($('#work-' + data.id));
+                    },
+                    error: function(data) {
+                        alert('Ошибка при получении работы!');
+                        console.log(data);
+                    }
+                });
+            },
+            error: function(data) {
+                alert('Ошибка при создании работы!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
+
+    function initWorkCalcBns($container) {
+        if (!$container) $container = $('#worksContainer');
+
+        $('[name="btnDeleteCalc"]', $container).click(function() {
+            if (!confirm('Вы уверены что хотите удалить расчет?'))return;
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            var wid = $row.attr('wid');
+            var cpid = $this.attr('cpid');
+            showSpinnerAppendAndDisable($this);
+            $.ajax({
+                url: '@Url.Action("DeleteWorkCalculation")',
+                method: 'POST',
+                data: { id: cpid },
+                success: function() {
+                    var calcs = $('td[name="calc"][cpid="' + cpid + '"]');
+                    calcs.addClass('calcDeleted');
+                    calcs.find('.btn').remove();
+                    hideSpinnerAndEnabled($this);
+                    calcountChange($('#work-' + wid), -1);
+
+                },
+                error: function() {
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        });
+
+        $('[name="btnEditCalc"]', $container).click(function() {
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            var wid = $row.attr('wid');
+            var cpid = $this.attr('cpid');
+            showSpinnerAppendAndDisable($this);
+
+            $.ajax({
+                url: '@Url.Action("GetWorkCalculationEdit")',
+                method: 'POST',
+                data: { id: cpid },
+                success: function(html) {
+                    var $calcs = $('td[name="calc"][cpid="' + cpid + '"]');
+                    var parentRow = $calcs.parent('tr');
+                    $calcs.remove();
+                    parentRow.append(html);
+                    initWorkCalcBns($row);
+                    //displaySecCol();
+                    hideSpinnerAndEnabled($this);
+                    //setB2bPrice($row);
+                },
+                error: function() {
+                    alert('Ошибка при загрузке формы редактирования расчета!');
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        });
+
+        $('[name="btnSaveCalc"]', $container).click(function() {
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            var wid = $row.attr('wid');
+            var cpid = $this.attr('cpid');
+
+            var ExecutorName = $('[name=calcExecutorName]', $row).val();
+            var Name = $('[name=calcName]', $row).val().trim();
+            var Cost = $('[name=calcCost]', $row).val().trim().replace(".", ",");
+            var CurrencyId = $('[name=calcCurrency]:checked', $row).val
+            var ExecutionTimeId = $('[name=calcExecutionTimeId]', $row).val();
+            var ExecutionTime = $('[name=calcExecutionTime]', $row).val();
+            var Comment = $('[name=calcComment]', $row).val();
+
+            //if (!Name) {
+            //    alert('Укажите наименование либо замена!');
+            //    return;
+            //}
+            //if (!PriceUsd && !PriceEur && !PriceEurRicoh && !PriceRubl) {
+            //    alert('Укажите цену!');
+            //    return;
+            //}
+            //if (!DeliveryTime) {
+            //    alert('Укажите срок поставки!');
+            //    return;
+            //}
+            showSpinnerAppendAndDisable($this);
+            $.ajax({
+                url: '@Url.Action("SaveWorkCalculation")',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ Id: cpid, WorkId: wid, ExecutorName: ExecutorName, Name: Name, Cost: Cost, CurrencyId: CurrencyId,  ExecutionTimeId: ExecutionTimeId, ExecutionTime: ExecutionTime, Comment: Comment }),
+                success: function(data) {
+                    $.ajax({
+                        url: '@Url.Action("GetWorkCalculation")',
+                        method: 'GET',
+                        data: { id: data.id },
+                        success: function(html) {
+                            $row.find('[name="calc"]').remove();
+                            $row.append(html);
+                            initWorkCalcBns($row);
+                            hideSpinnerAndEnabled($this);
+                            if (cpid == null || cpid <= 0) {
+                                calcountChange($('#work-' + wid), +1);
+                            }
+                            //setB2bPrice($row);
+                        },
+                        error: function() {
+                            hideSpinnerAndEnabled($this);
+                        }
+                    });
+                },
+                error: function() {
+                    alert('Ошибка при сохранении расчета!');
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+
+        });
+
+        $('[name="btnEditCalcCancel"]', $container).click(function() {
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            var cpid = $this.attr('cpid');
+            showSpinnerAppendAndDisable($this);
+            if ($row.attr('name') == 'work' || cpid > 0) {
+                $.ajax({
+                    url: '@Url.Action("GetWorkCalculation")',
+                    method: 'POST',
+                    data: { id: cpid },
+                    success: function(html) {
+                        $row.find('[name="calc"]').remove();
+                        $row.append(html);
+                        //displaySecCol();
+                        initWorkCalcBns($row);
+                        hideSpinnerAndEnabled($this);
+                    },
+                    error: function() {
+                        hideSpinnerAndEnabled($this);
+                    }
+                });
+            } else {
+                var id = $row.attr('wid');
+                var poss = $('#pos-' + id).find('[name="work"]');
+                var curRowSpan = poss.attr('rowspan');
+                var newRowSpan = parseInt(curRowSpan) - 1;
+                poss.attr('rowspan', newRowSpan);
+                $row.remove();
+            }
+        });
+    }
+
+    function initWorkBtns($cont) {
+        if (!$cont)$cont = $('#worksContainer');
+
+        $('[name="addCalc"]', $cont).click(function() {
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            showSpinnerAppendAndDisable($this);
+            var id = $row.attr('wid');
+            $.ajax({
+                url: '@Url.Action("GetWorkCalculationEdit")',
+                method: 'GET',
+                data: { id: 0 },
+                success: function(html) {
+                    var $nullCalcs = $('[cpid="null"]', $row);
+
+                    if ($nullCalcs.length > 0) {
+                        $nullCalcs.remove();
+                        $row.append(html);
+                        initWorkCalcBns($row);
+                        $('[name="calcCatalogNumber"]', $row).focus();
+                    } else {
+                        var poss = $('[name="work"]', $row);
+                        var curRowSpan = poss.attr('rowspan');
+                        var newRowSpan = parseInt(curRowSpan) + 1;
+                        poss.attr('rowspan', newRowSpan);
+                        var $newRow = $('<tr wid="' + id + '">' + html + '</tr>');
+                        $('tr[wid=' + id + ']').last().after($newRow);
+                        initWorkCalcBns($newRow);
+                        $('[name="calcName"]', $newRow).focus();
+                    }
+                    displayCalcs(true);
+
+
+                    hideSpinnerAndEnabled($this);
+                },
+                error: function(data) {
+                    alert('Ошибка при добавлении расчета!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+
+        });
+
+        $('[name="editWork"]', $cont).click(function() {
+            displayCalcs(false);
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            showSpinnerAppendAndDisable($this);
+            var id = $row.attr('wid');
+            $.ajax({
+                url: '@Url.Action("GetWorkEdit")',
+                method: 'GET',
+                data: { id: id },
+                success: function(html) {
+                    var $rows = $('tr[wid=' + id + ']');
+                    $rows.last().after(html);
+                    $rows.remove();
+                    displayCalcs();
+                    hideSpinnerAndEnabled($this);
+                    initWorkBtns($('#work-' + id));
+                },
+                error: function(data) {
+                    alert('Ошибка при получении работы!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        });
+
+        $('[name="deleteWork"]', $cont).click(function() {
+            if (!confirm('Вы действительно хотите удалить работу?'))return;
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            showSpinnerAppendAndDisable($this);
+            var id = $row.attr('wid');
+            $.ajax({
+                url: '@Url.Action("DeleteWork")',
+                method: 'POST',
+                data: { id: id },
+                success: function(html) {
+                    var $rows = $('tr[wid=' + id + ']');
+                    $rows.remove();
+                },
+                error: function(data) {
+                    alert('Ошибка при получении работы!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        });
+
+        $('[name=cancelWork]').click(function() {
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            showSpinnerAppendAndDisable($this);
+            var id = $row.attr('wid');
+            var model = getPositionValues($row);
+            model.Id = id;
+            $.ajax({
+                url: '@Url.Action("GetWork")',
+                method: 'GET',
+                data: { id: id },
+                success: function(html) {
+                    var $rows = $('tr[wid=' + id + ']');
+                    $rows.last().after(html);
+                    $rows.remove();
+                    initWorkBtns($('#work-' + id));
+                    displayCalcs();
+                    hideSpinnerAndEnabled($this);
+                },
+                error: function(data) {
+                    alert('Ошибка при получении позиции!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        });
+
+        $('[name=saveWork]', $cont).click(function() {
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            showSpinnerAppendAndDisable($this);
+            var id = $row.attr('wid');
+            var model = getPositionValues($row);
+            model.Id = id;
+            $.ajax({
+                url: '@Url.Action("SaveWork")',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(model),
+                success: function() {
+                    hideSpinnerAndEnabled($this);
+                    $.ajax({
+                        url: '@Url.Action("GetWork")',
+                        method: 'GET',
+                        data: { id: id },
+                        success: function(html) {
+                            var $rows = $('tr[wid=' + id + ']');
+                            $rows.last().after(html);
+                            $rows.remove();
+                            displayCalcs();
+                            initWorkBtns($('#work-' + id));
+                        },
+                        error: function(data) {
+                            alert('Ошибка при получении работы!');
+                            console.log(data);
+                        }
+                    });
+                },
+                error: function(data) {
+                    alert('Ошибка при сохранении работы!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        });
+    }
+
+    @*Оборудование*@
+
+    function loadPositions() {
+        var $cont = $('#positionsContainer');
+        $cont.html('');
+        showSpinner($cont);
+        $.ajax({
+            url: '@Url.Action("GetPositions")',
+            method: 'GET',
+            data:{id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                displayCalcs();
+                hideSpinner($cont);
+                initPositionBtns();
+                initPosCalcBns();
+            },
+            error: function(data) {
+                alert('Ошибка при загрузке позиций!');
+                console.log(data);
+                hideSpinner($cont);
+            }
+        });
+    }
+
+    function addPosition() {
+        var $this = $(this);
+
+        showSpinnerAppendAndDisable($this);
+        $.ajax({
+            url: '@Url.Action("GetPositionNew")',
+            method: 'GET',
+            data:{id:0},
+            success: function(html) {
+                var $cont = $('#positionsContainer');
+                $cont.append(html);
+                displayCalcs();
+                hideSpinnerAndEnabled($this);
+                $('[name="newPositionCatalogNumber"]').focus();
+                $('[name="createPosition"]').click(saveNewPosition);
+            },
+            error: function(data) {
+                alert('Ошибка при добавлении позиции!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
+
+    function getPositionValues($row) {
+        if (!$row) return;
+
+        var PositionCatalogNumber = $row.find('[name=PositionCatalogNumber]').val();
+        var PositionName = $row.find('[name=PositionName]').val();
+        var PositionVendor = $row.find('[name=PositionVendor]').val();
+        var PositionQuantity = $row.find('[name=PositionQuantity]').val();
+        var PositionQuantityUnit = $row.find('[name=PositionQuantityUnit]:checked').val();
+        var Calculator = $row.find('[name=Calculator]').val();
+
+        var model = {
+            ProjectId: @Model.Id,
+            CatalogNumber: PositionCatalogNumber,
+            Name: PositionName,
+            Vendor: PositionVendor,
+            Quantity: PositionQuantity,
+            QuantityUnitId: PositionQuantityUnit,
+            CalculatorSid: Calculator
+        };
+        return model;
+    }
+
+    function saveNewPosition() {
+        var $this = $(this);
+        var $row = $this.closest('tr');
+
+        showSpinnerAppendAndDisable($this);
+        $.ajax({
+            url: '@Url.Action("CreatePosition")',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(getPositionValues($row)),
+            success: function(data) {
+                hideSpinnerAndEnabled($this);
+                $.ajax({
+                    url: '@Url.Action("GetPosition")',
+                    method: 'GET',
+                    data: { id: data.id },
+                    success: function(html) {
+                        $row.replaceWith(html);
+                        displayCalcs();
+                        initPositionBtns($('#pos-' + data.id));
+                    },
+                    error: function(data) {
+                        alert('Ошибка при получении позиции!');
+                        console.log(data);
+                    }
+                });
+            },
+            error: function(data) {
+                alert('Ошибка при создании позиции!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
+
+    function initPosCalcBns($container) {
+        if (!$container) $container = $('#positionsContainer');
+
+        $('[name="btnDeleteCalc"]', $container).click(function() {
+            if (!confirm('Вы уверены что хотите удалить расчет?'))return;
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            var pid = $row.attr('pid');
+            var cpid = $this.attr('cpid');
+            showSpinnerAppendAndDisable($this);
+            $.ajax({
+                url: '@Url.Action("DeleteCalculation")',
+                method: 'POST',
+                data: { id: cpid },
+                success: function() {
+                    var calcs = $('td[name="calc"][cpid="' + cpid + '"]');
+                    calcs.addClass('calcDeleted');
+                    calcs.find('.btn').remove();
+                    hideSpinnerAndEnabled($this);
+                    calcountChange($('#pos-' + pid), -1);
+
+            },
+            error: function() {
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    });
+
+    $('[name="btnEditCalc"]', $container).click(function() {
+        var $this = $(this);
+        var $row = $this.closest('tr');
+        var pid = $row.attr('pid');
+        var cpid = $this.attr('cpid');
+        showSpinnerAppendAndDisable($this);
+
+        $.ajax({
+            url: '@Url.Action("GetCalculationEdit")',
+            method: 'POST',
+            data: { id: cpid },
+            success: function(html) {
+                var $calcs = $('td[name="calc"][cpid="' + cpid + '"]');
+                var parentRow = $calcs.parent('tr');
+                $calcs.remove();
+                parentRow.append(html);
+                initPosCalcBns($row);
+                //displaySecCol();
+                hideSpinnerAndEnabled($this);
+                //setB2bPrice($row);
+            },
+            error: function() {
+                alert('Ошибка при загрузке формы редактирования расчета!');
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    });
+
+    $('[name="btnSaveCalc"]', $container).click(function() {
+        var $this = $(this);
+        var $row = $this.closest('tr');
+        var pid = $row.attr('pid');
+        var cpid = $this.attr('cpid');
+
+        var CatalogNumber = $('[name=calcCatalogNumber]', $row).val();
+        var Name = $('[name=calcName]', $row).val().trim();
+        var Cost = $('[name=calcCost]', $row).val().trim().replace(".", ",");
+        var CurrencyId = $('[name=calcCurrency]:checked', $row).val
+        var RecomendedPrice = $('[name=calcRecomendedPrice]', $row).val().trim().replace(".", ",");
+        var Provider = $('[name=calcProvider]', $row).val();
+        var DeliveryTimeId = $('[name=calcDeliveryTime]', $row).val();
+        var ProtectionFactId = $('[name=calcProtectFact]', $row).val();
+        var ProtectionFactCondition = $('[name=calcProtectCondition]', $row).val();
+        var Comment = $('[name=calcComment]', $row).val();
+
+        //if (!Name) {
+        //    alert('Укажите наименование либо замена!');
+        //    return;
+        //}
+        //if (!PriceUsd && !PriceEur && !PriceEurRicoh && !PriceRubl) {
+        //    alert('Укажите цену!');
+        //    return;
+        //}
+        //if (!DeliveryTime) {
+        //    alert('Укажите срок поставки!');
+        //    return;
+        //}
+        showSpinnerAppendAndDisable($this);
+        $.ajax({
+            url: '@Url.Action("SaveCalculation")',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ Id: cpid, PositionId: pid, CatalogNumber: CatalogNumber, Name: Name, Cost: Cost, CurrencyId: CurrencyId, Provider: Provider, DeliveryTimeId: DeliveryTimeId, ProtectionFactId: ProtectionFactId, ProtectionFactCondition: ProtectionFactCondition, Comment: Comment, RecomendedPrice: RecomendedPrice }),
+            success: function(data) {
+                $.ajax({
+                    url: '@Url.Action("GetCalculation")',
+                    method: 'GET',
+                    data: { id: data.id },
+                    success: function(html) {
+                        $row.find('[name="calc"]').remove();
+                        $row.append(html);
+                        initPosCalcBns($row);
+                        hideSpinnerAndEnabled($this);
+                        if (cpid == null || cpid <= 0) {
+                            calcountChange($('#pos-' + pid), +1);
+                        }
+                        //setB2bPrice($row);
+                    },
+                    error: function() {
+                        hideSpinnerAndEnabled($this);
+                    }
+                });
+            },
+            error: function() {
+                alert('Ошибка при сохранении расчета!');
+                hideSpinnerAndEnabled($this);
+            }
+        });
+
+    });
+
+    $('[name="btnEditCalcCancel"]', $container).click(function() {
+        var $this = $(this);
+        var $row = $this.closest('tr');
+        var cpid = $this.attr('cpid');
+        showSpinnerAppendAndDisable($this);
+        if ($row.attr('name') == 'pos' || cpid > 0) {
+            $.ajax({
+                url: '@Url.Action("GetCalculation")',
+                method: 'POST',
+                data: { id: cpid, ClaimType:'@ViewBag.ClaimType' },
+                success: function(html) {
+                    $row.find('[name="calc"]').remove();
+                    $row.append(html);
+                    //displaySecCol();
+                    initPosCalcBns($row);
+                    hideSpinnerAndEnabled($this);
+                },
+                error: function() {
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        } else {
+            var id = $row.attr('pid');
+            var poss = $('#pos-' + id).find('[name="pos"]');
+            var curRowSpan = poss.attr('rowspan');
+            var newRowSpan = parseInt(curRowSpan) - 1;
+            poss.attr('rowspan', newRowSpan);
+            $row.remove();
+        }
+    });
+    }
+
+    function calcountChange($row, val) {
+        var $elem = $row.find('[name="calcount"]');
+        var curCount = $elem.text();
+        $elem.text(parseInt(curCount) + val);
+    }
+
+    function initPositionBtns($cont) {
+        if (!$cont)$cont = $('#positionsContainer');
+
+        $('[name="addCalc"]', $cont).click(function() {
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            showSpinnerAppendAndDisable($this);
+            var id = $row.attr('pid');
+            $.ajax({
+                url: '@Url.Action("GetCalculationEdit")',
+                method: 'GET',
+                data: { id: 0 },
+                success: function(html) {
+                    var $nullCalcs = $('[cpid="null"]', $row);
+
+                    if ($nullCalcs.length > 0) {
+                        $nullCalcs.remove();
+                        $row.append(html);
+                        initPosCalcBns($row);
+                        $('[name="calcCatalogNumber"]', $row).focus();
+                    } else {
+                        var poss = $('[name="pos"]', $row);
+                        var curRowSpan = poss.attr('rowspan');
+                        var newRowSpan = parseInt(curRowSpan) + 1;
+                        poss.attr('rowspan', newRowSpan);
+                        var $newRow = $('<tr pid="' + id + '">' + html + '</tr>');
+                        $('tr[pid=' + id + ']').last().after($newRow);
+                        initPosCalcBns($newRow);
+                        $('[name="calcCatalogNumber"]', $newRow).focus();
+                    }
+                    displayCalcs(true);
+
+
+                    hideSpinnerAndEnabled($this);
+                },
+                error: function(data) {
+                    alert('Ошибка при добавлении расчета!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+
+        });
+
+        $('[name="editPosition"]', $cont).click(function() {
+            displayCalcs(false);
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            showSpinnerAppendAndDisable($this);
+            var id = $row.attr('pid');
+            $.ajax({
+                url: '@Url.Action("GetPositionEdit")',
+                method: 'GET',
+                data: { id: id },
+                success: function(html) {
+                    var $rows = $('tr[pid=' + id + ']');
+                    $rows.last().after(html);
+                    $rows.remove();
+                    displayCalcs();
+                    hideSpinnerAndEnabled($this);
+                    initPositionBtns($('#pos-' + id));
+                },
+                error: function(data) {
+                    alert('Ошибка при получении позиции!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        });
+
+        $('[name="deletePosition"]', $cont).click(function() {
+            if (!confirm('Вы действительно хотите удалить позицию?'))return;
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            showSpinnerAppendAndDisable($this);
+            var id = $row.attr('pid');
+            $.ajax({
+                url: '@Url.Action("DeletePosition")',
+                method: 'POST',
+                data: { id: id },
+                success: function(html) {
+                    var $rows = $('tr[pid=' + id + ']');
+                    $rows.remove();
+                },
+                error: function(data) {
+                    alert('Ошибка при получении позиции!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        });
+
+        $('[name=cancelPosition]').click(function() {
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            showSpinnerAppendAndDisable($this);
+            var id = $row.attr('pid');
+            var model = getPositionValues($row);
+            model.Id = id;
+            $.ajax({
+                url: '@Url.Action("GetPosition")',
+                method: 'GET',
+                data: { id: id },
+                success: function(html) {
+                    var $rows = $('tr[pid=' + id + ']');
+                    $rows.last().after(html);
+                    $rows.remove();
+                    initPositionBtns($('#pos-' + id));
+                    displayCalcs();
+                    hideSpinnerAndEnabled($this);
+                },
+                error: function(data) {
+                    alert('Ошибка при получении позиции!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        });
+
+        $('[name=savePosition]', $cont).click(function() {
+            var $this = $(this);
+            var $row = $this.closest('tr');
+            showSpinnerAppendAndDisable($this);
+            var id = $row.attr('pid');
+            var model = getPositionValues($row);
+            model.Id = id;
+            $.ajax({
+            url: '@Url.Action("SavePosition")',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(model),
+            success: function() {
+                hideSpinnerAndEnabled($this);
+                $.ajax({
+                    url: '@Url.Action("GetPosition")',
+                    method: 'GET',
+                    data: { id: id },
+                    success: function(html) {
+                        var $rows = $('tr[pid=' + id + ']');
+                        $rows.last().after(html);
+                        $rows.remove();
+                        displayCalcs();
+                        initPositionBtns($('#pos-' + id));
+                    },
+                    error: function(data) {
+                        alert('Ошибка при получении позиции!');
+                        console.log(data);
+                    }
+                });
+            },
+            error: function(data) {
+                alert('Ошибка при сохранении позиции!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+        });
+    }
+
+
+</script>

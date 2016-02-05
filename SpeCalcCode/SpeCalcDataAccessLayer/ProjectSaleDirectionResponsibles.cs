@@ -20,5 +20,7 @@ namespace SpeCalcDataAccessLayer
         public System.DateTime CreateDate { get; set; }
         public string CreatorSid { get; set; }
         public string UserEmail { get; set; }
+    
+        public virtual ProjectSaleDirections ProjectSaleDirections { get; set; }
     }
 }

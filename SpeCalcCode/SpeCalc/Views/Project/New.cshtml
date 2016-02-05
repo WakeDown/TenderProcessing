@@ -1,0 +1,198 @@
+﻿@using SpeCalc.Helpers
+@using SpeCalc.Models
+@using SpeCalcDataAccessLayer.Models
+@model SpeCalcDataAccessLayer.Projects
+@{
+    ViewBag.Title = "Новый проект";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@using (Html.BeginForm("New", "Project", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="marg-sm">
+                <span id="claimId">
+                    Новый проект
+                </span>
+            </h4>
+        </div>
+        <div class="panel-body">
+            <div class="form-horizontal val-form col-sm-8 small project-form" role="form">
+                <div class="row">
+                    <label class="col-lg-3 control-label required-mark"></label>
+                    <div class="col-lg-6">
+                        <div class=" form-control input-sm">
+                            @Html.RadioButtonFor(m => m.IsAuction, true, new {required = "required", @checked= "checked"}) Аукцион @Html.RadioButtonFor(m => m.IsAuction, false, new {required = "required"}) нет
+                        </div>
+                    </div>
+                </div>
+                <div id="auctionSettings">
+                    <div class="row">
+                        <label class="col-lg-3 control-label">Ссылка на закупки</label>
+                        <div class="col-lg-6">
+                            @Html.TextBoxFor(cl => cl.AuctionLink, new { @class = "form-control input-sm" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-lg-3 control-label">№ конкурса из Эталон</label>
+                        <div class="col-lg-2">
+                            @Html.TextBoxFor(cl => cl.AuctionNumber, new { @class = "form-control input-sm" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-lg-3 control-label">Дата аукциона</label>
+                        <div class="col-lg-2">
+                            @Html.TextBoxFor(cl => cl.AuctionDeadlineDate, new { style = "cursor: pointer;", @class = "form-control input-sm datepicker" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-lg-3 control-label">Срок подачи ТКП</label>
+                        <div class="col-lg-2">
+                            @Html.TextBoxFor(m => m.TkpDeadlineDate, "{0:dd.MM.yyyy}", new {style = "cursor: pointer;", @class = "form-control input-sm datepicker"})
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-lg-3 control-label required-mark">Отношения с заказчиком</label>
+                        <div class="col-lg-6">
+                            <div class="">
+                                @foreach (var cr in ProjectHelper.GetProjectClientRelationshipsList())
+                                {
+                                    <div>
+                                        @Html.RadioButtonFor(m => m.ClientRelationshipId, cr.Id, new { @class = "" }) @cr.Name
+                                    </div>
+                                }
+
+                                @*мы @Html.RadioButtonFor(m => m.IsAuction, false, new {required = "required"}) конкуренты @Html.RadioButtonFor(m => m.IsAuction, false, new {required = "required"}) не общих основаниях*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-lg-3 control-label required-mark">Срок сдачи проекта</label>
+                    <div class="col-lg-2">
+                        @Html.DropDownListFor(m=>m.DeadlineDate, new SelectList(ProjectHelper.GetDeadlineDateList()),"--выберите--", new {  @class = "form-control input-sm", required = "required" })
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-lg-3 control-label">ИНН заказчика</label>
+                    <div class="col-lg-2">
+                        @Html.TextBoxFor(cl => cl.ClientInn, new { @class = "form-control input-sm" })
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-lg-3 control-label required-mark">Заказчик</label>
+                    <div class="col-lg-6">
+                        @Html.TextBoxFor(cl => cl.ClientName, new {@class = "form-control input-sm", required = "required"})
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-lg-3 control-label required-mark">Бизнес задача</label>
+                    <div class="col-lg-2">
+                        <select id="BusinessTargetId" name="BusinessTargetId"class = "form-control input-sm">
+                            <option>--выберите--</option>
+                            @foreach (var bt in ProjectHelper.GetBusinessTargetList())
+                            {
+                                <option value="@bt.Id">@bt.Name</option>
+                            }
+                        </select>
+                        @*@Html.DropDownListFor(m => m.BusinessTargetId, new SelectList(ProjectHelper.GetBusinessTargetList(), "Id", "Name"), "--выберите--", new {@class = "form-control input-sm"})*@
+                    </div>
+                </div>
+                <div class="row" id="businessTragetOther" style="display:none">
+                    <label class="col-lg-3 control-label required-mark"></label>
+                    <div class="col-lg-6">
+                       @Html.TextAreaFor(cl => cl.BusinessTargetName, new { @class = "form-control input-sm", rows=3 })
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-lg-3 control-label required-mark">Направление</label>
+                    <div class="col-lg-6">
+                        @Html.DropDownListFor(cl => cl.SaleDirectionId, new SelectList(ProjectHelper.GetSaleDirectionList(), "Id", "Name"), "--выберите--", new { @class = "form-control input-sm", required = "required" })
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-lg-3 control-label">Предмет сделки</label>
+                    <div class="col-lg-6">
+                        @Html.DropDownListFor(cl => cl.SaleSubjectId, new SelectList(ProjectHelper.GetSaleSubjectList(), "Id", "Name"), "--выберите--", new { @class = "form-control input-sm" })
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-lg-3 control-label">Бюджет</label>
+                    <div class="col-lg-6">
+                        <div id="sumPanel" class="input-group">
+                            @Html.TextBoxFor(cl => cl.Budget, "{0:C}", new {@class = "form-control input-sm"})
+                            <span class="input-group-addon input-sm input-group-addon-element" style="width: 70px;">
+                                @Html.DropDownListFor(cl => cl.CurrencyId, new SelectList(ProjectHelper.GetCurrencyList(), "Id", "Name"), "----", new {@class = "input-xxs"})
+                            </span>
+                            <span class="input-group-addon input-sm input-group-addon-element" style="width: 100px;">
+                                    <input id="budgetUnlnown" type="checkbox" class="" /> неизвестен
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <label class="col-lg-3 control-label required-mark">Менеджер</label>
+                    <div class="col-lg-2">
+                        @Html.DropDownListFor(m => m.ManagerSid, new SelectList(UserHelper.GetManagersSelectionList(), "Id", "ShortName", ViewBag.CurUser.Sid), "--выберите--", new {size = "1", id = "listManagers", @class = "form-control input-sm", required = "required"})
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-lg-3 control-label">Комментарий</label>
+                    <div class="col-lg-6">
+                        @Html.TextAreaFor(cl => cl.Comment, new { rows = "3", id = "comment", @class = "form-control input-sm" })
+                    </div>
+                </div>
+                <p>
+                    <div class="row">
+                        <div class="col-sm-offset-3 col-sm-8">
+                            <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> сохранить</button>
+                        </div>
+                    </div>
+                </p>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(function() {
+            $('.datepicker').datepicker({
+                language: "ru",
+                todayHighlight: true,
+                autoclose: true
+            });
+            $('[name=IsAuction]').change(function() {
+                if ($(this).val() == "True") {
+                    $('#auctionSettings').show();
+                } else {
+                    $('#auctionSettings').hide();
+                    
+                }
+            });
+            $('#BusinessTargetId').change(function () {
+                var $businessTragetOther = $('#businessTragetOther');
+                if ($(this).val() == -1) {
+                    $businessTragetOther.show();
+                    $businessTragetOther.prop('required', true);
+                } else {
+                    $businessTragetOther.hide();
+                    $businessTragetOther.prop('required', false);
+                }
+                
+            });
+            $('#budgetUnlnown').click(function () {
+                var checked = $(this).is(':checked');
+                $('#Budget').val('');
+                $('#Budget').prop('disabled', checked);
+                $('#CurrencyId').val('');
+                $('#CurrencyId').prop('disabled', checked);
+            });
+        })
+    </script>
+}

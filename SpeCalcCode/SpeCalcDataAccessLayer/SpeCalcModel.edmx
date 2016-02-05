@@ -1,0 +1,2617 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="SpeCalcModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ProjectBusinessTargets">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="OrderNum" Type="int" Nullable="false" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectClientRelationships">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="OrderNum" Type="int" Nullable="false" />
+          <Property Name="SysName" Type="nvarchar" MaxLength="50" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="Descr" Type="nvarchar(max)" />
+          <Property Name="ProbabilityValue" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectConditionHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ConditionId" Type="int" Nullable="false" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="CreatorSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="CreatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Comment" Type="nvarchar(max)" />
+          <Property Name="ProjectId" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectConditions">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="OrderNum" Type="int" Nullable="false" />
+          <Property Name="SysName" Type="nvarchar" MaxLength="50" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectCurrencies">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="10" Nullable="false" />
+          <Property Name="Symbol" Type="nvarchar" MaxLength="10" />
+        </EntityType>
+        <EntityType Name="ProjectFiles">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProjectId" Type="int" Nullable="false" />
+          <Property Name="FolderId" Type="int" Nullable="false" />
+          <Property Name="fileDATA" Type="varbinary(max)" Nullable="false" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="FileGUID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="FileName" Type="nvarchar" MaxLength="500" Nullable="false" />
+          <Property Name="CreatorSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="CreatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="DeleterSid" Type="varchar" MaxLength="46" />
+          <Property Name="DeleterName" Type="nvarchar" MaxLength="150" />
+          <Property Name="DeleterDate" Type="datetime" />
+          <Property Name="PreviousFileId" Type="int" />
+          <Property Name="VersionNumber" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectFolders">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="SysName" Type="nvarchar" MaxLength="50" />
+          <Property Name="OrderNum" Type="int" Nullable="false" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectPositionCalculations">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PositionId" Type="int" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="CreatorSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="CreatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="DeleteDate" Type="datetime" />
+          <Property Name="DeleterSid" Type="varchar" MaxLength="46" />
+          <Property Name="DeleterName" Type="nvarchar" MaxLength="150" />
+          <Property Name="StateId" Type="int" />
+          <Property Name="StateChangeDate" Type="datetime" />
+          <Property Name="StateChangerSid" Type="varchar" MaxLength="46" />
+          <Property Name="StateChangerName" Type="nvarchar" MaxLength="150" />
+          <Property Name="CatalogNumber" Type="nvarchar" MaxLength="150" />
+          <Property Name="Cost" Type="money" />
+          <Property Name="DeliveryTimeId" Type="int" />
+          <Property Name="DeliveryTime" Type="nvarchar" MaxLength="150" />
+          <Property Name="ProtectionFactId" Type="int" />
+          <Property Name="ProtectionFactCondition" Type="nvarchar(max)" />
+          <Property Name="Comment" Type="nvarchar(max)" />
+          <Property Name="CurrencyId" Type="int" />
+          <Property Name="Provider" Type="nvarchar" MaxLength="150" />
+          <Property Name="RecomendedPrice" Type="money" />
+        </EntityType>
+        <EntityType Name="ProjectPositionDeliveryTimes">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="OrderNum" Type="int" Nullable="false" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectPositionQuantityUnits">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="SysName" Type="nvarchar" MaxLength="50" />
+          <Property Name="OrderNum" Type="int" Nullable="false" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectPositions">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProjectId" Type="int" Nullable="false" />
+          <Property Name="RowNum" Type="nvarchar" MaxLength="30" />
+          <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Quantity" Type="int" Nullable="false" />
+          <Property Name="QuantityUnitId" Type="int" Nullable="false" />
+          <Property Name="CalculatorSid" Type="varchar" MaxLength="46" />
+          <Property Name="CalculatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="CreatorSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="CreatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="DeleteDate" Type="datetime" />
+          <Property Name="DeleterSid" Type="varchar" MaxLength="46" />
+          <Property Name="DeleterName" Type="nvarchar" MaxLength="150" />
+          <Property Name="StateId" Type="int" Nullable="false" />
+          <Property Name="StateChangeDate" Type="datetime" />
+          <Property Name="StateChangerSid" Type="varchar" MaxLength="46" />
+          <Property Name="StateChangerName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Vendor" Type="nvarchar" MaxLength="150" />
+          <Property Name="CatalogNumber" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="ProjectPositionStateHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PositionId" Type="int" Nullable="false" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="CreatorSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="CreatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Comment" Type="nvarchar(max)" />
+          <Property Name="StateId" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectPositionStates">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="SysName" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="BackgroundColor" Type="nvarchar" MaxLength="50" />
+          <Property Name="ForegroundColor" Type="nvarchar" MaxLength="50" />
+          <Property Name="Icon" Type="nvarchar" MaxLength="50" />
+          <Property Name="IconColor" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="ProjectProtectionFacts">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="SysName" Type="nvarchar" MaxLength="50" />
+          <Property Name="OrderNum" Type="int" Nullable="false" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectRoles">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="SysName" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Descr" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="Projects">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ClientId" Type="int" />
+          <Property Name="ClientInn" Type="nvarchar" MaxLength="12" />
+          <Property Name="ClientName" Type="nvarchar" MaxLength="500" />
+          <Property Name="Budget" Type="money" />
+          <Property Name="SaleDirectionId" Type="int" />
+          <Property Name="SaleSubjectId" Type="int" />
+          <Property Name="Probability" Type="int" />
+          <Property Name="ManagerSid" Type="varchar" MaxLength="46" />
+          <Property Name="ManagerName" Type="nvarchar" MaxLength="150" />
+          <Property Name="ManagerDepartmentId" Type="int" />
+          <Property Name="ManagerDepartmentName" Type="nvarchar" MaxLength="500" />
+          <Property Name="ManagerChiefSid" Type="varchar" MaxLength="46" />
+          <Property Name="ManagerChiefName" Type="nvarchar" MaxLength="150" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="CreatorSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="CreatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="DeleteDate" Type="datetime" />
+          <Property Name="DeleterSid" Type="varchar" MaxLength="46" />
+          <Property Name="DeleterName" Type="nvarchar" MaxLength="150" />
+          <Property Name="StateId" Type="int" />
+          <Property Name="StateChangeDate" Type="datetime" />
+          <Property Name="ChangerSid" Type="varchar" MaxLength="46" />
+          <Property Name="ChangerName" Type="nvarchar" MaxLength="150" />
+          <Property Name="IsAuction" Type="bit" />
+          <Property Name="TkpDeadlineDate" Type="datetime" />
+          <Property Name="DeadlineDate" Type="nvarchar" MaxLength="150" />
+          <Property Name="AuctionDeadlineDate" Type="datetime" />
+          <Property Name="ConditionId" Type="int" />
+          <Property Name="BusinessTargetId" Type="int" />
+          <Property Name="BusinessTargetName" Type="nvarchar(max)" />
+          <Property Name="CurrencyId" Type="int" />
+          <Property Name="CurrentYearRealization" Type="bit" />
+          <Property Name="HasBudget" Type="bit" Nullable="false" />
+          <Property Name="ClientRelationshipId" Type="int" />
+          <Property Name="Comment" Type="nvarchar(max)" />
+          <Property Name="AuctionNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="AuctionLink" Type="nvarchar(max)" />
+          <Property Name="ConditionChangeDate" Type="datetime" />
+          <Property Name="ConditionChangerSid" Type="varchar" MaxLength="46" />
+          <Property Name="ConditionChangerName" Type="nvarchar" MaxLength="150" />
+        </EntityType>
+        <EntityType Name="ProjectSaleDirectionResponsibles">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="SaleDirectionId" Type="int" Nullable="false" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="CreatorSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="UserEmail" Type="nvarchar" MaxLength="500" />
+        </EntityType>
+        <EntityType Name="ProjectSaleDirections">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="OrderNum" Type="int" Nullable="false" />
+          <Property Name="SysName" Type="nvarchar" MaxLength="50" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectSaleSubjects">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="IdSaleDirection" Type="int" />
+          <Property Name="Name" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="OrderNum" Type="int" Nullable="false" />
+          <Property Name="SysName" Type="nvarchar" MaxLength="50" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectStateHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="StateId" Type="int" Nullable="false" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="CreatorSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="CreatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Comment" Type="nvarchar(max)" />
+          <Property Name="FileSid" Type="varchar" MaxLength="46" />
+          <Property Name="ProjectId" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectStates">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="SysName" Type="nvarchar" MaxLength="50" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectTeams">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProjectId" Type="int" Nullable="false" />
+          <Property Name="UserSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="UserName" Type="nvarchar" MaxLength="50" />
+          <Property Name="RoleId" Type="int" Nullable="false" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="CreatorSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="CreatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="DeleteDate" Type="datetime" />
+          <Property Name="DeleterSid" Type="varchar" MaxLength="46" />
+          <Property Name="DeleterName" Type="nvarchar" MaxLength="150" />
+        </EntityType>
+        <EntityType Name="ProjectWorkCalculations">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="WorkId" Type="int" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="CreatorSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="CreatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="DeleteDate" Type="datetime" />
+          <Property Name="DeleterSid" Type="varchar" MaxLength="46" />
+          <Property Name="DeleterName" Type="nvarchar" MaxLength="150" />
+          <Property Name="StateId" Type="int" Nullable="false" />
+          <Property Name="StateChangeDate" Type="datetime" />
+          <Property Name="StateChangerSid" Type="varchar" MaxLength="46" />
+          <Property Name="StateChangerName" Type="nvarchar" MaxLength="150" />
+          <Property Name="ExecutorName" Type="nvarchar" MaxLength="500" />
+          <Property Name="Cost" Type="money" />
+          <Property Name="CurrencyId" Type="int" />
+          <Property Name="ExecutionTimeId" Type="int" />
+          <Property Name="ExecutionTime" Type="nvarchar" MaxLength="500" />
+          <Property Name="Comment" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="ProjectWorkExecutinsTimes">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="OrderNum" Type="int" Nullable="false" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectWorkQuantityUnits">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="SysName" Type="nvarchar" MaxLength="50" />
+          <Property Name="OrderNum" Type="int" Nullable="false" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectWorks">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProjectId" Type="int" Nullable="false" />
+          <Property Name="RowNum" Type="nvarchar" MaxLength="30" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Quantity" Type="int" />
+          <Property Name="QuantityUnitId" Type="int" />
+          <Property Name="CalculatorSid" Type="varchar" MaxLength="46" />
+          <Property Name="CalculatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="CreatorSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="CreatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="DeleteDate" Type="datetime" />
+          <Property Name="DeleterSid" Type="varchar" MaxLength="46" />
+          <Property Name="DeleterName" Type="nvarchar" MaxLength="150" />
+          <Property Name="StateId" Type="int" Nullable="false" />
+          <Property Name="StateChangeDate" Type="datetime" />
+          <Property Name="StateChangerSid" Type="varchar" MaxLength="46" />
+          <Property Name="StateChangerName" Type="nvarchar" MaxLength="150" />
+        </EntityType>
+        <EntityType Name="ProjectWorkStateHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="WorkId" Type="int" Nullable="false" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="CreatorSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="CreatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Comment" Type="nvarchar(max)" />
+          <Property Name="StateId" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectWorkStates">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="SysName" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="BackgroundColor" Type="nvarchar" MaxLength="50" />
+          <Property Name="ForegroundColor" Type="nvarchar" MaxLength="50" />
+          <Property Name="Icon" Type="nvarchar" MaxLength="50" />
+          <Property Name="IconColor" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <Association Name="FK_ProjectConditionHistory_ProjectConditions">
+          <End Role="ProjectConditions" Type="Self.ProjectConditions" Multiplicity="1" />
+          <End Role="ProjectConditionHistory" Type="Self.ProjectConditionHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectConditions">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectConditionHistory">
+              <PropertyRef Name="ConditionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectConditionHistory_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectConditionHistory" Type="Self.ProjectConditionHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectConditionHistory">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectFiles_ProjectFolders">
+          <End Role="ProjectFolders" Type="Self.ProjectFolders" Multiplicity="1" />
+          <End Role="ProjectFiles" Type="Self.ProjectFiles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectFolders">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectFiles">
+              <PropertyRef Name="FolderId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectFiles_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectFiles" Type="Self.ProjectFiles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectFiles">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionCalculations_ProjectCurrencies">
+          <End Role="ProjectCurrencies" Type="Self.ProjectCurrencies" Multiplicity="0..1" />
+          <End Role="ProjectPositionCalculations" Type="Self.ProjectPositionCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectCurrencies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionCalculations">
+              <PropertyRef Name="CurrencyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionCalculations_ProjectCurrencies1">
+          <End Role="ProjectCurrencies" Type="Self.ProjectCurrencies" Multiplicity="0..1" />
+          <End Role="ProjectPositionCalculations" Type="Self.ProjectPositionCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectCurrencies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionCalculations">
+              <PropertyRef Name="CurrencyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionCalculations_ProjectPositionDeliveryTimes">
+          <End Role="ProjectPositionDeliveryTimes" Type="Self.ProjectPositionDeliveryTimes" Multiplicity="0..1" />
+          <End Role="ProjectPositionCalculations" Type="Self.ProjectPositionCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectPositionDeliveryTimes">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionCalculations">
+              <PropertyRef Name="DeliveryTimeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionCalculations_ProjectPositions">
+          <End Role="ProjectPositions" Type="Self.ProjectPositions" Multiplicity="1" />
+          <End Role="ProjectPositionCalculations" Type="Self.ProjectPositionCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectPositions">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionCalculations">
+              <PropertyRef Name="PositionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionCalculations_ProjectProtectionFacts">
+          <End Role="ProjectProtectionFacts" Type="Self.ProjectProtectionFacts" Multiplicity="0..1" />
+          <End Role="ProjectPositionCalculations" Type="Self.ProjectPositionCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectProtectionFacts">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionCalculations">
+              <PropertyRef Name="ProtectionFactId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositions_ProjectPositionQuantityUnits">
+          <End Role="ProjectPositionQuantityUnits" Type="Self.ProjectPositionQuantityUnits" Multiplicity="1" />
+          <End Role="ProjectPositions" Type="Self.ProjectPositions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectPositionQuantityUnits">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositions">
+              <PropertyRef Name="QuantityUnitId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositions_ProjectPositionStates">
+          <End Role="ProjectPositionStates" Type="Self.ProjectPositionStates" Multiplicity="1" />
+          <End Role="ProjectPositions" Type="Self.ProjectPositions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectPositionStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositions">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositions_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectPositions" Type="Self.ProjectPositions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositions">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionStateHistory_ProjectPositions">
+          <End Role="ProjectPositions" Type="Self.ProjectPositions" Multiplicity="1" />
+          <End Role="ProjectPositionStateHistory" Type="Self.ProjectPositionStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectPositions">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionStateHistory">
+              <PropertyRef Name="PositionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionStateHistory_ProjectPositions1">
+          <End Role="ProjectPositions" Type="Self.ProjectPositions" Multiplicity="1" />
+          <End Role="ProjectPositionStateHistory" Type="Self.ProjectPositionStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectPositions">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionStateHistory">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionStateHistory_ProjectPositionStates">
+          <End Role="ProjectPositionStates" Type="Self.ProjectPositionStates" Multiplicity="1" />
+          <End Role="ProjectPositionStateHistory" Type="Self.ProjectPositionStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectPositionStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionStateHistory">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Projects_ProjectBusinessTargets">
+          <End Role="ProjectBusinessTargets" Type="Self.ProjectBusinessTargets" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectBusinessTargets">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="BusinessTargetId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Projects_ProjectClientRelationships">
+          <End Role="ProjectClientRelationships" Type="Self.ProjectClientRelationships" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectClientRelationships">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="ClientRelationshipId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Projects_ProjectConditions">
+          <End Role="ProjectConditions" Type="Self.ProjectConditions" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectConditions">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="ConditionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Projects_ProjectCurrency">
+          <End Role="ProjectCurrencies" Type="Self.ProjectCurrencies" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectCurrencies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="CurrencyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Projects_ProjectSaleDirections">
+          <End Role="ProjectSaleDirections" Type="Self.ProjectSaleDirections" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectSaleDirections">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="SaleDirectionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Projects_ProjectSaleSubjects">
+          <End Role="ProjectSaleSubjects" Type="Self.ProjectSaleSubjects" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectSaleSubjects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="SaleSubjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Projects_ProjectStates">
+          <End Role="ProjectStates" Type="Self.ProjectStates" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectSaleDirectionResponsibles_ProjectSaleDirections">
+          <End Role="ProjectSaleDirections" Type="Self.ProjectSaleDirections" Multiplicity="1" />
+          <End Role="ProjectSaleDirectionResponsibles" Type="Self.ProjectSaleDirectionResponsibles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectSaleDirections">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectSaleDirectionResponsibles">
+              <PropertyRef Name="SaleDirectionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectSaleSubjects_ProjectSaleDirections">
+          <End Role="ProjectSaleDirections" Type="Self.ProjectSaleDirections" Multiplicity="0..1" />
+          <End Role="ProjectSaleSubjects" Type="Self.ProjectSaleSubjects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectSaleDirections">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectSaleSubjects">
+              <PropertyRef Name="IdSaleDirection" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectStateHistory_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectStateHistory" Type="Self.ProjectStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectStateHistory">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectStateHistory_ProjectStates">
+          <End Role="ProjectStates" Type="Self.ProjectStates" Multiplicity="1" />
+          <End Role="ProjectStateHistory" Type="Self.ProjectStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectStateHistory">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectTeams_ProjectRoles">
+          <End Role="ProjectRoles" Type="Self.ProjectRoles" Multiplicity="1" />
+          <End Role="ProjectTeams" Type="Self.ProjectTeams" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectRoles">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectTeams">
+              <PropertyRef Name="RoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectTeams_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectTeams" Type="Self.ProjectTeams" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectTeams">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorkCalculations_ProjectCurrencies">
+          <End Role="ProjectCurrencies" Type="Self.ProjectCurrencies" Multiplicity="0..1" />
+          <End Role="ProjectWorkCalculations" Type="Self.ProjectWorkCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectCurrencies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorkCalculations">
+              <PropertyRef Name="CurrencyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorkCalculations_ProjectWorkExecutinsTimes">
+          <End Role="ProjectWorkExecutinsTimes" Type="Self.ProjectWorkExecutinsTimes" Multiplicity="0..1" />
+          <End Role="ProjectWorkCalculations" Type="Self.ProjectWorkCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorkExecutinsTimes">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorkCalculations">
+              <PropertyRef Name="ExecutionTimeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorkCalculations_ProjectWorks">
+          <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="1" />
+          <End Role="ProjectWorkCalculations" Type="Self.ProjectWorkCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorks">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorkCalculations">
+              <PropertyRef Name="WorkId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorkCalculations_ProjectWorkStates">
+          <End Role="ProjectWorkStates" Type="Self.ProjectWorkStates" Multiplicity="1" />
+          <End Role="ProjectWorkCalculations" Type="Self.ProjectWorkCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorkStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorkCalculations">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorks_ProjectWorkQuantityUnits">
+          <End Role="ProjectWorkQuantityUnits" Type="Self.ProjectWorkQuantityUnits" Multiplicity="0..1" />
+          <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorkQuantityUnits">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorks">
+              <PropertyRef Name="QuantityUnitId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorks_ProjectWorkStates">
+          <End Role="ProjectWorkStates" Type="Self.ProjectWorkStates" Multiplicity="1" />
+          <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorkStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorks">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorks_ProjectWorkStates1">
+          <End Role="ProjectWorkStates" Type="Self.ProjectWorkStates" Multiplicity="1" />
+          <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorkStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorks">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorkStateHistory_ProjectWorks">
+          <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="1" />
+          <End Role="ProjectWorkStateHistory" Type="Self.ProjectWorkStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorks">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorkStateHistory">
+              <PropertyRef Name="WorkId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorkStateHistory_ProjectWorkStates">
+          <End Role="ProjectWorkStates" Type="Self.ProjectWorkStates" Multiplicity="1" />
+          <End Role="ProjectWorkStateHistory" Type="Self.ProjectWorkStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorkStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorkStateHistory">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="SpeCalcModelStoreContainer">
+          <EntitySet Name="ProjectBusinessTargets" EntityType="Self.ProjectBusinessTargets" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectClientRelationships" EntityType="Self.ProjectClientRelationships" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectConditionHistory" EntityType="Self.ProjectConditionHistory" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectConditions" EntityType="Self.ProjectConditions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectCurrencies" EntityType="Self.ProjectCurrencies" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectFiles" EntityType="Self.ProjectFiles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectFolders" EntityType="Self.ProjectFolders" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectPositionCalculations" EntityType="Self.ProjectPositionCalculations" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectPositionDeliveryTimes" EntityType="Self.ProjectPositionDeliveryTimes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectPositionQuantityUnits" EntityType="Self.ProjectPositionQuantityUnits" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectPositions" EntityType="Self.ProjectPositions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectPositionStateHistory" EntityType="Self.ProjectPositionStateHistory" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectPositionStates" EntityType="Self.ProjectPositionStates" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectProtectionFacts" EntityType="Self.ProjectProtectionFacts" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectRoles" EntityType="Self.ProjectRoles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Projects" EntityType="Self.Projects" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectSaleDirectionResponsibles" EntityType="Self.ProjectSaleDirectionResponsibles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectSaleDirections" EntityType="Self.ProjectSaleDirections" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectSaleSubjects" EntityType="Self.ProjectSaleSubjects" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectStateHistory" EntityType="Self.ProjectStateHistory" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectStates" EntityType="Self.ProjectStates" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectTeams" EntityType="Self.ProjectTeams" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectWorkCalculations" EntityType="Self.ProjectWorkCalculations" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectWorkExecutinsTimes" EntityType="Self.ProjectWorkExecutinsTimes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectWorkQuantityUnits" EntityType="Self.ProjectWorkQuantityUnits" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectWorks" EntityType="Self.ProjectWorks" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectWorkStateHistory" EntityType="Self.ProjectWorkStateHistory" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectWorkStates" EntityType="Self.ProjectWorkStates" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_ProjectConditionHistory_ProjectConditions" Association="Self.FK_ProjectConditionHistory_ProjectConditions">
+            <End Role="ProjectConditions" EntitySet="ProjectConditions" />
+            <End Role="ProjectConditionHistory" EntitySet="ProjectConditionHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectConditionHistory_Projects" Association="Self.FK_ProjectConditionHistory_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectConditionHistory" EntitySet="ProjectConditionHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectFiles_ProjectFolders" Association="Self.FK_ProjectFiles_ProjectFolders">
+            <End Role="ProjectFolders" EntitySet="ProjectFolders" />
+            <End Role="ProjectFiles" EntitySet="ProjectFiles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectFiles_Projects" Association="Self.FK_ProjectFiles_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectFiles" EntitySet="ProjectFiles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionCalculations_ProjectCurrencies" Association="Self.FK_ProjectPositionCalculations_ProjectCurrencies">
+            <End Role="ProjectCurrencies" EntitySet="ProjectCurrencies" />
+            <End Role="ProjectPositionCalculations" EntitySet="ProjectPositionCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionCalculations_ProjectCurrencies1" Association="Self.FK_ProjectPositionCalculations_ProjectCurrencies1">
+            <End Role="ProjectCurrencies" EntitySet="ProjectCurrencies" />
+            <End Role="ProjectPositionCalculations" EntitySet="ProjectPositionCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionCalculations_ProjectPositionDeliveryTimes" Association="Self.FK_ProjectPositionCalculations_ProjectPositionDeliveryTimes">
+            <End Role="ProjectPositionDeliveryTimes" EntitySet="ProjectPositionDeliveryTimes" />
+            <End Role="ProjectPositionCalculations" EntitySet="ProjectPositionCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionCalculations_ProjectPositions" Association="Self.FK_ProjectPositionCalculations_ProjectPositions">
+            <End Role="ProjectPositions" EntitySet="ProjectPositions" />
+            <End Role="ProjectPositionCalculations" EntitySet="ProjectPositionCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionCalculations_ProjectProtectionFacts" Association="Self.FK_ProjectPositionCalculations_ProjectProtectionFacts">
+            <End Role="ProjectProtectionFacts" EntitySet="ProjectProtectionFacts" />
+            <End Role="ProjectPositionCalculations" EntitySet="ProjectPositionCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositions_ProjectPositionQuantityUnits" Association="Self.FK_ProjectPositions_ProjectPositionQuantityUnits">
+            <End Role="ProjectPositionQuantityUnits" EntitySet="ProjectPositionQuantityUnits" />
+            <End Role="ProjectPositions" EntitySet="ProjectPositions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositions_ProjectPositionStates" Association="Self.FK_ProjectPositions_ProjectPositionStates">
+            <End Role="ProjectPositionStates" EntitySet="ProjectPositionStates" />
+            <End Role="ProjectPositions" EntitySet="ProjectPositions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositions_Projects" Association="Self.FK_ProjectPositions_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectPositions" EntitySet="ProjectPositions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionStateHistory_ProjectPositions" Association="Self.FK_ProjectPositionStateHistory_ProjectPositions">
+            <End Role="ProjectPositions" EntitySet="ProjectPositions" />
+            <End Role="ProjectPositionStateHistory" EntitySet="ProjectPositionStateHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionStateHistory_ProjectPositions1" Association="Self.FK_ProjectPositionStateHistory_ProjectPositions1">
+            <End Role="ProjectPositions" EntitySet="ProjectPositions" />
+            <End Role="ProjectPositionStateHistory" EntitySet="ProjectPositionStateHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionStateHistory_ProjectPositionStates" Association="Self.FK_ProjectPositionStateHistory_ProjectPositionStates">
+            <End Role="ProjectPositionStates" EntitySet="ProjectPositionStates" />
+            <End Role="ProjectPositionStateHistory" EntitySet="ProjectPositionStateHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Projects_ProjectBusinessTargets" Association="Self.FK_Projects_ProjectBusinessTargets">
+            <End Role="ProjectBusinessTargets" EntitySet="ProjectBusinessTargets" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Projects_ProjectClientRelationships" Association="Self.FK_Projects_ProjectClientRelationships">
+            <End Role="ProjectClientRelationships" EntitySet="ProjectClientRelationships" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Projects_ProjectConditions" Association="Self.FK_Projects_ProjectConditions">
+            <End Role="ProjectConditions" EntitySet="ProjectConditions" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Projects_ProjectCurrency" Association="Self.FK_Projects_ProjectCurrency">
+            <End Role="ProjectCurrencies" EntitySet="ProjectCurrencies" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Projects_ProjectSaleDirections" Association="Self.FK_Projects_ProjectSaleDirections">
+            <End Role="ProjectSaleDirections" EntitySet="ProjectSaleDirections" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Projects_ProjectSaleSubjects" Association="Self.FK_Projects_ProjectSaleSubjects">
+            <End Role="ProjectSaleSubjects" EntitySet="ProjectSaleSubjects" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Projects_ProjectStates" Association="Self.FK_Projects_ProjectStates">
+            <End Role="ProjectStates" EntitySet="ProjectStates" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectSaleDirectionResponsibles_ProjectSaleDirections" Association="Self.FK_ProjectSaleDirectionResponsibles_ProjectSaleDirections">
+            <End Role="ProjectSaleDirections" EntitySet="ProjectSaleDirections" />
+            <End Role="ProjectSaleDirectionResponsibles" EntitySet="ProjectSaleDirectionResponsibles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectSaleSubjects_ProjectSaleDirections" Association="Self.FK_ProjectSaleSubjects_ProjectSaleDirections">
+            <End Role="ProjectSaleDirections" EntitySet="ProjectSaleDirections" />
+            <End Role="ProjectSaleSubjects" EntitySet="ProjectSaleSubjects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectStateHistory_Projects" Association="Self.FK_ProjectStateHistory_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectStateHistory" EntitySet="ProjectStateHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectStateHistory_ProjectStates" Association="Self.FK_ProjectStateHistory_ProjectStates">
+            <End Role="ProjectStates" EntitySet="ProjectStates" />
+            <End Role="ProjectStateHistory" EntitySet="ProjectStateHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectTeams_ProjectRoles" Association="Self.FK_ProjectTeams_ProjectRoles">
+            <End Role="ProjectRoles" EntitySet="ProjectRoles" />
+            <End Role="ProjectTeams" EntitySet="ProjectTeams" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectTeams_Projects" Association="Self.FK_ProjectTeams_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectTeams" EntitySet="ProjectTeams" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorkCalculations_ProjectCurrencies" Association="Self.FK_ProjectWorkCalculations_ProjectCurrencies">
+            <End Role="ProjectCurrencies" EntitySet="ProjectCurrencies" />
+            <End Role="ProjectWorkCalculations" EntitySet="ProjectWorkCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorkCalculations_ProjectWorkExecutinsTimes" Association="Self.FK_ProjectWorkCalculations_ProjectWorkExecutinsTimes">
+            <End Role="ProjectWorkExecutinsTimes" EntitySet="ProjectWorkExecutinsTimes" />
+            <End Role="ProjectWorkCalculations" EntitySet="ProjectWorkCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorkCalculations_ProjectWorks" Association="Self.FK_ProjectWorkCalculations_ProjectWorks">
+            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
+            <End Role="ProjectWorkCalculations" EntitySet="ProjectWorkCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorkCalculations_ProjectWorkStates" Association="Self.FK_ProjectWorkCalculations_ProjectWorkStates">
+            <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
+            <End Role="ProjectWorkCalculations" EntitySet="ProjectWorkCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorks_ProjectWorkQuantityUnits" Association="Self.FK_ProjectWorks_ProjectWorkQuantityUnits">
+            <End Role="ProjectWorkQuantityUnits" EntitySet="ProjectWorkQuantityUnits" />
+            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorks_ProjectWorkStates" Association="Self.FK_ProjectWorks_ProjectWorkStates">
+            <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
+            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorks_ProjectWorkStates1" Association="Self.FK_ProjectWorks_ProjectWorkStates1">
+            <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
+            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorkStateHistory_ProjectWorks" Association="Self.FK_ProjectWorkStateHistory_ProjectWorks">
+            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
+            <End Role="ProjectWorkStateHistory" EntitySet="ProjectWorkStateHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorkStateHistory_ProjectWorkStates" Association="Self.FK_ProjectWorkStateHistory_ProjectWorkStates">
+            <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
+            <End Role="ProjectWorkStateHistory" EntitySet="ProjectWorkStateHistory" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="SpeCalcModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="ProjectBusinessTargets">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="OrderNum" Type="Int32" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_Projects_ProjectBusinessTargets" FromRole="ProjectBusinessTargets" ToRole="Projects" />
+        </EntityType>
+        <EntityType Name="ProjectClientRelationships">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="OrderNum" Type="Int32" Nullable="false" />
+          <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="Descr" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ProbabilityValue" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_Projects_ProjectClientRelationships" FromRole="ProjectClientRelationships" ToRole="Projects" />
+        </EntityType>
+        <EntityType Name="ProjectConditionHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ConditionId" Type="Int32" Nullable="false" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ProjectId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="ProjectConditions" Relationship="Self.FK_ProjectConditionHistory_ProjectConditions" FromRole="ProjectConditionHistory" ToRole="ProjectConditions" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_ProjectConditionHistory_Projects" FromRole="ProjectConditionHistory" ToRole="Projects" />
+        </EntityType>
+        <EntityType Name="ProjectConditions">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="OrderNum" Type="Int32" Nullable="false" />
+          <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="ProjectConditionHistory" Relationship="Self.FK_ProjectConditionHistory_ProjectConditions" FromRole="ProjectConditions" ToRole="ProjectConditionHistory" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_Projects_ProjectConditions" FromRole="ProjectConditions" ToRole="Projects" />
+        </EntityType>
+        <EntityType Name="ProjectCurrencies">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Symbol" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ProjectPositionCalculations" Relationship="Self.FK_ProjectPositionCalculations_ProjectCurrencies" FromRole="ProjectCurrencies" ToRole="ProjectPositionCalculations" />
+          <NavigationProperty Name="ProjectPositionCalculations1" Relationship="Self.FK_ProjectPositionCalculations_ProjectCurrencies1" FromRole="ProjectCurrencies" ToRole="ProjectPositionCalculations" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_Projects_ProjectCurrency" FromRole="ProjectCurrencies" ToRole="Projects" />
+          <NavigationProperty Name="ProjectWorkCalculations" Relationship="Self.FK_ProjectWorkCalculations_ProjectCurrencies" FromRole="ProjectCurrencies" ToRole="ProjectWorkCalculations" />
+        </EntityType>
+        <EntityType Name="ProjectFiles">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectId" Type="Int32" Nullable="false" />
+          <Property Name="FolderId" Type="Int32" Nullable="false" />
+          <Property Name="fileDATA" Type="Binary" MaxLength="Max" FixedLength="false" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="FileGUID" Type="Guid" Nullable="false" />
+          <Property Name="FileName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="DeleterSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="DeleterName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="DeleterDate" Type="DateTime" Precision="3" />
+          <Property Name="PreviousFileId" Type="Int32" />
+          <Property Name="VersionNumber" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="ProjectFolders" Relationship="Self.FK_ProjectFiles_ProjectFolders" FromRole="ProjectFiles" ToRole="ProjectFolders" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_ProjectFiles_Projects" FromRole="ProjectFiles" ToRole="Projects" />
+        </EntityType>
+        <EntityType Name="ProjectFolders">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="OrderNum" Type="Int32" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="ProjectFiles" Relationship="Self.FK_ProjectFiles_ProjectFolders" FromRole="ProjectFolders" ToRole="ProjectFiles" />
+        </EntityType>
+        <EntityType Name="ProjectPositionCalculations">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PositionId" Type="Int32" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="DeleteDate" Type="DateTime" Precision="3" />
+          <Property Name="DeleterSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="DeleterName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="StateId" Type="Int32" />
+          <Property Name="StateChangeDate" Type="DateTime" Precision="3" />
+          <Property Name="StateChangerSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="StateChangerName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="CatalogNumber" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Cost" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="DeliveryTimeId" Type="Int32" />
+          <Property Name="DeliveryTime" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="ProtectionFactId" Type="Int32" />
+          <Property Name="ProtectionFactCondition" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CurrencyId" Type="Int32" />
+          <Property Name="Provider" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="RecomendedPrice" Type="Decimal" Precision="19" Scale="4" />
+          <NavigationProperty Name="ProjectCurrencies" Relationship="Self.FK_ProjectPositionCalculations_ProjectCurrencies" FromRole="ProjectPositionCalculations" ToRole="ProjectCurrencies" />
+          <NavigationProperty Name="ProjectCurrencies1" Relationship="Self.FK_ProjectPositionCalculations_ProjectCurrencies1" FromRole="ProjectPositionCalculations" ToRole="ProjectCurrencies" />
+          <NavigationProperty Name="ProjectPositionDeliveryTimes" Relationship="Self.FK_ProjectPositionCalculations_ProjectPositionDeliveryTimes" FromRole="ProjectPositionCalculations" ToRole="ProjectPositionDeliveryTimes" />
+          <NavigationProperty Name="ProjectPositions" Relationship="Self.FK_ProjectPositionCalculations_ProjectPositions" FromRole="ProjectPositionCalculations" ToRole="ProjectPositions" />
+          <NavigationProperty Name="ProjectProtectionFacts" Relationship="Self.FK_ProjectPositionCalculations_ProjectProtectionFacts" FromRole="ProjectPositionCalculations" ToRole="ProjectProtectionFacts" />
+        </EntityType>
+        <EntityType Name="ProjectPositionDeliveryTimes">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="OrderNum" Type="Int32" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="ProjectPositionCalculations" Relationship="Self.FK_ProjectPositionCalculations_ProjectPositionDeliveryTimes" FromRole="ProjectPositionDeliveryTimes" ToRole="ProjectPositionCalculations" />
+        </EntityType>
+        <EntityType Name="ProjectPositionQuantityUnits">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="OrderNum" Type="Int32" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="ProjectPositions" Relationship="Self.FK_ProjectPositions_ProjectPositionQuantityUnits" FromRole="ProjectPositionQuantityUnits" ToRole="ProjectPositions" />
+        </EntityType>
+        <EntityType Name="ProjectPositions">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectId" Type="Int32" Nullable="false" />
+          <Property Name="RowNum" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Quantity" Type="Int32" Nullable="false" />
+          <Property Name="QuantityUnitId" Type="Int32" Nullable="false" />
+          <Property Name="CalculatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="CalculatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="DeleteDate" Type="DateTime" Precision="3" />
+          <Property Name="DeleterSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="DeleterName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="StateId" Type="Int32" Nullable="false" />
+          <Property Name="StateChangeDate" Type="DateTime" Precision="3" />
+          <Property Name="StateChangerSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="StateChangerName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Vendor" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="CatalogNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ProjectPositionCalculations" Relationship="Self.FK_ProjectPositionCalculations_ProjectPositions" FromRole="ProjectPositions" ToRole="ProjectPositionCalculations" />
+          <NavigationProperty Name="ProjectPositionQuantityUnits" Relationship="Self.FK_ProjectPositions_ProjectPositionQuantityUnits" FromRole="ProjectPositions" ToRole="ProjectPositionQuantityUnits" />
+          <NavigationProperty Name="ProjectPositionStates" Relationship="Self.FK_ProjectPositions_ProjectPositionStates" FromRole="ProjectPositions" ToRole="ProjectPositionStates" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_ProjectPositions_Projects" FromRole="ProjectPositions" ToRole="Projects" />
+          <NavigationProperty Name="ProjectPositionStateHistory" Relationship="Self.FK_ProjectPositionStateHistory_ProjectPositions" FromRole="ProjectPositions" ToRole="ProjectPositionStateHistory" />
+          <NavigationProperty Name="ProjectPositionStateHistory1" Relationship="Self.FK_ProjectPositionStateHistory_ProjectPositions1" FromRole="ProjectPositions" ToRole="ProjectPositionStateHistory" />
+        </EntityType>
+        <EntityType Name="ProjectPositionStateHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PositionId" Type="Int32" Nullable="false" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="StateId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="ProjectPositions" Relationship="Self.FK_ProjectPositionStateHistory_ProjectPositions" FromRole="ProjectPositionStateHistory" ToRole="ProjectPositions" />
+          <NavigationProperty Name="ProjectPositions1" Relationship="Self.FK_ProjectPositionStateHistory_ProjectPositions1" FromRole="ProjectPositionStateHistory" ToRole="ProjectPositions" />
+          <NavigationProperty Name="ProjectPositionStates" Relationship="Self.FK_ProjectPositionStateHistory_ProjectPositionStates" FromRole="ProjectPositionStateHistory" ToRole="ProjectPositionStates" />
+        </EntityType>
+        <EntityType Name="ProjectPositionStates">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="BackgroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ForegroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Icon" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="IconColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ProjectPositions" Relationship="Self.FK_ProjectPositions_ProjectPositionStates" FromRole="ProjectPositionStates" ToRole="ProjectPositions" />
+          <NavigationProperty Name="ProjectPositionStateHistory" Relationship="Self.FK_ProjectPositionStateHistory_ProjectPositionStates" FromRole="ProjectPositionStates" ToRole="ProjectPositionStateHistory" />
+        </EntityType>
+        <EntityType Name="ProjectProtectionFacts">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="OrderNum" Type="Int32" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="ProjectPositionCalculations" Relationship="Self.FK_ProjectPositionCalculations_ProjectProtectionFacts" FromRole="ProjectProtectionFacts" ToRole="ProjectPositionCalculations" />
+        </EntityType>
+        <EntityType Name="ProjectRoles">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Descr" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ProjectTeams" Relationship="Self.FK_ProjectTeams_ProjectRoles" FromRole="ProjectRoles" ToRole="ProjectTeams" />
+        </EntityType>
+        <EntityType Name="Projects">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ClientId" Type="Int32" />
+          <Property Name="ClientInn" Type="String" MaxLength="12" FixedLength="false" Unicode="true" />
+          <Property Name="ClientName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="Budget" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="SaleDirectionId" Type="Int32" />
+          <Property Name="SaleSubjectId" Type="Int32" />
+          <Property Name="Probability" Type="Int32" />
+          <Property Name="ManagerSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="ManagerName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="ManagerDepartmentId" Type="Int32" />
+          <Property Name="ManagerDepartmentName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="ManagerChiefSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="ManagerChiefName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="DeleteDate" Type="DateTime" Precision="3" />
+          <Property Name="DeleterSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="DeleterName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="StateId" Type="Int32" />
+          <Property Name="StateChangeDate" Type="DateTime" Precision="3" />
+          <Property Name="ChangerSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="ChangerName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="IsAuction" Type="Boolean" />
+          <Property Name="TkpDeadlineDate" Type="DateTime" Precision="3" />
+          <Property Name="DeadlineDate" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="AuctionDeadlineDate" Type="DateTime" Precision="3" />
+          <Property Name="ConditionId" Type="Int32" />
+          <Property Name="BusinessTargetId" Type="Int32" />
+          <Property Name="BusinessTargetName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CurrencyId" Type="Int32" />
+          <Property Name="CurrentYearRealization" Type="Boolean" />
+          <Property Name="HasBudget" Type="Boolean" Nullable="false" />
+          <Property Name="ClientRelationshipId" Type="Int32" />
+          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AuctionNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="AuctionLink" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ConditionChangeDate" Type="DateTime" Precision="3" />
+          <Property Name="ConditionChangerSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="ConditionChangerName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ProjectBusinessTargets" Relationship="Self.FK_Projects_ProjectBusinessTargets" FromRole="Projects" ToRole="ProjectBusinessTargets" />
+          <NavigationProperty Name="ProjectClientRelationships" Relationship="Self.FK_Projects_ProjectClientRelationships" FromRole="Projects" ToRole="ProjectClientRelationships" />
+          <NavigationProperty Name="ProjectConditionHistory" Relationship="Self.FK_ProjectConditionHistory_Projects" FromRole="Projects" ToRole="ProjectConditionHistory" />
+          <NavigationProperty Name="ProjectConditions" Relationship="Self.FK_Projects_ProjectConditions" FromRole="Projects" ToRole="ProjectConditions" />
+          <NavigationProperty Name="ProjectCurrencies" Relationship="Self.FK_Projects_ProjectCurrency" FromRole="Projects" ToRole="ProjectCurrencies" />
+          <NavigationProperty Name="ProjectFiles" Relationship="Self.FK_ProjectFiles_Projects" FromRole="Projects" ToRole="ProjectFiles" />
+          <NavigationProperty Name="ProjectPositions" Relationship="Self.FK_ProjectPositions_Projects" FromRole="Projects" ToRole="ProjectPositions" />
+          <NavigationProperty Name="ProjectSaleDirections" Relationship="Self.FK_Projects_ProjectSaleDirections" FromRole="Projects" ToRole="ProjectSaleDirections" />
+          <NavigationProperty Name="ProjectSaleSubjects" Relationship="Self.FK_Projects_ProjectSaleSubjects" FromRole="Projects" ToRole="ProjectSaleSubjects" />
+          <NavigationProperty Name="ProjectStates" Relationship="Self.FK_Projects_ProjectStates" FromRole="Projects" ToRole="ProjectStates" />
+          <NavigationProperty Name="ProjectStateHistory" Relationship="Self.FK_ProjectStateHistory_Projects" FromRole="Projects" ToRole="ProjectStateHistory" />
+          <NavigationProperty Name="ProjectTeams" Relationship="Self.FK_ProjectTeams_Projects" FromRole="Projects" ToRole="ProjectTeams" />
+        </EntityType>
+        <EntityType Name="ProjectSaleDirectionResponsibles">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="SaleDirectionId" Type="Int32" Nullable="false" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="UserEmail" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ProjectSaleDirections" Relationship="Self.FK_ProjectSaleDirectionResponsibles_ProjectSaleDirections" FromRole="ProjectSaleDirectionResponsibles" ToRole="ProjectSaleDirections" />
+        </EntityType>
+        <EntityType Name="ProjectSaleDirections">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="OrderNum" Type="Int32" Nullable="false" />
+          <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_Projects_ProjectSaleDirections" FromRole="ProjectSaleDirections" ToRole="Projects" />
+          <NavigationProperty Name="ProjectSaleDirectionResponsibles" Relationship="Self.FK_ProjectSaleDirectionResponsibles_ProjectSaleDirections" FromRole="ProjectSaleDirections" ToRole="ProjectSaleDirectionResponsibles" />
+          <NavigationProperty Name="ProjectSaleSubjects" Relationship="Self.FK_ProjectSaleSubjects_ProjectSaleDirections" FromRole="ProjectSaleDirections" ToRole="ProjectSaleSubjects" />
+        </EntityType>
+        <EntityType Name="ProjectSaleSubjects">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IdSaleDirection" Type="Int32" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="OrderNum" Type="Int32" Nullable="false" />
+          <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_Projects_ProjectSaleSubjects" FromRole="ProjectSaleSubjects" ToRole="Projects" />
+          <NavigationProperty Name="ProjectSaleDirections" Relationship="Self.FK_ProjectSaleSubjects_ProjectSaleDirections" FromRole="ProjectSaleSubjects" ToRole="ProjectSaleDirections" />
+        </EntityType>
+        <EntityType Name="ProjectStateHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="StateId" Type="Int32" Nullable="false" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FileSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="ProjectId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_ProjectStateHistory_Projects" FromRole="ProjectStateHistory" ToRole="Projects" />
+          <NavigationProperty Name="ProjectStates" Relationship="Self.FK_ProjectStateHistory_ProjectStates" FromRole="ProjectStateHistory" ToRole="ProjectStates" />
+        </EntityType>
+        <EntityType Name="ProjectStates">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_Projects_ProjectStates" FromRole="ProjectStates" ToRole="Projects" />
+          <NavigationProperty Name="ProjectStateHistory" Relationship="Self.FK_ProjectStateHistory_ProjectStates" FromRole="ProjectStates" ToRole="ProjectStateHistory" />
+        </EntityType>
+        <EntityType Name="ProjectTeams">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectId" Type="Int32" Nullable="false" />
+          <Property Name="UserSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="UserName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="RoleId" Type="Int32" Nullable="false" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="DeleteDate" Type="DateTime" Precision="3" />
+          <Property Name="DeleterSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="DeleterName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ProjectRoles" Relationship="Self.FK_ProjectTeams_ProjectRoles" FromRole="ProjectTeams" ToRole="ProjectRoles" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_ProjectTeams_Projects" FromRole="ProjectTeams" ToRole="Projects" />
+        </EntityType>
+        <EntityType Name="ProjectWorkCalculations">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="WorkId" Type="Int32" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="DeleteDate" Type="DateTime" Precision="3" />
+          <Property Name="DeleterSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="DeleterName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="StateId" Type="Int32" Nullable="false" />
+          <Property Name="StateChangeDate" Type="DateTime" Precision="3" />
+          <Property Name="StateChangerSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="StateChangerName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="ExecutorName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="Cost" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="CurrencyId" Type="Int32" />
+          <Property Name="ExecutionTimeId" Type="Int32" />
+          <Property Name="ExecutionTime" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ProjectCurrencies" Relationship="Self.FK_ProjectWorkCalculations_ProjectCurrencies" FromRole="ProjectWorkCalculations" ToRole="ProjectCurrencies" />
+          <NavigationProperty Name="ProjectWorkExecutinsTimes" Relationship="Self.FK_ProjectWorkCalculations_ProjectWorkExecutinsTimes" FromRole="ProjectWorkCalculations" ToRole="ProjectWorkExecutinsTimes" />
+          <NavigationProperty Name="ProjectWorks" Relationship="Self.FK_ProjectWorkCalculations_ProjectWorks" FromRole="ProjectWorkCalculations" ToRole="ProjectWorks" />
+          <NavigationProperty Name="ProjectWorkStates" Relationship="SpeCalcModel.FK_ProjectWorkCalculations_ProjectWorkStates" FromRole="ProjectWorkCalculations" ToRole="ProjectWorkStates" />
+        </EntityType>
+        <EntityType Name="ProjectWorkExecutinsTimes">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="OrderNum" Type="Int32" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="ProjectWorkCalculations" Relationship="Self.FK_ProjectWorkCalculations_ProjectWorkExecutinsTimes" FromRole="ProjectWorkExecutinsTimes" ToRole="ProjectWorkCalculations" />
+        </EntityType>
+        <EntityType Name="ProjectWorkQuantityUnits">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="OrderNum" Type="Int32" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="ProjectWorks" Relationship="Self.FK_ProjectWorks_ProjectWorkQuantityUnits" FromRole="ProjectWorkQuantityUnits" ToRole="ProjectWorks" />
+        </EntityType>
+        <EntityType Name="ProjectWorks">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectId" Type="Int32" Nullable="false" />
+          <Property Name="RowNum" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Quantity" Type="Int32" />
+          <Property Name="QuantityUnitId" Type="Int32" />
+          <Property Name="CalculatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="CalculatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="DeleteDate" Type="DateTime" Precision="3" />
+          <Property Name="DeleterSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="DeleterName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="StateId" Type="Int32" Nullable="false" />
+          <Property Name="StateChangeDate" Type="DateTime" Precision="3" />
+          <Property Name="StateChangerSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="StateChangerName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ProjectWorkCalculations" Relationship="Self.FK_ProjectWorkCalculations_ProjectWorks" FromRole="ProjectWorks" ToRole="ProjectWorkCalculations" />
+          <NavigationProperty Name="ProjectWorkQuantityUnits" Relationship="Self.FK_ProjectWorks_ProjectWorkQuantityUnits" FromRole="ProjectWorks" ToRole="ProjectWorkQuantityUnits" />
+          <NavigationProperty Name="ProjectWorkStateHistory" Relationship="Self.FK_ProjectWorkStateHistory_ProjectWorks" FromRole="ProjectWorks" ToRole="ProjectWorkStateHistory" />
+          <NavigationProperty Name="ProjectWorkStates" Relationship="SpeCalcModel.FK_ProjectWorks_ProjectWorkStates" FromRole="ProjectWorks" ToRole="ProjectWorkStates" />
+          <NavigationProperty Name="ProjectWorkStates1" Relationship="SpeCalcModel.FK_ProjectWorks_ProjectWorkStates1" FromRole="ProjectWorks" ToRole="ProjectWorkStates" />
+        </EntityType>
+        <EntityType Name="ProjectWorkStateHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="WorkId" Type="Int32" Nullable="false" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="StateId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="ProjectWorks" Relationship="Self.FK_ProjectWorkStateHistory_ProjectWorks" FromRole="ProjectWorkStateHistory" ToRole="ProjectWorks" />
+          <NavigationProperty Name="ProjectWorkStates" Relationship="SpeCalcModel.FK_ProjectWorkStateHistory_ProjectWorkStates" FromRole="ProjectWorkStateHistory" ToRole="ProjectWorkStates" />
+        </EntityType>
+        <Association Name="FK_Projects_ProjectBusinessTargets">
+          <End Role="ProjectBusinessTargets" Type="Self.ProjectBusinessTargets" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectBusinessTargets">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="BusinessTargetId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Projects_ProjectClientRelationships">
+          <End Role="ProjectClientRelationships" Type="Self.ProjectClientRelationships" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectClientRelationships">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="ClientRelationshipId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectConditionHistory_ProjectConditions">
+          <End Role="ProjectConditions" Type="Self.ProjectConditions" Multiplicity="1" />
+          <End Role="ProjectConditionHistory" Type="Self.ProjectConditionHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectConditions">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectConditionHistory">
+              <PropertyRef Name="ConditionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectConditionHistory_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectConditionHistory" Type="Self.ProjectConditionHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectConditionHistory">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Projects_ProjectConditions">
+          <End Role="ProjectConditions" Type="Self.ProjectConditions" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectConditions">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="ConditionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionCalculations_ProjectCurrencies">
+          <End Role="ProjectCurrencies" Type="Self.ProjectCurrencies" Multiplicity="0..1" />
+          <End Role="ProjectPositionCalculations" Type="Self.ProjectPositionCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectCurrencies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionCalculations">
+              <PropertyRef Name="CurrencyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionCalculations_ProjectCurrencies1">
+          <End Role="ProjectCurrencies" Type="Self.ProjectCurrencies" Multiplicity="0..1" />
+          <End Role="ProjectPositionCalculations" Type="Self.ProjectPositionCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectCurrencies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionCalculations">
+              <PropertyRef Name="CurrencyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Projects_ProjectCurrency">
+          <End Role="ProjectCurrencies" Type="Self.ProjectCurrencies" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectCurrencies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="CurrencyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorkCalculations_ProjectCurrencies">
+          <End Role="ProjectCurrencies" Type="Self.ProjectCurrencies" Multiplicity="0..1" />
+          <End Role="ProjectWorkCalculations" Type="Self.ProjectWorkCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectCurrencies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorkCalculations">
+              <PropertyRef Name="CurrencyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectFiles_ProjectFolders">
+          <End Role="ProjectFolders" Type="Self.ProjectFolders" Multiplicity="1" />
+          <End Role="ProjectFiles" Type="Self.ProjectFiles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectFolders">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectFiles">
+              <PropertyRef Name="FolderId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectFiles_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectFiles" Type="Self.ProjectFiles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectFiles">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionCalculations_ProjectPositionDeliveryTimes">
+          <End Role="ProjectPositionDeliveryTimes" Type="Self.ProjectPositionDeliveryTimes" Multiplicity="0..1" />
+          <End Role="ProjectPositionCalculations" Type="Self.ProjectPositionCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectPositionDeliveryTimes">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionCalculations">
+              <PropertyRef Name="DeliveryTimeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionCalculations_ProjectPositions">
+          <End Role="ProjectPositions" Type="Self.ProjectPositions" Multiplicity="1" />
+          <End Role="ProjectPositionCalculations" Type="Self.ProjectPositionCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectPositions">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionCalculations">
+              <PropertyRef Name="PositionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionCalculations_ProjectProtectionFacts">
+          <End Role="ProjectProtectionFacts" Type="Self.ProjectProtectionFacts" Multiplicity="0..1" />
+          <End Role="ProjectPositionCalculations" Type="Self.ProjectPositionCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectProtectionFacts">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionCalculations">
+              <PropertyRef Name="ProtectionFactId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositions_ProjectPositionQuantityUnits">
+          <End Role="ProjectPositionQuantityUnits" Type="Self.ProjectPositionQuantityUnits" Multiplicity="1" />
+          <End Role="ProjectPositions" Type="Self.ProjectPositions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectPositionQuantityUnits">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositions">
+              <PropertyRef Name="QuantityUnitId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositions_ProjectPositionStates">
+          <End Role="ProjectPositionStates" Type="Self.ProjectPositionStates" Multiplicity="1" />
+          <End Role="ProjectPositions" Type="Self.ProjectPositions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectPositionStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositions">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositions_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectPositions" Type="Self.ProjectPositions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositions">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionStateHistory_ProjectPositions">
+          <End Role="ProjectPositions" Type="Self.ProjectPositions" Multiplicity="1" />
+          <End Role="ProjectPositionStateHistory" Type="Self.ProjectPositionStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectPositions">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionStateHistory">
+              <PropertyRef Name="PositionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionStateHistory_ProjectPositions1">
+          <End Role="ProjectPositions" Type="Self.ProjectPositions" Multiplicity="1" />
+          <End Role="ProjectPositionStateHistory" Type="Self.ProjectPositionStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectPositions">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionStateHistory">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectPositionStateHistory_ProjectPositionStates">
+          <End Role="ProjectPositionStates" Type="Self.ProjectPositionStates" Multiplicity="1" />
+          <End Role="ProjectPositionStateHistory" Type="Self.ProjectPositionStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectPositionStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectPositionStateHistory">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectTeams_ProjectRoles">
+          <End Role="ProjectRoles" Type="Self.ProjectRoles" Multiplicity="1" />
+          <End Role="ProjectTeams" Type="Self.ProjectTeams" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectRoles">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectTeams">
+              <PropertyRef Name="RoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Projects_ProjectSaleDirections">
+          <End Role="ProjectSaleDirections" Type="Self.ProjectSaleDirections" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectSaleDirections">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="SaleDirectionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Projects_ProjectSaleSubjects">
+          <End Role="ProjectSaleSubjects" Type="Self.ProjectSaleSubjects" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectSaleSubjects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="SaleSubjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Projects_ProjectStates">
+          <End Role="ProjectStates" Type="Self.ProjectStates" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectStateHistory_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectStateHistory" Type="Self.ProjectStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectStateHistory">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectTeams_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectTeams" Type="Self.ProjectTeams" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectTeams">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectSaleDirectionResponsibles_ProjectSaleDirections">
+          <End Role="ProjectSaleDirections" Type="Self.ProjectSaleDirections" Multiplicity="1" />
+          <End Role="ProjectSaleDirectionResponsibles" Type="Self.ProjectSaleDirectionResponsibles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectSaleDirections">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectSaleDirectionResponsibles">
+              <PropertyRef Name="SaleDirectionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectSaleSubjects_ProjectSaleDirections">
+          <End Role="ProjectSaleDirections" Type="Self.ProjectSaleDirections" Multiplicity="0..1" />
+          <End Role="ProjectSaleSubjects" Type="Self.ProjectSaleSubjects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectSaleDirections">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectSaleSubjects">
+              <PropertyRef Name="IdSaleDirection" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectStateHistory_ProjectStates">
+          <End Role="ProjectStates" Type="Self.ProjectStates" Multiplicity="1" />
+          <End Role="ProjectStateHistory" Type="Self.ProjectStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectStateHistory">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorkCalculations_ProjectWorkExecutinsTimes">
+          <End Role="ProjectWorkExecutinsTimes" Type="Self.ProjectWorkExecutinsTimes" Multiplicity="0..1" />
+          <End Role="ProjectWorkCalculations" Type="Self.ProjectWorkCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorkExecutinsTimes">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorkCalculations">
+              <PropertyRef Name="ExecutionTimeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorkCalculations_ProjectWorks">
+          <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="1" />
+          <End Role="ProjectWorkCalculations" Type="Self.ProjectWorkCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorks">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorkCalculations">
+              <PropertyRef Name="WorkId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorks_ProjectWorkQuantityUnits">
+          <End Role="ProjectWorkQuantityUnits" Type="Self.ProjectWorkQuantityUnits" Multiplicity="0..1" />
+          <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorkQuantityUnits">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorks">
+              <PropertyRef Name="QuantityUnitId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorkStateHistory_ProjectWorks">
+          <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="1" />
+          <End Role="ProjectWorkStateHistory" Type="Self.ProjectWorkStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorks">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorkStateHistory">
+              <PropertyRef Name="WorkId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="SpeCalcEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ProjectBusinessTargets" EntityType="Self.ProjectBusinessTargets" />
+          <EntitySet Name="ProjectClientRelationships" EntityType="Self.ProjectClientRelationships" />
+          <EntitySet Name="ProjectConditionHistory" EntityType="Self.ProjectConditionHistory" />
+          <EntitySet Name="ProjectConditions" EntityType="Self.ProjectConditions" />
+          <EntitySet Name="ProjectCurrencies" EntityType="Self.ProjectCurrencies" />
+          <EntitySet Name="ProjectFiles" EntityType="Self.ProjectFiles" />
+          <EntitySet Name="ProjectFolders" EntityType="Self.ProjectFolders" />
+          <EntitySet Name="ProjectPositionCalculations" EntityType="Self.ProjectPositionCalculations" />
+          <EntitySet Name="ProjectPositionDeliveryTimes" EntityType="Self.ProjectPositionDeliveryTimes" />
+          <EntitySet Name="ProjectPositionQuantityUnits" EntityType="Self.ProjectPositionQuantityUnits" />
+          <EntitySet Name="ProjectPositions" EntityType="Self.ProjectPositions" />
+          <EntitySet Name="ProjectPositionStateHistory" EntityType="Self.ProjectPositionStateHistory" />
+          <EntitySet Name="ProjectPositionStates" EntityType="Self.ProjectPositionStates" />
+          <EntitySet Name="ProjectProtectionFacts" EntityType="Self.ProjectProtectionFacts" />
+          <EntitySet Name="ProjectRoles" EntityType="Self.ProjectRoles" />
+          <EntitySet Name="Projects" EntityType="Self.Projects" />
+          <EntitySet Name="ProjectSaleDirectionResponsibles" EntityType="Self.ProjectSaleDirectionResponsibles" />
+          <EntitySet Name="ProjectSaleDirections" EntityType="Self.ProjectSaleDirections" />
+          <EntitySet Name="ProjectSaleSubjects" EntityType="Self.ProjectSaleSubjects" />
+          <EntitySet Name="ProjectStateHistory" EntityType="Self.ProjectStateHistory" />
+          <EntitySet Name="ProjectStates" EntityType="Self.ProjectStates" />
+          <EntitySet Name="ProjectTeams" EntityType="Self.ProjectTeams" />
+          <EntitySet Name="ProjectWorkCalculations" EntityType="Self.ProjectWorkCalculations" />
+          <EntitySet Name="ProjectWorkExecutinsTimes" EntityType="Self.ProjectWorkExecutinsTimes" />
+          <EntitySet Name="ProjectWorkQuantityUnits" EntityType="Self.ProjectWorkQuantityUnits" />
+          <EntitySet Name="ProjectWorks" EntityType="Self.ProjectWorks" />
+          <EntitySet Name="ProjectWorkStateHistory" EntityType="Self.ProjectWorkStateHistory" />
+          <AssociationSet Name="FK_Projects_ProjectBusinessTargets" Association="Self.FK_Projects_ProjectBusinessTargets">
+            <End Role="ProjectBusinessTargets" EntitySet="ProjectBusinessTargets" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Projects_ProjectClientRelationships" Association="Self.FK_Projects_ProjectClientRelationships">
+            <End Role="ProjectClientRelationships" EntitySet="ProjectClientRelationships" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectConditionHistory_ProjectConditions" Association="Self.FK_ProjectConditionHistory_ProjectConditions">
+            <End Role="ProjectConditions" EntitySet="ProjectConditions" />
+            <End Role="ProjectConditionHistory" EntitySet="ProjectConditionHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectConditionHistory_Projects" Association="Self.FK_ProjectConditionHistory_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectConditionHistory" EntitySet="ProjectConditionHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Projects_ProjectConditions" Association="Self.FK_Projects_ProjectConditions">
+            <End Role="ProjectConditions" EntitySet="ProjectConditions" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionCalculations_ProjectCurrencies" Association="Self.FK_ProjectPositionCalculations_ProjectCurrencies">
+            <End Role="ProjectCurrencies" EntitySet="ProjectCurrencies" />
+            <End Role="ProjectPositionCalculations" EntitySet="ProjectPositionCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionCalculations_ProjectCurrencies1" Association="Self.FK_ProjectPositionCalculations_ProjectCurrencies1">
+            <End Role="ProjectCurrencies" EntitySet="ProjectCurrencies" />
+            <End Role="ProjectPositionCalculations" EntitySet="ProjectPositionCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Projects_ProjectCurrency" Association="Self.FK_Projects_ProjectCurrency">
+            <End Role="ProjectCurrencies" EntitySet="ProjectCurrencies" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorkCalculations_ProjectCurrencies" Association="Self.FK_ProjectWorkCalculations_ProjectCurrencies">
+            <End Role="ProjectCurrencies" EntitySet="ProjectCurrencies" />
+            <End Role="ProjectWorkCalculations" EntitySet="ProjectWorkCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectFiles_ProjectFolders" Association="Self.FK_ProjectFiles_ProjectFolders">
+            <End Role="ProjectFolders" EntitySet="ProjectFolders" />
+            <End Role="ProjectFiles" EntitySet="ProjectFiles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectFiles_Projects" Association="Self.FK_ProjectFiles_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectFiles" EntitySet="ProjectFiles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionCalculations_ProjectPositionDeliveryTimes" Association="Self.FK_ProjectPositionCalculations_ProjectPositionDeliveryTimes">
+            <End Role="ProjectPositionDeliveryTimes" EntitySet="ProjectPositionDeliveryTimes" />
+            <End Role="ProjectPositionCalculations" EntitySet="ProjectPositionCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionCalculations_ProjectPositions" Association="Self.FK_ProjectPositionCalculations_ProjectPositions">
+            <End Role="ProjectPositions" EntitySet="ProjectPositions" />
+            <End Role="ProjectPositionCalculations" EntitySet="ProjectPositionCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionCalculations_ProjectProtectionFacts" Association="Self.FK_ProjectPositionCalculations_ProjectProtectionFacts">
+            <End Role="ProjectProtectionFacts" EntitySet="ProjectProtectionFacts" />
+            <End Role="ProjectPositionCalculations" EntitySet="ProjectPositionCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositions_ProjectPositionQuantityUnits" Association="Self.FK_ProjectPositions_ProjectPositionQuantityUnits">
+            <End Role="ProjectPositionQuantityUnits" EntitySet="ProjectPositionQuantityUnits" />
+            <End Role="ProjectPositions" EntitySet="ProjectPositions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositions_ProjectPositionStates" Association="Self.FK_ProjectPositions_ProjectPositionStates">
+            <End Role="ProjectPositionStates" EntitySet="ProjectPositionStates" />
+            <End Role="ProjectPositions" EntitySet="ProjectPositions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositions_Projects" Association="Self.FK_ProjectPositions_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectPositions" EntitySet="ProjectPositions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionStateHistory_ProjectPositions" Association="Self.FK_ProjectPositionStateHistory_ProjectPositions">
+            <End Role="ProjectPositions" EntitySet="ProjectPositions" />
+            <End Role="ProjectPositionStateHistory" EntitySet="ProjectPositionStateHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionStateHistory_ProjectPositions1" Association="Self.FK_ProjectPositionStateHistory_ProjectPositions1">
+            <End Role="ProjectPositions" EntitySet="ProjectPositions" />
+            <End Role="ProjectPositionStateHistory" EntitySet="ProjectPositionStateHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectPositionStateHistory_ProjectPositionStates" Association="Self.FK_ProjectPositionStateHistory_ProjectPositionStates">
+            <End Role="ProjectPositionStates" EntitySet="ProjectPositionStates" />
+            <End Role="ProjectPositionStateHistory" EntitySet="ProjectPositionStateHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectTeams_ProjectRoles" Association="Self.FK_ProjectTeams_ProjectRoles">
+            <End Role="ProjectRoles" EntitySet="ProjectRoles" />
+            <End Role="ProjectTeams" EntitySet="ProjectTeams" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Projects_ProjectSaleDirections" Association="Self.FK_Projects_ProjectSaleDirections">
+            <End Role="ProjectSaleDirections" EntitySet="ProjectSaleDirections" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Projects_ProjectSaleSubjects" Association="Self.FK_Projects_ProjectSaleSubjects">
+            <End Role="ProjectSaleSubjects" EntitySet="ProjectSaleSubjects" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Projects_ProjectStates" Association="Self.FK_Projects_ProjectStates">
+            <End Role="ProjectStates" EntitySet="ProjectStates" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectStateHistory_Projects" Association="Self.FK_ProjectStateHistory_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectStateHistory" EntitySet="ProjectStateHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectTeams_Projects" Association="Self.FK_ProjectTeams_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectTeams" EntitySet="ProjectTeams" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectSaleDirectionResponsibles_ProjectSaleDirections" Association="Self.FK_ProjectSaleDirectionResponsibles_ProjectSaleDirections">
+            <End Role="ProjectSaleDirections" EntitySet="ProjectSaleDirections" />
+            <End Role="ProjectSaleDirectionResponsibles" EntitySet="ProjectSaleDirectionResponsibles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectSaleSubjects_ProjectSaleDirections" Association="Self.FK_ProjectSaleSubjects_ProjectSaleDirections">
+            <End Role="ProjectSaleDirections" EntitySet="ProjectSaleDirections" />
+            <End Role="ProjectSaleSubjects" EntitySet="ProjectSaleSubjects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectStateHistory_ProjectStates" Association="Self.FK_ProjectStateHistory_ProjectStates">
+            <End Role="ProjectStates" EntitySet="ProjectStates" />
+            <End Role="ProjectStateHistory" EntitySet="ProjectStateHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorkCalculations_ProjectWorkExecutinsTimes" Association="Self.FK_ProjectWorkCalculations_ProjectWorkExecutinsTimes">
+            <End Role="ProjectWorkExecutinsTimes" EntitySet="ProjectWorkExecutinsTimes" />
+            <End Role="ProjectWorkCalculations" EntitySet="ProjectWorkCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorkCalculations_ProjectWorks" Association="Self.FK_ProjectWorkCalculations_ProjectWorks">
+            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
+            <End Role="ProjectWorkCalculations" EntitySet="ProjectWorkCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorks_ProjectWorkQuantityUnits" Association="Self.FK_ProjectWorks_ProjectWorkQuantityUnits">
+            <End Role="ProjectWorkQuantityUnits" EntitySet="ProjectWorkQuantityUnits" />
+            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorkStateHistory_ProjectWorks" Association="Self.FK_ProjectWorkStateHistory_ProjectWorks">
+            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
+            <End Role="ProjectWorkStateHistory" EntitySet="ProjectWorkStateHistory" />
+          </AssociationSet>
+          <EntitySet Name="ProjectWorkStates" EntityType="SpeCalcModel.ProjectWorkStates" />
+          <AssociationSet Name="FK_ProjectWorkCalculations_ProjectWorkStates" Association="SpeCalcModel.FK_ProjectWorkCalculations_ProjectWorkStates">
+            <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
+            <End Role="ProjectWorkCalculations" EntitySet="ProjectWorkCalculations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorks_ProjectWorkStates" Association="SpeCalcModel.FK_ProjectWorks_ProjectWorkStates">
+            <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
+            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorks_ProjectWorkStates1" Association="SpeCalcModel.FK_ProjectWorks_ProjectWorkStates1">
+            <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
+            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorkStateHistory_ProjectWorkStates" Association="SpeCalcModel.FK_ProjectWorkStateHistory_ProjectWorkStates">
+            <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
+            <End Role="ProjectWorkStateHistory" EntitySet="ProjectWorkStateHistory" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="ProjectWorkStates">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="SysName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="BackgroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ForegroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Icon" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="IconColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ProjectWorkCalculations" Relationship="SpeCalcModel.FK_ProjectWorkCalculations_ProjectWorkStates" FromRole="ProjectWorkStates" ToRole="ProjectWorkCalculations" />
+          <NavigationProperty Name="ProjectWorks" Relationship="SpeCalcModel.FK_ProjectWorks_ProjectWorkStates" FromRole="ProjectWorkStates" ToRole="ProjectWorks" />
+          <NavigationProperty Name="ProjectWorks1" Relationship="SpeCalcModel.FK_ProjectWorks_ProjectWorkStates1" FromRole="ProjectWorkStates" ToRole="ProjectWorks" />
+          <NavigationProperty Name="ProjectWorkStateHistory" Relationship="SpeCalcModel.FK_ProjectWorkStateHistory_ProjectWorkStates" FromRole="ProjectWorkStates" ToRole="ProjectWorkStateHistory" />
+        </EntityType>
+        <Association Name="FK_ProjectWorkCalculations_ProjectWorkStates">
+          <End Type="SpeCalcModel.ProjectWorkStates" Role="ProjectWorkStates" Multiplicity="1" />
+          <End Type="SpeCalcModel.ProjectWorkCalculations" Role="ProjectWorkCalculations" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorkStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorkCalculations">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorks_ProjectWorkStates">
+          <End Type="SpeCalcModel.ProjectWorkStates" Role="ProjectWorkStates" Multiplicity="1" />
+          <End Type="SpeCalcModel.ProjectWorks" Role="ProjectWorks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorkStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorks">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorks_ProjectWorkStates1">
+          <End Type="SpeCalcModel.ProjectWorkStates" Role="ProjectWorkStates" Multiplicity="1" />
+          <End Type="SpeCalcModel.ProjectWorks" Role="ProjectWorks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorkStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorks">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorkStateHistory_ProjectWorkStates">
+          <End Type="SpeCalcModel.ProjectWorkStates" Role="ProjectWorkStates" Multiplicity="1" />
+          <End Type="SpeCalcModel.ProjectWorkStateHistory" Role="ProjectWorkStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorkStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorkStateHistory">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="SpeCalcModelStoreContainer" CdmEntityContainer="SpeCalcEntities">
+          <EntitySetMapping Name="ProjectBusinessTargets">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectBusinessTargets">
+              <MappingFragment StoreEntitySet="ProjectBusinessTargets">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectClientRelationships">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectClientRelationships">
+              <MappingFragment StoreEntitySet="ProjectClientRelationships">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
+                <ScalarProperty Name="SysName" ColumnName="SysName" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="Descr" ColumnName="Descr" />
+                <ScalarProperty Name="ProbabilityValue" ColumnName="ProbabilityValue" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectConditionHistory">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectConditionHistory">
+              <MappingFragment StoreEntitySet="ProjectConditionHistory">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ConditionId" ColumnName="ConditionId" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectConditions">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectConditions">
+              <MappingFragment StoreEntitySet="ProjectConditions">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
+                <ScalarProperty Name="SysName" ColumnName="SysName" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectCurrencies">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectCurrencies">
+              <MappingFragment StoreEntitySet="ProjectCurrencies">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Symbol" ColumnName="Symbol" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectFiles">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectFiles">
+              <MappingFragment StoreEntitySet="ProjectFiles">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="FolderId" ColumnName="FolderId" />
+                <ScalarProperty Name="fileDATA" ColumnName="fileDATA" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="FileGUID" ColumnName="FileGUID" />
+                <ScalarProperty Name="FileName" ColumnName="FileName" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="DeleterSid" ColumnName="DeleterSid" />
+                <ScalarProperty Name="DeleterName" ColumnName="DeleterName" />
+                <ScalarProperty Name="DeleterDate" ColumnName="DeleterDate" />
+                <ScalarProperty Name="PreviousFileId" ColumnName="PreviousFileId" />
+                <ScalarProperty Name="VersionNumber" ColumnName="VersionNumber" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectFolders">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectFolders">
+              <MappingFragment StoreEntitySet="ProjectFolders">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="SysName" ColumnName="SysName" />
+                <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectPositionCalculations">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectPositionCalculations">
+              <MappingFragment StoreEntitySet="ProjectPositionCalculations">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="PositionId" ColumnName="PositionId" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="DeleteDate" ColumnName="DeleteDate" />
+                <ScalarProperty Name="DeleterSid" ColumnName="DeleterSid" />
+                <ScalarProperty Name="DeleterName" ColumnName="DeleterName" />
+                <ScalarProperty Name="StateId" ColumnName="StateId" />
+                <ScalarProperty Name="StateChangeDate" ColumnName="StateChangeDate" />
+                <ScalarProperty Name="StateChangerSid" ColumnName="StateChangerSid" />
+                <ScalarProperty Name="StateChangerName" ColumnName="StateChangerName" />
+                <ScalarProperty Name="CatalogNumber" ColumnName="CatalogNumber" />
+                <ScalarProperty Name="Cost" ColumnName="Cost" />
+                <ScalarProperty Name="DeliveryTimeId" ColumnName="DeliveryTimeId" />
+                <ScalarProperty Name="DeliveryTime" ColumnName="DeliveryTime" />
+                <ScalarProperty Name="ProtectionFactId" ColumnName="ProtectionFactId" />
+                <ScalarProperty Name="ProtectionFactCondition" ColumnName="ProtectionFactCondition" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="CurrencyId" ColumnName="CurrencyId" />
+                <ScalarProperty Name="Provider" ColumnName="Provider" />
+                <ScalarProperty Name="RecomendedPrice" ColumnName="RecomendedPrice" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectPositionDeliveryTimes">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectPositionDeliveryTimes">
+              <MappingFragment StoreEntitySet="ProjectPositionDeliveryTimes">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectPositionQuantityUnits">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectPositionQuantityUnits">
+              <MappingFragment StoreEntitySet="ProjectPositionQuantityUnits">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="SysName" ColumnName="SysName" />
+                <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectPositions">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectPositions">
+              <MappingFragment StoreEntitySet="ProjectPositions">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="RowNum" ColumnName="RowNum" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="QuantityUnitId" ColumnName="QuantityUnitId" />
+                <ScalarProperty Name="CalculatorSid" ColumnName="CalculatorSid" />
+                <ScalarProperty Name="CalculatorName" ColumnName="CalculatorName" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="DeleteDate" ColumnName="DeleteDate" />
+                <ScalarProperty Name="DeleterSid" ColumnName="DeleterSid" />
+                <ScalarProperty Name="DeleterName" ColumnName="DeleterName" />
+                <ScalarProperty Name="StateId" ColumnName="StateId" />
+                <ScalarProperty Name="StateChangeDate" ColumnName="StateChangeDate" />
+                <ScalarProperty Name="StateChangerSid" ColumnName="StateChangerSid" />
+                <ScalarProperty Name="StateChangerName" ColumnName="StateChangerName" />
+                <ScalarProperty Name="Vendor" ColumnName="Vendor" />
+                <ScalarProperty Name="CatalogNumber" ColumnName="CatalogNumber" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectPositionStateHistory">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectPositionStateHistory">
+              <MappingFragment StoreEntitySet="ProjectPositionStateHistory">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="PositionId" ColumnName="PositionId" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="StateId" ColumnName="StateId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectPositionStates">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectPositionStates">
+              <MappingFragment StoreEntitySet="ProjectPositionStates">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="SysName" ColumnName="SysName" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="BackgroundColor" ColumnName="BackgroundColor" />
+                <ScalarProperty Name="ForegroundColor" ColumnName="ForegroundColor" />
+                <ScalarProperty Name="Icon" ColumnName="Icon" />
+                <ScalarProperty Name="IconColor" ColumnName="IconColor" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectProtectionFacts">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectProtectionFacts">
+              <MappingFragment StoreEntitySet="ProjectProtectionFacts">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="SysName" ColumnName="SysName" />
+                <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectRoles">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectRoles">
+              <MappingFragment StoreEntitySet="ProjectRoles">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="SysName" ColumnName="SysName" />
+                <ScalarProperty Name="Descr" ColumnName="Descr" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Projects">
+            <EntityTypeMapping TypeName="SpeCalcModel.Projects">
+              <MappingFragment StoreEntitySet="Projects">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ClientId" ColumnName="ClientId" />
+                <ScalarProperty Name="ClientInn" ColumnName="ClientInn" />
+                <ScalarProperty Name="ClientName" ColumnName="ClientName" />
+                <ScalarProperty Name="Budget" ColumnName="Budget" />
+                <ScalarProperty Name="SaleDirectionId" ColumnName="SaleDirectionId" />
+                <ScalarProperty Name="SaleSubjectId" ColumnName="SaleSubjectId" />
+                <ScalarProperty Name="Probability" ColumnName="Probability" />
+                <ScalarProperty Name="ManagerSid" ColumnName="ManagerSid" />
+                <ScalarProperty Name="ManagerName" ColumnName="ManagerName" />
+                <ScalarProperty Name="ManagerDepartmentId" ColumnName="ManagerDepartmentId" />
+                <ScalarProperty Name="ManagerDepartmentName" ColumnName="ManagerDepartmentName" />
+                <ScalarProperty Name="ManagerChiefSid" ColumnName="ManagerChiefSid" />
+                <ScalarProperty Name="ManagerChiefName" ColumnName="ManagerChiefName" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="DeleteDate" ColumnName="DeleteDate" />
+                <ScalarProperty Name="DeleterSid" ColumnName="DeleterSid" />
+                <ScalarProperty Name="DeleterName" ColumnName="DeleterName" />
+                <ScalarProperty Name="StateId" ColumnName="StateId" />
+                <ScalarProperty Name="StateChangeDate" ColumnName="StateChangeDate" />
+                <ScalarProperty Name="ChangerSid" ColumnName="ChangerSid" />
+                <ScalarProperty Name="ChangerName" ColumnName="ChangerName" />
+                <ScalarProperty Name="IsAuction" ColumnName="IsAuction" />
+                <ScalarProperty Name="TkpDeadlineDate" ColumnName="TkpDeadlineDate" />
+                <ScalarProperty Name="DeadlineDate" ColumnName="DeadlineDate" />
+                <ScalarProperty Name="AuctionDeadlineDate" ColumnName="AuctionDeadlineDate" />
+                <ScalarProperty Name="ConditionId" ColumnName="ConditionId" />
+                <ScalarProperty Name="BusinessTargetId" ColumnName="BusinessTargetId" />
+                <ScalarProperty Name="BusinessTargetName" ColumnName="BusinessTargetName" />
+                <ScalarProperty Name="CurrencyId" ColumnName="CurrencyId" />
+                <ScalarProperty Name="CurrentYearRealization" ColumnName="CurrentYearRealization" />
+                <ScalarProperty Name="HasBudget" ColumnName="HasBudget" />
+                <ScalarProperty Name="ClientRelationshipId" ColumnName="ClientRelationshipId" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="AuctionNumber" ColumnName="AuctionNumber" />
+                <ScalarProperty Name="AuctionLink" ColumnName="AuctionLink" />
+                <ScalarProperty Name="ConditionChangeDate" ColumnName="ConditionChangeDate" />
+                <ScalarProperty Name="ConditionChangerSid" ColumnName="ConditionChangerSid" />
+                <ScalarProperty Name="ConditionChangerName" ColumnName="ConditionChangerName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectSaleDirectionResponsibles">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectSaleDirectionResponsibles">
+              <MappingFragment StoreEntitySet="ProjectSaleDirectionResponsibles">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="UserSid" ColumnName="UserSid" />
+                <ScalarProperty Name="SaleDirectionId" ColumnName="SaleDirectionId" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="UserEmail" ColumnName="UserEmail" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectSaleDirections">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectSaleDirections">
+              <MappingFragment StoreEntitySet="ProjectSaleDirections">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
+                <ScalarProperty Name="SysName" ColumnName="SysName" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectSaleSubjects">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectSaleSubjects">
+              <MappingFragment StoreEntitySet="ProjectSaleSubjects">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="IdSaleDirection" ColumnName="IdSaleDirection" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
+                <ScalarProperty Name="SysName" ColumnName="SysName" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectStateHistory">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectStateHistory">
+              <MappingFragment StoreEntitySet="ProjectStateHistory">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="StateId" ColumnName="StateId" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="FileSid" ColumnName="FileSid" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectStates">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectStates">
+              <MappingFragment StoreEntitySet="ProjectStates">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="SysName" ColumnName="SysName" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectTeams">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectTeams">
+              <MappingFragment StoreEntitySet="ProjectTeams">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="UserSid" ColumnName="UserSid" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="RoleId" ColumnName="RoleId" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="DeleteDate" ColumnName="DeleteDate" />
+                <ScalarProperty Name="DeleterSid" ColumnName="DeleterSid" />
+                <ScalarProperty Name="DeleterName" ColumnName="DeleterName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectWorkCalculations">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectWorkCalculations">
+              <MappingFragment StoreEntitySet="ProjectWorkCalculations">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="WorkId" ColumnName="WorkId" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="DeleteDate" ColumnName="DeleteDate" />
+                <ScalarProperty Name="DeleterSid" ColumnName="DeleterSid" />
+                <ScalarProperty Name="DeleterName" ColumnName="DeleterName" />
+                <ScalarProperty Name="StateId" ColumnName="StateId" />
+                <ScalarProperty Name="StateChangeDate" ColumnName="StateChangeDate" />
+                <ScalarProperty Name="StateChangerSid" ColumnName="StateChangerSid" />
+                <ScalarProperty Name="StateChangerName" ColumnName="StateChangerName" />
+                <ScalarProperty Name="ExecutorName" ColumnName="ExecutorName" />
+                <ScalarProperty Name="Cost" ColumnName="Cost" />
+                <ScalarProperty Name="CurrencyId" ColumnName="CurrencyId" />
+                <ScalarProperty Name="ExecutionTimeId" ColumnName="ExecutionTimeId" />
+                <ScalarProperty Name="ExecutionTime" ColumnName="ExecutionTime" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectWorkExecutinsTimes">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectWorkExecutinsTimes">
+              <MappingFragment StoreEntitySet="ProjectWorkExecutinsTimes">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectWorkQuantityUnits">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectWorkQuantityUnits">
+              <MappingFragment StoreEntitySet="ProjectWorkQuantityUnits">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="SysName" ColumnName="SysName" />
+                <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectWorks">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectWorks">
+              <MappingFragment StoreEntitySet="ProjectWorks">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="RowNum" ColumnName="RowNum" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="QuantityUnitId" ColumnName="QuantityUnitId" />
+                <ScalarProperty Name="CalculatorSid" ColumnName="CalculatorSid" />
+                <ScalarProperty Name="CalculatorName" ColumnName="CalculatorName" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="DeleteDate" ColumnName="DeleteDate" />
+                <ScalarProperty Name="DeleterSid" ColumnName="DeleterSid" />
+                <ScalarProperty Name="DeleterName" ColumnName="DeleterName" />
+                <ScalarProperty Name="StateId" ColumnName="StateId" />
+                <ScalarProperty Name="StateChangeDate" ColumnName="StateChangeDate" />
+                <ScalarProperty Name="StateChangerSid" ColumnName="StateChangerSid" />
+                <ScalarProperty Name="StateChangerName" ColumnName="StateChangerName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectWorkStateHistory">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectWorkStateHistory">
+              <MappingFragment StoreEntitySet="ProjectWorkStateHistory">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="WorkId" ColumnName="WorkId" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="StateId" ColumnName="StateId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectWorkStates">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectWorkStates">
+              <MappingFragment StoreEntitySet="ProjectWorkStates">
+                <ScalarProperty Name="IconColor" ColumnName="IconColor" />
+                <ScalarProperty Name="Icon" ColumnName="Icon" />
+                <ScalarProperty Name="ForegroundColor" ColumnName="ForegroundColor" />
+                <ScalarProperty Name="BackgroundColor" ColumnName="BackgroundColor" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="SysName" ColumnName="SysName" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

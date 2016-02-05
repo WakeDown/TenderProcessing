@@ -14,6 +14,16 @@ namespace SpeCalcDataAccessLayer
     
     public partial class Projects
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Projects()
+        {
+            this.ProjectConditionHistory = new HashSet<ProjectConditionHistory>();
+            this.ProjectFiles = new HashSet<ProjectFiles>();
+            this.ProjectPositions = new HashSet<ProjectPositions>();
+            this.ProjectStateHistory = new HashSet<ProjectStateHistory>();
+            this.ProjectTeams = new HashSet<ProjectTeams>();
+        }
+    
         public int Id { get; set; }
         public Nullable<int> ClientId { get; set; }
         public string ClientInn { get; set; }
@@ -48,8 +58,31 @@ namespace SpeCalcDataAccessLayer
         public string BusinessTargetName { get; set; }
         public Nullable<int> CurrencyId { get; set; }
         public Nullable<bool> CurrentYearRealization { get; set; }
-        public Nullable<bool> HasBudget { get; set; }
+        public bool HasBudget { get; set; }
         public Nullable<int> ClientRelationshipId { get; set; }
         public string Comment { get; set; }
+        public string AuctionNumber { get; set; }
+        public string AuctionLink { get; set; }
+        public Nullable<System.DateTime> ConditionChangeDate { get; set; }
+        public string ConditionChangerSid { get; set; }
+        public string ConditionChangerName { get; set; }
+    
+        public virtual ProjectBusinessTargets ProjectBusinessTargets { get; set; }
+        public virtual ProjectClientRelationships ProjectClientRelationships { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ProjectConditionHistory> ProjectConditionHistory { get; set; }
+        public virtual ProjectConditions ProjectConditions { get; set; }
+        public virtual ProjectCurrencies ProjectCurrencies { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ProjectFiles> ProjectFiles { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ProjectPositions> ProjectPositions { get; set; }
+        public virtual ProjectSaleDirections ProjectSaleDirections { get; set; }
+        public virtual ProjectSaleSubjects ProjectSaleSubjects { get; set; }
+        public virtual ProjectStates ProjectStates { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ProjectStateHistory> ProjectStateHistory { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ProjectTeams> ProjectTeams { get; set; }
     }
 }

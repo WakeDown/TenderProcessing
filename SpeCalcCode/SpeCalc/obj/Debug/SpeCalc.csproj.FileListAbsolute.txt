@@ -278,9 +278,14 @@ C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\ru\System.Web.
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\ru\System.Web.WebPages.Deployment.resources.dll
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\ru\System.Web.WebPages.Razor.resources.dll
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.csprojFakesResolveAssemblyReference.cache
-C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.csprojResolveAssemblyReference.cache
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.csproj.ResolveComReference.cache
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.dll
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.pdb
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\App_Data\SpecificationTrans.xlsx
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\App_Data\Specification_finTrans.xlsx
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\EntityFramework.dll
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\SpeCalcDataAccessLayer.dll.config
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\EntityFramework.xml
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\EntityFramework.SqlServer.dll
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\bin\EntityFramework.SqlServer.xml
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalc\obj\Debug\SpeCalc.csprojResolveAssemblyReference.cache

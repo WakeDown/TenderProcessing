@@ -4012,5 +4012,10 @@ namespace SpeCalc.Controllers
         //    ViewBag.TotalCount = totalCount;
         //    return PartialView("Positions", list);
         //}
+
+        public ActionResult Dashboard()
+        {
+            return View();
+        }
     }
 }

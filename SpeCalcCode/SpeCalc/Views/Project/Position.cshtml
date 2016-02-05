@@ -1,0 +1,61 @@
+﻿@using System.Web.Mvc.Html
+@model SpeCalcDataAccessLayer.ProjectModels.ProjectPositionModel
+
+@{
+    var position = Model.Position;
+    var calculations = Model.Calculations;
+    var rowspan = (Model.HasCalculations && calculations.Count > 0 ? calculations.Count: 1);
+}
+
+<tr id="pos-@position.Id" name="pos" pid="@position.Id" style="background-color: @Model.Position.ProjectPositionStates.BackgroundColor">
+    <td name="pos" class="min-widtd  text-center" rowspan="@rowspan">
+            <input type="checkbox" name="calcCheckbox" value="@position.Id"/>
+    </td>
+    <th name="pos" rowspan="@rowspan" class="text-center">
+        @position.RowNum
+        <div class="@position.ProjectPositionStates.IconColor">
+            <i class="fa @position.ProjectPositionStates.Icon" title="@position.ProjectPositionStates.Name"></i>
+        </div>
+    </th>
+    <td name="pos"  rowspan="@rowspan">
+        <button type="button" name="editPosition" class="btn btn-warning btn-sm" data-toggle="tooltip" title="резактировать позицию" pid="@position.Id"><i class="fa fa-edit"></i></button>
+        <button type="button" name="deletePosition" class="btn btn-danger btn-sm" data-toggle="tooltip" title="удалить позицию" pid="@position.Id"><i class="fa fa-trash"></i></button>
+    </td>
+    <td name="pos" rowspan="@rowspan">@position.CatalogNumber</td>
+    <td name="pos" rowspan="@rowspan">@position.Vendor</td>
+    <td name="pos" style="width: 250px;" rowspan="@rowspan">@position.Name
+    </td>
+    <td name="pos" rowspan="@rowspan">@position.Quantity</td>
+    <td name="pos" rowspan="@rowspan">@position.ProjectPositionQuantityUnits.Name</td>
+    <td name="pos" rowspan="@rowspan" class="text-nowrap">@position.CalculatorName</td>
+    <td name="pos" rowspan="@rowspan" class="bg-primary text-center">
+        <h2 class="" name="calcount">@calculations.Count()</h2>
+    </td>
+    <td name="pos" rowspan="@rowspan">
+        <button type="button" name="addCalc" class="btn btn-warning btn-sm" data-toggle="tooltip" title="добавить расчет" pid="@position.Id"><i class="fa fa-plus"></i> <i class="fa fa-calculator"></i></button>
+        <div calcol="calcol">
+        </div>
+    </td>
+    
+    @if (Model.HasCalculations)
+    {
+        @Html.Partial("PositionCalculation", calculations[0])
+    }
+    else
+    {
+        @Html.Partial("PositionCalculationEmpty")
+    }
+
+</tr>
+
+@if (Model.HasCalculations && calculations.Count > 1)
+{
+   
+        foreach (var calc in calculations.Skip(1))
+        {
+            <tr pid="@position.Id" style="background-color: #@Model.Position.ProjectPositionStates.BackgroundColor">
+                    @Html.Partial("PositionCalculation", calc)
+            </tr>
+
+        }
+}

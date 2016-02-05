@@ -1,0 +1,11 @@
+﻿@model IEnumerable<SpeCalcDataAccessLayer.ProjectModels.ProjectWorkModel>
+
+@{
+    int i = 1;
+}
+@foreach (var work in Model)
+{
+    @Html.Partial("Work", work)
+    @(i++)
+}
+

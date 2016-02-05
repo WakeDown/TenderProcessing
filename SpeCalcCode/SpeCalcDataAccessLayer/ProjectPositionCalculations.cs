@@ -20,11 +20,11 @@ namespace SpeCalcDataAccessLayer
         public System.DateTime CreateDate { get; set; }
         public string CreatorSid { get; set; }
         public string CreatorName { get; set; }
-        public Nullable<bool> Enabled { get; set; }
+        public bool Enabled { get; set; }
         public Nullable<System.DateTime> DeleteDate { get; set; }
         public string DeleterSid { get; set; }
         public string DeleterName { get; set; }
-        public int StateId { get; set; }
+        public Nullable<int> StateId { get; set; }
         public Nullable<System.DateTime> StateChangeDate { get; set; }
         public string StateChangerSid { get; set; }
         public string StateChangerName { get; set; }
@@ -35,5 +35,14 @@ namespace SpeCalcDataAccessLayer
         public Nullable<int> ProtectionFactId { get; set; }
         public string ProtectionFactCondition { get; set; }
         public string Comment { get; set; }
+        public Nullable<int> CurrencyId { get; set; }
+        public string Provider { get; set; }
+        public Nullable<decimal> RecomendedPrice { get; set; }
+    
+        public virtual ProjectCurrencies ProjectCurrencies { get; set; }
+        public virtual ProjectCurrencies ProjectCurrencies1 { get; set; }
+        public virtual ProjectPositionDeliveryTimes ProjectPositionDeliveryTimes { get; set; }
+        public virtual ProjectPositions ProjectPositions { get; set; }
+        public virtual ProjectProtectionFacts ProjectProtectionFacts { get; set; }
     }
 }

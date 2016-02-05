@@ -14,6 +14,13 @@ namespace SpeCalcDataAccessLayer
     
     public partial class ProjectWorks
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public ProjectWorks()
+        {
+            this.ProjectWorkCalculations = new HashSet<ProjectWorkCalculations>();
+            this.ProjectWorkStateHistory = new HashSet<ProjectWorkStateHistory>();
+        }
+    
         public int Id { get; set; }
         public int ProjectId { get; set; }
         public string RowNum { get; set; }
@@ -33,5 +40,13 @@ namespace SpeCalcDataAccessLayer
         public Nullable<System.DateTime> StateChangeDate { get; set; }
         public string StateChangerSid { get; set; }
         public string StateChangerName { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ProjectWorkCalculations> ProjectWorkCalculations { get; set; }
+        public virtual ProjectWorkQuantityUnits ProjectWorkQuantityUnits { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ProjectWorkStateHistory> ProjectWorkStateHistory { get; set; }
+        public virtual ProjectWorkStates ProjectWorkStates { get; set; }
+        public virtual ProjectWorkStates ProjectWorkStates1 { get; set; }
     }
 }

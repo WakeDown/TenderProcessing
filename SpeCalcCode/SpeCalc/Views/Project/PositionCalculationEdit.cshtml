@@ -1,0 +1,53 @@
+﻿
+@using SpeCalcDataAccessLayer.Models
+@model SpeCalcDataAccessLayer.ProjectPositionCalculations
+
+<td name="calc" cpid="@Model.Id">
+    <input type="text" class="form-control input-xs" value="@Model.CatalogNumber" name="calcCatalogNumber" placeholder="Каталожный номер"/>
+</td>
+<td name="calc" cpid="@Model.Id">
+    <textarea class="form-control input-xs" rows="3" placeholder="Наименование, Замена" name="calcName">@Model.Name</textarea>
+</td>
+<td name="calc" cpid="@Model.Id">
+    <input type="text" class="form-control input-xs" value="@(Model.Cost.HasValue ? Model.Cost.Value.ToString("F2") : null)" name="calcCost" placeholder="Цена" />
+</td>
+<td name="calc" cpid="@Model.Id">
+    @foreach (var qu in ProjectHelper.GetCurrencyList())
+    {
+        <div><input name="calcCurrency" type="radio" value="@qu.Id" @(Model.CurrencyId == qu.Id ? "checked=checked" : null)/> @qu.Name</div>
+    }
+</td>
+<td name="calc" cpid="@Model.Id">
+    <input type="text" class="form-control input-xs" value="@(Model.RecomendedPrice.HasValue ? Model.RecomendedPrice.Value.ToString("F2") : null)" name="calcRecomendedPrice" placeholder="Цена" />
+</td>
+<td name="calc" cpid="@Model.Id" secol="secol">
+    <input type="text" class="form-control input-xs" value="@Model.Provider" name="calcProvider" placeholder="Поставщик" />
+</td>
+<td name="calc" cpid="@Model.Id">
+    <select name="calcDeliveryTime" class="form-control input-xs">
+        <option>--выберите--</option>
+        @foreach (var del in ProjectHelper.GetDeliveryTimesList())
+        {
+            <option value="@del.Id" @(del.Id == Model.DeliveryTimeId ? "selected" : String.Empty)>@del.Name</option>
+        }
+    </select>
+</td>
+<td name="calc" cpid="@Model.Id" secol="secol">
+    <select name="calcProtectFact" class="form-control input-xs">
+        <option>--выберите--</option>
+        @foreach (var pf in ProjectHelper.GetProtectFactList())
+        {
+            <option value="@pf.Id" @(pf.Id == Model.ProtectionFactId ? "selected" : String.Empty)>@pf.Name</option>
+        }
+    </select>
+</td>
+<td name="calc" cpid="@Model.Id" secol="secol">
+    <textarea class="form-control input-xs" rows="3" placeholder="Условия защиты" name="calcProtectCondition">@Model.ProtectionFactCondition</textarea>
+</td>
+<td name="calc" cpid="@Model.Id" secol="secol">
+    <textarea class="form-control input-xs" rows="3" placeholder="Комментарий" name="calcComment">@Model.Comment</textarea>
+</td>
+<td name="calc">
+    <button type='button' name='btnSaveCalc' class='btn btn-success btn-sm' data-toggle='tooltip' title='сохранить' cpid="@Model.Id"><i class='fa fa-save'></i></button><br />
+    <button type='button' name='btnEditCalcCancel' class='btn btn-default btn-sm' data-toggle='tooltip' title='отмена' cpid="@Model.Id"><i class='fa fa-undo'></i></button>
+</td>

@@ -20,7 +20,7 @@ namespace SpeCalcDataAccessLayer
         public System.DateTime CreateDate { get; set; }
         public string CreatorSid { get; set; }
         public string CreatorName { get; set; }
-        public Nullable<bool> Enabled { get; set; }
+        public bool Enabled { get; set; }
         public Nullable<System.DateTime> DeleteDate { get; set; }
         public string DeleterSid { get; set; }
         public string DeleterName { get; set; }
@@ -30,9 +30,14 @@ namespace SpeCalcDataAccessLayer
         public string StateChangerName { get; set; }
         public string ExecutorName { get; set; }
         public Nullable<decimal> Cost { get; set; }
-        public Nullable<int> Currency { get; set; }
+        public Nullable<int> CurrencyId { get; set; }
         public Nullable<int> ExecutionTimeId { get; set; }
         public string ExecutionTime { get; set; }
         public string Comment { get; set; }
+    
+        public virtual ProjectCurrencies ProjectCurrencies { get; set; }
+        public virtual ProjectWorkExecutinsTimes ProjectWorkExecutinsTimes { get; set; }
+        public virtual ProjectWorks ProjectWorks { get; set; }
+        public virtual ProjectWorkStates ProjectWorkStates { get; set; }
     }
 }

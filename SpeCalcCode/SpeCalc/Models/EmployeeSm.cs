@@ -20,6 +20,8 @@ namespace SpeCalc.Models
         public string FullName { get; set; }
         public string Email { get; set; }
         public string DepartmentName { get; set; }
+        public string ChiefSid { get; set; }
+        public string ChiefName { get; set; }
         public EmployeeSm()
         {
         }

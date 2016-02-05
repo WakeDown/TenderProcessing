@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Security.Principal;
 using System.Web;
+using System.Web.Caching;
 using DocumentFormat.OpenXml.Spreadsheet;
 using SpeCalc.Models;
 using SpeCalc.Objects;
@@ -118,6 +119,9 @@ namespace SpeCalc.Helpers
             return list.OrderBy(x => x.Value);
         }
 
+        
+
+
         public static IEnumerable<KeyValuePair<string, string>> GetUserListByAdGroup(AdGroup grp)
         {
             var list = new Dictionary<string, string>();
@@ -162,9 +166,38 @@ namespace SpeCalc.Helpers
                     result.AdSid = sid;
                     result.FullName = userPrincipal.DisplayName;
                     result.DisplayName = EmployeeSm.ShortName(result.FullName);
+                    result.DepartmentName = GetProperty(userPrincipal, "department");
+                    //result.ChiefSid = GetProperty(userPrincipal, "manager");
+                    var chief = GetProperty(userPrincipal, "manager");
+                    if (chief.Contains("CN="))
+                    {
+                        if (chief.Contains(","))
+                        {
+                            chief = chief.Substring(chief.IndexOf("CN=") + 3, chief.IndexOf(",")-3);
+                        }
+                        else
+                        {
+                            chief = chief.Substring(chief.IndexOf("CN=") + 3);
+                        }
+                    }
+                    result.ChiefName = chief;
                 }
             }
 
+            return result;
+        }
+
+        private static string GetProperty(Principal principal, String property)
+        {
+            var result = string.Empty;
+            var directoryEntry = principal.GetUnderlyingObject() as DirectoryEntry;
+            if (directoryEntry != null)
+            {
+                if (directoryEntry.Properties.Contains(property))
+                    result = directoryEntry.Properties[property].Value.ToString();
+                else
+                    result = string.Empty;
+            }
             return result;
         }
 
