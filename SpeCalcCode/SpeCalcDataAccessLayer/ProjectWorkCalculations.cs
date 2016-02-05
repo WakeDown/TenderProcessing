@@ -24,7 +24,7 @@ namespace SpeCalcDataAccessLayer
         public Nullable<System.DateTime> DeleteDate { get; set; }
         public string DeleterSid { get; set; }
         public string DeleterName { get; set; }
-        public int StateId { get; set; }
+        public Nullable<int> StateId { get; set; }
         public Nullable<System.DateTime> StateChangeDate { get; set; }
         public string StateChangerSid { get; set; }
         public string StateChangerName { get; set; }
@@ -38,6 +38,5 @@ namespace SpeCalcDataAccessLayer
         public virtual ProjectCurrencies ProjectCurrencies { get; set; }
         public virtual ProjectWorkExecutinsTimes ProjectWorkExecutinsTimes { get; set; }
         public virtual ProjectWorks ProjectWorks { get; set; }
-        public virtual ProjectWorkStates ProjectWorkStates { get; set; }
     }
 }

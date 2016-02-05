@@ -44,9 +44,8 @@ namespace SpeCalcDataAccessLayer
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProjectWorkCalculations> ProjectWorkCalculations { get; set; }
         public virtual ProjectWorkQuantityUnits ProjectWorkQuantityUnits { get; set; }
+        public virtual ProjectWorkStates ProjectWorkStates { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProjectWorkStateHistory> ProjectWorkStateHistory { get; set; }
-        public virtual ProjectWorkStates ProjectWorkStates { get; set; }
-        public virtual ProjectWorkStates ProjectWorkStates1 { get; set; }
     }
 }

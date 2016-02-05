@@ -51,7 +51,9 @@
         </div>
         <hr/>
             <ul class="list-inline">
-                <li><strong>Оборудование</strong></li>
+                <li style="position: relative;"><strong>Оборудование</strong>
+                    <a class="btn btn-link btn-sm" style="position: absolute; bottom: -18px; left: -5px;" data-toggle="collapse" data-target="#positionTableContainer">показать/скрыть</a>
+                </li>
                 <li>
                     <span id="totalPositions" class="text-info h4">0</span> / <span id="calcedPositions" class="text-success h4">0</span> / <span id="notCalcedPositions" class="text-danger h4">0</span>
                 </li>
@@ -61,17 +63,20 @@
                     <input name="positionClacFilter" type="radio" value="0" /> нерасчитанные
                 </li>
             </ul>
-            <div style="overflow-x: scroll">
-                <table id="positionTable" class="table small table-bordered">
-                    <thead>
-                        @Html.Partial("PositionHeader")
-                    </thead>
-                    <tbody id="positionsContainer"></tbody>
-                </table>
-            </div>
+        <div id="positionTableContainer" class="collapse" style="overflow-x: scroll;">
+            <table id="positionTable" class="table small table-bordered">
+                <thead>
+                @Html.Partial("PositionHeader")
+                </thead>
+                <tbody id="positionsContainer"></tbody>
+            </table>
+        </div>
+        
         <hr />
         <ul class="list-inline">
-            <li><strong>Работы</strong></li>
+            <li style="position: relative;"><strong>Работы</strong>
+                <a class="btn btn-link btn-sm" style="position: absolute; bottom: -18px; left: -5px;" data-toggle="collapse" data-target="#workTableContainer">показать/скрыть</a>
+            </li>
             <li>
                 <span id="totalWorks" class="text-info h4">0</span> / <span id="calcedWorks" class="text-success h4">0</span> / <span id="notCalcedWorks" class="text-danger h4">0</span>
             </li>
@@ -81,7 +86,7 @@
                 <input name="workClacFilter" type="radio" value="0" /> нерасчитанные
             </li>
         </ul>
-        <div style="overflow-x: scroll">
+        <div id="workTableContainer" class="collapse" style="overflow-x: scroll">
             <table id="workTable" class="table small table-bordered">
                 <thead>
                     @Html.Partial("WorkHeader")
@@ -118,11 +123,13 @@
             $('[calcol="calcol"]').show();
             $('#displayCalcs').text('скрыть расчеты');
             $('#positionTable').width(2500);
+            $('#workTable').width(2000);
 
         } else {
             $('[calcol="calcol"]').hide();
             $('#displayCalcs').text('показать расчеты');
             $('#positionTable').width('');
+            $('#workTable').width('');
         }
     }
 
@@ -292,7 +299,7 @@
             var ExecutorName = $('[name=calcExecutorName]', $row).val();
             var Name = $('[name=calcName]', $row).val().trim();
             var Cost = $('[name=calcCost]', $row).val().trim().replace(".", ",");
-            var CurrencyId = $('[name=calcCurrency]:checked', $row).val
+            var CurrencyId = $('[name=calcCurrency]:checked', $row).val();
             var ExecutionTimeId = $('[name=calcExecutionTimeId]', $row).val();
             var ExecutionTime = $('[name=calcExecutionTime]', $row).val();
             var Comment = $('[name=calcComment]', $row).val();
@@ -394,7 +401,7 @@
                         $nullCalcs.remove();
                         $row.append(html);
                         initWorkCalcBns($row);
-                        $('[name="calcCatalogNumber"]', $row).focus();
+                        $('[name="calcExecutorName"]', $row).focus();
                     } else {
                         var poss = $('[name="work"]', $row);
                         var curRowSpan = poss.attr('rowspan');
@@ -403,7 +410,7 @@
                         var $newRow = $('<tr wid="' + id + '">' + html + '</tr>');
                         $('tr[wid=' + id + ']').last().after($newRow);
                         initWorkCalcBns($newRow);
-                        $('[name="calcName"]', $newRow).focus();
+                        $('[name="calcExecutorName"]', $newRow).focus();
                     }
                     displayCalcs(true);
 
@@ -499,7 +506,7 @@
             var $row = $this.closest('tr');
             showSpinnerAppendAndDisable($this);
             var id = $row.attr('wid');
-            var model = getPositionValues($row);
+            var model = getWorkValues($row);
             model.Id = id;
             $.ajax({
                 url: '@Url.Action("SaveWork")',
@@ -705,7 +712,7 @@
         var CatalogNumber = $('[name=calcCatalogNumber]', $row).val();
         var Name = $('[name=calcName]', $row).val().trim();
         var Cost = $('[name=calcCost]', $row).val().trim().replace(".", ",");
-        var CurrencyId = $('[name=calcCurrency]:checked', $row).val
+        var CurrencyId = $('[name=calcCurrency]:checked', $row).val();
         var RecomendedPrice = $('[name=calcRecomendedPrice]', $row).val().trim().replace(".", ",");
         var Provider = $('[name=calcProvider]', $row).val();
         var DeliveryTimeId = $('[name=calcDeliveryTime]', $row).val();

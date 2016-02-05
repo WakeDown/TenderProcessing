@@ -25,9 +25,9 @@
             <option value="@del.Id" @(del.Id == Model.ExecutionTimeId ? "selected" : String.Empty)>@del.Name</option>
         }
     </select>
-</td>
-<td name="calc" cpid="@Model.Id">
-    <textarea class="form-control input-xs" rows="3" placeholder="Срок выполнения" name="calcExecutionTime">@Model.ExecutionTime</textarea>
+    <div>
+        <textarea class="form-control input-xs" rows="3" placeholder="Срок выполнения" name="calcExecutionTime">@Model.ExecutionTime</textarea>
+    </div>
 </td>
 <td name="calc" cpid="@Model.Id">
     <textarea class="form-control input-xs" rows="3" placeholder="Комментарий" name="calcComment">@Model.Comment</textarea>

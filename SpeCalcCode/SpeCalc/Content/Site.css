@@ -361,3 +361,14 @@ input.required-mark,textarea.required-mark, select.required-mark, span.required-
 .project-form .row {
     margin-top: 5px;
 }
+
+.collapse-partial.collapse {
+    visibility: visible !important;
+    display: block !important;
+    height: 100px !important;
+}
+
+.collapse-partial.collapse.in {
+    height: auto !important;
+
+}

@@ -17,9 +17,7 @@ namespace SpeCalcDataAccessLayer
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public ProjectWorkStates()
         {
-            this.ProjectWorkCalculations = new HashSet<ProjectWorkCalculations>();
             this.ProjectWorks = new HashSet<ProjectWorks>();
-            this.ProjectWorks1 = new HashSet<ProjectWorks>();
             this.ProjectWorkStateHistory = new HashSet<ProjectWorkStateHistory>();
         }
     
@@ -33,11 +31,7 @@ namespace SpeCalcDataAccessLayer
         public string IconColor { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ProjectWorkCalculations> ProjectWorkCalculations { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProjectWorks> ProjectWorks { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ProjectWorks> ProjectWorks1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProjectWorkStateHistory> ProjectWorkStateHistory { get; set; }
     }

@@ -7,7 +7,7 @@ work
     var rowspan = (Model.HasCalculations && calculations.Count > 0 ? calculations.Count: 1);
 }
 
-<tr id="work-@work.Id" name="work" wid="@work.Id" style="background-color: @Model.Work.ProjectWorkStates.BackgroundColor">
+<tr id="work-@work.Id" name="work" wid="@work.Id" style="background-color: @work.ProjectWorkStates.BackgroundColor">
     <td name="work" class="min-widtd  text-center" rowspan="@rowspan">
             <input type="checkbox" name="calcCheckbox" value="@work.Id"/>
     </td>

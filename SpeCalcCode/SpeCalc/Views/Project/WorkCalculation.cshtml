@@ -6,8 +6,12 @@
 <td name="calc" calcol="calcol" cpid="@Model.Id">@Model.Name</td>
 <td name="calc" calcol="calcol" cpid="@Model.Id">@(Model.Cost.HasValue ? Model.Cost.Value.ToString("F2") : null)</td>
 <td name="calc" calcol="calcol" cpid="@Model.Id">@(Model.CurrencyId.HasValue ? Model.ProjectCurrencies.Name : null)</td>
-<td name="calc" calcol="calcol" cpid="@Model.Id">@(Model.ExecutionTimeId.HasValue ? Model.ProjectWorkExecutinsTimes.Name : null)</td>
-<td name="calc" calcol="calcol" cpid="@Model.Id">@Model.ExecutionTime</td>
+<td name="calc" calcol="calcol" cpid="@Model.Id">
+    @(Model.ExecutionTimeId.HasValue ? Model.ProjectWorkExecutinsTimes.Name : null)
+    <div>
+        @Model.ExecutionTime
+    </div>
+</td>
 <td name="calc" calcol="calcol" cpid="@Model.Id">@Model.Comment</td>
 <td name="calc" calcol="calcol" cpid="@Model.Id">
     <button type='button' name='btnEditCalc' class='btn btn-warning btn-sm' data-toggle='tooltip' title='изменить' cpid="@Model.Id"><i class='fa fa-edit'></i></button>

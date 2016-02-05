@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="SpeCalcModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="SpeCalcModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="ProjectBusinessTargets">
           <Key>
             <PropertyRef Name="Id" />
@@ -336,7 +336,7 @@
           <Property Name="DeleteDate" Type="datetime" />
           <Property Name="DeleterSid" Type="varchar" MaxLength="46" />
           <Property Name="DeleterName" Type="nvarchar" MaxLength="150" />
-          <Property Name="StateId" Type="int" Nullable="false" />
+          <Property Name="StateId" Type="int" />
           <Property Name="StateChangeDate" Type="datetime" />
           <Property Name="StateChangerSid" Type="varchar" MaxLength="46" />
           <Property Name="StateChangerName" Type="nvarchar" MaxLength="150" />
@@ -787,18 +787,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_ProjectWorkCalculations_ProjectWorkStates">
-          <End Role="ProjectWorkStates" Type="Self.ProjectWorkStates" Multiplicity="1" />
-          <End Role="ProjectWorkCalculations" Type="Self.ProjectWorkCalculations" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ProjectWorkStates">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="ProjectWorkCalculations">
-              <PropertyRef Name="StateId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_ProjectWorks_ProjectWorkQuantityUnits">
           <End Role="ProjectWorkQuantityUnits" Type="Self.ProjectWorkQuantityUnits" Multiplicity="0..1" />
           <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="*" />
@@ -808,18 +796,6 @@
             </Principal>
             <Dependent Role="ProjectWorks">
               <PropertyRef Name="QuantityUnitId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ProjectWorks_ProjectWorkStates">
-          <End Role="ProjectWorkStates" Type="Self.ProjectWorkStates" Multiplicity="1" />
-          <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ProjectWorkStates">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="ProjectWorks">
-              <PropertyRef Name="StateId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1012,16 +988,8 @@
             <End Role="ProjectWorks" EntitySet="ProjectWorks" />
             <End Role="ProjectWorkCalculations" EntitySet="ProjectWorkCalculations" />
           </AssociationSet>
-          <AssociationSet Name="FK_ProjectWorkCalculations_ProjectWorkStates" Association="Self.FK_ProjectWorkCalculations_ProjectWorkStates">
-            <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
-            <End Role="ProjectWorkCalculations" EntitySet="ProjectWorkCalculations" />
-          </AssociationSet>
           <AssociationSet Name="FK_ProjectWorks_ProjectWorkQuantityUnits" Association="Self.FK_ProjectWorks_ProjectWorkQuantityUnits">
             <End Role="ProjectWorkQuantityUnits" EntitySet="ProjectWorkQuantityUnits" />
-            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ProjectWorks_ProjectWorkStates" Association="Self.FK_ProjectWorks_ProjectWorkStates">
-            <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
             <End Role="ProjectWorks" EntitySet="ProjectWorks" />
           </AssociationSet>
           <AssociationSet Name="FK_ProjectWorks_ProjectWorkStates1" Association="Self.FK_ProjectWorks_ProjectWorkStates1">
@@ -1037,7 +1005,8 @@
             <End Role="ProjectWorkStateHistory" EntitySet="ProjectWorkStateHistory" />
           </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="SpeCalcModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -1429,7 +1398,7 @@
           <Property Name="DeleteDate" Type="DateTime" Precision="3" />
           <Property Name="DeleterSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
           <Property Name="DeleterName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="StateId" Type="Int32" Nullable="false" />
+          <Property Name="StateId" Type="Int32" />
           <Property Name="StateChangeDate" Type="DateTime" Precision="3" />
           <Property Name="StateChangerSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
           <Property Name="StateChangerName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
@@ -1442,7 +1411,6 @@
           <NavigationProperty Name="ProjectCurrencies" Relationship="Self.FK_ProjectWorkCalculations_ProjectCurrencies" FromRole="ProjectWorkCalculations" ToRole="ProjectCurrencies" />
           <NavigationProperty Name="ProjectWorkExecutinsTimes" Relationship="Self.FK_ProjectWorkCalculations_ProjectWorkExecutinsTimes" FromRole="ProjectWorkCalculations" ToRole="ProjectWorkExecutinsTimes" />
           <NavigationProperty Name="ProjectWorks" Relationship="Self.FK_ProjectWorkCalculations_ProjectWorks" FromRole="ProjectWorkCalculations" ToRole="ProjectWorks" />
-          <NavigationProperty Name="ProjectWorkStates" Relationship="SpeCalcModel.FK_ProjectWorkCalculations_ProjectWorkStates" FromRole="ProjectWorkCalculations" ToRole="ProjectWorkStates" />
         </EntityType>
         <EntityType Name="ProjectWorkExecutinsTimes">
           <Key>
@@ -1490,9 +1458,8 @@
           <Property Name="StateChangerName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="ProjectWorkCalculations" Relationship="Self.FK_ProjectWorkCalculations_ProjectWorks" FromRole="ProjectWorks" ToRole="ProjectWorkCalculations" />
           <NavigationProperty Name="ProjectWorkQuantityUnits" Relationship="Self.FK_ProjectWorks_ProjectWorkQuantityUnits" FromRole="ProjectWorks" ToRole="ProjectWorkQuantityUnits" />
+          <NavigationProperty Name="ProjectWorkStates" Relationship="Self.FK_ProjectWorks_ProjectWorkStates1" FromRole="ProjectWorks" ToRole="ProjectWorkStates" />
           <NavigationProperty Name="ProjectWorkStateHistory" Relationship="Self.FK_ProjectWorkStateHistory_ProjectWorks" FromRole="ProjectWorks" ToRole="ProjectWorkStateHistory" />
-          <NavigationProperty Name="ProjectWorkStates" Relationship="SpeCalcModel.FK_ProjectWorks_ProjectWorkStates" FromRole="ProjectWorks" ToRole="ProjectWorkStates" />
-          <NavigationProperty Name="ProjectWorkStates1" Relationship="SpeCalcModel.FK_ProjectWorks_ProjectWorkStates1" FromRole="ProjectWorks" ToRole="ProjectWorkStates" />
         </EntityType>
         <EntityType Name="ProjectWorkStateHistory">
           <Key>
@@ -1506,7 +1473,22 @@
           <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="StateId" Type="Int32" Nullable="false" />
           <NavigationProperty Name="ProjectWorks" Relationship="Self.FK_ProjectWorkStateHistory_ProjectWorks" FromRole="ProjectWorkStateHistory" ToRole="ProjectWorks" />
-          <NavigationProperty Name="ProjectWorkStates" Relationship="SpeCalcModel.FK_ProjectWorkStateHistory_ProjectWorkStates" FromRole="ProjectWorkStateHistory" ToRole="ProjectWorkStates" />
+          <NavigationProperty Name="ProjectWorkStates" Relationship="Self.FK_ProjectWorkStateHistory_ProjectWorkStates" FromRole="ProjectWorkStateHistory" ToRole="ProjectWorkStates" />
+        </EntityType>
+        <EntityType Name="ProjectWorkStates">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="BackgroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ForegroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Icon" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="IconColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ProjectWorks" Relationship="Self.FK_ProjectWorks_ProjectWorkStates1" FromRole="ProjectWorkStates" ToRole="ProjectWorks" />
+          <NavigationProperty Name="ProjectWorkStateHistory" Relationship="Self.FK_ProjectWorkStateHistory_ProjectWorkStates" FromRole="ProjectWorkStates" ToRole="ProjectWorkStateHistory" />
         </EntityType>
         <Association Name="FK_Projects_ProjectBusinessTargets">
           <End Role="ProjectBusinessTargets" Type="Self.ProjectBusinessTargets" Multiplicity="0..1" />
@@ -1892,6 +1874,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ProjectWorks_ProjectWorkStates1">
+          <End Role="ProjectWorkStates" Type="Self.ProjectWorkStates" Multiplicity="1" />
+          <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorkStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorks">
+              <PropertyRef Name="StateId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_ProjectWorkStateHistory_ProjectWorks">
           <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="1" />
           <End Role="ProjectWorkStateHistory" Type="Self.ProjectWorkStateHistory" Multiplicity="*" />
@@ -1901,6 +1895,18 @@
             </Principal>
             <Dependent Role="ProjectWorkStateHistory">
               <PropertyRef Name="WorkId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProjectWorkStateHistory_ProjectWorkStates">
+          <End Role="ProjectWorkStates" Type="Self.ProjectWorkStates" Multiplicity="1" />
+          <End Role="ProjectWorkStateHistory" Type="Self.ProjectWorkStateHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectWorkStates">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorkStateHistory">
+              <PropertyRef Name="StateId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1932,6 +1938,7 @@
           <EntitySet Name="ProjectWorkQuantityUnits" EntityType="Self.ProjectWorkQuantityUnits" />
           <EntitySet Name="ProjectWorks" EntityType="Self.ProjectWorks" />
           <EntitySet Name="ProjectWorkStateHistory" EntityType="Self.ProjectWorkStateHistory" />
+          <EntitySet Name="ProjectWorkStates" EntityType="Self.ProjectWorkStates" />
           <AssociationSet Name="FK_Projects_ProjectBusinessTargets" Association="Self.FK_Projects_ProjectBusinessTargets">
             <End Role="ProjectBusinessTargets" EntitySet="ProjectBusinessTargets" />
             <End Role="Projects" EntitySet="Projects" />
@@ -2060,93 +2067,19 @@
             <End Role="ProjectWorkQuantityUnits" EntitySet="ProjectWorkQuantityUnits" />
             <End Role="ProjectWorks" EntitySet="ProjectWorks" />
           </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorks_ProjectWorkStates1" Association="Self.FK_ProjectWorks_ProjectWorkStates1">
+            <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
+            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
+          </AssociationSet>
           <AssociationSet Name="FK_ProjectWorkStateHistory_ProjectWorks" Association="Self.FK_ProjectWorkStateHistory_ProjectWorks">
             <End Role="ProjectWorks" EntitySet="ProjectWorks" />
             <End Role="ProjectWorkStateHistory" EntitySet="ProjectWorkStateHistory" />
           </AssociationSet>
-          <EntitySet Name="ProjectWorkStates" EntityType="SpeCalcModel.ProjectWorkStates" />
-          <AssociationSet Name="FK_ProjectWorkCalculations_ProjectWorkStates" Association="SpeCalcModel.FK_ProjectWorkCalculations_ProjectWorkStates">
-            <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
-            <End Role="ProjectWorkCalculations" EntitySet="ProjectWorkCalculations" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ProjectWorks_ProjectWorkStates" Association="SpeCalcModel.FK_ProjectWorks_ProjectWorkStates">
-            <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
-            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ProjectWorks_ProjectWorkStates1" Association="SpeCalcModel.FK_ProjectWorks_ProjectWorkStates1">
-            <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
-            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ProjectWorkStateHistory_ProjectWorkStates" Association="SpeCalcModel.FK_ProjectWorkStateHistory_ProjectWorkStates">
+          <AssociationSet Name="FK_ProjectWorkStateHistory_ProjectWorkStates" Association="Self.FK_ProjectWorkStateHistory_ProjectWorkStates">
             <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
             <End Role="ProjectWorkStateHistory" EntitySet="ProjectWorkStateHistory" />
           </AssociationSet>
         </EntityContainer>
-        <EntityType Name="ProjectWorkStates">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="SysName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Enabled" Type="Boolean" Nullable="false" />
-          <Property Name="BackgroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="ForegroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Icon" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="IconColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="ProjectWorkCalculations" Relationship="SpeCalcModel.FK_ProjectWorkCalculations_ProjectWorkStates" FromRole="ProjectWorkStates" ToRole="ProjectWorkCalculations" />
-          <NavigationProperty Name="ProjectWorks" Relationship="SpeCalcModel.FK_ProjectWorks_ProjectWorkStates" FromRole="ProjectWorkStates" ToRole="ProjectWorks" />
-          <NavigationProperty Name="ProjectWorks1" Relationship="SpeCalcModel.FK_ProjectWorks_ProjectWorkStates1" FromRole="ProjectWorkStates" ToRole="ProjectWorks" />
-          <NavigationProperty Name="ProjectWorkStateHistory" Relationship="SpeCalcModel.FK_ProjectWorkStateHistory_ProjectWorkStates" FromRole="ProjectWorkStates" ToRole="ProjectWorkStateHistory" />
-        </EntityType>
-        <Association Name="FK_ProjectWorkCalculations_ProjectWorkStates">
-          <End Type="SpeCalcModel.ProjectWorkStates" Role="ProjectWorkStates" Multiplicity="1" />
-          <End Type="SpeCalcModel.ProjectWorkCalculations" Role="ProjectWorkCalculations" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ProjectWorkStates">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="ProjectWorkCalculations">
-              <PropertyRef Name="StateId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ProjectWorks_ProjectWorkStates">
-          <End Type="SpeCalcModel.ProjectWorkStates" Role="ProjectWorkStates" Multiplicity="1" />
-          <End Type="SpeCalcModel.ProjectWorks" Role="ProjectWorks" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ProjectWorkStates">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="ProjectWorks">
-              <PropertyRef Name="StateId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ProjectWorks_ProjectWorkStates1">
-          <End Type="SpeCalcModel.ProjectWorkStates" Role="ProjectWorkStates" Multiplicity="1" />
-          <End Type="SpeCalcModel.ProjectWorks" Role="ProjectWorks" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ProjectWorkStates">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="ProjectWorks">
-              <PropertyRef Name="StateId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ProjectWorkStateHistory_ProjectWorkStates">
-          <End Type="SpeCalcModel.ProjectWorkStates" Role="ProjectWorkStates" Multiplicity="1" />
-          <End Type="SpeCalcModel.ProjectWorkStateHistory" Role="ProjectWorkStateHistory" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ProjectWorkStates">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="ProjectWorkStateHistory">
-              <PropertyRef Name="StateId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2580,14 +2513,14 @@
           <EntitySetMapping Name="ProjectWorkStates">
             <EntityTypeMapping TypeName="SpeCalcModel.ProjectWorkStates">
               <MappingFragment StoreEntitySet="ProjectWorkStates">
-                <ScalarProperty Name="IconColor" ColumnName="IconColor" />
-                <ScalarProperty Name="Icon" ColumnName="Icon" />
-                <ScalarProperty Name="ForegroundColor" ColumnName="ForegroundColor" />
-                <ScalarProperty Name="BackgroundColor" ColumnName="BackgroundColor" />
-                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
-                <ScalarProperty Name="SysName" ColumnName="SysName" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="SysName" ColumnName="SysName" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="BackgroundColor" ColumnName="BackgroundColor" />
+                <ScalarProperty Name="ForegroundColor" ColumnName="ForegroundColor" />
+                <ScalarProperty Name="Icon" ColumnName="Icon" />
+                <ScalarProperty Name="IconColor" ColumnName="IconColor" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
