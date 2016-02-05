@@ -92,7 +92,6 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 db.SaveChanges();
                 db.Dispose();
             }
-
         }
 
         public static ProjectPositions Get(int id)
