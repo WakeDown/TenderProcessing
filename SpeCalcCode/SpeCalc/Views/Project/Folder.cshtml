@@ -1,0 +1,34 @@
+﻿@model SpeCalcDataAccessLayer.ProjectModels.ProjectFolderModel
+
+<li>
+    <a id="folder-@Model.Folder.Id" href="#!" fid="@Model.Folder.Id" data-toggle="collapse" data-target="#files-@Model.Folder.Id" name="folder"><i class="fa fa-caret-right" name="caret"></i> @Model.Folder.Name</a>
+    <ul id="files-@Model.Folder.Id" class="list-unstyled collapse" fid="@Model.Folder.Id" name="folderFiles" style="margin-left: 10px;">
+        
+        @foreach (var file in Model.FileList)
+        {
+            <li>
+                <a>@file.FileName</a>
+            </li>
+        }
+        <li>
+            <button class="btn btn-xs btn-default"><i class="fa fa-upload"></i> загрузить</button>
+        </li>
+    </ul>
+</li>
+
+<script>
+    $(function() {
+        $("[id^=files-]").on("hide.bs.collapse", function () {
+            var fid = $(this).attr('fid');
+            var $caret = $('#folder-' + fid).find('[name=caret]');
+            $caret.addClass('fa-caret-right');
+            $caret.removeClass('fa-caret-down');
+        });
+        $("[id^=files-]").on("show.bs.collapse", function () {
+            var fid = $(this).attr('fid');
+            var $caret = $('#folder-' + fid).find('[name=caret]');
+            $caret.removeClass('fa-caret-right');
+            $caret.addClass('fa-caret-down');
+        });
+    });
+</script>

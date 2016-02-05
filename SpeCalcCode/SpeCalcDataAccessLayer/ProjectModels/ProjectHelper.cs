@@ -117,11 +117,28 @@ namespace SpeCalcDataAccessLayer.Models
             }
         }
         [OutputCache(Duration = 3600)]
-        public static IEnumerable<ProjectSaleSubjects> GetSaleSubjectList()
+        public static IEnumerable<ProjectSaleSubjects> GetSaleSubjectList(int? idDirection)
         {
             using (var db = new SpeCalcEntities())
             {
-                var list = db.ProjectSaleSubjects.Where(x => x.Enabled).OrderBy(x => x.OrderNum).ThenBy(x => x.Name).ToList();
+                var list = db.ProjectSaleSubjects.Where(x => x.Enabled && x.IdSaleDirection == idDirection).OrderBy(x => x.OrderNum).ThenBy(x => x.Name).ToList();
+                return list;
+            }
+        }
+        [OutputCache(Duration = 3600)]
+        public static IEnumerable<KeyValuePair<int, string>> GetSaleSubjectSelectionList(int? idDirection)
+        {
+            var list = new List<KeyValuePair<int, string>>();
+            using (var db = new SpeCalcEntities())
+            {
+                var model = GetSaleSubjectList(idDirection);
+                foreach (var m in model)
+                {
+                    var item = new KeyValuePair<int, string>(m.Id, m.Name);
+                    list.Add(item);
+                }
+                
+
                 return list;
             }
         }

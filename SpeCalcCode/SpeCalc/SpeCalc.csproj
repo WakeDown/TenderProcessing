@@ -351,7 +351,7 @@
     <Content Include="Views\Claim\Dashboard.cshtml" />
     <Content Include="Views\Project\Card.cshtml" />
     <Content Include="Views\Project\CardInfo.cshtml" />
-    <Content Include="Views\Project\CardInfoEdit.cshtml" />
+    <Content Include="Views\Project\Info.cshtml" />
     <Content Include="Views\Project\Positions.cshtml" />
     <Content Include="Views\Project\Position.cshtml" />
     <Content Include="Views\Project\PositionCalculation.cshtml" />
@@ -368,6 +368,9 @@
     <Content Include="Views\Project\WorkCalculation.cshtml" />
     <Content Include="Views\Project\WorkCalculationEdit.cshtml" />
     <Content Include="Views\Project\WorkCalculationEmpty.cshtml" />
+    <Content Include="Views\Project\Edit.cshtml" />
+    <Content Include="Views\Project\Folders.cshtml" />
+    <Content Include="Views\Project\Folder.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeCalcDataAccessLayer\SpeCalcDataAccessLayer.csproj">

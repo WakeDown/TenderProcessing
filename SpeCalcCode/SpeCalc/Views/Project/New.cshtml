@@ -45,7 +45,7 @@
                     <div class="row">
                         <label class="col-lg-3 control-label">Дата аукциона</label>
                         <div class="col-lg-2">
-                            @Html.TextBoxFor(cl => cl.AuctionDeadlineDate, new { style = "cursor: pointer;", @class = "form-control input-sm datepicker" })
+                            @Html.TextBoxFor(cl => cl.AuctionDeadlineDate, "{0:dd.MM.yyyy}", new { style = "cursor: pointer;", @class = "form-control input-sm datepicker" })
                         </div>
                     </div>
                     <div class="row">
@@ -110,26 +110,25 @@
                 <div class="row">
                     <label class="col-lg-3 control-label required-mark">Направление</label>
                     <div class="col-lg-6">
-                        @Html.DropDownListFor(cl => cl.SaleDirectionId, new SelectList(ProjectHelper.GetSaleDirectionList(), "Id", "Name"), "--выберите--", new { @class = "form-control input-sm", required = "required" })
+                        @Html.DropDownListFor(cl => cl.SaleDirectionId, new SelectList(ProjectHelper.GetSaleDirectionList(), "Id", "Name"), "--выберите--", new { id= "SaleDirectionId", @class = "form-control input-sm", required = "required" })
                     </div>
                 </div>
                 <div class="row">
                     <label class="col-lg-3 control-label">Предмет сделки</label>
                     <div class="col-lg-6">
-                        @Html.DropDownListFor(cl => cl.SaleSubjectId, new SelectList(ProjectHelper.GetSaleSubjectList(), "Id", "Name"), "--выберите--", new { @class = "form-control input-sm" })
+                        @Html.DropDownListFor(cl => cl.SaleSubjectId, new SelectList(ProjectHelper.GetSaleSubjectList(Model.SaleDirectionId), "Id", "Name"), "--выберите--", new { id= "SaleSubjectId", @class = "form-control input-sm" })
                     </div>
                 </div>
                 <div class="row">
                     <label class="col-lg-3 control-label">Бюджет</label>
                     <div class="col-lg-6">
                         <div id="sumPanel" class="input-group">
-                            @Html.TextBoxFor(cl => cl.Budget, "{0:C}", new {@class = "form-control input-sm"})
+                            @Html.TextBoxFor(cl => cl.Budget, "{0:F2}", new {@class = "form-control input-sm"})
                             <span class="input-group-addon input-sm input-group-addon-element" style="width: 70px;">
                                 @Html.DropDownListFor(cl => cl.CurrencyId, new SelectList(ProjectHelper.GetCurrencyList(), "Id", "Name"), "----", new {@class = "input-xxs"})
                             </span>
                             <span class="input-group-addon input-sm input-group-addon-element" style="width: 100px;">
-                                    <input id="budgetUnlnown" type="checkbox" class="" /> неизвестен
-                            </span>
+                                <input id="budgetUnlnown" name="HasBudget" type="checkbox" class="" @(Model.HasBudget ? null : "checked=checked") /> неизвестен                            </span>
                         </div>
                     </div>
                 </div>
@@ -161,38 +160,85 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
     <script>
-        $(function() {
-            $('.datepicker').datepicker({
-                language: "ru",
-                todayHighlight: true,
-                autoclose: true
-            });
-            $('[name=IsAuction]').change(function() {
-                if ($(this).val() == "True") {
-                    $('#auctionSettings').show();
-                } else {
-                    $('#auctionSettings').hide();
-                    
+        $(function () {
+        $('.datepicker').datepicker({
+            language: "ru",
+            todayHighlight: true,
+            autoclose: true
+        });
+        $('[name=IsAuction]').change(isAuction);
+        $('#BusinessTargetId').change(businessTargetOther);
+        $('#budgetUnlnown').click(budgetUnknown);
+        $('#SaleDirectionId').change(saleDirectionChange);
+
+        budgetUnknown();
+        businessTargetOther();
+        isAuction();
+        saleDirectionChange('@Model.SaleSubjectId');
+
+
+    });
+
+    function saleDirectionChange(val) {
+        var id = $('#SaleDirectionId').val();
+        var saleSubject = $('#SaleSubjectId');
+        showSpinnerAppendAndDisable(saleSubject);
+        $.ajax({
+            url: '@Url.Action("GetSaleSubjectSelectionList")',
+            method: 'POST',
+            data: { id: id },
+            success: function (data) {
+                saleSubject.find('option').remove();
+                if (data.length > 0) {
+                    var opt = '<option value>--выберите--</option>';
+                    saleSubject.append(opt);
+                    for (var i = 0; i < data.length; i++) {
+                        var item = data[i];
+                        opt = '<option value="' + item.Key + '">' + item.Value + '</option>';
+                        saleSubject.append(opt);
+                    }
+                    if (val) {
+                        saleSubject.val(val);
+                    }
                 }
-            });
-            $('#BusinessTargetId').change(function () {
-                var $businessTragetOther = $('#businessTragetOther');
-                if ($(this).val() == -1) {
-                    $businessTragetOther.show();
-                    $businessTragetOther.prop('required', true);
-                } else {
-                    $businessTragetOther.hide();
-                    $businessTragetOther.prop('required', false);
-                }
-                
-            });
-            $('#budgetUnlnown').click(function () {
-                var checked = $(this).is(':checked');
-                $('#Budget').val('');
-                $('#Budget').prop('disabled', checked);
-                $('#CurrencyId').val('');
-                $('#CurrencyId').prop('disabled', checked);
-            });
-        })
+
+                hideSpinnerAndEnabled(saleSubject);
+            },
+            error: function (data) {
+                alert('Ошибка при загрузке предметов сделки!');
+                console.log(data);
+                hideSpinnerAndEnabled(saleSubject);
+            }
+        });
+    }
+
+    function businessTargetOther() {
+        var $businessTragetOther = $('#businessTragetOther');
+        if ($('#BusinessTargetId').val() == -1) {
+            $businessTragetOther.show();
+            $businessTragetOther.prop('required', true);
+        } else {
+            $businessTragetOther.hide();
+            $businessTragetOther.prop('required', false);
+        }
+    }
+
+    function isAuction() {
+        if ($('[name=IsAuction]').val() == "True") {
+            $('#auctionSettings').show();
+        } else {
+            $('#auctionSettings').hide();
+        }
+    }
+
+    function budgetUnknown() {
+        var checked = $('#budgetUnlnown').is(':checked');
+        if (checked) {
+            $('#Budget').val('');
+            $('#CurrencyId').val('');
+        }
+        $('#Budget').prop('disabled', checked);
+        $('#CurrencyId').prop('disabled', checked);
+    }
     </script>
 }

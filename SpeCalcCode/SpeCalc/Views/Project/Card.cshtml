@@ -9,23 +9,45 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h4 class="marg-sm">
-            Крточка проекта №@Model.Id
-        </h4>
-        <div>
-            <strong>@(Model.ClientName)</strong><br/>
-            <small>@(Model.Budget.HasValue ? Model.Budget.Value.ToString("F2") : null) @(Model.CurrencyId.HasValue ? Model.ProjectCurrencies.Name : null)</small>
-        </div>
+        <ul class="list-inline no-margin">
+            <li>
+                <h4 class="marg-sm">
+                    Крточка проекта №@Model.Id
+                </h4>
+
+            </li>
+            <li>
+                <button id="changeInfo" class="btn btn-warning btn-xs">изменить</button>
+            </li>
+            <li class="pull-right">
+                <button id="projectPlay" class="btn btn-success"><i class="fa fa-play"></i> возобновить</button>
+                <button id="projectPause" class="btn btn-warning"><i class="fa fa-pause"></i> приостановить</button>
+                <button id="projectStop" class="btn btn-danger"><i class="fa fa-stop"></i> отклонить</button>
+            </li>
+        </ul>
+        <ul class="list-inline no-margin">
+            <li>
+                <div>
+                    <strong>@(Model.ClientName)</strong><br />
+                    <small>@(Model.Budget.HasValue ? Model.Budget.Value.ToString("F2") : null) @(Model.CurrencyId.HasValue ? Model.ProjectCurrencies.Name : null)</small>
+                </div>
+            </li>
+        </ul>
+        
     </div>
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-3">
                 @*<h4 class="no-pad">Информация</h4>*@
-
+                <div>
+                    <a id="showInfo" class="btn btn-xs btn-info pull-right">вся инфа</a>
+                </div>
+                <div class="clearfix"></div>
                 @Html.Partial("CardInfo", Model)
             </div>
             <div class="col-lg-3">
                 <h4 class="no-pad">Файлы</h4>
+                <div id="filesContainer"></div>
             </div>
             <div class="col-lg-3">
                 <h4 class="no-pad">Переписка</h4>
@@ -52,7 +74,7 @@
         <hr/>
             <ul class="list-inline">
                 <li style="position: relative;"><strong>Оборудование</strong>
-                    <a class="btn btn-link btn-sm" style="position: absolute; bottom: -18px; left: -5px;" data-toggle="collapse" data-target="#positionTableContainer">показать/скрыть</a>
+                    <a class="btn btn-link btn-sm" style="position: absolute; bottom: -18px; left: -5px;" data-toggle="collapse" data-target="#positionTableContainer">скрыть/показать</a>
                 </li>
                 <li>
                     <span id="totalPositions" class="text-info h4">0</span> / <span id="calcedPositions" class="text-success h4">0</span> / <span id="notCalcedPositions" class="text-danger h4">0</span>
@@ -63,7 +85,7 @@
                     <input name="positionClacFilter" type="radio" value="0" /> нерасчитанные
                 </li>
             </ul>
-        <div id="positionTableContainer" class="collapse" style="overflow-x: scroll;">
+        <div id="positionTableContainer" class="collapse in" style="overflow-x: scroll;">
             <table id="positionTable" class="table small table-bordered">
                 <thead>
                 @Html.Partial("PositionHeader")
@@ -75,7 +97,7 @@
         <hr />
         <ul class="list-inline">
             <li style="position: relative;"><strong>Работы</strong>
-                <a class="btn btn-link btn-sm" style="position: absolute; bottom: -18px; left: -5px;" data-toggle="collapse" data-target="#workTableContainer">показать/скрыть</a>
+                <a class="btn btn-link btn-sm" style="position: absolute; bottom: -18px; left: -5px;" data-toggle="collapse" data-target="#workTableContainer">скрыть/показать</a>
             </li>
             <li>
                 <span id="totalWorks" class="text-info h4">0</span> / <span id="calcedWorks" class="text-success h4">0</span> / <span id="notCalcedWorks" class="text-danger h4">0</span>
@@ -86,7 +108,7 @@
                 <input name="workClacFilter" type="radio" value="0" /> нерасчитанные
             </li>
         </ul>
-        <div id="workTableContainer" class="collapse" style="overflow-x: scroll">
+        <div id="workTableContainer" class="collapse in" style="overflow-x: scroll">
             <table id="workTable" class="table small table-bordered">
                 <thead>
                     @Html.Partial("WorkHeader")
@@ -97,9 +119,29 @@
     </div>
 </div>
 
+<div id="infoModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Информация о проекте №@Model.Id</h4>
+            </div>
+            <div class="modal-body">
+                <div id="infoEditContainer"></div>
+            </div>
+            @*<div class="modal-footer">
+            </div>*@
+        </div>
+    </div>
+</div>
+
 <script>
     var showCalcs = false;
     $(function() {
+        loadFiles();
+        $('#changeInfo').click(changeInfo);
+        $('#showInfo').click(showInfo);
         loadPositions();
         $('#addPosition').click(addPosition);
         loadWorks();
@@ -109,6 +151,81 @@
             displayCalcs();
         });
     });
+
+    function loadFiles() {
+        var $cont = $('#filesContainer');
+        $cont.html('');
+        showSpinner($cont);
+        $.ajax({
+            url: '@Url.Action("GetFolders")',
+            method: 'GET',
+            data: {id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                hideSpinner($cont);
+            },
+            error:function(data) {
+                alert('Ошибка при загрузке файлов проекта!');
+                console.log(data);
+                hideSpinner($cont);
+            }
+        });
+    }
+
+    function showInfo() {
+        var $this = $(this);
+        showSpinnerAppendAndDisable($this);
+        var $cont = $('#infoEditContainer');
+        $cont.html('');
+        showSpinner($cont);
+        $('#infoModal').modal('show');
+        $.ajax({
+            url: '@Url.Action("GetInfo")',
+            method: 'GET',
+            data: {id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                hideSpinner($cont);
+                hideSpinnerAndEnabled($this);
+
+                $('#infoEdit').click(function () {
+                    changeInfo();
+                });
+            },
+            error:function(data) {
+                alert('Ошибка при загрузке информации о проекте!');
+                console.log(data);
+                hideSpinner($cont);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
+
+    function changeInfo() {
+        //var $this = $(this);
+        //showSpinnerAppendAndDisable($this);
+
+        var $cont = $('#infoEditContainer');
+        $cont.html('');
+        showSpinner($cont);
+        $('#infoModal').modal('show');
+        $.ajax({
+            url: '@Url.Action("GetEdit")',
+            method: 'GET',
+            data: {id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                hideSpinner($cont);
+                //hideSpinnerAndEnabled($this);
+            },
+            error:function(data) {
+                alert('Ошибка при загрузке позиций!');
+                console.log(data);
+                hideSpinner($cont);
+                //hideSpinnerAndEnabled($this);
+            }
+        });
+    }
 
     function displayCalcs(display) {
         if (display != null) {

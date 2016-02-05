@@ -1,0 +1,8 @@
+﻿@model IEnumerable<SpeCalcDataAccessLayer.ProjectModels.ProjectFolderModel>
+
+<ul class="list-unstyled">
+    @foreach (var fold in Model)
+    {
+        @Html.Partial("Folder", fold);
+    }
+</ul>

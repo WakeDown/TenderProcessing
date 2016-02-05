@@ -126,6 +126,8 @@
     <Compile Include="ProjectFolders.cs">
       <DependentUpon>SpeClacModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="ProjectModels\ProjectFileModel.cs" />
+    <Compile Include="ProjectModels\ProjectFolderModel.cs" />
     <Compile Include="ProjectModels\ProjectHelper.cs" />
     <Compile Include="Models\ProtectFact.cs" />
     <Compile Include="Models\ServerDirectBase.cs" />

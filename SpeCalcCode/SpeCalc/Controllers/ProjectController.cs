@@ -49,6 +49,23 @@ namespace SpeCalc.Controllers
             return View(project);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(Projects project)
+        {
+            //if (ModelState.IsValid)
+            //{
+                var manager = AdHelper.GetUserBySid(project.ManagerSid);
+                project.ManagerName = manager.DisplayName;
+                project.ManagerDepartmentName = manager.DepartmentName;
+                project.ManagerChiefName = manager.ChiefName;
+                project.ManagerChiefSid = manager.ChiefSid;
+                ProjectModel.Update(project, CurUser);
+            //}
+
+            return RedirectToAction("Card",new {id= project.Id});
+        }
+
         [HttpGet]
         public ActionResult Card(int? id)
         {
@@ -250,6 +267,35 @@ namespace SpeCalc.Controllers
         {
             ProjectWorkCalculationModel.Delete(id, CurUser);
             return Json(new { });
+        }
+
+        //
+
+        public PartialViewResult GetEdit(int? id)
+        {
+            if (!id.HasValue) return null;
+            var model = ProjectModel.Get(id.Value);
+            return PartialView("Edit", model);
+        }
+
+        public PartialViewResult GetInfo(int? id)
+        {
+            if (!id.HasValue) return null;
+            var model = ProjectModel.GetFat(id.Value);
+            return PartialView("Info", model);
+        }
+        [HttpPost]
+        public JsonResult GetSaleSubjectSelectionList(int id)
+        {
+            var list = ProjectHelper.GetSaleSubjectSelectionList(id);
+            return Json(list);
+        }
+
+        public PartialViewResult GetFolders(int? id)
+        {
+            if (!id.HasValue) return null;
+            var model = ProjectFolderModel.GetListWithFiles(id.Value);
+            return PartialView("Folders", model);
         }
     }
 }

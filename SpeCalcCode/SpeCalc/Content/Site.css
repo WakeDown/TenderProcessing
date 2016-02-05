@@ -372,3 +372,9 @@ input.required-mark,textarea.required-mark, select.required-mark, span.required-
     height: auto !important;
 
 }
+
+.info-row {
+    margin-bottom: 5px;
+    border-bottom: 1px dotted #999;
+    padding-bottom: 3px;
+}
