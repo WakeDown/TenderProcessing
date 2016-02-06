@@ -1,36 +1,52 @@
 ﻿@model IEnumerable<SpeCalcDataAccessLayer.ProjectModels.ProjectFolderModel>
 
 <ul class="list-unstyled">
-    @foreach (var fold in Model)
+    @foreach (var folder in Model)
     {
-        @Html.Partial("Folder", fold)
+        <li>
+            <h4>
+                <a id="folder-history-@folder.Folder.Id" href="#!" fid="@folder.Folder.Id" data-toggle="collapse" data-target="#files-history-cont-@folder.Folder.Id" name="folder">
+                    @*<i class="fa fa-caret-right" name="caret"></i>*@
+                    <i class="fa fa-folder folder-color" name="caret"></i> @folder.Folder.Name
+                </a>
+            </h4>
+            <ul id="files-history-cont-@folder.Folder.Id" class="list-unstyled collapse in" fid="@folder.Folder.Id" name="folderFiles" style="margin-left: 10px;">
+                <li>
+                    <ul id="files-history-@folder.Folder.Id" class="list-unstyled">
+                        @Html.Partial("FilesHistory", folder.FileList)
+                    </ul>
+                </li>
+                <li>
+                    <div class="fileUpload btn btn-xs btn-default">
+                        <span><i class="fa fa-upload"></i> загрузить</span>
+                        <input type="file" name="file" id="uploadFile-folder-history-@folder.Folder.Id" fid="@folder.Folder.Id" pid="@folder.ProjectId" class="upload"/>
+                    </div>
+                </li>
+            </ul>
+        </li>
     }
 </ul>
 
 <script>
     $(function() {
-        //loadFiles();
-
-        $("[id^=files-cont-]").on("hide.bs.collapse", function () {
+        $("[id^=files-history-cont-]").on("hide.bs.collapse", function () {
             var fid = $(this).attr('fid');
-            var $caret = $('#folder-' + fid).find('[name=caret]');
+            var $caret = $('#folder-history-' + fid).find('[name=caret]');
             $caret.addClass('fa-folder');
             $caret.removeClass('fa-folder-open');
             //$caret.addClass('fa-caret-right');
             //$caret.removeClass('fa-caret-down');
         });
-        $("[id^=files-cont-]").on("show.bs.collapse", function () {
+        $("[id^=files-history-cont-]").on("show.bs.collapse", function () {
             var fid = $(this).attr('fid');
-            var $caret = $('#folder-' + fid).find('[name=caret]');
+            var $caret = $('#folder-history-' + fid).find('[name=caret]');
             $caret.removeClass('fa-folder');
             $caret.addClass('fa-folder-open');
             //$caret.removeClass('fa-caret-right');
             //$caret.addClass('fa-caret-down');
-            var pid = $(this).attr('pid');
-            loadFiles(fid, pid);
         });
 
-        $('[id^=uploadFile-folder-]').on('change', function(e) {
+        $('[id^=uploadFile-folder-history-]').on('change', function (e) {
             var $this = $(this);
             var files = e.target.files;
             var fid = $this.attr('fid');
@@ -49,9 +65,10 @@
                         contentType: false,
                         processData: false,
                         success: function (data) {
-                            loadFiles(fid, pid);
+                            loadFilesHistory(fid, pid);
                             hideSpinnerAndEnabled();
                             $this.val('');
+                            loadFiles(fid, pid);
                         },
                         error: function(xhr, status, p3, p4) {
                             var err = "Error " + " " + status + " " + p3 + " " + p4;
@@ -70,12 +87,12 @@
         });
     });
 
-    function loadFiles(fid, pid) {
-        var $cont = $('#files-' + fid);
+    function loadFilesHistory(fid, pid) {
+        var $cont = $('#files-history-' + fid);
         $cont.html('');
         showSpinner($cont);
         $.ajax({
-            url:'@Url.Action("GetFolderFiles")',
+            url:'@Url.Action("GetFilesHistory")',
             method:'GET',
             data: { fid: fid, pid: pid },
             success: function (html) {

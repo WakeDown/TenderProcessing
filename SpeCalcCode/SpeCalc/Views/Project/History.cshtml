@@ -1,0 +1,39 @@
+﻿@model IEnumerable<SpeCalcDataAccessLayer.ProjectStateHistory>
+@{
+    int count = ViewBag.TotalCount - Model.Count();
+    bool displayBtn = count > 0;
+}
+@foreach (var hist in Model)
+{
+    <div class="project-message-item" style="background-color: #@hist.ProjectStates.BackgroundColor">
+        <div>
+            <strong>@hist.ProjectStates.Name</strong>
+        </div>
+        <small>@hist.CreateDate.ToString("dd.MM.yyyy HH:mm") - @hist.CreatorName</small>
+        <div class="pad-l-sm">
+            @Html.Raw(hist.Comment)
+        </div>
+    </div>
+    <hr class="no-margin" />
+}
+@if (displayBtn)
+{
+    <div>
+        <a id="showAllHistory" class="btn btn-xs btn-info">еще <span id="historyTotalCount">@count</span></a>
+    </div>
+}
+@*<script>
+    $(function () {
+        var display = '@displayBtn';
+        if (display == 'True') {
+            $('#showAllHistory').show();
+            $('#historyTotalCount').text('@count');
+        } else {
+            @if (!ViewBag.Full)
+            {<text>
+            $('#showAllHistory').hide();
+             </text>
+            }
+        }
+    });
+</script>*@

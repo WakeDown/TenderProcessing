@@ -29,6 +29,7 @@ namespace SpeCalcDataAccessLayer
         public Nullable<System.DateTime> DeleterDate { get; set; }
         public Nullable<int> PreviousFileId { get; set; }
         public int VersionNumber { get; set; }
+        public string PreviousFileGUID { get; set; }
     
         public virtual ProjectFolders ProjectFolders { get; set; }
         public virtual Projects Projects { get; set; }

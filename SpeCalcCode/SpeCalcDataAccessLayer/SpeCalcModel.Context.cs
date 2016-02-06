@@ -53,5 +53,6 @@ namespace SpeCalcDataAccessLayer
         public virtual DbSet<ProjectWorks> ProjectWorks { get; set; }
         public virtual DbSet<ProjectWorkStateHistory> ProjectWorkStateHistory { get; set; }
         public virtual DbSet<ProjectWorkStates> ProjectWorkStates { get; set; }
+        public virtual DbSet<ProjectMessages> ProjectMessages { get; set; }
     }
 }

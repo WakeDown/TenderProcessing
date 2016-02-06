@@ -1,14 +1,14 @@
 ﻿@model SpeCalcDataAccessLayer.Projects
 <div class="form-horizontal">
     <div class="form-group no-margin">
-        <label for="" class="col-sm-5 control-label no-pad-top text-right">Заказчик</label>
-        <div class="col-sm-7">
+        <label for="" class="col-sm-4 control-label no-pad-top text-right">Заказчик</label>
+        <div class="col-sm-8">
             @Model.ClientName
         </div>
     </div>
     <div class="form-group no-margin">
-        <label for="" class="col-sm-5 control-label no-pad-top text-right">Бюджет</label>
-        <div class="col-sm-7">
+        <label for="" class="col-sm-4 control-label no-pad-top text-right">Бюджет</label>
+        <div class="col-sm-8">
             @if (Model.HasBudget)
             {
                 @(Model.Budget.HasValue ? Model.Budget.Value.ToString("F2") : null) @(Model.CurrencyId.HasValue ? Model.ProjectCurrencies.Name : null)
@@ -20,14 +20,14 @@
         </div>
     </div>
     <div class="form-group no-margin">
-        <label for="" class="col-sm-5 control-label no-pad-top text-right">Срок сдачи</label>
-        <div class="col-sm-7">
+        <label for="" class="col-sm-4 control-label no-pad-top text-right">Срок сдачи</label>
+        <div class="col-sm-8">
             @Model.DeadlineDate
         </div>
     </div>
     <div class="form-group no-margin">
-        <label for="" class="col-sm-5 control-label no-pad-top text-right">Бизнес задача</label>
-        <div class="col-sm-7">
+        <label for="" class="col-sm-4 control-label no-pad-top text-right">Бизнес задача</label>
+        <div class="col-sm-8">
             @(Model.BusinessTargetId.HasValue ? Model.ProjectBusinessTargets.Name : null)
             <div>
                 @(!String.IsNullOrEmpty(Model.BusinessTargetName) ? Model.BusinessTargetName : null)
@@ -35,38 +35,38 @@
         </div>
     </div>
     <div class="form-group no-margin">
-        <label for="" class="col-sm-5 control-label no-pad-top text-right">Направление</label>
-        <div class="col-sm-7">
+        <label for="" class="col-sm-4 control-label no-pad-top text-right">Направление</label>
+        <div class="col-sm-8">
             @(Model.SaleDirectionId.HasValue ? Model.ProjectSaleDirections.Name : null)
         </div>
     </div>
     <div class="form-group no-margin">
-        <label for="" class="col-sm-5 control-label no-pad-top text-right">Предмет сделки</label>
-        <div class="col-sm-7">
+        <label for="" class="col-sm-4 control-label no-pad-top text-right">Предмет сделки</label>
+        <div class="col-sm-8">
             @(Model.SaleSubjectId.HasValue ? Model.ProjectSaleSubjects.Name : null)
         </div>
     </div>
     <div class="form-group no-margin">
-        <label for="" class="col-sm-5 control-label no-pad-top text-right">Менеджер</label>
-        <div class="col-sm-7">
+        <label for="" class="col-sm-4 control-label no-pad-top text-right">Менеджер</label>
+        <div class="col-sm-8">
             @(Model.ManagerName)
         </div>
     </div>
     <div class="form-group no-margin">
-        <label for="" class="col-sm-5 control-label no-pad-top text-right"><small>Подразделение</small></label>
-        <div class="col-sm-7">
+        <label for="" class="col-sm-4 control-label no-pad-top text-right"><small>Подразделение</small></label>
+        <div class="col-sm-8">
             <small>@(Model.ManagerDepartmentName)</small>
         </div>
     </div>
     <div class="form-group no-margin">
-        <label for="" class="col-sm-5 control-label no-pad-top text-right"><small>Руководитель</small></label>
-        <div class="col-sm-7">
+        <label for="" class="col-sm-4 control-label no-pad-top text-right"><small>Руководитель</small></label>
+        <div class="col-sm-8">
             <small>@(Model.ManagerChiefName)</small>
         </div>
     </div>
     <div class="form-group no-margin">
-        <label for="" class="col-sm-5 control-label no-pad-top text-right">Вероятность</label>
-        <div class="col-sm-7 @(Model.Probability < 0 ? "bg-info" :  Model.Probability >= 0 && Model.Probability <= 30 ? "bg-success" : Model.Probability > 30 && Model.Probability <= 60 ? "bg-warning" : Model.Probability > 60 ? "bg-danger" : null )">
+        <label for="" class="col-sm-4 control-label no-pad-top text-right">Вероятность</label>
+        <div class="col-sm-8 @(Model.Probability < 0 ? "bg-info" :  Model.Probability >= 0 && Model.Probability <= 30 ? "bg-success" : Model.Probability > 30 && Model.Probability <= 60 ? "bg-warning" : Model.Probability > 60 ? "bg-danger" : null )">
             @Model.Probability%
         </div>
     </div>

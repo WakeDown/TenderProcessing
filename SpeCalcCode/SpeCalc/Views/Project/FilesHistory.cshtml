@@ -1,0 +1,12 @@
+﻿@model IEnumerable<SpeCalcDataAccessLayer.ProjectModels.ProjectFileModel>
+@foreach (var file in Model)
+{
+        var count = Model.Where(x => x.FileName == file.FileName).Count();
+        var offset = ((count-file.VersionNumber)*3) + 3;
+    <li class="@(file.IsLastVersion ? null : "text-danger")" style="@(file.IsLastVersion ? null : "padding-left: " + @offset + "px")">
+        v.@file.VersionNumber&nbsp;<a style="@(file.IsLastVersion ? null : "text-decoration: line-through")" href="@Url.Action("GetFileData")?guid=@file.FileGUID.ToString()" target="_blank">@file.FileName</a>
+        <div class="text-xs" style="padding-left:@(file.VersionNumber > 9 ? "29" : "22")px;">
+            @file.CreateDate.ToString("dd.MM.yyyy HH:mm") - @file.CreatorName
+        </div>
+    </li>
+}

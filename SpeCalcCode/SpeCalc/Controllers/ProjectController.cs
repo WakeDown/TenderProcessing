@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -296,6 +297,134 @@ namespace SpeCalc.Controllers
             if (!id.HasValue) return null;
             var model = ProjectFolderModel.GetListWithFiles(id.Value);
             return PartialView("Folders", model);
+        }
+        
+        [HttpPost]
+        public JsonResult UploadFile(int pid, int fid)
+        {
+            var files = Request.Files;
+            if (files != null & files.Count > 0)
+            {
+                for (int i = 0; i < files.Count; i++)
+                {
+                    var file = files[i];
+                    byte[] data = null;
+                    using (var br = new BinaryReader(file.InputStream))
+                    {
+                        data = br.ReadBytes(file.ContentLength);
+                    }
+                    ProjectFileModel.SaveFile(data, file.FileName, pid, fid, CurUser);
+                }
+            }
+            return Json(new {});
+        }
+
+        [HttpGet]
+        public PartialViewResult GetFolderFiles(int? fid, int? pid)
+        {
+            if (!fid.HasValue || !pid.HasValue) return null;
+
+            var model = ProjectFolderModel.GetFileList(pid.Value, fid.Value);
+            return PartialView("FolderFiles", model);
+        }
+
+        public ActionResult GetFileData(string guid)
+        {
+            var file = ProjectFileModel.Get(guid);
+            string ext = file.FileName.Substring(file.FileName.LastIndexOf(".", StringComparison.Ordinal));
+            string name = file.FileName.Substring(0, file.FileName.LastIndexOf(".", StringComparison.Ordinal));
+            string fileName = $"{name}_v{file.VersionNumber}{ext}";
+            return File(file.fileDATA, "text/plain", fileName);
+        }
+
+        public PartialViewResult GetFolderFilesHistory(int? id)
+        {
+            if (!id.HasValue) return null;
+            var model = ProjectFolderModel.GetListWithFilesHistory(id.Value);
+            return PartialView("FolderFilesHistory", model);
+        }
+
+        public PartialViewResult GetFilesHistory(int? fid, int? pid)
+        {
+            if (!fid.HasValue || !pid.HasValue) return null;
+            var model = ProjectFolderModel.GetFileListHistory(pid.Value, fid.Value);
+            return PartialView("FilesHistory", model);
+        }
+
+        public PartialViewResult GetMessages(int? id)
+        {
+            if (!id.HasValue) return null;
+            int totalCount;
+            var model = ProjectMessageModel.GetList(out totalCount, id.Value, false);
+            ViewBag.TotalCount = totalCount;
+            ViewBag.Full = false;
+            return PartialView("Messages", model);
+        }
+
+        public PartialViewResult GetMessagesHistory(int? id)
+        {
+            if (!id.HasValue) return null;
+            int totalCount;
+            var model = ProjectMessageModel.GetList(out totalCount, id.Value, true);
+            ViewBag.TotalCount = totalCount;
+            ViewBag.Full = true;
+            return PartialView("Messages", model);
+        }
+
+        [HttpPost]
+        public JsonResult SendMessage(int id, string message)
+        {
+            ProjectMessageModel.Send(id, message, CurUser);
+
+            return Json(new {});
+        }
+
+        public PartialViewResult GetHistory(int? id)
+        {
+            if (!id.HasValue) return null;
+            int totalCount;
+            var model = ProjectStateModel.GetList(out totalCount, id.Value, false);
+            ViewBag.TotalCount = totalCount;
+            ViewBag.Full = false;
+            return PartialView("History", model);
+        }
+
+        public PartialViewResult GetAllHistory(int? id)
+        {
+            if (!id.HasValue) return null;
+            int totalCount;
+            var model = ProjectStateModel.GetList(out totalCount, id.Value, true);
+            ViewBag.TotalCount = totalCount;
+            ViewBag.Full = true;
+            return PartialView("History", model);
+        }
+
+        [HttpPost]
+        public JsonResult Play(int id, string comment)
+        {
+            ProjectModel.SetPlayState(id, comment, CurUser);
+            return Json(new {});
+        }
+
+        [HttpPost]
+        public JsonResult Pause(int id, string comment)
+        {
+            ProjectModel.SetPauseState(id, comment, CurUser);
+            return Json(new { });
+        }
+
+        [HttpPost]
+        public JsonResult Stop(int id, string comment)
+        {
+            ProjectModel.SetStopState(id, comment, CurUser);
+            return Json(new { });
+        }
+
+        public PartialViewResult GetIndicatorBig(int? id)
+        {
+            if (!id.HasValue) return null;
+            var model = ProjectConditionModel.GetList(id.Value);
+            return PartialView("IndicatorBig", model);
         }
     }
 }

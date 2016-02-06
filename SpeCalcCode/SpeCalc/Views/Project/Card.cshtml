@@ -10,17 +10,20 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         <ul class="list-inline no-margin">
-            <li>
+            <li class="pull-left">
                 <h4 class="marg-sm">
                     Крточка проекта №@Model.Id
                 </h4>
 
             </li>
-            <li>
+            <li class="pull-left">
                 <button id="changeInfo" class="btn btn-warning btn-xs">изменить</button>
             </li>
+            <li id="conditionContainer">
+                
+            </li>
             <li class="pull-right">
-                <button id="projectPlay" class="btn btn-success"><i class="fa fa-play"></i> возобновить</button>
+                <button id="projectPlay" class="btn btn-success"><i class="fa fa-play"></i> запуск</button>
                 <button id="projectPause" class="btn btn-warning"><i class="fa fa-pause"></i> приостановить</button>
                 <button id="projectStop" class="btn btn-danger"><i class="fa fa-stop"></i> отклонить</button>
             </li>
@@ -37,23 +40,35 @@
     </div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-lg-3">
-                @*<h4 class="no-pad">Информация</h4>*@
-                <div>
-                    <a id="showInfo" class="btn btn-xs btn-info pull-right">вся инфа</a>
-                </div>
+            <div class="col-lg-4">
+                <h4 class="no-pad">Информация <a id="showInfo" class="btn btn-xs btn-info">вся инфа</a></h4>
+                
                 <div class="clearfix"></div>
                 @Html.Partial("CardInfo", Model)
             </div>
-            <div class="col-lg-3">
-                <h4 class="no-pad">Файлы</h4>
+            <div class="col-lg-2">
+                <h4 class="no-pad">Файлы <a id="showFilesHistory" class="btn btn-xs btn-info">история</a>
+                </h4>
                 <div id="filesContainer"></div>
             </div>
             <div class="col-lg-3">
-                <h4 class="no-pad">Переписка</h4>
+                <h4 class="no-pad">Переписка
+                </h4>
+                <div>
+                    <div class="input-group">
+                        <textarea id="message" rows="2" placeholder="Введите комментарий" class="form-control input-sm"></textarea>
+                        <div class="input-group-btn">
+                            <button type="button" id="sendMessage" class="btn btn-success btn-lg pull-right"><i class="fa fa-comment"></i></button>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div id="messagesContainer"></div>
             </div>
             <div class="col-lg-3">
-                <h4 class="no-pad">История</h4>
+                <h4 class="no-pad">История
+                </h4>
+                <div id="historyContainer"></div>
             </div>
         </div>
         <hr/>
@@ -136,10 +151,90 @@
     </div>
 </div>
 
+<div id="filesHistoryModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">История файлов проекта №@Model.Id</h4>
+            </div>
+            <div class="modal-body">
+                <div id="filesHistoryContainer"></div>
+            </div>
+            @*<div class="modal-footer">
+                </div>*@
+        </div>
+    </div>
+</div>
+
+<div id="messagesHistoryModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">История переписки проекта №@Model.Id</h4>
+            </div>
+            <div class="modal-body">
+                <div id="messagesHistoryContainer"></div>
+            </div>
+            @*<div class="modal-footer">
+                </div>*@
+        </div>
+    </div>
+</div>
+
+<div id="historyModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">История изменений статусов проекта №@Model.Id</h4>
+            </div>
+            <div class="modal-body">
+                <div id="historyAllontainer"></div>
+            </div>
+            @*<div class="modal-footer">
+                </div>*@
+        </div>
+    </div>
+</div>
+
+<div id="stateModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="stateModelTitle"></h4>
+            </div>
+            <div class="modal-body">
+                <textarea id="stateModelComment" placeholder="Введите комментарий" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
+                <button id="stateModalConfirm" class="btn btn-success">Подтвердить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     var showCalcs = false;
     $(function() {
+        loadCondition();
+        $('#projectPlay').click(projectPlay);
+        $('#projectPause').click(projectPause);
+        $('#projectStop').click(projectStop);
+        loadHistory();
+
+        $('#sendMessage').click(sendMessage);
         loadFiles();
+        $('#showFilesHistory').click(showFilesHistory);
+        loadMessages();
+
         $('#changeInfo').click(changeInfo);
         $('#showInfo').click(showInfo);
         loadPositions();
@@ -151,6 +246,250 @@
             displayCalcs();
         });
     });
+
+    function loadCondition() {
+        var $cont = $('#conditionContainer');
+        $cont.html('');
+        showSpinner($cont);
+        $.ajax({
+            url: '@Url.Action("GetIndicatorBig")',
+            method: 'GET',
+            data: {id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                hideSpinner($cont);
+            },
+            error:function(data) {
+                alert('Ошибка при загрузке истории статусов проекта!');
+                console.log(data);
+                hideSpinner($cont);
+            }
+        });
+    }
+
+    function projectStop() {
+        $('#stateModal').modal('show');
+        $('#stateModelTitle').text('Укажите комментарий для отклонения');
+        $('#stateModalConfirm').click(function() {
+            var comment = $('#stateModelComment').val();
+            if (!comment) {
+                alert('Введите комментарий!');
+                $('#stateModelComment').focus();
+                return;
+            }
+            var $this = $(this);
+            showSpinnerAppendAndDisable($this);
+            $.ajax({
+                url: '@Url.Action("Stop")',
+                method: 'POST',
+                data: { id: @Model.Id },
+                success: function() {
+                    location.reload();
+                },
+                error: function(data) {
+                    alert('Ошибка при отклонении проекта!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        });
+        //if (!confirm('Вы действительно хотите отклонить проект?'))return;
+    }
+
+    function projectPause() {
+        $('#stateModal').modal('show');
+        $('#stateModelTitle').text('Укажите комментарий для приостановки');
+        $('#stateModalConfirm').click(function() {
+            var comment = $('#stateModelComment').val();
+            if (!comment) {
+                alert('Введите комментарий!');
+                $('#stateModelComment').focus();
+                return;
+            }
+            var $this = $(this);
+            showSpinnerAppendAndDisable($this);
+            $.ajax({
+                url: '@Url.Action("Pause")',
+                method: 'POST',
+                data: { id: @Model.Id },
+                success: function() {
+                    location.reload();
+                },
+                error: function(data) {
+                    alert('Ошибка при приостановке проекта!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        });
+        //if (!confirm('Вы действительно хотите приостановить проект?'))return;
+    }
+
+    function projectPlay() {
+        var $this = $(this);
+        showSpinnerAppendAndDisable($this);
+        $.ajax({
+            url: '@Url.Action("Play")',
+            method: 'POST',
+            data: {id:@Model.Id},
+            success: function() {
+                location.reload();
+            },
+            error:function(data) {
+                alert('Ошибка при запуске проекта!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
+
+    function loadHistory() {
+        var $cont = $('#historyContainer');
+        $cont.html('');
+        showSpinner($cont);
+        $.ajax({
+            url: '@Url.Action("GetHistory")',
+            method: 'GET',
+            data: {id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                $('#showAllHistory').click(showAllHistory);
+                hideSpinner($cont);
+            },
+            error:function(data) {
+                alert('Ошибка при загрузке истории статусов проекта!');
+                console.log(data);
+                hideSpinner($cont);
+            }
+        });
+    }
+
+    function showAllHistory() {
+        var $this = $(this);
+        showSpinnerAppendAndDisable($this);
+        var $cont = $('#historyAllontainer');
+        $cont.html('');
+        showSpinner($cont);
+        $('#historyModal').modal('show');
+        $.ajax({
+            url: '@Url.Action("GetAllHistory")',
+            method: 'GET',
+            data: {id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                hideSpinner($cont);
+                hideSpinnerAndEnabled($this);
+            },
+            error:function(data) {
+                alert('Ошибка при загрузке истории статусов!');
+                console.log(data);
+                hideSpinner($cont);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+
+    }
+
+    function sendMessage() {
+        var $this = $(this);
+        showSpinnerAppendAndDisable($this);
+        var message = $('#message').val();
+        if (!message) {
+            alert('Введите текст сообщения!');
+            $('#message').focus();
+            hideSpinnerAndEnabled($this);
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("SendMessage")',
+            method:'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({id: @Model.Id, message:message}),
+            success: function() {
+                $('#message').val('');
+                loadMessages();
+                hideSpinnerAndEnabled($this);
+            },
+            error:function(data) {
+                alert('Ошибка при сохранении комментария!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
+
+    function loadMessages() {
+        var $cont = $('#messagesContainer');
+        $cont.html('');
+        showSpinner($cont);
+        $.ajax({
+            url: '@Url.Action("GetMessages")',
+            method: 'GET',
+            data: {id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                $('#showMessagesHistory').click(loadMessagesHistory);
+                hideSpinner($cont);
+            },
+            error:function(data) {
+                alert('Ошибка при загрузке переписки проекта!');
+                console.log(data);
+                hideSpinner($cont);
+            }
+        });
+    }
+
+    function loadMessagesHistory() {
+        var $this = $(this);
+        showSpinnerAppendAndDisable($this);
+        var $cont = $('#messagesHistoryContainer');
+        $cont.html('');
+        showSpinner($cont);
+        $('#messagesHistoryModal').modal('show');
+        $.ajax({
+            url: '@Url.Action("GetMessagesHistory")',
+            method: 'GET',
+            data: {id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                hideSpinner($cont);
+                hideSpinnerAndEnabled($this);
+            },
+            error:function(data) {
+                alert('Ошибка при загрузке истории преписки!');
+                console.log(data);
+                hideSpinner($cont);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+
+    }
+
+    function showFilesHistory() {
+        var $this = $(this);
+        showSpinnerAppendAndDisable($this);
+        var $cont = $('#filesHistoryContainer');
+        $cont.html('');
+        showSpinner($cont);
+        $('#filesHistoryModal').modal('show');
+        $.ajax({
+            url: '@Url.Action("GetFolderFilesHistory")',
+            method: 'GET',
+            data: {id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                hideSpinner($cont);
+                hideSpinnerAndEnabled($this);
+            },
+            error:function(data) {
+                alert('Ошибка при загрузке позиций!');
+                console.log(data);
+                hideSpinner($cont);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
 
     function loadFiles() {
         var $cont = $('#filesContainer');

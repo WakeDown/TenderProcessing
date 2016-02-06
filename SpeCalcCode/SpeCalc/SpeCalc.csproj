@@ -371,6 +371,12 @@
     <Content Include="Views\Project\Edit.cshtml" />
     <Content Include="Views\Project\Folders.cshtml" />
     <Content Include="Views\Project\Folder.cshtml" />
+    <Content Include="Views\Project\FolderFiles.cshtml" />
+    <Content Include="Views\Project\FolderFilesHistory.cshtml" />
+    <Content Include="Views\Project\FilesHistory.cshtml" />
+    <Content Include="Views\Project\Messages.cshtml" />
+    <Content Include="Views\Project\History.cshtml" />
+    <Content Include="Views\Project\IndicatorBig.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeCalcDataAccessLayer\SpeCalcDataAccessLayer.csproj">

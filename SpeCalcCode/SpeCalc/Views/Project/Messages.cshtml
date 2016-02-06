@@ -1,0 +1,36 @@
+﻿@model IEnumerable<SpeCalcDataAccessLayer.ProjectMessages>
+@{
+    int count = ViewBag.TotalCount - Model.Count();
+    bool displayBtn = count > 0;
+}
+@foreach (var msg in Model)
+    {
+        <div class="project-message-item">
+            <small><strong>@msg.CreateDate.ToString("dd.MM.yyyy HH:mm")</strong> - @msg.CreatorName</small>
+            <div class="pad-l-sm">
+                @Html.Raw(msg.Message)
+            </div>
+        </div>
+        <hr class="no-margin" />
+}
+@if (displayBtn)
+{
+    <div>
+        <a id="showMessagesHistory" class="btn btn-xs btn-info">еще <span id="messagesTotalCount">@count</span></a>
+    </div>
+}
+@*<script>
+    $(function () {
+        var display = '@displayBtn';
+        if (display == 'True') {
+            $('#showMessagesHistory').show();
+            $('#messagesTotalCount').text('@count');
+        } else {
+            @if (!ViewBag.Full)
+            {<text>
+            $('#showMessagesHistory').hide();
+            </text>
+            }
+        }
+    });
+</script>*@

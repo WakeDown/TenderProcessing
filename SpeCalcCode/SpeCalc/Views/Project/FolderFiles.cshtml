@@ -1,0 +1,8 @@
+﻿@model IEnumerable<SpeCalcDataAccessLayer.ProjectModels.ProjectFileModel>
+
+@foreach (var file in Model)
+{
+    <li>
+        v.@file.VersionNumber&nbsp;<a href="@Url.Action("GetFileData")?guid=@file.FileGUID.ToString()" target="_blank"><small>@file.FileName</small></a> 
+    </li>
+}

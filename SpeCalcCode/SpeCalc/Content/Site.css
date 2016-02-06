@@ -247,6 +247,9 @@ input.required-mark,textarea.required-mark, select.required-mark, span.required-
 .text-sm {
     font-size: 0.9em;
 }
+.text-xs {
+    font-size: 0.7em;
+}
 .table-condensed.pad-xs tr td {
     padding-top: 1px;
     padding-bottom: 1px;
@@ -377,4 +380,32 @@ input.required-mark,textarea.required-mark, select.required-mark, span.required-
     margin-bottom: 5px;
     border-bottom: 1px dotted #999;
     padding-bottom: 3px;
+}
+
+.pad-l-sm {
+    padding-left: 5px;
+}
+
+.project-message-item {
+    padding: 5px;
+    /*border-bottom: 1px solid #999;
+    margin-bottom: 3px;*/
+}
+
+.folder-color {
+    color: #FFCF32 !important;
+}
+
+.project-condition-big-item {
+    width: 90px;
+    height: 50px;
+    padding: 5px;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 3px;
+    
+}
+
+.marg-l-sm {
+    margin-left: 3px;
 }

@@ -26,6 +26,9 @@ namespace SpeCalcDataAccessLayer
         public int OrderNum { get; set; }
         public string SysName { get; set; }
         public bool Enabled { get; set; }
+        public string BackgroundColor { get; set; }
+        public string ForegroundColor { get; set; }
+        public string BorderColor { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProjectConditionHistory> ProjectConditionHistory { get; set; }

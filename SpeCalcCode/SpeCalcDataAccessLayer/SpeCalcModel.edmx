@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="SpeCalcModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="SpeCalcModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="ProjectBusinessTargets">
           <Key>
             <PropertyRef Name="Id" />
@@ -47,6 +47,9 @@
           <Property Name="OrderNum" Type="int" Nullable="false" />
           <Property Name="SysName" Type="nvarchar" MaxLength="50" />
           <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="BackgroundColor" Type="nvarchar" MaxLength="50" />
+          <Property Name="ForegroundColor" Type="nvarchar" MaxLength="50" />
+          <Property Name="BorderColor" Type="nvarchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="ProjectCurrencies">
           <Key>
@@ -75,6 +78,7 @@
           <Property Name="DeleterDate" Type="datetime" />
           <Property Name="PreviousFileId" Type="int" />
           <Property Name="VersionNumber" Type="int" Nullable="false" />
+          <Property Name="PreviousFileGUID" Type="varchar" MaxLength="46" />
         </EntityType>
         <EntityType Name="ProjectFolders">
           <Key>
@@ -85,6 +89,19 @@
           <Property Name="SysName" Type="nvarchar" MaxLength="50" />
           <Property Name="OrderNum" Type="int" Nullable="false" />
           <Property Name="Enabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProjectMessages">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Message" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Recipients" Type="nvarchar(max)" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="CreatorSid" Type="varchar" MaxLength="46" Nullable="false" />
+          <Property Name="CreatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="ProjectId" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="ProjectPositionCalculations">
           <Key>
@@ -304,6 +321,9 @@
           <Property Name="Name" Type="nvarchar" MaxLength="150" Nullable="false" />
           <Property Name="SysName" Type="nvarchar" MaxLength="50" />
           <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="BackgroundColor" Type="nvarchar" MaxLength="50" />
+          <Property Name="ForegroundColor" Type="nvarchar" MaxLength="50" />
+          <Property Name="BorderColor" Type="nvarchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="ProjectTeams">
           <Key>
@@ -843,6 +863,7 @@
           <EntitySet Name="ProjectCurrencies" EntityType="Self.ProjectCurrencies" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProjectFiles" EntityType="Self.ProjectFiles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProjectFolders" EntityType="Self.ProjectFolders" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectMessages" EntityType="Self.ProjectMessages" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProjectPositionCalculations" EntityType="Self.ProjectPositionCalculations" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProjectPositionDeliveryTimes" EntityType="Self.ProjectPositionDeliveryTimes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProjectPositionQuantityUnits" EntityType="Self.ProjectPositionQuantityUnits" Schema="dbo" store:Type="Tables" />
@@ -1005,8 +1026,7 @@
             <End Role="ProjectWorkStateHistory" EntitySet="ProjectWorkStateHistory" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="SpeCalcModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -1058,6 +1078,9 @@
           <Property Name="Enabled" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="ProjectConditionHistory" Relationship="Self.FK_ProjectConditionHistory_ProjectConditions" FromRole="ProjectConditions" ToRole="ProjectConditionHistory" />
           <NavigationProperty Name="Projects" Relationship="Self.FK_Projects_ProjectConditions" FromRole="ProjectConditions" ToRole="Projects" />
+          <Property Name="BackgroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ForegroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="BorderColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="ProjectCurrencies">
           <Key>
@@ -1090,6 +1113,7 @@
           <Property Name="DeleterDate" Type="DateTime" Precision="3" />
           <Property Name="PreviousFileId" Type="Int32" />
           <Property Name="VersionNumber" Type="Int32" Nullable="false" />
+          <Property Name="PreviousFileGUID" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="ProjectFolders" Relationship="Self.FK_ProjectFiles_ProjectFolders" FromRole="ProjectFiles" ToRole="ProjectFolders" />
           <NavigationProperty Name="Projects" Relationship="Self.FK_ProjectFiles_Projects" FromRole="ProjectFiles" ToRole="Projects" />
         </EntityType>
@@ -1364,6 +1388,9 @@
           <Property Name="Enabled" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="Projects" Relationship="Self.FK_Projects_ProjectStates" FromRole="ProjectStates" ToRole="Projects" />
           <NavigationProperty Name="ProjectStateHistory" Relationship="Self.FK_ProjectStateHistory_ProjectStates" FromRole="ProjectStates" ToRole="ProjectStateHistory" />
+          <Property Name="BackgroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ForegroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="BorderColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="ProjectTeams">
           <Key>
@@ -2079,7 +2106,21 @@
             <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
             <End Role="ProjectWorkStateHistory" EntitySet="ProjectWorkStateHistory" />
           </AssociationSet>
+          <EntitySet Name="ProjectMessages" EntityType="SpeCalcModel.ProjectMessages" />
         </EntityContainer>
+        <EntityType Name="ProjectMessages">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Message" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Recipients" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatorSid" Type="String" Nullable="false" MaxLength="46" FixedLength="false" Unicode="false" />
+          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="ProjectId" Type="Int32" Nullable="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2125,6 +2166,9 @@
           <EntitySetMapping Name="ProjectConditions">
             <EntityTypeMapping TypeName="SpeCalcModel.ProjectConditions">
               <MappingFragment StoreEntitySet="ProjectConditions">
+                <ScalarProperty Name="BorderColor" ColumnName="BorderColor" />
+                <ScalarProperty Name="ForegroundColor" ColumnName="ForegroundColor" />
+                <ScalarProperty Name="BackgroundColor" ColumnName="BackgroundColor" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
@@ -2160,6 +2204,7 @@
                 <ScalarProperty Name="DeleterDate" ColumnName="DeleterDate" />
                 <ScalarProperty Name="PreviousFileId" ColumnName="PreviousFileId" />
                 <ScalarProperty Name="VersionNumber" ColumnName="VersionNumber" />
+                <ScalarProperty Name="PreviousFileGUID" ColumnName="PreviousFileGUID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2400,6 +2445,9 @@
           <EntitySetMapping Name="ProjectStates">
             <EntityTypeMapping TypeName="SpeCalcModel.ProjectStates">
               <MappingFragment StoreEntitySet="ProjectStates">
+                <ScalarProperty Name="BorderColor" ColumnName="BorderColor" />
+                <ScalarProperty Name="ForegroundColor" ColumnName="ForegroundColor" />
+                <ScalarProperty Name="BackgroundColor" ColumnName="BackgroundColor" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="SysName" ColumnName="SysName" />
@@ -2521,6 +2569,20 @@
                 <ScalarProperty Name="ForegroundColor" ColumnName="ForegroundColor" />
                 <ScalarProperty Name="Icon" ColumnName="Icon" />
                 <ScalarProperty Name="IconColor" ColumnName="IconColor" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectMessages">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectMessages">
+              <MappingFragment StoreEntitySet="ProjectMessages">
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="Recipients" ColumnName="Recipients" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -1,0 +1,24 @@
+﻿@model IEnumerable<SpeCalcDataAccessLayer.ProjectModels.ProjectConditionModel>
+
+
+<div class="">
+    @foreach (var cond in Model)
+    {
+        <div name="project-condition" class="project-condition-big-item text-xs pull-left marg-l-sm" style="background-color: #@(cond.ConditionHistory != null ? cond.ConditionHistory.ProjectConditions.BackgroundColor : null); border-color: #@cond.Condition.BorderColor; color: #@cond.Condition.ForegroundColor">
+            <strong>@cond.Condition.Name</strong>
+            @if (cond.ConditionHistory != null)
+            {
+                <div>
+                    @cond.ConditionHistory.CreateDate.ToString("dd.MM.yyyy HH:mm")<br/>
+                    @cond.ConditionHistory.CreatorName
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<script>
+    $(function() {
+        //$('#name="project-condition"').
+    })
+</script>

@@ -4,13 +4,13 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="af406755a130499f94fa8141af4eb598" Name="Diagram1">
+      <Diagram DiagramId="5e3dabe1450447acaba90a8ed143e48f" Name="Diagram1">
         <EntityTypeShape EntityType="SpeCalcModel.ProjectBusinessTargets" Width="1.5" PointX="3.75" PointY="12.625" IsExpanded="true" />
         <EntityTypeShape EntityType="SpeCalcModel.ProjectClientRelationships" Width="1.5" PointX="3.75" PointY="8.25" IsExpanded="true" />
         <EntityTypeShape EntityType="SpeCalcModel.ProjectConditionHistory" Width="1.5" PointX="11.25" PointY="20.125" IsExpanded="true" />
         <EntityTypeShape EntityType="SpeCalcModel.ProjectConditions" Width="1.5" PointX="3.75" PointY="25.625" IsExpanded="true" />
         <EntityTypeShape EntityType="SpeCalcModel.ProjectCurrencies" Width="1.5" PointX="0.75" PointY="20.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectFiles" Width="1.5" PointX="11.25" PointY="14.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectFiles" Width="1.5" PointX="11.25" PointY="14.25" IsExpanded="true" />
         <EntityTypeShape EntityType="SpeCalcModel.ProjectFolders" Width="1.5" PointX="9" PointY="10.5" IsExpanded="true" />
         <EntityTypeShape EntityType="SpeCalcModel.ProjectPositionCalculations" Width="1.5" PointX="3" PointY="18.25" IsExpanded="true" />
         <EntityTypeShape EntityType="SpeCalcModel.ProjectPositionDeliveryTimes" Width="1.5" PointX="0.75" PointY="6.375" IsExpanded="true" />
@@ -68,6 +68,7 @@
         <AssociationConnector Association="SpeCalcModel.FK_ProjectWorks_ProjectWorkStates1" ManuallyRouted="false" />
         <AssociationConnector Association="SpeCalcModel.FK_ProjectWorkStateHistory_ProjectWorks" ManuallyRouted="false" />
         <AssociationConnector Association="SpeCalcModel.FK_ProjectWorkStateHistory_ProjectWorkStates" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectMessages" Width="1.5" PointX="0.75" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
