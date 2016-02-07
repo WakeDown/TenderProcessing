@@ -378,6 +378,8 @@
     <Content Include="Views\Project\Messages.cshtml" />
     <Content Include="Views\Project\History.cshtml" />
     <Content Include="Views\Project\IndicatorBig.cshtml" />
+    <Content Include="Views\Project\Team.cshtml" />
+    <Content Include="Views\Project\RoleTeamList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeCalcDataAccessLayer\SpeCalcDataAccessLayer.csproj">

@@ -27,8 +27,12 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 calc.CreatorSid = user.Sid;
                 calc.CreatorName = user.DisplayName;
                 calc.CreateDate = DateTime.Now;
+                //calc.LastChangeDate = DateTime.Now;
+                //calc.LastChangerSid = user.Sid;
+                //calc.LastChangerName = user.DisplayName;
                 db.ProjectPositionCalculations.Add(calc);
                 db.SaveChanges();
+                ProjectHistoryModel.CreateHistoryItem(calc.ProjectPositions.ProjectId, "Добавление расчета оборудования", new[] { calc }, user);
                 return calc.Id;
             }
         }
@@ -48,7 +52,11 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 oldcalc.DeliveryTimeId = calc.DeliveryTimeId;
                 oldcalc.Comment = calc.Comment;
                 oldcalc.RecomendedPrice = calc.RecomendedPrice;
+                oldcalc.LastChangeDate = DateTime.Now;
+                oldcalc.LastChangerSid = user.Sid;
+                oldcalc.LastChangerName = user.DisplayName;
                 db.SaveChanges();
+                ProjectHistoryModel.CreateHistoryItem(calc.ProjectPositions.ProjectId, "Изменение расчета оборудования", new[] { oldcalc, calc }, user);
                 return calc.Id;
             }
         }
@@ -57,12 +65,13 @@ namespace SpeCalcDataAccessLayer.ProjectModels
         {
             using (var db = new SpeCalcEntities())
             {
-                var pos = db.ProjectPositionCalculations.Single(x => x.Id == id);
-                pos.Enabled = false;
-                pos.DeleteDate = DateTime.Now;
-                pos.DeleterSid = user.Sid;
-                pos.DeleterName = user.DisplayName;
+                var calc = db.ProjectPositionCalculations.Single(x => x.Id == id);
+                calc.Enabled = false;
+                calc.DeleteDate = DateTime.Now;
+                calc.DeleterSid = user.Sid;
+                calc.DeleterName = user.DisplayName;
                 db.SaveChanges();
+                ProjectHistoryModel.CreateHistoryItem(calc.ProjectPositions.ProjectId, "Удаление расчета оборудования", new[] { calc }, user);
             }
         }
     }

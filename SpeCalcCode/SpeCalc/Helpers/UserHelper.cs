@@ -495,7 +495,13 @@ namespace SpeCalc.Helpers
         [OutputCache(Duration = 3600)]
         public static IEnumerable<KeyValuePair<string, string>> GetManagersList()
         {
-            return AdHelper.GetUserListByAdGroup(AdGroup.SpeCalcProduct);
+            return AdHelper.GetUserListByAdGroup(AdGroup.SpeCalcManager);
+        }
+
+        [OutputCache(Duration = 3600)]
+        public static IEnumerable<KeyValuePair<string, string>> GetEngeneersList()
+        {
+            return AdHelper.GetUserListByAdGroup(AdGroup.SpeCalcEngeneer);
         }
     }
 }

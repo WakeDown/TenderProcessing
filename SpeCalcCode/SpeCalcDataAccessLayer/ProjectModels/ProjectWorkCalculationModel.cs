@@ -27,8 +27,12 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 calc.CreatorSid = user.Sid;
                 calc.CreatorName = user.DisplayName;
                 calc.CreateDate = DateTime.Now;
+                //calc.LastChangeDate = DateTime.Now;
+                //calc.LastChangerSid = user.Sid;
+                //calc.LastChangerName = user.DisplayName;
                 db.ProjectWorkCalculations.Add(calc);
                 db.SaveChanges();
+                ProjectHistoryModel.CreateHistoryItem(calc.ProjectWorks.ProjectId, "Добавление расчета работы", new[] { calc }, user);
                 return calc.Id;
             }
         }
@@ -45,7 +49,11 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 oldcalc.ExecutionTime = calc.ExecutionTime;
                 oldcalc.ExecutorName = calc.ExecutorName;
                 oldcalc.Comment = calc.Comment;
+                oldcalc.LastChangeDate = DateTime.Now;
+                oldcalc.LastChangerSid = user.Sid;
+                oldcalc.LastChangerName = user.DisplayName;
                 db.SaveChanges();
+                ProjectHistoryModel.CreateHistoryItem(calc.ProjectWorks.ProjectId, "Изменение расчета работы", new[] { oldcalc, calc }, user);
                 return calc.Id;
             }
         }
@@ -54,12 +62,13 @@ namespace SpeCalcDataAccessLayer.ProjectModels
         {
             using (var db = new SpeCalcEntities())
             {
-                var pos = db.ProjectWorkCalculations.Single(x => x.Id == id);
-                pos.Enabled = false;
-                pos.DeleteDate = DateTime.Now;
-                pos.DeleterSid = user.Sid;
-                pos.DeleterName = user.DisplayName;
+                var calc = db.ProjectWorkCalculations.Single(x => x.Id == id);
+                calc.Enabled = false;
+                calc.DeleteDate = DateTime.Now;
+                calc.DeleterSid = user.Sid;
+                calc.DeleterName = user.DisplayName;
                 db.SaveChanges();
+                ProjectHistoryModel.CreateHistoryItem(calc.ProjectWorks.ProjectId, "Удаление расчета работы", new[] { calc }, user);
             }
         }
     }

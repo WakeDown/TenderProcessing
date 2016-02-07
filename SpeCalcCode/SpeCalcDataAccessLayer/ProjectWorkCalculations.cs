@@ -34,6 +34,9 @@ namespace SpeCalcDataAccessLayer
         public Nullable<int> ExecutionTimeId { get; set; }
         public string ExecutionTime { get; set; }
         public string Comment { get; set; }
+        public Nullable<System.DateTime> LastChangeDate { get; set; }
+        public string LastChangerSid { get; set; }
+        public string LastChangerName { get; set; }
     
         public virtual ProjectCurrencies ProjectCurrencies { get; set; }
         public virtual ProjectWorkExecutinsTimes ProjectWorkExecutinsTimes { get; set; }

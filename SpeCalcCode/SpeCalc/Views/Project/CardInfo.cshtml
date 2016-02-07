@@ -66,8 +66,14 @@
     </div>
     <div class="form-group no-margin">
         <label for="" class="col-sm-4 control-label no-pad-top text-right">Вероятность</label>
-        <div class="col-sm-8 @(Model.Probability < 0 ? "bg-info" :  Model.Probability >= 0 && Model.Probability <= 30 ? "bg-success" : Model.Probability > 30 && Model.Probability <= 60 ? "bg-warning" : Model.Probability > 60 ? "bg-danger" : null )">
+        <div class="col-sm-8 @(Model.Probability < 0 ? "bg-info" : Model.Probability >= 0 && Model.Probability <= 30 ? "bg-success" : Model.Probability > 30 && Model.Probability <= 60 ? "bg-warning" : Model.Probability > 60 ? "bg-danger" : null )">
             @Model.Probability%
         </div>
     </div>
+    @if(Model.LastInfoChangeDate.HasValue)
+    {
+        <div class="text-xs text-danger">
+            изменено<br/>@(Model.LastInfoChangeDate.HasValue ? Model.LastInfoChangeDate.Value.ToString("dd.MM.yyyy HH:mm") : null) - @(Model.LastInfoChangerName)
+        </div>
+    }
 </div>

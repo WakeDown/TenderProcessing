@@ -72,6 +72,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             {
                 db.Dispose();
             }
+            ProjectHistoryModel.CreateHistoryItem(project.Id, "Изменение статуса проекта", new [] { project }, user);
         }
     }
 }

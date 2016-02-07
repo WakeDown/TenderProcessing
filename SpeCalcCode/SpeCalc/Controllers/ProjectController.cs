@@ -29,24 +29,26 @@ namespace SpeCalc.Controllers
         [HttpGet]
         public ActionResult New()
         {
-            return View();
+            var model = new Projects();
+            model.HasBudget = true;
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult New(Projects project)
         {
-            if (ModelState.IsValid)
-            {
+            //if (ModelState.IsValid)
+            //{
                 var manager = AdHelper.GetUserBySid(project.ManagerSid);
                 project.ManagerName = manager.DisplayName;
                 project.ManagerDepartmentName = manager.DepartmentName;
                 project.ManagerChiefName = manager.ChiefName;
                 project.ManagerChiefSid = manager.ChiefSid;
-                ProjectModel.Create(project, CurUser);
-                return RedirectToAction("Card", project.Id);
+                int id = ProjectModel.Create(project, CurUser);
+                return RedirectToAction("Card", new{ id= id});
                 
-            }
+            //}
 
             return View(project);
         }
@@ -301,7 +303,7 @@ namespace SpeCalc.Controllers
             return PartialView("Info", model);
         }
         [HttpPost]
-        public JsonResult GetSaleSubjectSelectionList(int id)
+        public JsonResult GetSaleSubjectSelectionList(int? id = null)
         {
             var list = ProjectHelper.GetSaleSubjectSelectionList(id);
             return Json(list);
@@ -599,6 +601,34 @@ namespace SpeCalc.Controllers
             {
                 FileDownloadName = $"ProjectCalculation_{project.Id}.xlsx"
             };
+        }
+
+        public PartialViewResult GetTeam(int? id)
+        {
+            if (!id.HasValue) return null;
+            var model = ProjectTeamModel.GetList(id.Value);
+            return PartialView("Team", model);
+        }
+        [HttpPost]
+        public JsonResult Add2Team(int pid, int rid, string userSid)
+        {
+            string userName = AdHelper.GetUserBySid(userSid).DisplayName;
+            ProjectTeamModel.Create(pid, rid, userSid, userName, CurUser);
+            return Json(new {});
+        }
+
+        public PartialViewResult GetRoleTeam(int? id, int? rid)
+        {
+            if (!id.HasValue || !rid.HasValue) return null;
+            var model = ProjectTeamModel.GetRoleList(id.Value, rid.Value);
+            return PartialView("RoleTeamList", model);
+        }
+
+        [HttpPost]
+        public JsonResult DeleteFromRoleTeam(int mid)
+        {
+            ProjectTeamModel.Delete(mid, CurUser);
+            return Json(new { });
         }
     }
 }

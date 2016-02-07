@@ -40,9 +40,13 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 work.CreatorSid = user.Sid;
                 work.CreatorName = user.DisplayName;
                 work.CreateDate = DateTime.Now;
+                //work.LastChangeDate = DateTime.Now;
+                //work.LastChangerSid = user.Sid;
+                //work.LastChangerName = user.DisplayName;
                 db.ProjectWorks.Add(work);
                 SetState(work, user, db);
                 db.SaveChanges();
+                ProjectHistoryModel.CreateHistoryItem(work.ProjectId, "Добавление работы", new[] { work }, user);
                 return work.Id;
             }
         }
@@ -57,7 +61,11 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 oldwork.QuantityUnitId = work.QuantityUnitId;
                 oldwork.CalculatorSid = work.CalculatorSid;
                 oldwork.CalculatorName = work.CalculatorName;
+                oldwork.LastChangeDate = DateTime.Now;
+                oldwork.LastChangerSid = user.Sid;
+                oldwork.LastChangerName = user.DisplayName;
                 db.SaveChanges();
+                ProjectHistoryModel.CreateHistoryItem(work.ProjectId, "Изменение работы", new[] { oldwork,work }, user);
             }
         }
 
@@ -76,6 +84,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 db.SaveChanges();
                 db.Dispose();
             }
+            ProjectHistoryModel.CreateHistoryItem(work.ProjectId, "Удаление работы", new[] { work }, user);
         }
 
         public static void Delete(int[] ids, AdUser user)
@@ -106,7 +115,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 db.SaveChanges();
                 db.Dispose();
             }
-
+            ProjectHistoryModel.CreateHistoryItem(work.ProjectId, "Изменение статуса работы", new[] { work }, user);
         }
 
         public static ProjectWorks Get(int id)

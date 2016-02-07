@@ -14,7 +14,8 @@ namespace SpeCalcDataAccessLayer.Objects
         SpeCalcManager,
         SpeCalcProduct,
         SpeCalcOperator,
-        SpeCalcKonkurs
+        SpeCalcKonkurs,
+        SpeCalcEngeneer
         // />
     }
 }

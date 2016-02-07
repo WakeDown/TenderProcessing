@@ -50,6 +50,8 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             {
                 db.Dispose();
             }
+
+            ProjectHistoryModel.CreateHistoryItem(project.Id, "Изменение состояния", new[] { project }, user);
         }
 
         public static void CreateConditionHistory(Projects project, string comment, SpeCalcEntities context = null)

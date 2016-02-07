@@ -38,6 +38,9 @@ namespace SpeCalcDataAccessLayer
         public Nullable<int> CurrencyId { get; set; }
         public string Provider { get; set; }
         public Nullable<decimal> RecomendedPrice { get; set; }
+        public Nullable<System.DateTime> LastChangeDate { get; set; }
+        public string LastChangerSid { get; set; }
+        public string LastChangerName { get; set; }
     
         public virtual ProjectCurrencies ProjectCurrencies { get; set; }
         public virtual ProjectCurrencies ProjectCurrencies1 { get; set; }

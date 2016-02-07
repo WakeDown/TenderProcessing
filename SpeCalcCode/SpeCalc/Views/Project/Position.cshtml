@@ -7,7 +7,7 @@
     var rowspan = (Model.HasCalculations && calculations.Count > 0 ? calculations.Count: 1);
 }
 
-<tr id="pos-@position.Id" name="pos" pid="@position.Id" style="background-color: @Model.Position.ProjectPositionStates.BackgroundColor">
+<tr id="pos-@position.Id" name="pos" pid="@position.Id" style=" background-color: @Model.Position.ProjectPositionStates.BackgroundColor">
     <td name="pos" class="min-widtd  text-center" rowspan="@rowspan">
             <input type="checkbox" name="posCheckbox" value="@position.Id"/>
     </td>
@@ -21,7 +21,15 @@
         <button type="button" name="editPosition" class="btn btn-warning btn-sm" data-toggle="tooltip" title="резактировать позицию" pid="@position.Id"><i class="fa fa-edit"></i></button>
         <button type="button" name="deletePosition" class="btn btn-danger btn-sm" data-toggle="tooltip" title="удалить позицию" pid="@position.Id"><i class="fa fa-trash"></i></button>
     </td>
-    <td name="pos" rowspan="@rowspan">@position.CatalogNumber</td>
+    <td name="pos" rowspan="@rowspan">
+        @position.CatalogNumber
+        @if (position.LastChangeDate.HasValue)
+        {
+            <div class="text-xs text-danger">
+                изменено<br />@(position.LastChangeDate.HasValue ? position.LastChangeDate.Value.ToString("dd.MM.yyyy HH:mm") : null) - @(position.LastChangerName)
+            </div>
+        }
+    </td>
     <td name="pos" rowspan="@rowspan">@position.Vendor</td>
     <td name="pos" style="width: 250px;" rowspan="@rowspan">@position.Name
     </td>

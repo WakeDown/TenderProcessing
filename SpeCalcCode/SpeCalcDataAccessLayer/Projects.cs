@@ -19,11 +19,12 @@ namespace SpeCalcDataAccessLayer
         {
             this.ProjectConditionHistory = new HashSet<ProjectConditionHistory>();
             this.ProjectFiles = new HashSet<ProjectFiles>();
+            this.ProjectMessages = new HashSet<ProjectMessages>();
             this.ProjectPositions = new HashSet<ProjectPositions>();
             this.ProjectStateHistory = new HashSet<ProjectStateHistory>();
             this.ProjectTeams = new HashSet<ProjectTeams>();
             this.ProjectWorks = new HashSet<ProjectWorks>();
-            this.ProjectMessages = new HashSet<ProjectMessages>();
+            this.ProjectHistory = new HashSet<ProjectHistory>();
         }
     
         public int Id { get; set; }
@@ -68,6 +69,9 @@ namespace SpeCalcDataAccessLayer
         public Nullable<System.DateTime> ConditionChangeDate { get; set; }
         public string ConditionChangerSid { get; set; }
         public string ConditionChangerName { get; set; }
+        public Nullable<System.DateTime> LastInfoChangeDate { get; set; }
+        public string LastInfoChangerSid { get; set; }
+        public string LastInfoChangerName { get; set; }
     
         public virtual ProjectBusinessTargets ProjectBusinessTargets { get; set; }
         public virtual ProjectClientRelationships ProjectClientRelationships { get; set; }
@@ -77,6 +81,8 @@ namespace SpeCalcDataAccessLayer
         public virtual ProjectCurrencies ProjectCurrencies { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProjectFiles> ProjectFiles { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ProjectMessages> ProjectMessages { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProjectPositions> ProjectPositions { get; set; }
         public virtual ProjectSaleDirections ProjectSaleDirections { get; set; }
@@ -89,6 +95,6 @@ namespace SpeCalcDataAccessLayer
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProjectWorks> ProjectWorks { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ProjectMessages> ProjectMessages { get; set; }
+        public virtual ICollection<ProjectHistory> ProjectHistory { get; set; }
     }
 }

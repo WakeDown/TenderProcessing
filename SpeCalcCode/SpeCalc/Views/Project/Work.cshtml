@@ -21,7 +21,14 @@ work
         <button type="button" name="editWork" class="btn btn-warning btn-sm" data-toggle="tooltip" title="резактировать позицию" wid="@work.Id"><i class="fa fa-edit"></i></button>
         <button type="button" name="deleteWork" class="btn btn-danger btn-sm" data-toggle="tooltip" title="удалить позицию" wid="@work.Id"><i class="fa fa-trash"></i></button>
     </td>
-    <td name="work" style="width: 250px;" rowspan="@rowspan">@work.Name
+    <td name="work" style="width: 250px;" rowspan="@rowspan">
+        @work.Name
+        @if (work.LastChangeDate.HasValue)
+        {
+            <div class="text-xs text-danger">
+                изменено<br/>@(work.LastChangeDate.HasValue ? work.LastChangeDate.Value.ToString("dd.MM.yyyy HH:mm") : null) - @(work.LastChangerName)
+            </div>
+        }
     </td>
     <td name="work" rowspan="@rowspan">@work.Quantity</td>
     <td name="work" rowspan="@rowspan">@work.ProjectWorkQuantityUnits.Name</td>

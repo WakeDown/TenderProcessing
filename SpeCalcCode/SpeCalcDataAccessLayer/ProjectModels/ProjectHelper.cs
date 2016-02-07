@@ -117,8 +117,9 @@ namespace SpeCalcDataAccessLayer.Models
             }
         }
         [OutputCache(Duration = 3600)]
-        public static IEnumerable<ProjectSaleSubjects> GetSaleSubjectList(int? idDirection)
+        public static IEnumerable<ProjectSaleSubjects> GetSaleSubjectList(int? idDirection=null)
         {
+            if (!idDirection.HasValue) return new List<ProjectSaleSubjects>();
             using (var db = new SpeCalcEntities())
             {
                 var list = db.ProjectSaleSubjects.Where(x => x.Enabled && x.IdSaleDirection == idDirection).OrderBy(x => x.OrderNum).ThenBy(x => x.Name).ToList();

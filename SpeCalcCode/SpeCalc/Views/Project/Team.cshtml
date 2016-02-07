@@ -1,0 +1,26 @@
+﻿@using SpeCalc.Helpers
+@using SpeCalcDataAccessLayer.Models
+@model IEnumerable<SpeCalcDataAccessLayer.ProjectModels.ProjectTeamModel>
+    
+@foreach (var item in Model)
+{
+    <div>
+        <h4>@item.Role.Name</h4>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="input-group">
+                @Html.DropDownList("RoleTeamUser", new SelectList(UserHelper.GetEngeneersList(), "Key", "Value"), "--выберите--", new {id = "RoleTeamUser", @class = "form-control input-sm", rid = item.Role.Id})
+                <div class="input-group-btn">
+                    <button name="add2Team" rid="@item.Role.Id" pid="@item.ProjectId" class="btn btn-success btn-sm">сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p>
+        <div id="role-team-@item.Role.Id">
+            @Html.Partial("RoleTeamList", item.Team)
+        </div>
+    </p>
+    <hr/>
+}

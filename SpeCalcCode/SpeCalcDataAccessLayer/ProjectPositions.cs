@@ -43,6 +43,9 @@ namespace SpeCalcDataAccessLayer
         public string StateChangerName { get; set; }
         public string Vendor { get; set; }
         public string CatalogNumber { get; set; }
+        public Nullable<System.DateTime> LastChangeDate { get; set; }
+        public string LastChangerSid { get; set; }
+        public string LastChangerName { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProjectPositionCalculations> ProjectPositionCalculations { get; set; }

@@ -2,7 +2,15 @@
 @model SpeCalcDataAccessLayer.ProjectWorkCalculations
 
 
-<td name="calc" calcol="calcol" cpid="@Model.Id">@Model.ExecutorName</td>
+<td name="calc" calcol="calcol" cpid="@Model.Id">
+    @Model.ExecutorName
+    @if (Model.LastChangeDate.HasValue)
+    {
+        <div class="text-xs text-danger">
+            изменено<br />@(Model.LastChangeDate.HasValue ? Model.LastChangeDate.Value.ToString("dd.MM.yyyy HH:mm") : null) - @(Model.LastChangerName)
+        </div>
+    }
+</td>
 <td name="calc" calcol="calcol" cpid="@Model.Id">@Model.Name</td>
 <td name="calc" calcol="calcol" cpid="@Model.Id">@(Model.Cost.HasValue ? Model.Cost.Value.ToString("F2") : null)</td>
 <td name="calc" calcol="calcol" cpid="@Model.Id">@(Model.CurrencyId.HasValue ? Model.ProjectCurrencies.Name : null)</td>

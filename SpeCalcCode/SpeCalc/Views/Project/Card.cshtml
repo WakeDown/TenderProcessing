@@ -14,6 +14,7 @@
                 <h4 class="marg-sm">
                     Крточка проекта №@Model.Id
                 </h4>
+                <button id="changeRoles" class="btn btn-danger btn-xs">роли</button>
             </li>
             <li id="conditionContainer">
                 
@@ -37,8 +38,10 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-4">
-                <h4 class="no-pad">Информация <a id="showInfo" class="btn btn-xs btn-info">вся инфа</a><button id="changeInfo" class="btn btn-warning btn-xs">изменить</button></h4>
-                
+                <h4 class="no-pad">Информация 
+                    <a id="showInfo" class="btn btn-xs btn-info">вся инфа</a>
+                    <button id="changeInfo" class="btn btn-warning btn-xs">изменить</button>
+                </h4>
                 <div class="clearfix"></div>
                 @Html.Partial("CardInfo", Model)
             </div>
@@ -236,12 +239,33 @@
                 <h4 class="modal-title">Комментарий для изменения состояния проекта №@Model.Id</h4>
             </div>
             <div class="modal-body">
-                <textarea id="conditionChangeModelComment" placeholder="Введите комментарий" class="form-control" rows="3"></textarea>
+                <textarea id="conditionChangeComment" placeholder="Введите комментарий" class="form-control" rows="3"></textarea>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
                 <button id="conditionChangeConfirm" class="btn btn-success">Подтвердить</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="changeRolesModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Роли проекта №@Model.Id</h4>
+            </div>
+            <div class="modal-body">
+                <div id="changeRolesContainer">
+                    
+                </div>
+            </div>
+            @*<div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
+                <button id="changeRolesConfirm" class="btn btn-success">Принять</button>
+            </div>*@
         </div>
     </div>
 </div>
@@ -278,7 +302,103 @@
 
         $('[name="positionCalcFilter"]').click(loadPositions);
         $('[name="workCalcFilter"]').click(loadWorks);
+        $('#changeRoles').click(changeRoles);
     });
+
+    function changeRoles() {
+        $('#changeRolesModal').modal('show');
+        var $cont = $('#changeRolesContainer');
+        $cont.html('');
+        showSpinner($cont);
+        $.ajax({
+            url: '@Url.Action("GetTeam")',
+            method: 'GET',
+            data: {id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                //$('#changeRolesConfirm').click(changeRolesConfirm);
+                $('[name="add2Team"]').click(add2Team);
+                $('[name="deleteRoleMember"]').click(deleteRoleMember);
+                hideSpinner($cont);
+            },
+            error:function(data) {
+                alert('Ошибка при загрузке команды проекта!');
+                console.log(data);
+                hideSpinner($cont);
+            }
+        });
+    }
+
+    function add2Team() {
+        var $this = $(this);
+        var pid = $this.attr('pid');
+        var rid = $this.attr('rid');
+        var $select = $('[name=RoleTeamUser][rid=' + rid + ']');
+        var userSid = $select.val();;
+        if (!userSid) {
+            alert('Выберите пользователя!');
+            $select.focus();
+            return;
+        }
+        showSpinnerAppendAndDisable($this);
+        $.ajax({
+            url: '@Url.Action("Add2Team")',
+            method: 'POST',
+            data: { pid: pid, rid:rid, userSid:userSid },
+            success: function() {
+                loadRoleTeam(rid);
+                $select.val('');
+                hideSpinnerAndEnabled($this);
+            },
+            error: function(data) {
+                alert('Ошибка при добавлении в команду!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
+
+    function loadRoleTeam(rid) {
+        var $cont = $('#role-team-' + rid);
+        $cont.html('');
+        showSpinner($cont);
+        $.ajax({
+            url: '@Url.Action("GetRoleTeam")',
+            method: 'GET',
+            data: {id:@Model.Id, rid:rid},
+            success: function(html) {
+                $cont.html(html);
+                $('[name="deleteRoleMember"]').click(deleteRoleMember);
+                hideSpinner($cont);
+            },
+            error:function(data) {
+                alert('Ошибка при загрузке команды роли!');
+                console.log(data);
+                hideSpinner($cont);
+            }
+        });
+    }
+
+    function deleteRoleMember() {
+        if (!confirm('Вы уверены что хотите исключить пользователя из роли проекта?'))return;
+        var $this = $(this);
+        var mid = $this.attr('mid');
+        var rid = $this.attr('rid');
+        $.ajax({
+            url: '@Url.Action("DeleteFromRoleTeam")',
+            method: 'POST',
+            data: { mid: mid },
+            success: function() {
+                loadRoleTeam(rid);
+                hideSpinnerAndEnabled($this);
+            },
+            error: function(data) {
+                alert('Ошибка при удалении из роли проекта!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
 
     function worksCheckAll () {
         $('input[name="workCheckbox"]').prop('checked', $('#worksCheckAll').is(':checked'));
@@ -352,13 +472,13 @@
         $('#conditionChangeConfirm').click(function () {
             $this = $(this);
             showSpinnerAppendAndDisable($this);
-            var comment = $('#conditionChangeModelComment').val();
+            var comment = $('#conditionChangeComment').val();
             $.ajax({
                 url: '@Url.Action("ChangeCondition")',
                 method: 'POST',
                 data: { pid: pid, cid: cid, comment: comment },
                 success: function () {
-                    $('#conditionChangeModelComment').val('');
+                    $('#conditionChangeComment').val('');
                     loadCondition();
                     $('#conditionChangeModal').modal('hide');
                     hideSpinnerAndEnabled($this);

@@ -108,28 +108,31 @@
     <Compile Include="Models\PositionUnit.cs" />
     <Compile Include="Models\ProductManager.cs" />
     <Compile Include="ProjectBusinessTargets.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectClientRelationships.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectConditionHistory.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectConditions.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectCurrencies.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectFiles.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectFolders.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectHistory.cs">
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectMessages.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectModels\ProjectConditionModel.cs" />
     <Compile Include="ProjectModels\ProjectFileModel.cs" />
@@ -146,122 +149,119 @@
     <Compile Include="Models\UserBase.cs" />
     <Compile Include="Models\UserRole.cs" />
     <Compile Include="ProjectModels\DbModel.cs" />
+    <Compile Include="ProjectModels\ProjectHistoryModel.cs" />
     <Compile Include="ProjectModels\ProjectMessageModel.cs" />
     <Compile Include="ProjectModels\ProjectModel.cs" />
     <Compile Include="ProjectModels\ProjectPositionCalculationModel.cs" />
+    <Compile Include="ProjectModels\ProjectTeamModel.cs" />
     <Compile Include="ProjectModels\ProjectWorkCalculationModel.cs" />
     <Compile Include="ProjectModels\ProjectWorkModel.cs" />
     <Compile Include="ProjectModels\ProjectPositionModel.cs" />
     <Compile Include="ProjectModels\ProjectStateModel.cs" />
     <Compile Include="ProjectPositionCalculations.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectPositionDeliveryTimes.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectPositionQuantityUnits.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectPositions.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectPositionStateHistory.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectPositionStates.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectProtectionFacts.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectRoles.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Projects.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectSaleDirectionResponsibles.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectSaleDirections.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectSaleSubjects.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectStateHistory.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectStates.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectTeams.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectWorkCalculations.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectWorkExecutinsTimes.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectWorkQuantityUnits.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectWorks.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectWorkStateHistory.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectWorkStates.cs">
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SpeCalcProjectModel.Context.cs">
+    <Compile Include="SpeCalcModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>SpeCalcProjectModel.Context.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.Context.tt</DependentUpon>
     </Compile>
-    <Compile Include="SpeCalcProjectModel.cs">
+    <Compile Include="SpeCalcModel.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="SpeCalcProjectModel.Designer.cs">
+    <Compile Include="SpeCalcModel.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>SpeCalcProjectModel.edmx</DependentUpon>
-    </Compile>
-    <Compile Include="SpeCalcProjectModel1.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>SpeCalcProjectModel.tt</DependentUpon>
+      <DependentUpon>SpeCalcModel.edmx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.Config" />
     <None Include="packages.config" />
-    <EntityDeploy Include="SpeCalcProjectModel.edmx">
+    <EntityDeploy Include="SpeCalcModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>SpeCalcProjectModel.Designer.cs</LastGenOutput>
+      <LastGenOutput>SpeCalcModel.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <None Include="SpeCalcProjectModel.edmx.diagram">
-      <DependentUpon>SpeCalcProjectModel.edmx</DependentUpon>
+    <None Include="SpeCalcModel.edmx.diagram">
+      <DependentUpon>SpeCalcModel.edmx</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SpeCalcProjectModel.Context.tt">
+    <Content Include="SpeCalcModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>SpeCalcProjectModel.edmx</DependentUpon>
-      <LastGenOutput>SpeCalcProjectModel.Context.cs</LastGenOutput>
+      <DependentUpon>SpeCalcModel.edmx</DependentUpon>
+      <LastGenOutput>SpeCalcModel.Context.cs</LastGenOutput>
     </Content>
-    <Content Include="SpeCalcProjectModel.tt">
+    <Content Include="SpeCalcModel.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>SpeCalcProjectModel.edmx</DependentUpon>
-      <LastGenOutput>SpeCalcProjectModel1.cs</LastGenOutput>
+      <DependentUpon>SpeCalcModel.edmx</DependentUpon>
+      <LastGenOutput>SpeCalcModel.cs</LastGenOutput>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

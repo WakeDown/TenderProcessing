@@ -40,9 +40,13 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 position.CreatorSid = user.Sid;
                 position.CreatorName = user.DisplayName;
                 position.CreateDate = DateTime.Now;
+                //position.LastChangeDate = DateTime.Now;
+                //position.LastChangerSid = user.Sid;
+                //position.LastChangerName = user.DisplayName;
                 db.ProjectPositions.Add(position);
                 SetState(position, user, db);
                 db.SaveChanges();
+                ProjectHistoryModel.CreateHistoryItem(position.ProjectId, "Добавление оборудования", new[] { position }, user);
                 return position.Id;
             }
         }
@@ -59,7 +63,11 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 oldpos.QuantityUnitId = position.QuantityUnitId;
                 oldpos.CalculatorSid = position.CalculatorSid;
                 oldpos.CalculatorName = position.CalculatorName;
+                oldpos.LastChangeDate = DateTime.Now;
+                oldpos.LastChangerSid = user.Sid;
+                oldpos.LastChangerName = user.DisplayName;
                 db.SaveChanges();
+                ProjectHistoryModel.CreateHistoryItem(position.ProjectId, "Изменение оборудования", new[] { oldpos, position }, user);
             }
         }
 
@@ -79,6 +87,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 db.SaveChanges();
                 db.Dispose();
             }
+            ProjectHistoryModel.CreateHistoryItem(pos.ProjectId, "Удаление оборудования", new[] { pos }, user);
         }
 
         public static void Delete(int[] ids, AdUser user)
@@ -109,6 +118,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 db.SaveChanges();
                 db.Dispose();
             }
+            ProjectHistoryModel.CreateHistoryItem(position.ProjectId, "Изменение статуса оборудования", new[] { position }, user);
         }
 
         public static ProjectPositions Get(int id)

@@ -1,8 +1,14 @@
-﻿
-@model SpeCalcDataAccessLayer.ProjectPositionCalculations
+﻿@model SpeCalcDataAccessLayer.ProjectPositionCalculations
 
-
-<td name="calc" calcol="calcol" cpid="@Model.Id">@Model.CatalogNumber</td>
+<td name="calc" calcol="calcol" cpid="@Model.Id">
+    @Model.CatalogNumber
+    @if (Model.LastChangeDate.HasValue)
+    {
+        <div class="text-xs text-danger">
+            изменено<br />@(Model.LastChangeDate.HasValue ? Model.LastChangeDate.Value.ToString("dd.MM.yyyy HH:mm") : null) - @(Model.LastChangerName)
+        </div>
+    }
+</td>
 <td name="calc" calcol="calcol" cpid="@Model.Id">@Model.Name</td>
 @*<td name="calc" cpid="@Model.Id"><span class="small" name="priceOnlineInfo" catnum="@Model.CatalogNumber"></span></td>*@
 <td name="calc" calcol="calcol" cpid="@Model.Id">@(Model.Cost.HasValue ? Model.Cost.Value.ToString("F2") : null)</td>
