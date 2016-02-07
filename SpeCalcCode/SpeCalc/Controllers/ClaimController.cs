@@ -1251,7 +1251,6 @@ namespace SpeCalc.Controllers
             var message = string.Empty;
             try
             {
-                
                 //получение позиций по заявке и расчетов к ним
                 var db = new DbEngine();
                 var positions = SpecificationPosition.GetListWithCalc(claimId, cv);//db.LoadSpecificationPositionsForTenderClaim(claimId, cv);

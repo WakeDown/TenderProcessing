@@ -14,10 +14,6 @@
                 <h4 class="marg-sm">
                     Крточка проекта №@Model.Id
                 </h4>
-
-            </li>
-            <li class="pull-left">
-                <button id="changeInfo" class="btn btn-warning btn-xs">изменить</button>
             </li>
             <li id="conditionContainer">
                 
@@ -28,20 +24,20 @@
                 <button id="projectStop" class="btn btn-danger"><i class="fa fa-stop"></i> отклонить</button>
             </li>
         </ul>
-        <ul class="list-inline no-margin">
+        @*<ul class="list-inline no-margin">
             <li>
                 <div>
                     <strong>@(Model.ClientName)</strong><br />
                     <small>@(Model.Budget.HasValue ? Model.Budget.Value.ToString("F2") : null) @(Model.CurrencyId.HasValue ? Model.ProjectCurrencies.Name : null)</small>
                 </div>
             </li>
-        </ul>
+        </ul>*@
         
     </div>
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-4">
-                <h4 class="no-pad">Информация <a id="showInfo" class="btn btn-xs btn-info">вся инфа</a></h4>
+                <h4 class="no-pad">Информация <a id="showInfo" class="btn btn-xs btn-info">вся инфа</a><button id="changeInfo" class="btn btn-warning btn-xs">изменить</button></h4>
                 
                 <div class="clearfix"></div>
                 @Html.Partial("CardInfo", Model)
@@ -61,12 +57,11 @@
                             <button type="button" id="sendMessage" class="btn btn-success btn-lg pull-right"><i class="fa fa-comment"></i></button>
                         </div>
                     </div>
-                    
                 </div>
                 <div id="messagesContainer"></div>
             </div>
             <div class="col-lg-3">
-                <h4 class="no-pad">История
+                <h4 class="no-pad">Статус
                 </h4>
                 <div id="historyContainer"></div>
             </div>
@@ -76,10 +71,13 @@
             <ul class="list-inline">
                 @*<li><span class="h4">Расчет</span></li>*@
                 <li>
-                    <a id="addPosition" class="btn btn-sm btn-warning"><i class="fa fa-plus"></i> добавить оборудование</a>
+                    <a name="addPosition" class="btn btn-sm btn-warning"><i class="fa fa-plus"></i> добавить оборудование</a>
                 </li>
                 <li>
-                    <a id="addWork" class="btn btn-sm btn-warning"><i class="fa fa-plus"></i> добавить работу</a>
+                    <a name="addWork" class="btn btn-sm btn-warning"><i class="fa fa-plus"></i> добавить работу</a>
+                </li>
+                <li>
+                    <a href="@Url.Action("GetCalculationExcel")?id=@Model.Id" target="_blank" class="btn btn-sm btn-primary"><i class="fa fa-file-excel-o"></i> скачать расчет</a>
                 </li>
                 <li class=" pull-right">
                     <a id="displayCalcs" class="btn btn-sm btn-info">показать расчеты</a>
@@ -92,12 +90,15 @@
                     <a class="btn btn-link btn-sm" style="position: absolute; bottom: -18px; left: -5px;" data-toggle="collapse" data-target="#positionTableContainer">скрыть/показать</a>
                 </li>
                 <li>
-                    <span id="totalPositions" class="text-info h4">0</span> / <span id="calcedPositions" class="text-success h4">0</span> / <span id="notCalcedPositions" class="text-danger h4">0</span>
+                    <span id="totalPositions" class="text-info h4 bold">0</span> / <span id="calcedPositions" class="text-success h4 bold">0</span> / <span id="notCalcedPositions" class="text-danger h4 bold">0</span>
                 </li>
                 <li>
-                    <input name="positionClacFilter" type="radio" value="" checked="checked"/> все
-                    <input name="positionClacFilter" type="radio" value="1"/> расчитанные
-                    <input name="positionClacFilter" type="radio" value="0" /> нерасчитанные
+                    <input name="positionCalcFilter" type="radio" value="" checked="checked"/> все
+                    <input name="positionCalcFilter" type="radio" value="1"/> расчитанные
+                    <input name="positionCalcFilter" type="radio" value="0"/> нерасчитанные
+                </li>
+                <li class="pull-right">
+                    <button id="deleteCheckedPositions" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> удалить отмеченные</button>
                 </li>
             </ul>
         <div id="positionTableContainer" class="collapse in" style="overflow-x: scroll;">
@@ -107,6 +108,7 @@
                 </thead>
                 <tbody id="positionsContainer"></tbody>
             </table>
+            <a name="addPosition" class="btn btn-sm btn-warning"><i class="fa fa-plus"></i> добавить оборудование</a>
         </div>
         
         <hr />
@@ -115,21 +117,25 @@
                 <a class="btn btn-link btn-sm" style="position: absolute; bottom: -18px; left: -5px;" data-toggle="collapse" data-target="#workTableContainer">скрыть/показать</a>
             </li>
             <li>
-                <span id="totalWorks" class="text-info h4">0</span> / <span id="calcedWorks" class="text-success h4">0</span> / <span id="notCalcedWorks" class="text-danger h4">0</span>
+                <span id="totalWorks" class="text-info h4 bold">0</span> / <span id="calcedWorks" class="text-success h4 bold">0</span> / <span id="notCalcedWorks" class="text-danger h4 bold">0</span>
             </li>
             <li>
-                <input name="workClacFilter" type="radio" value="" checked="checked" /> все
-                <input name="workClacFilter" type="radio" value="1" /> расчитанные
-                <input name="workClacFilter" type="radio" value="0" /> нерасчитанные
+                <input name="workCalcFilter" type="radio" value="" checked="checked"/> все
+                <input name="workCalcFilter" type="radio" value="1"/> расчитанные
+                <input name="workCalcFilter" type="radio" value="0"/> нерасчитанные
+            </li>
+            <li class="pull-right">
+                <button id="deleteCheckedWorks" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> удалить отмеченные</button>
             </li>
         </ul>
         <div id="workTableContainer" class="collapse in" style="overflow-x: scroll">
             <table id="workTable" class="table small table-bordered">
                 <thead>
-                    @Html.Partial("WorkHeader")
+                @Html.Partial("WorkHeader")
                 </thead>
                 <tbody id="worksContainer"></tbody>
             </table>
+            <a name="addWork" class="btn btn-sm btn-warning"><i class="fa fa-plus"></i> добавить работу</a>
         </div>
     </div>
 </div>
@@ -221,6 +227,25 @@
     </div>
 </div>
 
+<div id="conditionChangeModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Комментарий для изменения состояния проекта №@Model.Id</h4>
+            </div>
+            <div class="modal-body">
+                <textarea id="conditionChangeModelComment" placeholder="Введите комментарий" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
+                <button id="conditionChangeConfirm" class="btn btn-success">Подтвердить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     var showCalcs = false;
     $(function() {
@@ -238,14 +263,114 @@
         $('#changeInfo').click(changeInfo);
         $('#showInfo').click(showInfo);
         loadPositions();
-        $('#addPosition').click(addPosition);
+        $('[name=addPosition]').click(addPosition);
         loadWorks();
-        $('#addWork').click(addWork);
+        $('[name=addWork]').click(addWork);
         $('#displayCalcs').click(function() {
             showCalcs = !showCalcs;
             displayCalcs();
         });
+        $('#deleteCheckedPositions').click(deleteCheckedPositions);
+        $('#positionsCheckAll').click(positionsCheckAll);
+
+        $('#deleteCheckedWorks').click(deleteCheckedWorks);
+        $('#worksCheckAll').click(worksCheckAll);
+
+        $('[name="positionCalcFilter"]').click(loadPositions);
+        $('[name="workCalcFilter"]').click(loadWorks);
     });
+
+    function worksCheckAll () {
+        $('input[name="workCheckbox"]').prop('checked', $('#worksCheckAll').is(':checked'));
+    }
+
+    function deleteCheckedWorks() {
+        if (!confirm('Вы действительно хотите удалить отмеченные работы?'))return;
+        var $this = $(this);
+        showSpinnerAppendAndDisable($this);
+        var $rows = $('#worksContainer tr[name="work"]:has(input:checked)');
+        var ids = [];
+        for(var i=0;i<$rows.length;i++) {
+            ids.push($($rows[i]).attr('wid'));
+        }
+        $.ajax({
+            url: '@Url.Action("DeleteWorks")',
+            method: 'POST',
+            contentType:'application/json',
+            data: JSON.stringify({ ids: ids }),
+            success: function() {
+                for(var j=0;j<ids.length;j++) {
+                    $('tr[wid=' + ids[j] + ']').remove();
+                }
+                hideSpinnerAndEnabled($this);
+            },
+            error: function(data) {
+                alert('Ошибка при удалении работ!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
+
+    function positionsCheckAll() {
+        $('input[name="posCheckbox"]').prop('checked', $('#positionsCheckAll').is(':checked'));
+    }
+
+    function deleteCheckedPositions() {
+        if (!confirm('Вы действительно хотите удалить отмеченное оборудование?'))return;
+        var $this = $(this);
+        showSpinnerAppendAndDisable($this);
+        var $rows = $('#positionsContainer tr[name="pos"]:has(input:checked)');
+        var ids = [];
+        for(var i=0;i<$rows.length;i++) {
+            ids.push($($rows[i]).attr('pid'));
+        }
+        $.ajax({
+            url: '@Url.Action("DeletePositions")',
+            method: 'POST',
+            contentType:'application/json',
+            data: JSON.stringify({ ids: ids }),
+            success: function() {
+                for(var j=0;j<ids.length;j++) {
+                    $('tr[pid=' + ids[j] + ']').remove();
+                }
+                hideSpinnerAndEnabled($this);
+            },
+            error: function(data) {
+                alert('Ошибка при удалении оборудования!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
+
+    function setCondition() {
+        var $this = $(this);
+        var cid = $this.attr('cid');
+        var pid = $this.attr('pid');
+        $('#conditionChangeModal').modal('show');
+        $('#conditionChangeConfirm').click(function () {
+            $this = $(this);
+            showSpinnerAppendAndDisable($this);
+            var comment = $('#conditionChangeModelComment').val();
+            $.ajax({
+                url: '@Url.Action("ChangeCondition")',
+                method: 'POST',
+                data: { pid: pid, cid: cid, comment: comment },
+                success: function () {
+                    $('#conditionChangeModelComment').val('');
+                    loadCondition();
+                    $('#conditionChangeModal').modal('hide');
+                    hideSpinnerAndEnabled($this);
+                },
+                error:function(data) {
+                    alert('Лшибка при изменении состояния!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        });
+    }
 
     function loadCondition() {
         var $cont = $('#conditionContainer');
@@ -257,10 +382,12 @@
             data: {id:@Model.Id},
             success: function(html) {
                 $cont.html(html);
+                $('[name="project-condition"]').click(setCondition);
+                $('[data-toggle="popover"]').popover();
                 hideSpinner($cont);
             },
             error:function(data) {
-                alert('Ошибка при загрузке истории статусов проекта!');
+                alert('Ошибка при загрузке состояний проекта!');
                 console.log(data);
                 hideSpinner($cont);
             }
@@ -591,13 +718,19 @@
 
 
     function loadWorks() {
+        loadWorkCounts();
+        var calced = $('[name="workCalcFilter"]:checked').val();
+        if (calced == 'all')calced = null;
+        if (calced == '1')calced = true;
+        if (calced == '0')calced = false;
+
         var $cont = $('#worksContainer');
         $cont.html('');
         showSpinner($cont);
         $.ajax({
             url: '@Url.Action("GetWorks")',
             method: 'GET',
-            data:{id:@Model.Id},
+            data:{id:@Model.Id, calced:calced},
             success: function(html) {
                 $cont.html(html);
                 displayCalcs();
@@ -609,6 +742,23 @@
                 alert('Ошибка при загрузке позиций!');
                 console.log(data);
                 hideSpinner($cont);
+            }
+        });
+    }
+
+    function loadWorkCounts() {
+        $.ajax({
+            url: '@Url.Action("GetWorkCounts")',
+            method: 'POST',
+            data:{id:@Model.Id},
+            success: function(data) {
+                $('#totalWorks').text(data.total);
+                $('#calcedWorks').text(data.calced);
+                $('#notCalcedWorks').text(data.notCalced);
+            },
+            error: function(data) {
+                alert(data);
+                console.log(data);
             }
         });
     }
@@ -628,6 +778,7 @@
                 hideSpinnerAndEnabled($this);
                 $('[name="WorkName"]').focus();
                 $('[name="createWork"]').click(saveNewWork);
+                $('[name="createWorkCancel"]').click(createWorkCancel);
             },
             error: function(data) {
                 alert('Ошибка при добавлении работы!');
@@ -635,6 +786,10 @@
                 hideSpinnerAndEnabled($this);
             }
         });
+    }
+
+    function createWorkCancel() {
+        $(this).closest('tr').remove();
     }
 
     function getWorkValues($row) {
@@ -1000,13 +1155,19 @@
     @*Оборудование*@
 
     function loadPositions() {
+        loadPositionCounts();
+        var calced = $('[name="positionCalcFilter"]:checked').val();
+        if (calced == 'all')calced = null;
+        if (calced == '1')calced = true;
+        if (calced == '0')calced = false;
+
         var $cont = $('#positionsContainer');
         $cont.html('');
         showSpinner($cont);
         $.ajax({
             url: '@Url.Action("GetPositions")',
             method: 'GET',
-            data:{id:@Model.Id},
+            data:{id:@Model.Id, calced:calced},
             success: function(html) {
                 $cont.html(html);
                 displayCalcs();
@@ -1018,6 +1179,23 @@
                 alert('Ошибка при загрузке позиций!');
                 console.log(data);
                 hideSpinner($cont);
+            }
+        });
+    }
+
+    function loadPositionCounts() {
+        $.ajax({
+            url: '@Url.Action("GetPositionCounts")',
+            method: 'POST',
+            data:{id:@Model.Id},
+            success: function(data) {
+                $('#totalPositions').text(data.total);
+                $('#calcedPositions').text(data.calced);
+                $('#notCalcedPositions').text(data.notCalced);
+            },
+            error: function(data) {
+                alert(data);
+                console.log(data);
             }
         });
     }
@@ -1035,8 +1213,9 @@
                 $cont.append(html);
                 displayCalcs();
                 hideSpinnerAndEnabled($this);
-                $('[name="newPositionCatalogNumber"]').focus();
+                $('[name="PositionCatalogNumber"]').focus();
                 $('[name="createPosition"]').click(saveNewPosition);
+                $('[name="createPositionCancel"]').click(createPositionCancel);
             },
             error: function(data) {
                 alert('Ошибка при добавлении позиции!');
@@ -1044,6 +1223,10 @@
                 hideSpinnerAndEnabled($this);
             }
         });
+    }
+
+    function createPositionCancel() {
+        $(this).closest('tr').remove();
     }
 
     function getPositionValues($row) {

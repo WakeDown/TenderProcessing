@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using ClosedXML.Excel;
 using DocumentFormat.OpenXml.EMMA;
 using SpeCalc.Helpers;
 using SpeCalc.Objects;
@@ -83,10 +84,10 @@ namespace SpeCalc.Controllers
             return PartialView("PositionCalculationEdit", model);
         }
 
-        public PartialViewResult GetPositions(int? id)
+        public PartialViewResult GetPositions(int? id, bool? calced)
         {
             if (!id.HasValue) return null;
-            var model = ProjectPositionModel.GetListWithCalc(id.Value);
+            var model = ProjectPositionModel.GetListWithCalc(id.Value, calced);
             return PartialView("Positions", model);
         }
 
@@ -145,6 +146,13 @@ namespace SpeCalc.Controllers
         }
 
         [HttpPost]
+        public JsonResult DeletePositions(int[] ids)
+        {
+            ProjectPositionModel.Delete(ids, CurUser);
+            return Json(new { });
+        }
+
+        [HttpPost]
         public JsonResult CreateCalculation(ProjectPositionCalculations model)
         {
             int id = ProjectPositionCalculationModel.Create(model, CurUser);
@@ -174,10 +182,10 @@ namespace SpeCalc.Controllers
         }
 
         //Работы
-        public PartialViewResult GetWorks(int? id)
+        public PartialViewResult GetWorks(int? id, bool? calced)
         {
             if (!id.HasValue) return null;
-            var model = ProjectWorkModel.GetListWithCalc(id.Value);
+            var model = ProjectWorkModel.GetListWithCalc(id.Value, calced);
             return PartialView("Works", model);
         }
 
@@ -238,6 +246,13 @@ namespace SpeCalc.Controllers
         public JsonResult DeleteWork(int id)
         {
             ProjectWorkModel.Delete(id, CurUser);
+            return Json(new { });
+        }
+
+        [HttpPost]
+        public JsonResult DeleteWorks(int[] ids)
+        {
+            ProjectWorkModel.Delete(ids, CurUser);
             return Json(new { });
         }
 
@@ -425,6 +440,165 @@ namespace SpeCalc.Controllers
             if (!id.HasValue) return null;
             var model = ProjectConditionModel.GetList(id.Value);
             return PartialView("IndicatorBig", model);
+        }
+        [HttpPost]
+        public JsonResult ChangeCondition(int pid, int cid, string comment)
+        {
+            ProjectModel.SetCondition(pid, cid, comment, CurUser);
+            return Json(new {});
+        }
+        [HttpPost]
+        public JsonResult DeleteFile(string guid)
+        {
+            ProjectFileModel.Delete(guid, CurUser);
+            return Json(new { });
+        }
+
+        [HttpPost]
+        public JsonResult GetPositionCounts(int id)
+        {
+            var list = ProjectModel.GetPositionCounts(id);
+            return Json(new
+            {
+                total = list.SingleOrDefault(x => x.Key == "total").Value,
+                calced = list.SingleOrDefault(x => x.Key == "calced").Value,
+                notCalced = list.SingleOrDefault(x => x.Key == "notCalced").Value
+            });
+        }
+
+        [HttpPost]
+        public JsonResult GetWorkCounts(int id)
+        {
+            var list = ProjectModel.GetWorkCounts(id);
+            return Json(new
+            {
+                total = list.SingleOrDefault(x => x.Key == "total").Value,
+                calced = list.SingleOrDefault(x => x.Key == "calced").Value,
+                notCalced = list.SingleOrDefault(x => x.Key == "notCalced").Value
+            });
+        }
+
+        public ActionResult GetCalculationExcel(int? id)
+        {
+            if (!id.HasValue) return null;
+
+            var project = ProjectModel.GetFat(id.Value);
+
+            var ms = new MemoryStream();
+            var filePath = Path.Combine(Server.MapPath("~"), "App_Data", "ProjectCalculation.xlsx");
+            using (var fs = System.IO.File.OpenRead(filePath))
+            {
+                var buffer = new byte[fs.Length];
+                fs.Read(buffer, 0, buffer.Count());
+                ms.Write(buffer, 0, buffer.Count());
+                ms.Seek(0, SeekOrigin.Begin);
+            }
+
+            XLWorkbook wb = new XLWorkbook(ms);
+            var ws = wb.Worksheet(1);
+
+            int r = 1;
+            int c = 4;
+            ws.Cell(r, c).Value = project.ClientName;
+            ws.Cell(++r, c).Value = project.HasBudget ? $"{project.Budget:F2}" + (project.CurrencyId.HasValue ? project.ProjectCurrencies.Name : null) : "неизвествен";
+            ws.Cell(++r, c).Value = project.SaleDirectionId.HasValue ?  project.ProjectSaleDirections.Name : null;
+            ws.Cell(++r, c).Value = project.SaleSubjectId.HasValue ? project.ProjectSaleSubjects.Name : null;
+            ws.Cell(++r, c).Value = project.ManagerName;
+            ws.Cell(++r, c).Value = project.Comment;
+
+
+            var positions = ProjectPositionModel.GetListWithCalc(id.Value);
+            
+            int i = 0;
+            r++;
+            
+            foreach (var pos in positions)
+            {
+                r++;
+                i++;
+                c = 0;
+                ws.Cell(r, ++c).Value = i;
+                ws.Cell(r, ++c).Value = pos.Position.CatalogNumber;
+                ws.Cell(r, ++c).Value = pos.Position.Vendor;
+                ws.Cell(r, ++c).Value = pos.Position.Name;
+                ws.Cell(r, ++c).Value = pos.Position.Quantity;
+                ws.Cell(r, ++c).Value = pos.Position.ProjectPositionQuantityUnits.Name;
+                ws.Cell(r, ++c).Value = pos.Position.CalculatorName;
+                var calcCol = c;
+
+                if (pos.HasCalculations)
+                {
+                    foreach (var calc in pos.Calculations)
+                    {
+                        c = calcCol;
+                        ws.Cell(r, ++c).Value = calc.CatalogNumber;
+                        ws.Cell(r, ++c).Value = calc.Name;
+                        ws.Cell(r, ++c).Value = calc.DeliveryTimeId.HasValue
+                            ? calc.ProjectPositionDeliveryTimes.Name
+                            : null;
+                        ws.Cell(r, ++c).Value = calc.Cost.HasValue ? calc.Cost.Value.ToString("F2") : null;
+                        ws.Cell(r, ++c).Value = calc.CurrencyId.HasValue ? calc.ProjectCurrencies.Name : null;
+                        ws.Cell(r, ++c).Value = calc.RecomendedPrice.HasValue
+                            ? calc.RecomendedPrice.Value.ToString("F2")
+                            : null;
+                        ws.Cell(r, ++c).Value = calc.Provider;
+                        ws.Cell(r, ++c).Value = calc.ProtectionFactId.HasValue ? calc.ProjectProtectionFacts.Name : null;
+                        ws.Cell(r, ++c).Value = calc.ProtectionFactCondition;
+                        ws.Cell(r, ++c).Value = calc.Comment;
+                        r++;
+                    }
+                    r--;
+                }
+            }
+
+            var works = ProjectWorkModel.GetListWithCalc(id.Value);
+
+            foreach (var work in works)
+            {
+                r++;
+                i++;
+                c = 0;
+                ws.Cell(r, ++c).Value = i;
+                c++;//ws.Cell(r, ++c).Value = pos.Position.CatalogNumber;
+                c++;//ws.Cell(r, ++c).Value = pos.Position.Vendor;
+                ws.Cell(r, ++c).Value = work.Work.Name;
+                ws.Cell(r, ++c).Value = work.Work.Quantity;
+                ws.Cell(r, ++c).Value = work.Work.ProjectWorkQuantityUnits.Name;
+                ws.Cell(r, ++c).Value = work.Work.CalculatorName;
+                var calcCol = c;
+                if (work.HasCalculations)
+                {
+                    foreach (var calc in work.Calculations)
+                    {
+                        c = calcCol;
+                        c++; //ws.Cell(r, ++c).Value = calc.ExecutorName;
+                        ws.Cell(r, ++c).Value = calc.Name;
+                        ws.Cell(r, ++c).Value = calc.ExecutionTimeId.HasValue
+                            ? calc.ProjectWorkExecutinsTimes.Name
+                            : null;
+                        ws.Cell(r, ++c).Value = calc.Cost.HasValue ? calc.Cost.Value.ToString("F2") : null;
+                        ws.Cell(r, ++c).Value = calc.CurrencyId.HasValue ? calc.ProjectCurrencies.Name : null;
+                        c++;
+                            //ws.Cell(r, ++c).Value = calc.RecomendedPrice.HasValue ? calc.RecomendedPrice.Value.ToString("F2") : null;
+                        ws.Cell(r, ++c).Value = calc.ExecutorName;
+                        c++;
+                            //ws.Cell(r, ++c).Value = calc.ProtectionFactId.HasValue ? calc.ProjectProtectionFacts.Name : null;
+                        c++; //ws.Cell(r, ++c).Value = calc.ProtectionFactCondition;
+                        ws.Cell(r, ++c).Value = calc.Comment;
+                        r++;
+                    }
+                    r--;
+                }
+            }
+
+
+            wb.SaveAs(ms);
+            wb.Dispose();
+            ms.Seek(0, SeekOrigin.Begin);
+            return new FileStreamResult(ms, "application/vnd.ms-excel")
+            {
+                FileDownloadName = $"ProjectCalculation_{project.Id}.xlsx"
+            };
         }
     }
 }

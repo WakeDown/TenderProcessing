@@ -22,5 +22,7 @@ namespace SpeCalcDataAccessLayer
         public string CreatorName { get; set; }
         public bool Enabled { get; set; }
         public int ProjectId { get; set; }
+    
+        public virtual Projects Projects { get; set; }
     }
 }

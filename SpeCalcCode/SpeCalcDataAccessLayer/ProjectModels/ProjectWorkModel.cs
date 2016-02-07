@@ -61,15 +61,31 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             }
         }
 
-        public static void Delete(int id, AdUser user)
+        public static void Delete(int id, AdUser user, SpeCalcEntities context = null)
         {
-            using (var db = new SpeCalcEntities())
-            {
-                var work = db.ProjectWorks.Single(x => x.Id == id);
+            bool hasContext = context != null;
+            var db = context ?? new SpeCalcEntities();
+            var work = db.ProjectWorks.Single(x => x.Id == id);
                 work.Enabled = false;
                 work.DeleteDate = DateTime.Now;
                 work.DeleterSid = user.Sid;
                 work.DeleterName = user.DisplayName;
+                db.SaveChanges();
+            if (!hasContext)
+            {
+                db.SaveChanges();
+                db.Dispose();
+            }
+        }
+
+        public static void Delete(int[] ids, AdUser user)
+        {
+            using (var db = new SpeCalcEntities())
+            {
+                foreach (var id in ids)
+                {
+                    Delete(id, user, db);
+                }
                 db.SaveChanges();
             }
         }
@@ -115,13 +131,16 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             //}
         }
 
-        public static IEnumerable<ProjectWorkModel> GetListWithCalc(int projectId)
+        public static IEnumerable<ProjectWorkModel> GetListWithCalc(int projectId, bool? calced=null)
         {
             var db = new SpeCalcEntities();
             //using (var db = new SpeCalcEntities())
             //{
                 var list = new List<ProjectWorkModel>();
-                var works = db.ProjectWorks.Where(x => x.Enabled && x.ProjectId == projectId).ToList();
+                var works = db.ProjectWorks.Where(x => x.Enabled && x.ProjectId == projectId)
+                //calced
+                .Where(x => calced == null || (calced.HasValue && ((calced.Value && x.ProjectWorkCalculations.Any()) || (!calced.Value && !x.ProjectWorkCalculations.Any()))))
+                .ToList();
                 var calculations =  db.ProjectWorkCalculations.Where(x => x.Enabled && x.ProjectWorks.ProjectId == projectId).Include(x => x.ProjectCurrencies).Include(x => x.ProjectWorkExecutinsTimes).ToList();
                 int i = 0;
                 foreach (ProjectWorks work in works)

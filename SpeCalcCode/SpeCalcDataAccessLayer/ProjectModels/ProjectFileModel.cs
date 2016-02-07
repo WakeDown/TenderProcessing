@@ -17,6 +17,9 @@ namespace SpeCalcDataAccessLayer.ProjectModels
         public DateTime CreateDate { get; set; }
         public string CreatorName { get; set; }
         public bool IsLastVersion { get; set; }
+        public bool Enabled { get; set; }
+        public DateTime? DeleteDate { get; set; }
+        public string DeleterName { get; set; }
 
         public static ProjectFiles Get(string guid)
         {
@@ -65,6 +68,19 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 {
                     curFiles.ForEach(x=>x.PreviousFileGUID = file.FileGUID.ToString());
                 }
+                db.SaveChanges();
+            }
+        }
+
+        public static void Delete(string guid, AdUser user)
+        {
+            using (var db = new SpeCalcEntities())
+            {
+                var file = db.ProjectFiles.Single(x => x.FileGUID.ToString() == guid);
+                file.Enabled = false;
+                file.DeleterDate = DateTime.Now;
+                file.DeleterSid = user.Sid;
+                file.DeleterName = user.DisplayName;
                 db.SaveChanges();
             }
         }

@@ -483,6 +483,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ProjectMessages_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectMessages" Type="Self.ProjectMessages" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectMessages">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_ProjectPositionCalculations_ProjectCurrencies">
           <End Role="ProjectCurrencies" Type="Self.ProjectCurrencies" Multiplicity="0..1" />
           <End Role="ProjectPositionCalculations" Type="Self.ProjectPositionCalculations" Multiplicity="*" />
@@ -807,6 +819,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ProjectWorks_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorks">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_ProjectWorks_ProjectWorkQuantityUnits">
           <End Role="ProjectWorkQuantityUnits" Type="Self.ProjectWorkQuantityUnits" Multiplicity="0..1" />
           <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="*" />
@@ -900,6 +924,10 @@
           <AssociationSet Name="FK_ProjectFiles_Projects" Association="Self.FK_ProjectFiles_Projects">
             <End Role="Projects" EntitySet="Projects" />
             <End Role="ProjectFiles" EntitySet="ProjectFiles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProjectMessages_Projects" Association="Self.FK_ProjectMessages_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectMessages" EntitySet="ProjectMessages" />
           </AssociationSet>
           <AssociationSet Name="FK_ProjectPositionCalculations_ProjectCurrencies" Association="Self.FK_ProjectPositionCalculations_ProjectCurrencies">
             <End Role="ProjectCurrencies" EntitySet="ProjectCurrencies" />
@@ -1009,6 +1037,10 @@
             <End Role="ProjectWorks" EntitySet="ProjectWorks" />
             <End Role="ProjectWorkCalculations" EntitySet="ProjectWorkCalculations" />
           </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorks_Projects" Association="Self.FK_ProjectWorks_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
+          </AssociationSet>
           <AssociationSet Name="FK_ProjectWorks_ProjectWorkQuantityUnits" Association="Self.FK_ProjectWorks_ProjectWorkQuantityUnits">
             <End Role="ProjectWorkQuantityUnits" EntitySet="ProjectWorkQuantityUnits" />
             <End Role="ProjectWorks" EntitySet="ProjectWorks" />
@@ -1076,11 +1108,11 @@
           <Property Name="OrderNum" Type="Int32" Nullable="false" />
           <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Enabled" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="ProjectConditionHistory" Relationship="Self.FK_ProjectConditionHistory_ProjectConditions" FromRole="ProjectConditions" ToRole="ProjectConditionHistory" />
-          <NavigationProperty Name="Projects" Relationship="Self.FK_Projects_ProjectConditions" FromRole="ProjectConditions" ToRole="Projects" />
           <Property Name="BackgroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="ForegroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="BorderColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ProjectConditionHistory" Relationship="Self.FK_ProjectConditionHistory_ProjectConditions" FromRole="ProjectConditions" ToRole="ProjectConditionHistory" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_Projects_ProjectConditions" FromRole="ProjectConditions" ToRole="Projects" />
         </EntityType>
         <EntityType Name="ProjectCurrencies">
           <Key>
@@ -1127,6 +1159,20 @@
           <Property Name="OrderNum" Type="Int32" Nullable="false" />
           <Property Name="Enabled" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="ProjectFiles" Relationship="Self.FK_ProjectFiles_ProjectFolders" FromRole="ProjectFolders" ToRole="ProjectFiles" />
+        </EntityType>
+        <EntityType Name="ProjectMessages">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Message" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Recipients" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="ProjectId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Projects" Relationship="SpeCalcModel.FK_ProjectMessages_Projects" FromRole="ProjectMessages" ToRole="Projects" />
         </EntityType>
         <EntityType Name="ProjectPositionCalculations">
           <Key>
@@ -1324,6 +1370,8 @@
           <NavigationProperty Name="ProjectStates" Relationship="Self.FK_Projects_ProjectStates" FromRole="Projects" ToRole="ProjectStates" />
           <NavigationProperty Name="ProjectStateHistory" Relationship="Self.FK_ProjectStateHistory_Projects" FromRole="Projects" ToRole="ProjectStateHistory" />
           <NavigationProperty Name="ProjectTeams" Relationship="Self.FK_ProjectTeams_Projects" FromRole="Projects" ToRole="ProjectTeams" />
+          <NavigationProperty Name="ProjectWorks" Relationship="Self.FK_ProjectWorks_Projects" FromRole="Projects" ToRole="ProjectWorks" />
+          <NavigationProperty Name="ProjectMessages" Relationship="SpeCalcModel.FK_ProjectMessages_Projects" FromRole="Projects" ToRole="ProjectMessages" />
         </EntityType>
         <EntityType Name="ProjectSaleDirectionResponsibles">
           <Key>
@@ -1386,11 +1434,11 @@
           <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Enabled" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Projects" Relationship="Self.FK_Projects_ProjectStates" FromRole="ProjectStates" ToRole="Projects" />
-          <NavigationProperty Name="ProjectStateHistory" Relationship="Self.FK_ProjectStateHistory_ProjectStates" FromRole="ProjectStates" ToRole="ProjectStateHistory" />
           <Property Name="BackgroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="ForegroundColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="BorderColor" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_Projects_ProjectStates" FromRole="ProjectStates" ToRole="Projects" />
+          <NavigationProperty Name="ProjectStateHistory" Relationship="Self.FK_ProjectStateHistory_ProjectStates" FromRole="ProjectStates" ToRole="ProjectStateHistory" />
         </EntityType>
         <EntityType Name="ProjectTeams">
           <Key>
@@ -1483,6 +1531,7 @@
           <Property Name="StateChangeDate" Type="DateTime" Precision="3" />
           <Property Name="StateChangerSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
           <Property Name="StateChangerName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_ProjectWorks_Projects" FromRole="ProjectWorks" ToRole="Projects" />
           <NavigationProperty Name="ProjectWorkCalculations" Relationship="Self.FK_ProjectWorkCalculations_ProjectWorks" FromRole="ProjectWorks" ToRole="ProjectWorkCalculations" />
           <NavigationProperty Name="ProjectWorkQuantityUnits" Relationship="Self.FK_ProjectWorks_ProjectWorkQuantityUnits" FromRole="ProjectWorks" ToRole="ProjectWorkQuantityUnits" />
           <NavigationProperty Name="ProjectWorkStates" Relationship="Self.FK_ProjectWorks_ProjectWorkStates1" FromRole="ProjectWorks" ToRole="ProjectWorkStates" />
@@ -1829,6 +1878,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ProjectWorks_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectWorks" Type="Self.ProjectWorks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectWorks">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_ProjectSaleDirectionResponsibles_ProjectSaleDirections">
           <End Role="ProjectSaleDirections" Type="Self.ProjectSaleDirections" Multiplicity="1" />
           <End Role="ProjectSaleDirectionResponsibles" Type="Self.ProjectSaleDirectionResponsibles" Multiplicity="*" />
@@ -1945,6 +2006,7 @@
           <EntitySet Name="ProjectCurrencies" EntityType="Self.ProjectCurrencies" />
           <EntitySet Name="ProjectFiles" EntityType="Self.ProjectFiles" />
           <EntitySet Name="ProjectFolders" EntityType="Self.ProjectFolders" />
+          <EntitySet Name="ProjectMessages" EntityType="Self.ProjectMessages" />
           <EntitySet Name="ProjectPositionCalculations" EntityType="Self.ProjectPositionCalculations" />
           <EntitySet Name="ProjectPositionDeliveryTimes" EntityType="Self.ProjectPositionDeliveryTimes" />
           <EntitySet Name="ProjectPositionQuantityUnits" EntityType="Self.ProjectPositionQuantityUnits" />
@@ -2070,6 +2132,10 @@
             <End Role="Projects" EntitySet="Projects" />
             <End Role="ProjectTeams" EntitySet="ProjectTeams" />
           </AssociationSet>
+          <AssociationSet Name="FK_ProjectWorks_Projects" Association="Self.FK_ProjectWorks_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectWorks" EntitySet="ProjectWorks" />
+          </AssociationSet>
           <AssociationSet Name="FK_ProjectSaleDirectionResponsibles_ProjectSaleDirections" Association="Self.FK_ProjectSaleDirectionResponsibles_ProjectSaleDirections">
             <End Role="ProjectSaleDirections" EntitySet="ProjectSaleDirections" />
             <End Role="ProjectSaleDirectionResponsibles" EntitySet="ProjectSaleDirectionResponsibles" />
@@ -2106,21 +2172,23 @@
             <End Role="ProjectWorkStates" EntitySet="ProjectWorkStates" />
             <End Role="ProjectWorkStateHistory" EntitySet="ProjectWorkStateHistory" />
           </AssociationSet>
-          <EntitySet Name="ProjectMessages" EntityType="SpeCalcModel.ProjectMessages" />
+          <AssociationSet Name="FK_ProjectMessages_Projects" Association="SpeCalcModel.FK_ProjectMessages_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectMessages" EntitySet="ProjectMessages" />
+          </AssociationSet>
         </EntityContainer>
-        <EntityType Name="ProjectMessages">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Message" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Recipients" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="CreatorSid" Type="String" Nullable="false" MaxLength="46" FixedLength="false" Unicode="false" />
-          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="Enabled" Type="Boolean" Nullable="false" />
-          <Property Name="ProjectId" Type="Int32" Nullable="false" />
-        </EntityType>
+        <Association Name="FK_ProjectMessages_Projects">
+          <End Type="SpeCalcModel.Projects" Role="Projects" Multiplicity="1" />
+          <End Type="SpeCalcModel.ProjectMessages" Role="ProjectMessages" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectMessages">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2166,14 +2234,14 @@
           <EntitySetMapping Name="ProjectConditions">
             <EntityTypeMapping TypeName="SpeCalcModel.ProjectConditions">
               <MappingFragment StoreEntitySet="ProjectConditions">
-                <ScalarProperty Name="BorderColor" ColumnName="BorderColor" />
-                <ScalarProperty Name="ForegroundColor" ColumnName="ForegroundColor" />
-                <ScalarProperty Name="BackgroundColor" ColumnName="BackgroundColor" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
                 <ScalarProperty Name="SysName" ColumnName="SysName" />
                 <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="BackgroundColor" ColumnName="BackgroundColor" />
+                <ScalarProperty Name="ForegroundColor" ColumnName="ForegroundColor" />
+                <ScalarProperty Name="BorderColor" ColumnName="BorderColor" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2216,6 +2284,20 @@
                 <ScalarProperty Name="SysName" ColumnName="SysName" />
                 <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
                 <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectMessages">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectMessages">
+              <MappingFragment StoreEntitySet="ProjectMessages">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="Recipients" ColumnName="Recipients" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2445,13 +2527,13 @@
           <EntitySetMapping Name="ProjectStates">
             <EntityTypeMapping TypeName="SpeCalcModel.ProjectStates">
               <MappingFragment StoreEntitySet="ProjectStates">
-                <ScalarProperty Name="BorderColor" ColumnName="BorderColor" />
-                <ScalarProperty Name="ForegroundColor" ColumnName="ForegroundColor" />
-                <ScalarProperty Name="BackgroundColor" ColumnName="BackgroundColor" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="SysName" ColumnName="SysName" />
                 <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="BackgroundColor" ColumnName="BackgroundColor" />
+                <ScalarProperty Name="ForegroundColor" ColumnName="ForegroundColor" />
+                <ScalarProperty Name="BorderColor" ColumnName="BorderColor" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2569,20 +2651,6 @@
                 <ScalarProperty Name="ForegroundColor" ColumnName="ForegroundColor" />
                 <ScalarProperty Name="Icon" ColumnName="Icon" />
                 <ScalarProperty Name="IconColor" ColumnName="IconColor" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="ProjectMessages">
-            <EntityTypeMapping TypeName="SpeCalcModel.ProjectMessages">
-              <MappingFragment StoreEntitySet="ProjectMessages">
-                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
-                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
-                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
-                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
-                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
-                <ScalarProperty Name="Recipients" ColumnName="Recipients" />
-                <ScalarProperty Name="Message" ColumnName="Message" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

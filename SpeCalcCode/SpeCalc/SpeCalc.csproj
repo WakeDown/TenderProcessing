@@ -260,6 +260,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="App_Data\TemplateTrans.xlsx" />
+    <Content Include="App_Data\ProjectCalculation.xlsx" />
     <None Include="Properties\PublishProfiles\romanov.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootbox.js" />

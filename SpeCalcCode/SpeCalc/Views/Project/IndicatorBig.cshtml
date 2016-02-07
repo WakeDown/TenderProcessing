@@ -4,21 +4,17 @@
 <div class="">
     @foreach (var cond in Model)
     {
-        <div name="project-condition" class="project-condition-big-item text-xs pull-left marg-l-sm" style="background-color: #@(cond.ConditionHistory != null ? cond.ConditionHistory.ProjectConditions.BackgroundColor : null); border-color: #@cond.Condition.BorderColor; color: #@cond.Condition.ForegroundColor">
+        <div cid="@cond.Condition.Id" pid="@cond.ProjectId" name="project-condition" class="project-condition-big-item text-xs pull-left marg-l-sm" style="background-color: #@(cond.ConditionHistory != null ? cond.ConditionHistory.ProjectConditions.BackgroundColor : null); border-color: #@cond.Condition.BorderColor; color: #@cond.Condition.ForegroundColor" data-toggle="popover" title="@(cond.ConditionHistory != null ? cond.Condition.Name : null)" data-content="@(cond.ConditionHistory != null ? cond.ConditionHistory.CreateDate.ToString("dd.MM.yyyy HH:mm") + " " + cond.ConditionHistory.CreatorName + " " + cond.ConditionHistory.Comment : null)"  data-trigger="hover"  data-placement="bottom">
             <strong>@cond.Condition.Name</strong>
-            @if (cond.ConditionHistory != null)
+            @*@if (cond.ConditionHistory != null)
             {
                 <div>
                     @cond.ConditionHistory.CreateDate.ToString("dd.MM.yyyy HH:mm")<br/>
                     @cond.ConditionHistory.CreatorName
                 </div>
-            }
+            }*@
         </div>
     }
 </div>
 
-<script>
-    $(function() {
-        //$('#name="project-condition"').
-    })
-</script>
+

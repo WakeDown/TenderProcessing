@@ -3,6 +3,7 @@
 @foreach (var file in Model)
 {
     <li>
-        v.@file.VersionNumber&nbsp;<a href="@Url.Action("GetFileData")?guid=@file.FileGUID.ToString()" target="_blank"><small>@file.FileName</small></a> 
+        <a class="btn btn-link btn-xs no-pad text-danger-important" name="deleteFile" fguid="@file.FileGUID"><i class="fa fa-trash-o"></i></a>
+        v.@file.VersionNumber&nbsp;<a href="@Url.Action("GetFileData")?guid=@file.FileGUID.ToString()" target="_blank"><small>@file.FileName</small></a>
     </li>
 }

@@ -32,6 +32,7 @@ namespace SpeCalcDataAccessLayer
         public virtual DbSet<ProjectCurrencies> ProjectCurrencies { get; set; }
         public virtual DbSet<ProjectFiles> ProjectFiles { get; set; }
         public virtual DbSet<ProjectFolders> ProjectFolders { get; set; }
+        public virtual DbSet<ProjectMessages> ProjectMessages { get; set; }
         public virtual DbSet<ProjectPositionCalculations> ProjectPositionCalculations { get; set; }
         public virtual DbSet<ProjectPositionDeliveryTimes> ProjectPositionDeliveryTimes { get; set; }
         public virtual DbSet<ProjectPositionQuantityUnits> ProjectPositionQuantityUnits { get; set; }
@@ -53,6 +54,5 @@ namespace SpeCalcDataAccessLayer
         public virtual DbSet<ProjectWorks> ProjectWorks { get; set; }
         public virtual DbSet<ProjectWorkStateHistory> ProjectWorkStateHistory { get; set; }
         public virtual DbSet<ProjectWorkStates> ProjectWorkStates { get; set; }
-        public virtual DbSet<ProjectMessages> ProjectMessages { get; set; }
     }
 }

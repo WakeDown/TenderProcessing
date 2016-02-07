@@ -10,7 +10,7 @@
 <script>
     $(function() {
         //loadFiles();
-
+        
         $("[id^=files-cont-]").on("hide.bs.collapse", function () {
             var fid = $(this).attr('fid');
             var $caret = $('#folder-' + fid).find('[name=caret]');
@@ -80,12 +80,35 @@
             data: { fid: fid, pid: pid },
             success: function (html) {
                 $cont.html(html);
+                $('[name="deleteFile"]').click(deleteFile);
                 hideSpinner($cont);
             },
             error:function(data) {
                 alert('Ошибка при загрузке файлов папки!');
                 console.log(data);
                 hideSpinner($cont);
+            }
+        });
+    }
+
+    function deleteFile() {
+        if (!confirm('Вы действительно хотите удалить файл?'))return;
+        var $this = $(this);
+        var fguid = $this.attr('fguid');
+        $.ajax({
+            url: '@Url.Action("DeleteFile")',
+            method: 'POST',
+            data: { guid: fguid },
+            success: function() {
+                var $cont = $('ul[name=folderFiles]:has([name="deleteFile"][fguid=' + fguid + '])');
+                var fid = $cont.attr('fid');
+                var pid = $cont.attr('pid');
+                loadFiles(fid, pid);
+            },
+            error: function(data) {
+                pathSegTypeAsLetter('Ошибка при удалении файла!');
+                console.log(data);
+
             }
         });
     }

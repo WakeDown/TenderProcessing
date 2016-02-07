@@ -71,7 +71,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
 
             var list = new List<ProjectFolderModel>();
             var folders = GetList();
-            var files = db.ProjectFiles.Where(x => x.Enabled && x.ProjectId == projectId).Select(x => new ProjectFileModel { FolderId = x.FolderId, FileGUID = x.FileGUID.ToString(), FileName = x.FileName, VersionNumber = x.VersionNumber, CreatorName = x.CreatorName, CreateDate = x.CreateDate, IsLastVersion = x.PreviousFileGUID == null });
+            var files = db.ProjectFiles.Where(x => x.ProjectId == projectId).Select(x => new ProjectFileModel { FolderId = x.FolderId, FileGUID = x.FileGUID.ToString(), FileName = x.FileName, VersionNumber = x.VersionNumber, CreatorName = x.CreatorName, CreateDate = x.CreateDate, IsLastVersion = x.PreviousFileGUID == null, Enabled = x.Enabled, DeleteDate = x.DeleterDate, DeleterName = x.DeleterName});
             int i = 0;
             foreach (ProjectFolders fold in folders)
             {

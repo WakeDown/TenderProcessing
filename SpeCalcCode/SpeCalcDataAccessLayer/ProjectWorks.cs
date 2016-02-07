@@ -41,6 +41,7 @@ namespace SpeCalcDataAccessLayer
         public string StateChangerSid { get; set; }
         public string StateChangerName { get; set; }
     
+        public virtual Projects Projects { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProjectWorkCalculations> ProjectWorkCalculations { get; set; }
         public virtual ProjectWorkQuantityUnits ProjectWorkQuantityUnits { get; set; }

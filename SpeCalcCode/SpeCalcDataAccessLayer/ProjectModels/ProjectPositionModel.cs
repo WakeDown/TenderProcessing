@@ -63,15 +63,32 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             }
         }
 
-        public static void Delete(int id, AdUser user)
+        public static void Delete(int id, AdUser user, SpeCalcEntities context = null)
         {
-            using (var db = new SpeCalcEntities())
-            {
-                var pos = db.ProjectPositions.Single(x => x.Id == id);
+            bool hasContext = context != null;
+            var db = context ?? new SpeCalcEntities();
+
+            var pos = db.ProjectPositions.Single(x => x.Id == id);
                 pos.Enabled = false;
                 pos.DeleteDate = DateTime.Now;
                 pos.DeleterSid = user.Sid;
                 pos.DeleterName = user.DisplayName;
+                
+            if (!hasContext)
+            {
+                db.SaveChanges();
+                db.Dispose();
+            }
+        }
+
+        public static void Delete(int[] ids, AdUser user)
+        {
+            using (var db = new SpeCalcEntities())
+            {
+                foreach (var id in ids)
+                {
+                    Delete(id, user, db);
+                }
                 db.SaveChanges();
             }
         }
@@ -116,13 +133,16 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             //}
         }
 
-        public static IEnumerable<ProjectPositionModel> GetListWithCalc(int projectId)
+        public static IEnumerable<ProjectPositionModel> GetListWithCalc(int projectId, bool? calced=null)
         {
             var db = new SpeCalcEntities();
             //using (var db = new SpeCalcEntities())
             //{
+
                 var list = new List<ProjectPositionModel>();
-                var positions = db.ProjectPositions.Where(x => x.Enabled && x.ProjectId == projectId).ToList();
+                var positions = db.ProjectPositions.Where(x => x.Enabled && x.ProjectId == projectId).Where(
+                    x=> calced == null || (calced.HasValue && ((calced.Value && x.ProjectPositionCalculations.Any()) || (!calced.Value && !x.ProjectPositionCalculations.Any())))
+                    ).ToList();
                 var calculations =  db.ProjectPositionCalculations.Where(x => x.Enabled && x.ProjectPositions.ProjectId == projectId).Include(x => x.ProjectCurrencies).Include(x => x.ProjectProtectionFacts).Include(x => x.ProjectPositionDeliveryTimes).ToList();
                 int i = 0;
                 foreach (ProjectPositions pos in positions)
