@@ -22,7 +22,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 msg.Message = message;
                 db.ProjectMessages.Add(msg);
                 db.SaveChanges();
-                ProjectHistoryModel.CreateHistoryItem(projectId, "Отправка сообщения", new[] { msg }, user);
+                ProjectHistoryModel.CreateHistoryItem(projectId, "Добавление комментария", $"{msg.Message}", new[] { msg }, user);
             }
         }
 

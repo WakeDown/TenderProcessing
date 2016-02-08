@@ -45,8 +45,9 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 //work.LastChangerName = user.DisplayName;
                 db.ProjectWorks.Add(work);
                 SetState(work, user, db);
+                
                 db.SaveChanges();
-                ProjectHistoryModel.CreateHistoryItem(work.ProjectId, "Добавление работы", new[] { work }, user);
+                ProjectHistoryModel.CreateHistoryItem(work.ProjectId, "Добавление работы", $"{work.Name}", new[] { work }, user);
                 return work.Id;
             }
         }
@@ -64,8 +65,9 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 oldwork.LastChangeDate = DateTime.Now;
                 oldwork.LastChangerSid = user.Sid;
                 oldwork.LastChangerName = user.DisplayName;
+               
                 db.SaveChanges();
-                ProjectHistoryModel.CreateHistoryItem(work.ProjectId, "Изменение работы", new[] { oldwork,work }, user);
+                ProjectHistoryModel.CreateHistoryItem(work.ProjectId, "Изменение работы", $"{oldwork.Name}", new[] { oldwork, work }, user);
             }
         }
 
@@ -78,13 +80,13 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 work.DeleteDate = DateTime.Now;
                 work.DeleterSid = user.Sid;
                 work.DeleterName = user.DisplayName;
-                db.SaveChanges();
+            
             if (!hasContext)
             {
                 db.SaveChanges();
                 db.Dispose();
             }
-            ProjectHistoryModel.CreateHistoryItem(work.ProjectId, "Удаление работы", new[] { work }, user);
+            ProjectHistoryModel.CreateHistoryItem(work.ProjectId, "Удаление работы", $"{work.Name}", new[] { work }, user);
         }
 
         public static void Delete(int[] ids, AdUser user)
@@ -109,13 +111,13 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             work.StateChangerName = user.DisplayName;
             work.StateId = ProjectStateModel.GetState("NEW").Id;
             db.ProjectWorks.Add(work);
-
+            
             if (!hasContext)
             {
                 db.SaveChanges();
                 db.Dispose();
             }
-            ProjectHistoryModel.CreateHistoryItem(work.ProjectId, "Изменение статуса работы", new[] { work }, user);
+            ProjectHistoryModel.CreateHistoryItem(work.ProjectId, "Изменение статуса работы", $"{work.Name}", new[] { work }, user);
         }
 
         public static ProjectWorks Get(int id)

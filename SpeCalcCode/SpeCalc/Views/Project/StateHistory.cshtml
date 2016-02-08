@@ -6,10 +6,10 @@
 @foreach (var hist in Model)
 {
     <div class="project-message-item" style="background-color: #@hist.ProjectStates.BackgroundColor">
+        <small>@hist.CreateDate.ToString("dd.MM.yyyy HH:mm") - @hist.CreatorName</small>
         <div>
             <strong>@hist.ProjectStates.Name</strong>
         </div>
-        <small>@hist.CreateDate.ToString("dd.MM.yyyy HH:mm") - @hist.CreatorName</small>
         <div class="pad-l-sm">
             @Html.Raw(hist.Comment)
         </div>

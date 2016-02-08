@@ -49,18 +49,19 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             {
                 if (!db.ProjectTeams.Any(x => x.Enabled && x.ProjectId == projectId && x.RoleId == roleId && x.UserSid == userSid))
                 {
-                    var item = new ProjectTeams();
-                    item.Enabled = true;
-                    item.CreateDate = DateTime.Now;
-                    item.CreatorSid = user.Sid;
-                    item.CreatorName = user.DisplayName;
-                    item.ProjectId = projectId;
-                    item.RoleId = roleId;
-                    item.UserSid = userSid;
-                    item.UserName = userName;
-                    db.ProjectTeams.Add(item);
+                    var member = new ProjectTeams();
+                    member.Enabled = true;
+                    member.CreateDate = DateTime.Now;
+                    member.CreatorSid = user.Sid;
+                    member.CreatorName = user.DisplayName;
+                    member.ProjectId = projectId;
+                    member.RoleId = roleId;
+                    member.UserSid = userSid;
+                    member.UserName = userName;
+                    db.ProjectTeams.Add(member);
+                    
                     db.SaveChanges();
-                    ProjectHistoryModel.CreateHistoryItem(projectId, "Добавление участника в команду", new[] { item }, user);
+                    ProjectHistoryModel.CreateHistoryItem(projectId, "Добавление участника в команду", $"{member.UserName} [{member.ProjectRoles.Name}]", new[] { member }, user);
                 }
             }
         }
@@ -75,9 +76,12 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 member.DeleteDate = DateTime.Now;
                 member.DeleterSid = user.Sid;
                 member.DeleterName = user.DisplayName;
+                
                 db.SaveChanges();
-                ProjectHistoryModel.CreateHistoryItem(member.ProjectId, "Удаление участника из команды", new[] { member }, user);
+                ProjectHistoryModel.CreateHistoryItem(member.ProjectId, "Удаление участника из команды", $"{member.UserName} [{member.ProjectRoles.Name}]", new[] { member }, user);
             }
         }
+
+        
     }
 }

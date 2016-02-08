@@ -8,7 +8,7 @@
         <div class="project-message-item">
             <small><strong>@msg.CreateDate.ToString("dd.MM.yyyy HH:mm")</strong> - @msg.CreatorName</small>
             <div class="pad-l-sm">
-                @Html.Raw(msg.Message)
+                @Html.Raw(!String.IsNullOrEmpty(msg.Message) ? msg.Message.Replace("\n", "<br />") : null)
             </div>
         </div>
         <hr class="no-margin" />

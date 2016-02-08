@@ -59,7 +59,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
         {
             bool isTran = context != null;
             var db = context ?? new SpeCalcEntities();
-
+            string prevStateName = project.StateId.HasValue ? project.ProjectStates.Name : null;
             project.StateChangeDate = DateTime.Now;
             project.ChangerSid = user.Sid;
             project.ChangerName = user.DisplayName;
@@ -67,12 +67,17 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             //db.ProjectStates.Add(project);
             db.SaveChanges();
             CreateStateHistory(project, comment, db);
-
+            using (var dBase = new SpeCalcEntities())
+            {
+                project = dBase.Projects.Single(x => x.Id == project.Id);
+                ProjectHistoryModel.CreateHistoryItem(project.Id, "Изменение статуса", $"C {prevStateName} на {project.ProjectStates.Name}." + (!String.IsNullOrEmpty(comment) ? $"\rКомментарий: {comment}" : null),
+                    new[] {project}, user);
+            }
             if (!isTran)
             {
                 db.Dispose();
             }
-            ProjectHistoryModel.CreateHistoryItem(project.Id, "Изменение статуса проекта", new [] { project }, user);
+            
         }
     }
 }

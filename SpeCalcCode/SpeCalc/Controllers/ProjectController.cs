@@ -19,9 +19,113 @@ namespace SpeCalc.Controllers
     public class ProjectController : BaseController
     {
         // GET: Project
-        public ActionResult Index()
+        public ActionResult Index(int? page, int? topRows,string id, string aucnum, string client, string budget, string direct, string subject, string team, string deadline, string probab, string state, string condition, string createst, string creatend)
         {
-                var list = ProjectModel.GetList();
+            if (!page.HasValue) return RedirectToAction("Index", new { page = 1});
+            if (!topRows.HasValue) return RedirectToAction("Index", new { topRows = 10, page });
+
+            //int stateId;
+            int[] stateArr = null;
+            if (state != null && !String.IsNullOrEmpty(state))
+            {
+                List<int> stateList = new List<int>();
+                //int.TryParse(state, out stateId);
+                var stateArrStr = state.Split(',');
+                foreach (string str in stateArrStr)
+                {
+                    int stateId;
+                    int.TryParse(str, out stateId);
+                    if (stateId > 0)
+                    {
+                        stateList.Add(stateId);
+                    }
+                }
+                stateArr = stateList.ToArray();
+            }
+            else
+            {
+                //По умолчанию
+                state = $"{ProjectStateModel.GetState("NEW").Id},{ProjectStateModel.GetState("PLAY").Id}";
+                return RedirectToAction("Index", new { topRows, page, state });
+            }
+
+            DateTime createStart;
+            if (!String.IsNullOrEmpty(createst))
+            {
+                DateTime.TryParse(createst, out createStart);
+                if (createStart.Year < 2015)
+                {
+                    createst = DateTime.Now.AddMonths(-3).ToString("dd.MM.yyyy");
+                    return RedirectToAction("Index", new { topRows, page, state, createst });
+                }
+            }
+            else
+            {
+                createst = DateTime.Now.AddMonths(-3).ToString("dd.MM.yyyy");
+                return RedirectToAction("Index", new { topRows, page, state, createst });
+            }
+
+            DateTime createEnd;
+            if (!String.IsNullOrEmpty(creatend))
+            {
+                DateTime.TryParse(creatend, out createEnd);
+                if (createEnd < createStart)
+                {
+                    creatend = createStart.ToString("dd.MM.yyyy");
+                    return RedirectToAction("Index", new { topRows, page, state, createst, creatend });
+                }
+                if (createEnd.Year < 2015)
+                {
+                    creatend = DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy");
+                    return RedirectToAction("Index", new { topRows, page, state, createst, creatend });
+                }
+            }
+            else
+            {
+                creatend = DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy");
+                return RedirectToAction("Index", new { topRows, page, state, createst, creatend });
+            }
+
+            int totalCount;
+            int intId;
+            int.TryParse(id, out intId);
+
+            int directId;
+            if (direct != null && !String.IsNullOrEmpty(direct))
+            {
+                int.TryParse(direct, out directId);
+            }
+            else
+            {
+                directId = 0;
+            }
+
+            int subjectId;
+            if (subject != null && !String.IsNullOrEmpty(subject))
+            {
+                int.TryParse(subject, out subjectId);
+            }
+            else
+            {
+                subjectId = 0;
+            }
+
+            
+
+            int conditionId;
+            if (condition != null && !String.IsNullOrEmpty(condition))
+            {
+                int.TryParse(condition, out conditionId);
+            }
+            else
+            {
+                conditionId = 0;
+            }
+
+
+
+            var list = ProjectModel.GetList(out totalCount, topRows, page.Value, intId,  aucnum,  client,  budget, directId, subjectId,  team,  deadline,  probab, stateArr,  conditionId, createStart, createEnd);
+            ViewBag.TotalCount = totalCount;
                 var result = new ListResult<Projects>() {List = list };
                 return View(result);
         }
@@ -396,24 +500,24 @@ namespace SpeCalc.Controllers
             return Json(new {});
         }
 
-        public PartialViewResult GetHistory(int? id)
+        public PartialViewResult GetStateHistory(int? id)
         {
             if (!id.HasValue) return null;
             int totalCount;
             var model = ProjectStateModel.GetList(out totalCount, id.Value, false);
             ViewBag.TotalCount = totalCount;
             ViewBag.Full = false;
-            return PartialView("History", model);
+            return PartialView("StateHistory", model);
         }
 
-        public PartialViewResult GetAllHistory(int? id)
+        public PartialViewResult GetAllStateHistory(int? id)
         {
             if (!id.HasValue) return null;
             int totalCount;
             var model = ProjectStateModel.GetList(out totalCount, id.Value, true);
             ViewBag.TotalCount = totalCount;
             ViewBag.Full = true;
-            return PartialView("History", model);
+            return PartialView("StateHistory", model);
         }
 
         [HttpPost]
@@ -421,6 +525,13 @@ namespace SpeCalc.Controllers
         {
             ProjectModel.SetPlayState(id, comment, CurUser);
             return Json(new {});
+        }
+
+        [HttpPost]
+        public JsonResult Done(int id, string comment)
+        {
+            ProjectModel.SetDoneState(id, comment, CurUser);
+            return Json(new { });
         }
 
         [HttpPost]
@@ -443,6 +554,14 @@ namespace SpeCalc.Controllers
             var model = ProjectConditionModel.GetList(id.Value);
             return PartialView("IndicatorBig", model);
         }
+
+        public PartialViewResult GetIndicatorSmall(int? id)
+        {
+            if (!id.HasValue) return null;
+            var model = ProjectConditionModel.GetList(id.Value);
+            return PartialView("IndicatorSmall", model);
+        }
+
         [HttpPost]
         public JsonResult ChangeCondition(int pid, int cid, string comment)
         {
@@ -628,6 +747,51 @@ namespace SpeCalc.Controllers
         public JsonResult DeleteFromRoleTeam(int mid)
         {
             ProjectTeamModel.Delete(mid, CurUser);
+            return Json(new { });
+        }
+
+        public PartialViewResult GetProjectHistory(int? id)
+        {
+            if (!id.HasValue) return null;
+            var model = ProjectHistoryModel.GetList(id.Value);
+            return PartialView("ProjectHistory", model);
+        }
+
+        [OutputCache(Duration = 60)]
+        public PartialViewResult GetStateFilterList(string state)
+        {
+            ViewBag.State = state;
+            return PartialView("StateFilterList");
+        }
+
+        public ActionResult SaleDirectionResponsibles()
+        {
+            return View();
+        }
+
+        public ActionResult Settings()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult Add2Responsibles(int did, string userSid)
+        {
+            string userName = AdHelper.GetUserBySid(userSid).DisplayName;
+            SaleDirectionResponsibleModel.Create(did, userSid, userName, CurUser);
+            return Json(new { });
+        }
+
+        public PartialViewResult GetDirectionResponsibles(int? id)
+        {
+            if (!id.HasValue) return null;
+            var model = SaleDirectionResponsibleModel.GetResponsiblesList(id.Value);
+            return PartialView("DirectionRespinsibleList", model);
+        }
+        [HttpPost]
+        public JsonResult DeleteFromDirectionResponsibles(int mid)
+        {
+            SaleDirectionResponsibleModel.Delete(mid, CurUser);
             return Json(new { });
         }
     }

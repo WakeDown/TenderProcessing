@@ -406,8 +406,22 @@ input.required-mark,textarea.required-mark, select.required-mark, span.required-
     cursor: pointer;
 }
 
+.project-condition-small-item {
+    width: 10px;
+    height: 17px;
+    padding: 1px;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
 .marg-l-sm {
     margin-left: 3px;
+}
+
+.marg-l-xs {
+    margin-left: 1px;
 }
 
 .text-danger-important {
@@ -415,4 +429,24 @@ input.required-mark,textarea.required-mark, select.required-mark, span.required-
 }
 a.text-danger-important:hover {
   color: #843534 !important;
+}
+
+.state-filter.cecked {
+    
+}
+
+.state-filter .sel-mark  {
+    
+    display: none;
+    
+}
+
+.state-filter.checked .sel-mark  {
+    display: block;
+}
+
+.sel-mark {
+    position: relative;
+    overflow: hidden;
+    float: left;
 }

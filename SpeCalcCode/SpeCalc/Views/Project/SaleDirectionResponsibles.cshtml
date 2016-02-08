@@ -1,0 +1,105 @@
+﻿@using SpeCalc.Helpers
+@using SpeCalcDataAccessLayer.Models
+@{
+    ViewBag.Title = "Ответственные за направления";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@foreach (var dir in ProjectHelper.GetSaleDirection4ResponsiblesList())
+{
+    <h4>
+        @dir.Name
+    </h4>
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="input-group">
+                @Html.DropDownList("ResponsibleUser", new SelectList(UserHelper.GetEngeneersList(), "Key", "Value"), "--выберите--", new {id = "ResponsibleUser", @class = "form-control input-sm", did=dir.Id })
+                <div class="input-group-btn">
+                    <button name="add2Responsible" did="@dir.Id" class="btn btn-success btn-sm">сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p>
+        <div id="dir-resp-@dir.Id">
+            @Html.Partial("DirectionRespinsibleList", dir.ProjectSaleDirectionResponsibles.Where(x=>x.Enabled))
+        </div>
+    </p>
+    <hr />
+}
+
+@section scripts
+{
+    <script>
+        $(function() {
+            $('[name=add2Responsible]').click(add2Responsible);
+        });
+        function add2Responsible() {
+            var $this = $(this);
+            var did = $this.attr('did');
+            var $select = $('[name=ResponsibleUser][did=' + did + ']');
+            var userSid = $select.val();;
+            if (!userSid) {
+                alert('Выберите пользователя!');
+                $select.focus();
+                return;
+            }
+            showSpinnerAppendAndDisable($this);
+            $.ajax({
+                url: '@Url.Action("Add2Responsibles")',
+                method: 'POST',
+                data: { did: did, userSid: userSid },
+                success: function () {
+                    loadDirectionResponsibles(did);
+                    $select.val('');
+                    hideSpinnerAndEnabled($this);
+                },
+                error: function (data) {
+                    alert('Ошибка при добавлении ответственного!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        }
+        function loadDirectionResponsibles(did) {
+            var $cont = $('#dir-resp-' + did);
+            $cont.html('');
+            showSpinner($cont);
+            $.ajax({
+                url: '@Url.Action("GetDirectionResponsibles")',
+                method: 'GET',
+                data: {id:did},
+                success: function(html) {
+                    $cont.html(html);
+                    $('[name="deleteResponsible"]').click(deleteResponsible);
+                    hideSpinner($cont);
+                },
+                error:function(data) {
+                    alert('Ошибка при загрузке ответственных направления!');
+                    console.log(data);
+                    hideSpinner($cont);
+                }
+            });
+        }
+        function deleteResponsible() {
+            if (!confirm('Вы уверены что хотите исключить ответсвенного из направления?')) return;
+            var $this = $(this);
+            var mid = $this.attr('mid');
+            var did = $this.attr('did');
+            $.ajax({
+                url: '@Url.Action("DeleteFromDirectionResponsibles")',
+                method: 'POST',
+                data: { mid: mid },
+                success: function () {
+                    loadDirectionResponsibles(did);
+                    hideSpinnerAndEnabled($this);
+                },
+                error: function (data) {
+                    alert('Ошибка при удалении ответсвенного из направления!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        }
+    </script>
+}

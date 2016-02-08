@@ -10,15 +10,25 @@ namespace SpeCalcDataAccessLayer.ProjectModels
 {
     public class ProjectHistoryModel
     {
-        public static IEnumerable<ProjectHistory> GetList(int projectId)
+        public ProjectHistory Item { get; set; }
+        public static IEnumerable<ProjectHistoryModel> GetList(int projectId)
         {
+            var result = new List<ProjectHistoryModel>();
             using (var db = new SpeCalcEntities())
             {
-                return db.ProjectHistory.Where(x => x.ProjectId == projectId);
+                var list = db.ProjectHistory.Where(x => x.ProjectId == projectId).OrderByDescending(x=>x.Id);
+                foreach (var history in list)
+                {
+                    var item = new ProjectHistoryModel();
+                    history.Comment = !String.IsNullOrEmpty(history.Comment) ?  history.Comment.Replace("\n", "<br />").Replace("\r", "<br />") : null;
+                    item.Item = history;
+                    result.Add(item);
+                }
+                return result;
             }
         }
 
-        public static void CreateHistoryItem(int projectId, string comment, object[] objects, AdUser user)
+        public static void CreateHistoryItem(int projectId, string title, string comment, object[] objects, AdUser user)
         {
             using (var db = new SpeCalcEntities())
             {
@@ -28,6 +38,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 item.CreatorName = user.DisplayName;
                 item.Comment = comment;
                 item.ProjectId = projectId;
+                item.Title = title;
 
                 string sysInfo = null;
                 foreach (var o in objects)

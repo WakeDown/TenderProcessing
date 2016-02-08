@@ -46,6 +46,8 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -85,6 +87,7 @@
     <Compile Include="Helpers\DbHelper.cs" />
     <Compile Include="Helpers\Db\Db.SpeCalc.cs" />
     <Compile Include="Helpers\MainHelper.cs" />
+    <Compile Include="Helpers\MessageHelper.cs" />
     <Compile Include="HelpModels\HistoryItem.cs" />
     <Compile Include="HelpModels\MessageItem.cs" />
     <Compile Include="Models\AdGroup.cs" />
@@ -107,6 +110,7 @@
     <Compile Include="Models\PositionState.cs" />
     <Compile Include="Models\PositionUnit.cs" />
     <Compile Include="Models\ProductManager.cs" />
+    <Compile Include="Objects\AttachmentFile.cs" />
     <Compile Include="ProjectBusinessTargets.cs">
       <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
@@ -158,6 +162,7 @@
     <Compile Include="ProjectModels\ProjectWorkModel.cs" />
     <Compile Include="ProjectModels\ProjectPositionModel.cs" />
     <Compile Include="ProjectModels\ProjectStateModel.cs" />
+    <Compile Include="ProjectModels\SaleDirectionResponsibleModel.cs" />
     <Compile Include="ProjectPositionCalculations.cs">
       <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>

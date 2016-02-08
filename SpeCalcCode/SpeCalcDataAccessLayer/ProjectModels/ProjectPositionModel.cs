@@ -45,8 +45,9 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 //position.LastChangerName = user.DisplayName;
                 db.ProjectPositions.Add(position);
                 SetState(position, user, db);
+                
                 db.SaveChanges();
-                ProjectHistoryModel.CreateHistoryItem(position.ProjectId, "Добавление оборудования", new[] { position }, user);
+                ProjectHistoryModel.CreateHistoryItem(position.ProjectId, "Добавление оборудования", $"{position.Name}", new[] { position }, user);
                 return position.Id;
             }
         }
@@ -66,8 +67,9 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 oldpos.LastChangeDate = DateTime.Now;
                 oldpos.LastChangerSid = user.Sid;
                 oldpos.LastChangerName = user.DisplayName;
+                
                 db.SaveChanges();
-                ProjectHistoryModel.CreateHistoryItem(position.ProjectId, "Изменение оборудования", new[] { oldpos, position }, user);
+                ProjectHistoryModel.CreateHistoryItem(position.ProjectId, "Изменение оборудования", $"{oldpos.Name}", new[] { oldpos, position }, user);
             }
         }
 
@@ -76,18 +78,18 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             bool hasContext = context != null;
             var db = context ?? new SpeCalcEntities();
 
-            var pos = db.ProjectPositions.Single(x => x.Id == id);
-                pos.Enabled = false;
-                pos.DeleteDate = DateTime.Now;
-                pos.DeleterSid = user.Sid;
-                pos.DeleterName = user.DisplayName;
-                
+            var position = db.ProjectPositions.Single(x => x.Id == id);
+            position.Enabled = false;
+            position.DeleteDate = DateTime.Now;
+            position.DeleterSid = user.Sid;
+            position.DeleterName = user.DisplayName;
+            
             if (!hasContext)
             {
                 db.SaveChanges();
                 db.Dispose();
             }
-            ProjectHistoryModel.CreateHistoryItem(pos.ProjectId, "Удаление оборудования", new[] { pos }, user);
+            ProjectHistoryModel.CreateHistoryItem(position.ProjectId, "Удаление оборудования", $"{position.Name}", new[] { position }, user);
         }
 
         public static void Delete(int[] ids, AdUser user)
@@ -112,13 +114,13 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             position.StateChangerName = user.DisplayName;
             position.StateId = ProjectStateModel.GetState("NEW").Id;
             db.ProjectPositions.Add(position);
-
+            
             if (!hasContext)
             {
                 db.SaveChanges();
                 db.Dispose();
             }
-            ProjectHistoryModel.CreateHistoryItem(position.ProjectId, "Изменение статуса оборудования", new[] { position }, user);
+            ProjectHistoryModel.CreateHistoryItem(position.ProjectId, "Изменение статуса оборудования", $"{position.Name}", new[] { position }, user);
         }
 
         public static ProjectPositions Get(int id)

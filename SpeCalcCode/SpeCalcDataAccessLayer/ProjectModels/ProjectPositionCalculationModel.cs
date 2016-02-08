@@ -32,7 +32,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 //calc.LastChangerName = user.DisplayName;
                 db.ProjectPositionCalculations.Add(calc);
                 db.SaveChanges();
-                ProjectHistoryModel.CreateHistoryItem(calc.ProjectPositions.ProjectId, "Добавление расчета оборудования", new[] { calc }, user);
+                ProjectHistoryModel.CreateHistoryItem(calc.ProjectPositions.ProjectId, "Добавление расчета оборудования", $"{calc.Name}", new[] { calc }, user);
                 return calc.Id;
             }
         }
@@ -56,7 +56,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 oldcalc.LastChangerSid = user.Sid;
                 oldcalc.LastChangerName = user.DisplayName;
                 db.SaveChanges();
-                ProjectHistoryModel.CreateHistoryItem(calc.ProjectPositions.ProjectId, "Изменение расчета оборудования", new[] { oldcalc, calc }, user);
+                ProjectHistoryModel.CreateHistoryItem(calc.ProjectPositions.ProjectId, "Изменение расчета оборудования", $"{oldcalc.Name}", new[] { oldcalc, calc }, user);
                 return calc.Id;
             }
         }
@@ -70,8 +70,9 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 calc.DeleteDate = DateTime.Now;
                 calc.DeleterSid = user.Sid;
                 calc.DeleterName = user.DisplayName;
+                
                 db.SaveChanges();
-                ProjectHistoryModel.CreateHistoryItem(calc.ProjectPositions.ProjectId, "Удаление расчета оборудования", new[] { calc }, user);
+                ProjectHistoryModel.CreateHistoryItem(calc.ProjectPositions.ProjectId, "Удаление расчета оборудования",  $"{calc.Name}", new[] { calc }, user);
             }
         }
     }

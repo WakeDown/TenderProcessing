@@ -163,6 +163,7 @@
     <Compile Include="Helpers\DbHelper.cs" />
     <Compile Include="Helpers\MainHelper.cs" />
     <Compile Include="Helpers\Notification.cs" />
+    <Compile Include="Helpers\UrlHelperExtensions.cs" />
     <Compile Include="Helpers\UserHelper.cs" />
     <Compile Include="Models\CalcPosition.cs" />
     <Compile Include="Models\CatalogProduct.cs" />
@@ -376,10 +377,16 @@
     <Content Include="Views\Project\FolderFilesHistory.cshtml" />
     <Content Include="Views\Project\FilesHistory.cshtml" />
     <Content Include="Views\Project\Messages.cshtml" />
-    <Content Include="Views\Project\History.cshtml" />
+    <Content Include="Views\Project\StateHistory.cshtml" />
     <Content Include="Views\Project\IndicatorBig.cshtml" />
     <Content Include="Views\Project\Team.cshtml" />
     <Content Include="Views\Project\RoleTeamList.cshtml" />
+    <Content Include="Views\Project\ProjectHistory.cshtml" />
+    <Content Include="Views\Project\IndicatorSmall.cshtml" />
+    <Content Include="Views\Project\StateFilterList.cshtml" />
+    <Content Include="Views\Project\SaleDirectionResponsibles.cshtml" />
+    <Content Include="Views\Project\DirectionRespinsibleList.cshtml" />
+    <Content Include="Views\Project\Settings.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeCalcDataAccessLayer\SpeCalcDataAccessLayer.csproj">

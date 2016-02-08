@@ -69,7 +69,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                     curFiles.ForEach(x=>x.PreviousFileGUID = file.FileGUID.ToString());
                 }
                 db.SaveChanges();
-                ProjectHistoryModel.CreateHistoryItem(projectId, "Добавление файла", new[] { file }, user);
+                ProjectHistoryModel.CreateHistoryItem(projectId, "Добавление файла", $"{file.FileName} v.{file.VersionNumber}", new[] { file }, user);
             }
         }
 
@@ -83,7 +83,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 file.DeleterSid = user.Sid;
                 file.DeleterName = user.DisplayName;
                 db.SaveChanges();
-                ProjectHistoryModel.CreateHistoryItem(file.ProjectId, "Удаление файла", new[] { file }, user);
+                ProjectHistoryModel.CreateHistoryItem(file.ProjectId, "Удаление файла", $"{file.FileName} v.{file.VersionNumber}", new[] { file }, user);
             }
         }
     }

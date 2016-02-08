@@ -15,14 +15,16 @@
                     Крточка проекта №@Model.Id
                 </h4>
                 <button id="changeRoles" class="btn btn-danger btn-xs">роли</button>
+                <a id="showHistory" class="btn btn-xs btn-info">история</a>
             </li>
             <li id="conditionContainer">
                 
             </li>
             <li class="pull-right">
-                <button id="projectPlay" class="btn btn-success"><i class="fa fa-play"></i> запуск</button>
-                <button id="projectPause" class="btn btn-warning"><i class="fa fa-pause"></i> приостановить</button>
-                <button id="projectStop" class="btn btn-danger"><i class="fa fa-stop"></i> отклонить</button>
+                <button id="projectPlay" class="btn btn-success" @(Model.StateId.HasValue && Model.ProjectStates.CanPlay ? null: "disabled=disabled")><i class="fa fa-play"></i> Запуск</button>
+                <button id="projectPause" class="btn btn-warning" @(Model.StateId.HasValue && Model.ProjectStates.CanPause ? null: "disabled=disabled")><i class="fa fa-pause"></i> Приостановить</button>
+                <button id="projectStop" class="btn btn-danger" @(Model.StateId.HasValue && Model.ProjectStates.CanStop ? null: "disabled=disabled")><i class="fa fa-stop"></i> Отклонить</button>
+                <button id="projectDone" class="btn btn-primary" @(Model.StateId.HasValue && Model.ProjectStates.CanDone ? null: "disabled=disabled")><i class="fa fa-check"></i> Завершен</button>
             </li>
         </ul>
         @*<ul class="list-inline no-margin">
@@ -259,13 +261,34 @@
             </div>
             <div class="modal-body">
                 <div id="changeRolesContainer">
-                    
+
                 </div>
             </div>
             @*<div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
                 <button id="changeRolesConfirm" class="btn btn-success">Принять</button>
             </div>*@
+        </div>
+    </div>
+</div>
+
+<div id="historyProjectModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">История проекта №@Model.Id</h4>
+            </div>
+            <div class="modal-body">
+                <div id="historyProjectContainer">
+
+                </div>
+            </div>
+            @*<div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
+                    <button id="changeRolesConfirm" class="btn btn-success">Принять</button>
+                </div>*@
         </div>
     </div>
 </div>
@@ -277,6 +300,7 @@
         $('#projectPlay').click(projectPlay);
         $('#projectPause').click(projectPause);
         $('#projectStop').click(projectStop);
+        $('#projectDone').click(projectDone);
         loadHistory();
 
         $('#sendMessage').click(sendMessage);
@@ -303,7 +327,29 @@
         $('[name="positionCalcFilter"]').click(loadPositions);
         $('[name="workCalcFilter"]').click(loadWorks);
         $('#changeRoles').click(changeRoles);
+        $('#showHistory').click(showHistory);
     });
+
+    function showHistory() {
+        $('#historyProjectModal').modal('show');
+        var $cont = $('#historyProjectContainer');
+        $cont.html('');
+        showSpinner($cont);
+        $.ajax({
+            url: '@Url.Action("GetProjectHistory")',
+            method: 'GET',
+            data: {id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                hideSpinner($cont);
+            },
+            error:function(data) {
+                alert('Ошибка при загрузке истории проекта!');
+                console.log(data);
+                hideSpinner($cont);
+            }
+        });
+    }
 
     function changeRoles() {
         $('#changeRolesModal').modal('show');
@@ -590,12 +636,31 @@
         });
     }
 
+    function projectDone() {
+        if (!confirm('Вы уверены что хотите завершить проект?'))return;
+        var $this = $(this);
+        showSpinnerAppendAndDisable($this);
+        $.ajax({
+            url: '@Url.Action("Done")',
+            method: 'POST',
+            data: {id:@Model.Id},
+            success: function() {
+                location.reload();
+            },
+            error:function(data) {
+                alert('Ошибка при завершении проекта!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
+
     function loadHistory() {
         var $cont = $('#historyContainer');
         $cont.html('');
         showSpinner($cont);
         $.ajax({
-            url: '@Url.Action("GetHistory")',
+            url: '@Url.Action("GetStateHistory")',
             method: 'GET',
             data: {id:@Model.Id},
             success: function(html) {
@@ -619,7 +684,7 @@
         showSpinner($cont);
         $('#historyModal').modal('show');
         $.ajax({
-            url: '@Url.Action("GetAllHistory")',
+            url: '@Url.Action("GetAllStateHistory")',
             method: 'GET',
             data: {id:@Model.Id},
             success: function(html) {

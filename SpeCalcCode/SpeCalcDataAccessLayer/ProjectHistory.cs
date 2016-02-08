@@ -12,21 +12,15 @@ namespace SpeCalcDataAccessLayer
     using System;
     using System.Collections.Generic;
     
-    public partial class ProjectSaleDirectionResponsibles
+    public partial class ProjectHistory
     {
         public int Id { get; set; }
-        public string UserSid { get; set; }
-        public int SaleDirectionId { get; set; }
+        public int ProjectId { get; set; }
         public System.DateTime CreateDate { get; set; }
         public string CreatorSid { get; set; }
-        public string UserEmail { get; set; }
-        public bool Enabled { get; set; }
-        public Nullable<System.DateTime> DeleteDate { get; set; }
-        public string DeleterSid { get; set; }
-        public string DeleterName { get; set; }
-        public string UserName { get; set; }
         public string CreatorName { get; set; }
-    
-        public virtual ProjectSaleDirections ProjectSaleDirections { get; set; }
+        public string Comment { get; set; }
+        public string SysInfo { get; set; }
+        public string Title { get; set; }
     }
 }

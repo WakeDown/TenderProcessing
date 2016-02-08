@@ -28,6 +28,12 @@ namespace SpeCalcDataAccessLayer
         public string BackgroundColor { get; set; }
         public string ForegroundColor { get; set; }
         public string BorderColor { get; set; }
+        public bool CanPlay { get; set; }
+        public bool CanPause { get; set; }
+        public bool CanStop { get; set; }
+        public bool CanChangeCondition { get; set; }
+        public bool CanDone { get; set; }
+        public int OrderNum { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Projects> Projects { get; set; }

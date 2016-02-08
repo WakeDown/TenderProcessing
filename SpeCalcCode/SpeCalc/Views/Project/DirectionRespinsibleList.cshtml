@@ -1,0 +1,11 @@
+﻿@model IEnumerable<SpeCalcDataAccessLayer.ProjectSaleDirectionResponsibles>
+@foreach (var member in Model)
+{
+    <div>
+        <div>
+            <small>@member.CreateDate.ToString("dd.MM.yyyy HH:mm") - @member.CreatorName</small>
+        </div>
+        <button class="btn btn-link text-danger-important no-pad" name="deleteResponsible" mid="@member.Id" did="@member.SaleDirectionId"><i class="fa fa-trash"></i></button>
+        @member.UserName
+    </div>
+}

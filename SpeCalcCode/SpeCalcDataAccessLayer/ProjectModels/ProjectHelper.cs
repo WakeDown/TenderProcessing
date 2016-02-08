@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,13 @@ namespace SpeCalcDataAccessLayer.Models
 {
     public class ProjectHelper
     {
-        
+        public static string GetProjectLink(int id)
+        {
+            string speCalcUrl = ConfigurationManager.AppSettings["AppHost"];
+            string link = $"{speCalcUrl}/Project/Index?id={id}";
+            return link;
+        }
+
         [OutputCache(Duration = 3600)]
         public static IEnumerable<string> GetDeadlineDateList()
         {
@@ -119,13 +126,16 @@ namespace SpeCalcDataAccessLayer.Models
         [OutputCache(Duration = 3600)]
         public static IEnumerable<ProjectSaleSubjects> GetSaleSubjectList(int? idDirection=null)
         {
-            if (!idDirection.HasValue) return new List<ProjectSaleSubjects>();
+            //if (!idDirection.HasValue) return new List<ProjectSaleSubjects>();
             using (var db = new SpeCalcEntities())
             {
-                var list = db.ProjectSaleSubjects.Where(x => x.Enabled && x.IdSaleDirection == idDirection).OrderBy(x => x.OrderNum).ThenBy(x => x.Name).ToList();
+                var list = db.ProjectSaleSubjects.Where(x => x.Enabled)
+                    .Where(x=> !idDirection.HasValue || idDirection <= 0 || (idDirection.HasValue && idDirection > 0 && x.IdSaleDirection == idDirection))
+                    .OrderBy(x => x.OrderNum).ThenBy(x => x.Name).ToList();
                 return list;
             }
         }
+
         [OutputCache(Duration = 3600)]
         public static IEnumerable<KeyValuePair<int, string>> GetSaleSubjectSelectionList(int? idDirection)
         {
@@ -149,6 +159,44 @@ namespace SpeCalcDataAccessLayer.Models
             using (var db = new SpeCalcEntities())
             {
                 var list = db.ProjectClientRelationships.Where(x => x.Enabled).OrderBy(x => x.OrderNum).ThenBy(x => x.Name).ToList();
+                return list;
+            }
+        }
+
+        [OutputCache(Duration = 3600)]
+        public static IEnumerable<ProjectStates> GetProjectStatesList()
+        {
+            using (var db = new SpeCalcEntities())
+            {
+                var list = db.ProjectStates.Where(x => x.Enabled).OrderBy(x => x.OrderNum).ThenBy(x => x.Name).ToList();
+                return list;
+            }
+        }
+
+        public static IEnumerable<ProjectStates> GetProjectStatesFilterList()
+        {
+            using (var db = new SpeCalcEntities())
+            {
+                var list = db.ProjectStates.Where(x => x.Enabled).OrderBy(x => x.OrderNum).ThenBy(x => x.Name).Include(x=>x.Projects).ToList();
+                return list;
+            }
+        }
+
+        [OutputCache(Duration = 3600)]
+        public static IEnumerable<ProjectConditions> GetProjectConditionsList()
+        {
+            using (var db = new SpeCalcEntities())
+            {
+                var list = db.ProjectConditions.Where(x => x.Enabled).OrderBy(x => x.OrderNum).ThenBy(x => x.Name).ToList();
+                return list;
+            }
+        }
+
+        public static IEnumerable<ProjectSaleDirections> GetSaleDirection4ResponsiblesList()
+        {
+            using (var db = new SpeCalcEntities())
+            {
+                var list = db.ProjectSaleDirections.Where(x => x.Enabled).Include(x=>x.ProjectSaleDirectionResponsibles).OrderBy(x => x.OrderNum).ThenBy(x => x.Name).ToList();
                 return list;
             }
         }

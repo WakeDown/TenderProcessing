@@ -123,7 +123,7 @@
         <div class="row">
             <label class="col-lg-4 control-label required-mark">Менеджер</label>
             <div class="col-lg-5">
-                @Html.DropDownListFor(m => m.ManagerSid, new SelectList(UserHelper.GetManagersSelectionList(), "Id", "ShortName", ViewBag.CurUser.Sid), "--выберите--", new {size = "1", id = "listManagers", @class = "form-control input-sm", required = "required"})
+                @Html.DropDownListFor(m => m.ManagerSid, new SelectList(UserHelper.GetManagersSelectionList(), "Id", "ShortName", ViewBag.CurUser.Sid), "--выберите--", new {size = "1", id="ManagerSid", @class = "form-control input-sm", required = "required"})
             </div>
         </div>
         <div class="row">
@@ -207,7 +207,7 @@
     }
 
     function isAuction() {
-        if ($('[name=IsAuction]').val() == "True") {
+        if ($('[name=IsAuction]:checked').val() == "True") {
             $('#auctionSettings').show();
         } else {
             $('#auctionSettings').hide();

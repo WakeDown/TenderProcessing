@@ -1,110 +1,336 @@
-﻿@using SpeCalc.Models
+﻿@using SpeCalc.Helpers
+@using SpeCalc.Models
 @using SpeCalcDataAccessLayer
+@using SpeCalcDataAccessLayer.Models
+@using SpeCalcDataAccessLayer.Objects
 @model SpeCalcDataAccessLayer.Models.ListResult<SpeCalcDataAccessLayer.Projects>
 @{
     ViewBag.Title = "Проекты";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    int topRows = Request.QueryString["topRows"] != null ? Convert.ToInt32(Request.QueryString["topRows"]) : 30;
+    int currPage = Request.QueryString["page"] != null ? Convert.ToInt32(Request.QueryString["page"]) : 1;
+    int pageCount = (ViewBag.TotalCount / topRows);
+    if (ViewBag.TotalCount % topRows > 0)
+    {
+        pageCount++;
+    }
 }
 
-<div>
-    <h5>
-        <span class="label label-default">
-            Всего записей:
-            <span id="claimCountLabel">@Model.TotalCount</span>
-        </span>
-        &nbsp;
-        <span class="label label-info">
-            из них показано:
-            <span id="showCountLabel">@Model.ListCount</span>
-        </span>
-    </h5>
-</div>
-<table class="table table-bordered small">
-    <thead>
-        <tr class="bg-primary">
-            <th>ID</th>
-            <th>№ конкурса</th>
-            <th class="width-300">Заказчик</th>
-            <th>Бюджет</th>
-            <th>Направление</th>
-            <th>Предмет сделки</th>
-            <th>Вероятность</th>
-            <th>Менеджер<br/>Автор</th>
-            <th>Команда</th>
-            <th>Срок сдачи</th>
-            <th>Статус</th>
-            <th class="text-nowrap">
-                <table class="table table-bordered prod-manager-table"><tr class="text-primary"><td>Снабженец</td><td class="bg-default ligth num">запрос</td><td class="bg-success ligth num">расчет</td><td class="bg-info ligth num">позиций</td></tr></table>
-            </th>
-            <th>Создано</th>
-        </tr>
-    </thead>
-    <tbody id="claimTable">
-    @if (Model.ListCount > 0)
-    {
+@*<ul class="list-inline">
+        <li>
+                <span class="label label-default">
+                    Всего записей:
+                    <span id="claimCountLabel">@Model.TotalCount</span>
+                </span>
+                &nbsp;
+                <span class="label label-info">
+                    из них показано:
+                    <span id="showCountLabel">@Model.ListCount</span>
+                </span>
+        </li>
+        <li>
+            states
+        </li>
+        <li>
+            pages
+        </li>
+    </ul>*@
+<div class="row">
+    <div class="col-lg-4 col-sm-12 col-xs-12 hidden-sm hidden-xs">
+        <div class="pull-left">
+            <nav>
+                <ul class="pagination no-margin pages">
 
-        foreach (var project in Model.List)
-        {
+                    <li name="page" class="@(currPage == 1 ? "disabled" : String.Empty)"><a href="@Url.Current(new {page = Convert.ToInt32(Request.QueryString["page"]) - 1})"><</a></li>
 
-            <tr class="row-item" name="project-item" pid="@project.Id">
-                <td>@project.Id</td>
-                <td>@project.AuctionNumber</td>
-                <td>@project.ClientName</td>
-                <td class='text-nowrap'>@(project.Budget.HasValue ? project.Budget.Value.ToString("F2") : null) @(project.CurrencyId.HasValue ? project.ProjectCurrencies.Name : null)</td>
-                <td>@(project.SaleDirectionId.HasValue ? project.ProjectSaleDirections.Name : null)</td>
-                <td>@(project.SaleSubjectId.HasValue ? project.ProjectSaleSubjects.Name : null)</td>
-                <td class="@(project.Probability < 0 ? "bg-info" :  project.Probability >= 0 && project.Probability <= 30 ? "bg-success" : project.Probability > 30 && project.Probability <= 60 ? "bg-warning" : project.Probability > 60 ? "bg-danger" : null )">
-                    @project.Probability%
-                </td>
-                <td class='text-nowrap'>
-                    @project.ManagerName
-                </td>
-                <td></td>
-                <td>@project.DeadlineDate</td>
-                <td><strong>@(project.StateId.HasValue ? project.ProjectStates.Name : null)</strong>
-                    <div>
-                        <small>@(project.StateChangeDate.HasValue ? project.StateChangeDate.Value.ToString("dd.MM.yyyy HH:mm") : null)</small>
-                        <br/>
-                        <small class='text-nowrap'>@project.ChangerName</small>
-                    </div>
-                </td>
-                <td>
-                    @*<table class='table table-bordered prod-manager-table'>
-                        <tr>
-                            <th>Всего</th>
-                            <td class='bg-default ligth text-right num'>@claim.PositionsCount</td>
-                            <td class='bg-success ligth text-right num'>@claim.CalculatePositionsCount</td>
-                            <td class='bg-info ligth text-right num'>@claim.CalculatesCount</td>
-                        </tr>
-                        @foreach (var product in claim.ProductManagers)
+                    @for (int i = 1; i <= pageCount; i++)
+                    {
+                        if (i > 4)
                         {
-                            <tr>
-                                <td>@product.ShortName</td>
-                                <td class='bg-default ligth text-right num'>@product.PositionsCount</td>
-                                <td class='bg-success ligth text-right num'>@product.CalculatePositionsCount</td>
-                                <td class='bg-info light text-right num'>@product.CalculatesCount</td>
-                            </tr>
+                            <li name="page" class="@(i == currPage ? "active" : String.Empty)"><a href="@Url.Current(new {page = i})">...</a></li>
+                            break;
+
                         }
-                    </table>*@
-                </td>
-                <td>
-                    <strong>Создано</strong>
-                    <div>
-                        <small>@project.CreateDate.ToString("dd.MM.yyyy")</small>
-                        <br/>
-                        <small class='text-nowrap'>@project.CreatorName</small>
-                    </div>
-                </td>
-                <td>
-            </tr>
-        }
-    }
-    else
-    {
-        <tr><td>пусто</td></tr>
-    }
-    </tbody>
-</table>
+                        else
+                        {
+                            <li name="page" class="@(i == currPage ? "active" : String.Empty)"><a href="@Url.Current(new {page = i})">@i</a></li>
+                        }
+                    }
+
+                    <li name="page" class="@(currPage == pageCount ? "disabled" : String.Empty)"><a href="@Url.Current(new {page = Convert.ToInt32(Request.QueryString["page"]) + 1})">></a></li>
+
+                </ul>
+            </nav>
+        </div>
+        <div class="pull-left pad-l-sm">
+            <a class="btn btn-primary" href="@Url.Action("New", "Project")" target="_blank"><i class="fa fa-plus-circle"></i> новый проект</a>
+        </div>
+    </div>
+    <div class="col-lg-6 col-sm-12 col-xs-12">
+        <div id="stateFilterList">
+            @Html.Partial("StateFilterList")
+        </div>
+        @*<input name="activeOnly" type="radio" @(!String.IsNullOrEmpty(Request.QueryString["aon"]) && Request.QueryString["aon"].Equals("-1") ? "checked" : String.Empty) value="-1" />&nbsp;все&nbsp;<input name="activeOnly" type="radio" @(!String.IsNullOrEmpty(Request.QueryString["aon"]) && Request.QueryString["aon"].Equals("1") ? "checked" : String.Empty ) value="1" />&nbsp;только активные&nbsp;<input name="activeOnly" type="radio" @(!String.IsNullOrEmpty(Request.QueryString["aon"]) && Request.QueryString["aon"].Equals("0") ? "checked" : String.Empty ) value="0" />&nbsp;только неактивные*@
+        
+    </div>
+    <div class="col-lg-2 col-sm-6 col-xs-6">
+        <div>
+            <div class="text-right">
+                <nav>
+                    <ul class="pagination pagesize no-margin">
+                        <li><a name="pageSize" value="30" href="@Url.Current(new {topRows = 30, page = 1})" class="btn btn-default btn-sm selected">30</a></li>
+                        <li><a name="pageSize" value="100" href="@Url.Current(new {topRows = 100, page = 1})" class="btn btn-default btn-sm">100</a></li>
+                        <li><a name="pageSize" value="300" href="@Url.Current(new {topRows = 300, page = 1})" class="btn btn-default btn-sm">300</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <table id="projectsList" class="table table-bordered small">
+            <thead>
+                <tr class="bg-primary">
+                    <th class="min-width">
+                        <input id="fId" class="form-control input-xs" value="@Request.QueryString["id"]" placeholder="ID" style="width: 50px" />
+                    </th>
+                    <th>
+                        <input id="fAucNum" class="form-control input-xs" value="@Request.QueryString["aucnum"]" placeholder="№ конкурса" />
+                    </th>
+                    <th style="min-width: 150px">
+                        <input id="fClient" class="form-control input-xs" value="@Request.QueryString["client"]" placeholder="Заказчик" />
+                    </th>
+                    <th>
+                        <input id="fBudget" class="form-control input-xs" value="@Request.QueryString["budget"]" placeholder="Бюджет" />
+                    </th>
+                    <th>
+                        @Html.DropDownList("fDirect", new SelectList(ProjectHelper.GetSaleDirectionList(), "Id", "Name", Request.QueryString["direct"]), "Направление", new { @class = "form-control input-xs", style = "min-width: 60px" })
+                    </th>
+                    <th>
+                        @Html.DropDownList("fSubject", new SelectList(ProjectHelper.GetSaleSubjectList(), "Id", "Name", Request.QueryString["subject"]), "Предмет", new { @class = "form-control input-xs", style = "min-width: 60px" })
+                    </th>
+
+                    <th>
+                        <input id="fTeam" class="form-control input-xs" value="@Request.QueryString["team"]" placeholder="Команда" />
+                    </th>
+                    <th class="text-nowrap">
+                        @*<table class="table table-bordered prod-manager-table"><tr class="text-primary">
+                                <td>Снабженец</td>
+                                <td class="bg-default ligth num">запрос</td><td class="bg-success ligth num">расчет</td><td class="bg-info ligth num">позиций</td>
+                            </tr></table>*@
+                        Расчет
+                    </th>
+                    <th>
+                        <input id="fDeadline" class="form-control input-xs" value="@Request.QueryString["deadline"]" placeholder="Срок сдачи" />
+
+                    </th>
+                    <th>
+                        <input id="fProbab" class="form-control input-xs" value="@Request.QueryString["probab"]" placeholder="Вероятность" />
+                    </th>
+                    <th>
+                        @*@Html.DropDownList("fState", new SelectList(ProjectHelper.GetProjectStatesList(), "Id", "Name", Request.QueryString["state"]), "Статус", new { @class = "form-control input-xs", style = "min-width: 60px" })*@
+                        Статус
+                    </th>
+                    <th>
+                        @Html.DropDownList("fCondition", new SelectList(ProjectHelper.GetProjectConditionsList(), "Id", "Name", Request.QueryString["condition"]), "Состояние", new { @class = "form-control input-xs", style = "min-width: 60px" })
+                    </th>
+
+                    <th>
+                        <div class="input-group input-daterange">
+                            <div>
+                                <input id="fCreateStart" type="text" class="form-control input-xs datepicker" value="@(String.IsNullOrEmpty(Request.QueryString["createst"]) ? DateTime.Now.AddMonths(-3).ToString("dd.MM.yyyy") : Request.QueryString["createst"])">
+                            </div>
+                            <div>
+                                <input id="fCreateEnd" type="text" class="form-control input-xs datepicker" value="@(String.IsNullOrEmpty(Request.QueryString["creatend"]) ? DateTime.Now.ToString("dd.MM.yyyy") : Request.QueryString["creatend"])">
+                            </div>
+                        </div>
+                    </th>
+                    <th class="min-width">
+                        <a href="@Url.Action("Index")" class="btn btn-default btn-xs" title="очистить фильтр"><i class="fa fa-refresh"></i></a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="claimTable">
+                @if (Model.ListCount > 0)
+            {
+
+                foreach (var project in Model.List)
+                {
+
+                        <tr class="row-item" name="project-item" pid="@project.Id">
+                            <th>@project.Id</th>
+                            <td>@project.AuctionNumber</td>
+                            <td>@project.ClientName</td>
+                            <td class='text-nowrap'>@(project.Budget.HasValue ? project.Budget.Value.ToString("F2") : null) @(project.CurrencyId.HasValue ? project.ProjectCurrencies.Name : null)</td>
+                            <td>@(project.SaleDirectionId.HasValue ? project.ProjectSaleDirections.Name : null)</td>
+                            <td>@(project.SaleSubjectId.HasValue ? project.ProjectSaleSubjects.Name : null)</td>
+
+                            @*<td class='text-nowrap'>
+                                    @project.ManagerName
+                                </td>*@
+                            <td>
+
+                                <table>
+                                    <tr>
+                                        <td class="text-right"><strong>[Менеджер]</strong></td>
+                                        <td class="text-nowrap">&nbsp;@project.ManagerName</td>
+                                    </tr>
+                                    @foreach (var member in project.ProjectTeams)
+                                    {
+                                        <tr>
+                                            <td class="text-right"><strong>[@member.ProjectRoles.Name]</strong></td>
+                                            <td class="text-nowrap">&nbsp;@member.UserName</td>
+                                        </tr>
+                                    }
+                                </table>
+
+                            </td>
+                            <td>
+                                @*<table class='table table-bordered prod-manager-table'>
+                                        <tr>
+                                            <th>Всего</th>
+                                            <td class='bg-default ligth text-right num'>@(project.ProjectPositions.Count + project.ProjectWorks.Count)</td>
+                                            <td class='bg-success ligth text-right num'>@(project.ProjectPositions.Count(x=>x.ProjectPositionCalculations.Any()) + project.ProjectWorks.Count(x => x.ProjectWorkCalculations.Any()))</td>
+                                            <td class='bg-info ligth text-right num'>@(project.ProjectPositions.Count(x => !x.ProjectPositionCalculations.Any()) + project.ProjectWorks.Count(x => !x.ProjectWorkCalculations.Any()))</td>
+                                        </tr>
+                                        @foreach (var product in claim.ProductManagers)
+                                        {
+                                            <tr>
+                                                <td>@product.ShortName</td>
+                                                <td class='bg-default ligth text-right num'>@product.PositionsCount</td>
+                                                <td class='bg-success ligth text-right num'>@product.CalculatePositionsCount</td>
+                                                <td class='bg-info light text-right num'>@product.CalculatesCount</td>
+                                            </tr>
+                                        }
+                                    </table>*@
+                                @{
+                                    var posCount = project.ProjectPositions.Count;
+                                    var workCount = project.ProjectWorks.Count;
+                                    var posCalced = project.ProjectPositions.Count(x => x.ProjectPositionCalculations.Any());
+                                    var workCalced = project.ProjectWorks.Count(x => x.ProjectWorkCalculations.Any());
+                                    var posNotCalced = project.ProjectPositions.Count(x => !x.ProjectPositionCalculations.Any());
+                                    var workNotCalced = project.ProjectWorks.Count(x => !x.ProjectWorkCalculations.Any());
+                                }
+                                <table class="table table-bordered prod-manager-table text-sm">
+                                    <tr class="text-primary">
+                                        <td></td>
+                                        <td class="bg-default ligth pad-sm text-center">всего</td>
+                                        <td class="bg-success ligth pad-sm text-center">рас</td>
+                                        <td class="bg-info ligth pad-sm text-center">нерас</td>
+                                    </tr>
+                                    <tr>
+                                        <td class=" pad-sm text-right"><strong>Всего</strong></td>
+                                        <td class="bg-default ligth pad-sm text-right"><strong>@(posCount + workCount)</strong></td>
+                                        <td class="bg-success ligth pad-sm text-right"><strong>@(posCalced + workCalced)</strong></td>
+                                        <td class="bg-info ligth pad-sm text-right"><strong>@(posNotCalced + workNotCalced)</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class=" pad-sm text-right">Оборудов</td>
+                                        <td class="bg-default ligth pad-sm text-right">@posCount</td>
+                                        <td class="bg-success ligth pad-sm text-right">@posCalced</td>
+                                        <td class="bg-info ligth pad-sm text-right">@posNotCalced</td>
+                                    </tr>
+                                    <tr>
+                                        <td class=" pad-sm text-right">Работы</td>
+                                        <td class="bg-default ligth pad-sm text-right">@workCount</td>
+                                        <td class="bg-success ligth pad-sm text-right">@workCalced</td>
+                                        <td class="bg-info ligth pad-sm text-right">@workNotCalced</td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td>@project.DeadlineDate</td>
+                            <td class="@(project.Probability < 0 ? "bg-info" : project.Probability >= 0 && project.Probability <= 30 ? "bg-success" : project.Probability > 30 && project.Probability <= 60 ? "bg-warning" : project.Probability > 60 ? "bg-danger" : null )">
+                                @project.Probability%
+                            </td>
+                            <td style="background-color: #@(project.ProjectStates.BackgroundColor)">
+                                <strong>@(project.StateId.HasValue ? project.ProjectStates.Name : null)</strong>
+                                <div>
+                                    <small class="text-nowrap">@(project.StateChangeDate.HasValue ? project.StateChangeDate.Value.ToString("dd.MM.yyyy HH:mm") : null)</small>
+                                    <br />
+                                    <small class='text-nowrap'>@project.ChangerName</small>
+                                </div>
+                            </td>
+                            <td
+                                @*style="background-color: #@(project.ConditionId.HasValue ? project.ProjectConditions.BackgroundColor : null)"*@
+                                >
+                                @if (project.ConditionId.HasValue)
+                                {
+                                    <strong>@(project.ConditionId.HasValue ? project.ProjectConditions.Name : null)</strong>
+                                    <div>
+                                        <small class="text-nowrap">@(project.ConditionChangeDate.HasValue ? project.ConditionChangeDate.Value.ToString("dd.MM.yyyy HH:mm") : null)</small>
+                                        <br />
+                                        <small class='text-nowrap'>@project.ConditionChangerName</small>
+                                    </div>
+                                }
+                                @{ Html.RenderAction("GetIndicatorSmall", new {id = project.Id}); }
+                            </td>
+
+                            <td>
+                                <strong>Создано</strong>
+                                <div>
+                                    <small class="text-nowrap">@project.CreateDate.ToString("dd.MM.yyyy")</small>
+                                    <br />
+                                    <small class='text-nowrap'>@project.CreatorName</small>
+                                </div>
+                            </td>
+                            
+                            <td></td>
+                        </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr><td>пусто</td></tr>
+                                    }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-5 col-sm-12 col-xs-12 hidden-sm hidden-xs">
+        <div class="pull-left">
+            <nav>
+                <ul class="pagination no-margin pages">
+
+                    <li name="page" class="@(currPage == 1 ? "disabled" : String.Empty)"><a href="@Url.Current(new {page = Convert.ToInt32(Request.QueryString["page"]) - 1})"><</a></li>
+
+                    @for (int i = 1; i <= pageCount; i++)
+                    {
+                        if (i > 4)
+                        {
+                            <li name="page" class="@(i == currPage ? "active" : String.Empty)"><a href="@Url.Current(new {page = i})">...</a></li>
+                            break;
+
+                        }
+                        else
+                        {
+                            <li name="page" class="@(i == currPage ? "active" : String.Empty)"><a href="@Url.Current(new {page = i})">@i</a></li>
+                        }
+                    }
+
+                    <li name="page" class="@(currPage == pageCount ? "disabled" : String.Empty)"><a href="@Url.Current(new {page = Convert.ToInt32(Request.QueryString["page"]) + 1})">></a></li>
+
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <div class="col-lg-5 col-sm-12 col-xs-12">
+    </div>
+    <div class="col-lg-2 col-sm-6 col-xs-6">
+        <div>
+            <div class="text-right">
+                <nav>
+                    <ul class="pagination pagesize no-margin">
+                        <li><a name="pageSize" value="30" href="@Url.Current(new { topRows=30, page=1})" class="btn btn-default btn-sm selected">30</a></li>
+                        <li><a name="pageSize" value="100" href="@Url.Current(new { topRows=100, page=1})" class="btn btn-default btn-sm">100</a></li>
+                        <li><a name="pageSize" value="300" href="@Url.Current(new { topRows=300, page=1})" class="btn btn-default btn-sm">300</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section scripts
 {
@@ -118,6 +344,133 @@
                 var id = $(this).attr('pid');
                 window.open('@Url.Action("Card")?id=' + id);
             });
+            $('#projectsList thead tr input').keypress(function (e) {
+                if (e.keyCode != 13) return;
+                search();
+            });
+            $('#projectsList thead tr select').change(function (e) {
+                search();
+            });
+            $('#projectsList thead tr input.datepicker').change(function (e) {
+                search();
+            });
+            $('[data-toggle="popover"]').popover();
+            loadStateFilterList();
+                $('.datepicker').datepicker({
+                    language: "ru",
+                    todayHighlight: true,
+                    autoclose: true
+                });
         });
+
+        function loadStateFilterList() {
+            var $cont = $('#stateFilterList');
+            $cont.html('');
+            showSpinner($cont);
+            $.ajax({
+                url: '@Url.Action("GetStateFilterList")?state=@Request.QueryString["state"]',
+                method: 'GET',
+                success: function(html) {
+                    $cont.html(html);
+                    $('[name="stateFilterItem"]').click(stateFilterClick);
+                    hideSpinner($cont);
+                },
+                error:function(data) {
+                    alert('Ошибка при загрузке фильтра статусов!');
+                    console.log(data);
+                    hideSpinner($cont);
+                }
+            });
+        }
+
+        function stateFilterClick() {
+            var $this = $(this);
+            //var sid = $this.attr('sid');
+            $this.toggleClass('checked');
+            //if ($this.hasClass('checked')) {
+            //    $this.removeClass('cecked');
+            //} else {
+            //    $this.addClass('checked');
+            //}
+
+            search();
+        }
+
+        function search() {
+            var curUrl = location.href;
+            var url = curUrl;
+            var id = $('#fId').val();
+            url = updateQueryStringParameter(url, 'id', id);
+            var aucnum = $('#fAucNum').val();
+            url = updateQueryStringParameter(url, 'aucnum', aucnum);
+            var client = $('#fClient').val();
+            url = updateQueryStringParameter(url, 'client', client);
+            var budget = $('#fBudget').val();
+            url = updateQueryStringParameter(url, 'budget', budget);
+            var direct = $('#fDirect').val();
+            url = updateQueryStringParameter(url, 'direct', direct);
+            var subject = $('#fSubject').val();
+            url = updateQueryStringParameter(url, 'subject', subject);
+            var team = $('#fTeam').val();
+            url = updateQueryStringParameter(url, 'team', team);
+            var deadline = $('#fDeadline').val();
+            url = updateQueryStringParameter(url, 'deadline', deadline);
+            var probab = $('#fProbab').val();
+            url = updateQueryStringParameter(url, 'probab', probab);
+            //var state = $('#fState').val();
+            //url = updateQueryStringParameter(url, 'state', state);
+            var condition = $('#fCondition').val();
+            url = updateQueryStringParameter(url, 'condition', condition);
+            var createst = $('#fCreateStart').val();
+            url = updateQueryStringParameter(url, 'createst', createst);
+            var creatend = $('#fCreateEnd').val();
+            url = updateQueryStringParameter(url, 'creatend', creatend);
+
+            var $stateElem = $('[name="stateFilterItem"].checked');
+            var state = '';
+            if ($stateElem.length > 0) {
+                for (var i = 0; i < $stateElem.length; i++) {
+                    var val = $($stateElem[i]).attr('sid');
+                    if (i > 0) state = state + ',';
+                    state = state + val;
+                }
+            }
+
+            url = updateQueryStringParameter(url, 'state', state);
+
+            window.location = url;
+        }
+
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+
+        function updateQueryStringParameter(uri, key, value) {
+            // remove the hash part before operating on the uri
+            var i = uri.indexOf('#');
+            var hash = i === -1 ? '' : uri.substr(i);
+            uri = i === -1 ? uri : uri.substr(0, i);
+
+            var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+            var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+            if (uri.match(re)) {
+                uri = uri.replace(re, '$1' + key + "=" + value + '$2');
+            } else {
+                uri = uri + separator + key + "=" + value;
+            }
+            return uri + hash;  // finally append the hash as well
+        }
+        //function updateQueryStringParameter(uri, key, value) {
+        //    var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+        //    var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+        //    if (uri.match(re)) {
+        //        return uri.replace(re, '$1' + key + "=" + value + '$2');
+        //    } else {
+        //        return uri + separator + key + "=" + value;
+        //    }
+        //}
     </script>
 }

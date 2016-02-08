@@ -38,20 +38,24 @@ namespace SpeCalcDataAccessLayer.ProjectModels
         {
             bool isTran = context != null;
             var db = context ?? new SpeCalcEntities();
-
+            string prevConditionName = project.ConditionId.HasValue ? project.ProjectConditions.Name : null;
             project.ConditionChangeDate = DateTime.Now;
             project.ConditionChangerName = user.Sid;
             project.ConditionChangerName = user.DisplayName;
             project.ConditionId = conditionId;
             db.SaveChanges();
+            
             CreateConditionHistory(project, comment, db);
-
+            
+            using (var dBase = new SpeCalcEntities())
+            {
+                project = dBase.Projects.Single(x => x.Id == project.Id);
+                ProjectHistoryModel.CreateHistoryItem(project.Id, "Изменение состояния", $"C {prevConditionName} на {project.ProjectConditions.Name}."+(!String.IsNullOrEmpty(comment) ? $"\rКомментарий: {comment}" : null), new[] { project }, user);
+            }
             if (!isTran)
             {
                 db.Dispose();
             }
-
-            ProjectHistoryModel.CreateHistoryItem(project.Id, "Изменение состояния", new[] { project }, user);
         }
 
         public static void CreateConditionHistory(Projects project, string comment, SpeCalcEntities context = null)

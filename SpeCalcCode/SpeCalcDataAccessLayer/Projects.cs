@@ -24,7 +24,6 @@ namespace SpeCalcDataAccessLayer
             this.ProjectStateHistory = new HashSet<ProjectStateHistory>();
             this.ProjectTeams = new HashSet<ProjectTeams>();
             this.ProjectWorks = new HashSet<ProjectWorks>();
-            this.ProjectHistory = new HashSet<ProjectHistory>();
         }
     
         public int Id { get; set; }
@@ -94,7 +93,5 @@ namespace SpeCalcDataAccessLayer
         public virtual ICollection<ProjectTeams> ProjectTeams { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProjectWorks> ProjectWorks { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ProjectHistory> ProjectHistory { get; set; }
     }
 }

@@ -1,0 +1,15 @@
+﻿@using SpeCalcDataAccessLayer.Models
+
+@{
+    string stateStr = ViewBag.State;
+    string[] stateArr = !String.IsNullOrEmpty(stateStr) ? stateStr.Split(',') : null;
+}
+
+<div>
+    @foreach (var state in ProjectHelper.GetProjectStatesFilterList())
+    {
+        <div class="pull-left pad-l-sm">
+            <button name="stateFilterItem" sid="@state.Id" class="btn btn-sm state-filter @(stateArr != null && stateArr.Contains(state.Id.ToString()) ? "checked" : null)" style="border: 2px solid #@(state.BorderColor); background-color: #@state.BackgroundColor; color: #@state.ForegroundColor"><span class="sel-mark text-success"><i class="fa fa-check-circle"></i></span>@state.Name <span class="badge">@state.Projects.Count(x => x.Enabled)</span></button>
+        </div>
+    }
+</div>
