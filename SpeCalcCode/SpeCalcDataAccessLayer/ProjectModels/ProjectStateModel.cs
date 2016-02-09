@@ -4,6 +4,8 @@ using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ServiceClaim.Helpers;
+using SpeCalcDataAccessLayer.Models;
 using SpeCalcDataAccessLayer.Objects;
 
 namespace SpeCalcDataAccessLayer.ProjectModels
@@ -59,6 +61,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
         {
             bool isTran = context != null;
             var db = context ?? new SpeCalcEntities();
+
             string prevStateName = project.StateId.HasValue ? project.ProjectStates.Name : null;
             project.StateChangeDate = DateTime.Now;
             project.ChangerSid = user.Sid;
@@ -67,11 +70,21 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             //db.ProjectStates.Add(project);
             db.SaveChanges();
             CreateStateHistory(project, comment, db);
-            using (var dBase = new SpeCalcEntities())
+            using (var db2 = new SpeCalcEntities())
             {
-                project = dBase.Projects.Single(x => x.Id == project.Id);
+                project = db2.Projects.Single(x => x.Id == project.Id);
                 ProjectHistoryModel.CreateHistoryItem(project.Id, "Изменение статуса", $"C {prevStateName} на {project.ProjectStates.Name}." + (!String.IsNullOrEmpty(comment) ? $"\rКомментарий: {comment}" : null),
                     new[] {project}, user);
+
+                //Чтобы не слатьпо два уведомления при создании проекта
+                if (db2.ProjectStates.Single(x => x.Id == stateId).SysName != "NEW")
+                {
+                    string msg =
+                        $"В проекте №{project.Id} изменился статус с {prevStateName} на {project.ProjectStates.Name} .<br />Комментарий:<br />{(!String.IsNullOrEmpty(comment) ? comment : "отсутствует")}<br /><br />Краткая информация о проекте:<br />{ProjectHelper.GetProjectShortInfo(project.Id)}<br /><br />Ссылка: {ProjectHelper.GetProjectLink(project.Id)}";
+                    var emails = ProjectTeamModel.GetEmailList(project.Id);
+                    MessageHelper.SendMailSmtpAsync($"[Проект №{project.Id}] {project.ProjectStates.Name}", msg, true, null,
+                        emails.ToArray());
+                }
             }
             if (!isTran)
             {

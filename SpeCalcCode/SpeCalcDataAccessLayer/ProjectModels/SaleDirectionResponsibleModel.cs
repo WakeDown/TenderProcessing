@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
+using SpeCalcDataAccessLayer.Models;
 using SpeCalcDataAccessLayer.Objects;
 
 namespace SpeCalcDataAccessLayer.ProjectModels
@@ -15,6 +17,18 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             {
                 return db.ProjectSaleDirectionResponsibles.Where(x => x.Enabled && x.SaleDirectionId == directionId).ToList();
             }
+        }
+
+        public static IEnumerable<MailAddress> GetResponsiblesEmailList(int directionId)
+        {
+            var list = GetResponsiblesList(directionId);
+            var result = new List<MailAddress>();
+            foreach (var resp in list)
+            {
+                var email = new MailAddress(User.GetEmailBySid(resp.UserSid));
+                result.Add(email);
+            }
+            return result;
         }
 
         public static void Create(int directionId, string userSid, string userName, AdUser user)

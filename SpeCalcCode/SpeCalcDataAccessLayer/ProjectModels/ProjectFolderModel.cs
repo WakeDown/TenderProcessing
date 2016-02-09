@@ -27,7 +27,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             //using (var db = new SpeCalcEntities())
             //{
             var db = new SpeCalcEntities();
-                return db.ProjectFiles.Where(x => x.Enabled && x.ProjectId == projectId && x.FolderId== folderId && x.PreviousFileGUID == null).OrderBy(x=>x.FileName).Select(x => new ProjectFileModel() { FolderId = x.FolderId, FileGUID = x.FileGUID.ToString(), FileName = x.FileName, VersionNumber = x.VersionNumber, CreatorName = x.CreatorName, CreateDate = x.CreateDate }).OrderBy(x=>x.FileName);
+                return db.ProjectFiles.Where(x => x.Enabled && x.ProjectId == projectId && x.FolderId== folderId && x.PreviousFileGUID == null).OrderBy(x=>x.FileName).Select(x => new ProjectFileModel() { FolderId = x.FolderId, FileGUID = x.FileGUID.ToString(), FileName = x.FileName, VersionNumber = x.VersionNumber, CreatorName = x.CreatorName, CreateDate = x.CreateDate, ProjectId = projectId }).OrderBy(x=>x.FileName);
             //}
         }
 
@@ -36,7 +36,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             //using (var db = new SpeCalcEntities())
             //{
             var db = new SpeCalcEntities();
-            return db.ProjectFiles.Where(x => x.Enabled && x.ProjectId == projectId && x.FolderId == folderId).OrderBy(x => x.FileName).Select(x => new ProjectFileModel() { FolderId = x.FolderId, FileGUID = x.FileGUID.ToString(), FileName = x.FileName, VersionNumber = x.VersionNumber, CreatorName = x.CreatorName, CreateDate = x.CreateDate, IsLastVersion = x.PreviousFileGUID == null }).OrderBy(x => x.FileName).ThenBy(x => x.VersionNumber);
+            return db.ProjectFiles.Where(x => x.Enabled && x.ProjectId == projectId && x.FolderId == folderId).OrderBy(x => x.FileName).Select(x => new ProjectFileModel() { FolderId = x.FolderId, FileGUID = x.FileGUID.ToString(), FileName = x.FileName, VersionNumber = x.VersionNumber, CreatorName = x.CreatorName, CreateDate = x.CreateDate, IsLastVersion = x.PreviousFileGUID == null, ProjectId = projectId }).OrderBy(x => x.FileName).ThenBy(x => x.VersionNumber);
             //}
         }
 
@@ -48,7 +48,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             
             var list = new List<ProjectFolderModel>();
             var folders = GetList();
-            var files = db.ProjectFiles.Where(x => x.Enabled && x.ProjectId == projectId && x.PreviousFileGUID == null).Select(x=>new ProjectFileModel { FolderId =x.FolderId, FileGUID = x.FileGUID.ToString(), FileName=x.FileName, VersionNumber = x.VersionNumber, CreatorName = x.CreatorName, CreateDate = x.CreateDate} );
+            var files = db.ProjectFiles.Where(x => x.Enabled && x.ProjectId == projectId && x.PreviousFileGUID == null).Select(x=>new ProjectFileModel { FolderId =x.FolderId, FileGUID = x.FileGUID.ToString(), FileName=x.FileName, VersionNumber = x.VersionNumber, CreatorName = x.CreatorName, CreateDate = x.CreateDate, ProjectId = projectId } );
             int i = 0;
             foreach (ProjectFolders fold in folders)
             {
@@ -71,7 +71,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
 
             var list = new List<ProjectFolderModel>();
             var folders = GetList();
-            var files = db.ProjectFiles.Where(x => x.ProjectId == projectId).Select(x => new ProjectFileModel { FolderId = x.FolderId, FileGUID = x.FileGUID.ToString(), FileName = x.FileName, VersionNumber = x.VersionNumber, CreatorName = x.CreatorName, CreateDate = x.CreateDate, IsLastVersion = x.PreviousFileGUID == null, Enabled = x.Enabled, DeleteDate = x.DeleterDate, DeleterName = x.DeleterName});
+            var files = db.ProjectFiles.Where(x => x.ProjectId == projectId).Select(x => new ProjectFileModel { FolderId = x.FolderId, FileGUID = x.FileGUID.ToString(), FileName = x.FileName, VersionNumber = x.VersionNumber, CreatorName = x.CreatorName, CreateDate = x.CreateDate, IsLastVersion = x.PreviousFileGUID == null, Enabled = x.Enabled, DeleteDate = x.DeleterDate, DeleterName = x.DeleterName, ProjectId=projectId});
             int i = 0;
             foreach (ProjectFolders fold in folders)
             {

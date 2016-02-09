@@ -12,32 +12,33 @@ using SpeCalcDataAccessLayer.Models;
 
 namespace SpeCalc.Controllers
 {
-    public class QuestionController : Controller
+    public class QuestionController : BaseController
     {
-        private UserBase GetCurUser()
-        {
+        //private UserBase GetCurUser()
+        //{
 
-            if (Session["CurUser"] != null)
-            {
-                return (UserBase)Session["CurUser"];
-            }
-            var user = UserHelper.GetUser(User.Identity);
-            Session["CurUser"] = user;
-            return user;
-        }
+        //    if (Session["CurUser"] != null)
+        //    {
+                
+        //        return (UserBase)Session["CurUser"];
+        //    }
+        //    var user = UserHelper.GetUser(User.Identity);
+        //    Session["CurUser"] = user;
+        //    return user;
+        //}
 
-        private void DisplayCurUser()
-        {
-            var user = GetCurUser();
-            if (user == null || !UserHelper.IsUserAccess(user))
-            {
-                var dict = new RouteValueDictionary();
-                dict.Add("message", "У Вас нет доступа к приложению");
-                RedirectToAction("ErrorPage", "Auth", dict);
-            }
-            ViewBag.UserName = user.Name;
-            ViewBag.AdUser = user;
-        }
+        //private void DisplayCurUser()
+        //{
+        //    var user = GetCurUser();
+        //    if (user == null || !UserHelper.IsUserAccess(user))
+        //    {
+        //        var dict = new RouteValueDictionary();
+        //        dict.Add("message", "У Вас нет доступа к приложению");
+        //        RedirectToAction("ErrorPage", "Auth", dict);
+        //    }
+        //    ViewBag.UserName = user.Name;
+        //    ViewBag.CurUser = user;
+        //}
         
         [HttpGet]
         public ActionResult New()
@@ -53,7 +54,7 @@ namespace SpeCalc.Controllers
             try
             {
                 ResponseMessage responseMessage;
-                que.Creator = new Employee() { AdSid = GetCurUser().Id };
+                que.Creator = new Employee() { AdSid = GetCurUser().Sid };
                 bool complete = que.Save(out responseMessage);
                 if (!complete) throw new Exception(responseMessage.ErrorMessage);
 

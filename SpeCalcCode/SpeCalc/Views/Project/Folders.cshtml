@@ -95,10 +95,11 @@
         if (!confirm('Вы действительно хотите удалить файл?'))return;
         var $this = $(this);
         var fguid = $this.attr('fguid');
+        var pid = $this.attr('pid');
         $.ajax({
             url: '@Url.Action("DeleteFile")',
             method: 'POST',
-            data: { guid: fguid },
+            data: { guid: fguid, pid: pid },
             success: function() {
                 var $cont = $('ul[name=folderFiles]:has([name="deleteFile"][fguid=' + fguid + '])');
                 var fid = $cont.attr('fid');

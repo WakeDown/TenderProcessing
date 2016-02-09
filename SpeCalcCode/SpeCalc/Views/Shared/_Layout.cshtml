@@ -1,5 +1,6 @@
 ﻿@using System.Configuration
 @using System.Data.SqlClient
+@using SpeCalcDataAccessLayer.Objects
 <!DOCTYPE html>
 
 <html>
@@ -43,6 +44,9 @@
                 <li class="active"><button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2"> <span class="fa fa-bars" aria-hidden="true"></span></button></li>
             </ul>*@
             <ul class="nav navbar-nav  navbar-right">
+                <li>
+                    <a class="btn btn-danger btn-danger-header" target="_blank" href="@ConfigurationManager.AppSettings["TaskTrackerNewWishUri"]">Заявка разработчику</a>
+                </li>
                 <li class="navbar-text">
                     Вы вошли как
                     <strong>
@@ -68,7 +72,10 @@
                         <li class="@(curUrl.StartsWith(Url.Action("List", "Claim")) ? "current" : null)"><a class="@(curUrl.StartsWith(Url.Action("List", "Claim")) ? "current" : null)" href="@Url.Action("List", "Claim")"><i class="fa fa-list"></i> Заявки</a></li>
                         <li class="@(curUrl.StartsWith(Url.Action("List", "Question"))? "current" : null)"><a class="@(curUrl.StartsWith(Url.Action("List", "Question"))? "current" : null)" href='@Url.Action("List", "Question")'><i class="fa fa-list"></i> Вопросы</a></li>
                         <li class="@(curUrl.StartsWith(Url.Action("Index", "Project")) ? "current" : null)"><a class="@(curUrl.StartsWith(Url.Action("Index", "Project")) ? "current" : null)" href='@Url.Action("Index", "Project")'><i class="fa fa-list"></i> Проекты</a></li>
-                        <li class="@(curUrl.StartsWith(Url.Action("Settings", "Project"))? "current" : null)"><a class="@(curUrl.StartsWith(Url.Action("Settings", "Project"))? "current" : null)" href='@Url.Action("Settings", "Project")'><i class="fa fa-cogs"></i> Настройки</a></li>
+                        @if (ViewBag.CurUser.HasAccess(AdGroup.SpeCalcProjectControler))
+                        {
+                            <li class="@(curUrl.StartsWith(Url.Action("Settings", "Project")) ? "current" : null)"><a class="@(curUrl.StartsWith(Url.Action("Settings", "Project")) ? "current" : null)" href='@Url.Action("Settings", "Project")'><i class="fa fa-cogs"></i> Настройки</a></li>
+                        }
                     </ul>
                 </li>
                 @*<li>
@@ -97,7 +104,7 @@
         </div><!-- /#sidebar-wrapper -->
         <!-- Page Content -->
         <div id="page-content-wrapper">
-            <div class="container-fluid xyz">
+            <div class="container-fluid xyz pad-t-sm">
                     @*@if (!String.IsNullOrEmpty(ConfigurationManager.AppSettings["Environment"]))
                     {
                         <blockquote class="bg-warning">

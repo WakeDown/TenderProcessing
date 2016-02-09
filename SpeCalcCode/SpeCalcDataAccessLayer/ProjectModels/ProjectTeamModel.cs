@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
+using ServiceClaim.Helpers;
+using SpeCalcDataAccessLayer.Models;
 using SpeCalcDataAccessLayer.Objects;
 
 namespace SpeCalcDataAccessLayer.ProjectModels
@@ -20,6 +23,22 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             {
                 return db.ProjectTeams.Where(x => x.Enabled && x.ProjectId == projectId && x.RoleId == roleId)
                     .Include(x => x.ProjectRoles).ToList();
+            }
+        }
+
+        public static IEnumerable<MailAddress> GetEmailList(int projectId)
+        {
+            using (var db = new SpeCalcEntities())
+            {
+                var team = db.ProjectTeams.Where(x => x.Enabled && x.ProjectId == projectId)
+                    .Include(x => x.ProjectRoles);
+                var list = new List<MailAddress>();
+                foreach (var member in team)
+                {
+                    var item = new MailAddress(User.GetEmailBySid(member.UserSid));
+                    list.Add(item);
+                }
+                return list;
             }
         }
 
@@ -61,7 +80,16 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                     db.ProjectTeams.Add(member);
                     
                     db.SaveChanges();
-                    ProjectHistoryModel.CreateHistoryItem(projectId, "Добавление участника в команду", $"{member.UserName} [{member.ProjectRoles.Name}]", new[] { member }, user);
+                    using (var db2 = new SpeCalcEntities())
+                    {
+                        member = db2.ProjectTeams.Single(x => x.Id == member.Id);
+                        ProjectHistoryModel.CreateHistoryItem(projectId, "Добавление участника в команду",
+                            $"{member.UserName} [{member.ProjectRoles.Name}]", new[] {member}, user);
+
+                        string msg = $"Вы назначены на роль <strong>{member.ProjectRoles.Name}</strong> в проекте №{projectId}.<br /><br />Краткая информация о проекте:<br />{ProjectHelper.GetProjectShortInfo(projectId)}<br /><br />Ссылка: {ProjectHelper.GetProjectLink(projectId)}";
+                        var email = new MailAddress(User.GetEmailBySid(member.UserSid));
+                        MessageHelper.SendMailSmtpAsync($"[Проект №{projectId}] Новый проект", msg, true, null, new []{email});
+                    }
                 }
             }
         }

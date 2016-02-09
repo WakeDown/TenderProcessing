@@ -450,3 +450,16 @@ a.text-danger-important:hover {
     overflow: hidden;
     float: left;
 }
+
+.btn-danger-header {
+    color: white !important;
+}
+
+.btn-danger-header:hover {
+    color: #d9534f !important;
+    
+}
+
+.pad-t-sm {
+    padding-top: 5px !important;
+}

@@ -31,6 +31,8 @@ namespace SpeCalc.Objects
             list.Add(new AdUserGroup(AdGroup.SpeCalcOperator, "S-1-5-21-1970802976-3466419101-4042325969-4287", "SpeCalcOperator"));
             list.Add(new AdUserGroup(AdGroup.SpeCalcKonkurs, "S-1-5-21-1970802976-3466419101-4042325969-4285", "SpeCalcKonkurs"));
             list.Add(new AdUserGroup(AdGroup.SpeCalcEngeneer, "S-1-5-21-1970802976-3466419101-4042325969-7658", "SpeCalcEngeneer"));
+            list.Add(new AdUserGroup(AdGroup.SpeCalcProjectControler, "S-1-5-21-1970802976-3466419101-4042325969-6770", "SpeCalcProjectControler"));
+            list.Add(new AdUserGroup(AdGroup.SpeCalcProjectViewer, "S-1-5-21-1970802976-3466419101-4042325969-6771", "SpeCalcProjectViewer"));
             return list;
         }
 

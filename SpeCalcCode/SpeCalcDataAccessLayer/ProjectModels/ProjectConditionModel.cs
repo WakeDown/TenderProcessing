@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Net.Mail;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using ServiceClaim.Helpers;
+using SpeCalcDataAccessLayer.Models;
 using SpeCalcDataAccessLayer.Objects;
 
 namespace SpeCalcDataAccessLayer.ProjectModels
@@ -47,10 +50,14 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             
             CreateConditionHistory(project, comment, db);
             
-            using (var dBase = new SpeCalcEntities())
+            using (var db2 = new SpeCalcEntities())
             {
-                project = dBase.Projects.Single(x => x.Id == project.Id);
+                project = db2.Projects.Single(x => x.Id == project.Id);
                 ProjectHistoryModel.CreateHistoryItem(project.Id, "Изменение состояния", $"C {prevConditionName} на {project.ProjectConditions.Name}."+(!String.IsNullOrEmpty(comment) ? $"\rКомментарий: {comment}" : null), new[] { project }, user);
+
+                string msg = $"В проекте №{project.Id} изменилось состояние с {prevConditionName} на {project.ProjectConditions.Name}.<br />Комментарий:<br />{(!String.IsNullOrEmpty(comment) ? comment : "отсутствует")}<br /><br />Краткая информация о проекте:<br />{ProjectHelper.GetProjectShortInfo(project.Id)}<br /><br />Ссылка: {ProjectHelper.GetProjectLink(project.Id)}";
+                var emails = ProjectTeamModel.GetEmailList(project.Id);
+                MessageHelper.SendMailSmtpAsync($"[Проект №{project.Id}] {project.ProjectConditions.Name}", msg, true, emails.ToArray());
             }
             if (!isTran)
             {

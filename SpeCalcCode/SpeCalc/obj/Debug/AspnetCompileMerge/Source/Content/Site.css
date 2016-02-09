@@ -6,6 +6,8 @@
     padding-right: 15px;
 }
 
+
+
 /* Set width on the form input elements since they're 100% wide by default */
 /*input,
 select,
@@ -47,7 +49,7 @@ body {
 
 .body-content {
     background: #eee;
-    padding-top: 25px;
+    padding-top: 5px;
 }
 
 .body-content {
@@ -76,7 +78,7 @@ body {
 
 .headLogo {
     display: block;
-    height: 25px;
+    height: 40px;
     padding-left: 10px;
 }
 
@@ -245,6 +247,9 @@ input.required-mark,textarea.required-mark, select.required-mark, span.required-
 .text-sm {
     font-size: 0.9em;
 }
+.text-xs {
+    font-size: 0.7em;
+}
 .table-condensed.pad-xs tr td {
     padding-top: 1px;
     padding-bottom: 1px;
@@ -330,6 +335,127 @@ input.required-mark,textarea.required-mark, select.required-mark, span.required-
   border-radius: 3px; 
 }
 
+.input-xxs {
+    height: 20px;
+  padding: 2px 5px;
+  font-size: 10px;
+  line-height: 1.5;
+  border-radius: 1px; 
+}
+
 .calcDeleted {
     background-color: red;
+}
+
+.input-group-addon-element {
+    padding: 1px !important;
+}
+
+.row-item:hover {
+    cursor: pointer;
+    background-color: #f7ecb5;
+}
+
+.no-pad-top {
+    padding-top: 0 !important;
+}
+
+
+.project-form .row {
+    margin-top: 5px;
+}
+
+.collapse-partial.collapse {
+    visibility: visible !important;
+    display: block !important;
+    height: 100px !important;
+}
+
+.collapse-partial.collapse.in {
+    height: auto !important;
+
+}
+
+.info-row {
+    margin-bottom: 5px;
+    border-bottom: 1px dotted #999;
+    padding-bottom: 3px;
+}
+
+.pad-l-sm {
+    padding-left: 5px;
+}
+
+.project-message-item {
+    padding: 5px;
+    /*border-bottom: 1px solid #999;
+    margin-bottom: 3px;*/
+}
+
+.folder-color {
+    color: #F2B818 !important;
+}
+
+.project-condition-big-item {
+    width: 120px;
+    height: 35px;
+    padding: 5px;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.project-condition-small-item {
+    width: 10px;
+    height: 17px;
+    padding: 1px;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.marg-l-sm {
+    margin-left: 3px;
+}
+
+.marg-l-xs {
+    margin-left: 1px;
+}
+
+.text-danger-important {
+  color: #a94442 !important;
+}
+a.text-danger-important:hover {
+  color: #843534 !important;
+}
+
+.state-filter.cecked {
+    
+}
+
+.state-filter .sel-mark  {
+    
+    display: none;
+    
+}
+
+.state-filter.checked .sel-mark  {
+    display: block;
+}
+
+.sel-mark {
+    position: relative;
+    overflow: hidden;
+    float: left;
+}
+
+.btn-danger-header {
+    color: white !important;
+}
+
+.btn-danger-header:hover {
+    color: #d9534f !important;
+    
 }

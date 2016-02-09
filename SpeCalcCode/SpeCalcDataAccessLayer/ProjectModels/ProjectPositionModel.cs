@@ -145,17 +145,21 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             //}
         }
 
-        public static IEnumerable<ProjectPositionModel> GetListWithCalc(int projectId, bool? calced=null)
+        public static IEnumerable<ProjectPositionModel> GetListWithCalc(int projectId, bool? calced=null, string productSid = null)
         {
             var db = new SpeCalcEntities();
             //using (var db = new SpeCalcEntities())
             //{
 
                 var list = new List<ProjectPositionModel>();
-                var positions = db.ProjectPositions.Where(x => x.Enabled && x.ProjectId == projectId).Where(
+                var positions = db.ProjectPositions.Where(x => x.Enabled && x.ProjectId == projectId)
+                .Where(x=> String.IsNullOrEmpty(productSid) || (!String.IsNullOrEmpty(productSid) && x.CalculatorSid== productSid))
+                .Where(
                     x=> calced == null || (calced.HasValue && ((calced.Value && x.ProjectPositionCalculations.Any()) || (!calced.Value && !x.ProjectPositionCalculations.Any())))
                     ).ToList();
-                var calculations =  db.ProjectPositionCalculations.Where(x => x.Enabled && x.ProjectPositions.ProjectId == projectId).Include(x => x.ProjectCurrencies).Include(x => x.ProjectProtectionFacts).Include(x => x.ProjectPositionDeliveryTimes).ToList();
+                var calculations =  db.ProjectPositionCalculations.Where(x => x.Enabled && x.ProjectPositions.ProjectId == projectId)
+                .Where(x => String.IsNullOrEmpty(productSid) || (!String.IsNullOrEmpty(productSid) && x.ProjectPositions.CalculatorSid == productSid))
+                .Include(x => x.ProjectCurrencies).Include(x => x.ProjectProtectionFacts).Include(x => x.ProjectPositionDeliveryTimes).ToList();
                 int i = 0;
                 foreach (ProjectPositions pos in positions)
                 {

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ServiceClaim.Helpers;
+using SpeCalcDataAccessLayer.Models;
 using SpeCalcDataAccessLayer.Objects;
 
 namespace SpeCalcDataAccessLayer.ProjectModels
@@ -20,6 +22,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
         public bool Enabled { get; set; }
         public DateTime? DeleteDate { get; set; }
         public string DeleterName { get; set; }
+        public int ProjectId { get; set; }
 
         public static ProjectFiles Get(string guid)
         {
@@ -70,6 +73,12 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 }
                 db.SaveChanges();
                 ProjectHistoryModel.CreateHistoryItem(projectId, "Добавление файла", $"{file.FileName} v.{file.VersionNumber}", new[] { file }, user);
+
+                string mesg = $"В проекте №{projectId} новый файл<br />";
+                    mesg += $" <a href=\"{ProjectHelper.GetFileLink(file.FileGUID.ToString(), projectId)}\">{file.FileName}</a> v.{file.VersionNumber}<br />";
+                mesg +=$"<br />Краткая информация о проекте:<br />{ProjectHelper.GetProjectShortInfo(projectId)}<br /><br />Ссылка: {ProjectHelper.GetProjectLink(projectId)}";
+                var emails = ProjectTeamModel.GetEmailList(projectId);
+                MessageHelper.SendMailSmtpAsync($"[Проект №{projectId}] Новый файл", mesg, true, null, emails.ToArray());
             }
         }
 

@@ -139,10 +139,10 @@
                     <th>
                         <div class="input-group input-daterange">
                             <div>
-                                <input id="fCreateStart" type="text" class="form-control input-xs datepicker" value="@(String.IsNullOrEmpty(Request.QueryString["createst"]) ? DateTime.Now.AddMonths(-3).ToString("dd.MM.yyyy") : Request.QueryString["createst"])">
+                                <input id="fCreateStart" type="text" class="form-control input-xs datepicker" value="@(Request.QueryString["createst"])">
                             </div>
                             <div>
-                                <input id="fCreateEnd" type="text" class="form-control input-xs datepicker" value="@(String.IsNullOrEmpty(Request.QueryString["creatend"]) ? DateTime.Now.ToString("dd.MM.yyyy") : Request.QueryString["creatend"])">
+                                <input id="fCreateEnd" type="text" class="form-control input-xs datepicker" value="@(Request.QueryString["creatend"])">
                             </div>
                         </div>
                     </th>

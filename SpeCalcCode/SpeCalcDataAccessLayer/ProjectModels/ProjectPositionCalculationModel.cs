@@ -32,7 +32,12 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 //calc.LastChangerName = user.DisplayName;
                 db.ProjectPositionCalculations.Add(calc);
                 db.SaveChanges();
-                ProjectHistoryModel.CreateHistoryItem(calc.ProjectPositions.ProjectId, "Добавление расчета оборудования", $"{calc.Name}", new[] { calc }, user);
+                using (var db2 = new SpeCalcEntities())
+                {
+                    calc = db2.ProjectPositionCalculations.Single(x => x.Id == calc.Id);
+                    ProjectHistoryModel.CreateHistoryItem(calc.ProjectPositions.ProjectId,
+                        "Добавление расчета оборудования", $"{calc.Name}", new[] {calc}, user);
+                }
                 return calc.Id;
             }
         }
@@ -56,7 +61,12 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 oldcalc.LastChangerSid = user.Sid;
                 oldcalc.LastChangerName = user.DisplayName;
                 db.SaveChanges();
-                ProjectHistoryModel.CreateHistoryItem(calc.ProjectPositions.ProjectId, "Изменение расчета оборудования", $"{oldcalc.Name}", new[] { oldcalc, calc }, user);
+                using (var db2 = new SpeCalcEntities())
+                {
+                    calc = db2.ProjectPositionCalculations.Single(x => x.Id == calc.Id);
+                    ProjectHistoryModel.CreateHistoryItem(calc.ProjectPositions.ProjectId,
+                        "Изменение расчета оборудования", $"{oldcalc.Name}", new[] {oldcalc, calc}, user);
+                }
                 return calc.Id;
             }
         }

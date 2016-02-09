@@ -17,9 +17,12 @@ work
             <i class="fa @work.ProjectWorkStates.Icon" title="@work.ProjectWorkStates.Name"></i>
         </div>
     </th>
-    <td name="work"  rowspan="@rowspan">
-        <button type="button" name="editWork" class="btn btn-warning btn-sm" data-toggle="tooltip" title="резактировать позицию" wid="@work.Id"><i class="fa fa-edit"></i></button>
-        <button type="button" name="deleteWork" class="btn btn-danger btn-sm" data-toggle="tooltip" title="удалить позицию" wid="@work.Id"><i class="fa fa-trash"></i></button>
+    <td name="work" rowspan="@rowspan">
+        @if (ViewBag.UserCanChange)
+        {
+            <button type="button" name="editWork" class="btn btn-warning btn-sm" data-toggle="tooltip" title="резактировать позицию" wid="@work.Id"><i class="fa fa-edit"></i></button>
+            <button type="button" name="deleteWork" class="btn btn-danger btn-sm" data-toggle="tooltip" title="удалить позицию" wid="@work.Id"><i class="fa fa-trash"></i></button>
+        }
     </td>
     <td name="work" style="width: 250px;" rowspan="@rowspan">
         @work.Name
@@ -37,7 +40,10 @@ work
         <h2 class="" name="calcount">@calculations.Count()</h2>
     </td>
     <td name="work" rowspan="@rowspan">
-        <button type="button" name="addCalc" class="btn btn-warning btn-sm" data-toggle="tooltip" title="добавить расчет" wid="@work.Id"><i class="fa fa-plus"></i> <i class="fa fa-calculator"></i></button>
+        @if (ViewBag.UserCanChange)
+        {
+            <button type="button" name="addCalc" class="btn btn-warning btn-sm" data-toggle="tooltip" title="добавить расчет" wid="@work.Id"><i class="fa fa-plus"></i> <i class="fa fa-calculator"></i></button>
+        }
         <div calcol="calcol">
         </div>
     </td>

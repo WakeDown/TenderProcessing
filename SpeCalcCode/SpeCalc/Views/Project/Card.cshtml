@@ -10,22 +10,31 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         <ul class="list-inline no-margin">
-            <li class="pull-left">
+            <li>
                 <h4 class="marg-sm">
                     Крточка проекта №@Model.Id
                 </h4>
-                <button id="changeRoles" class="btn btn-danger btn-xs">роли</button>
-                <a id="showHistory" class="btn btn-xs btn-info">история</a>
+                @if (ViewBag.UserCanView || ViewBag.UserCanChange)
+                {
+                    <button id="changeRoles" class="btn btn-danger btn-xs">команда</button>
+                    <a id="showHistory" class="btn btn-xs btn-info">история</a>
+                }
             </li>
-            <li id="conditionContainer">
-                
-            </li>
-            <li class="pull-right">
-                <button id="projectPlay" class="btn btn-success" @(Model.StateId.HasValue && Model.ProjectStates.CanPlay ? null: "disabled=disabled")><i class="fa fa-play"></i> Запуск</button>
-                <button id="projectPause" class="btn btn-warning" @(Model.StateId.HasValue && Model.ProjectStates.CanPause ? null: "disabled=disabled")><i class="fa fa-pause"></i> Приостановить</button>
-                <button id="projectStop" class="btn btn-danger" @(Model.StateId.HasValue && Model.ProjectStates.CanStop ? null: "disabled=disabled")><i class="fa fa-stop"></i> Отклонить</button>
-                <button id="projectDone" class="btn btn-primary" @(Model.StateId.HasValue && Model.ProjectStates.CanDone ? null: "disabled=disabled")><i class="fa fa-check"></i> Завершен</button>
-            </li>
+            @if (ViewBag.UserCanView || ViewBag.UserCanChange)
+            {
+                <li id="conditionContainer">
+
+                </li>
+            }
+@if (ViewBag.UserCanChange)
+{
+    <li class="pull-right">
+        <button id="projectPlay" class="btn btn-success" @(Model.StateId.HasValue && Model.ProjectStates.CanPlay ? null : "disabled=disabled")><i class="fa fa-play"></i> Запуск</button>
+        <button id="projectPause" class="btn btn-warning" @(Model.StateId.HasValue && Model.ProjectStates.CanPause ? null : "disabled=disabled")><i class="fa fa-pause"></i> Приостановить</button>
+        <button id="projectStop" class="btn btn-danger" @(Model.StateId.HasValue && Model.ProjectStates.CanStop ? null : "disabled=disabled")><i class="fa fa-stop"></i> Отклонить</button>
+        <button id="projectDone" class="btn btn-primary" @(Model.StateId.HasValue && Model.ProjectStates.CanDone ? null : "disabled=disabled")><i class="fa fa-check"></i> Завершен</button>
+    </li>
+}
         </ul>
         @*<ul class="list-inline no-margin">
             <li>
@@ -40,30 +49,42 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-4">
-                <h4 class="no-pad">Информация 
+                <h4 class="no-pad">Информация
                     <a id="showInfo" class="btn btn-xs btn-info">вся инфа</a>
+                @if (ViewBag.UserCanChange)
+                {
                     <button id="changeInfo" class="btn btn-warning btn-xs">изменить</button>
+                }
                 </h4>
                 <div class="clearfix"></div>
                 @Html.Partial("CardInfo", Model)
             </div>
             <div class="col-lg-2">
-                <h4 class="no-pad">Файлы <a id="showFilesHistory" class="btn btn-xs btn-info">история</a>
-                </h4>
-                <div id="filesContainer"></div>
+                @if (ViewBag.UserCanView || ViewBag.UserCanChange)
+                {
+                    <h4 class="no-pad">Файлы <a id="showFilesHistory" class="btn btn-xs btn-info">история</a>
+                    </h4>
+                    <div id="filesContainer"></div>
+                }
             </div>
             <div class="col-lg-3">
-                <h4 class="no-pad">Переписка
-                </h4>
-                <div>
-                    <div class="input-group">
-                        <textarea id="message" rows="2" placeholder="Введите комментарий" class="form-control input-sm"></textarea>
-                        <div class="input-group-btn">
-                            <button type="button" id="sendMessage" class="btn btn-success btn-lg pull-right"><i class="fa fa-comment"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <div id="messagesContainer"></div>
+                @if (ViewBag.UserCanView || ViewBag.UserCanChange)
+                {
+                    <h4 class="no-pad">Переписка
+                    </h4>
+                    if (ViewBag.UserCanChange)
+                     {
+                         <div>
+                             <div class="input-group">
+                                 <textarea id="message" rows="2" placeholder="Введите комментарий" class="form-control input-sm"></textarea>
+                                 <div class="input-group-btn">
+                                     <button type="button" id="sendMessage" class="btn btn-success btn-lg pull-right"><i class="fa fa-comment"></i></button>
+                                 </div>
+                             </div>
+                         </div>
+                     }
+                    <div id="messagesContainer"></div>
+                }
             </div>
             <div class="col-lg-3">
                 <h4 class="no-pad">Статус
@@ -75,15 +96,24 @@
         <div>
             <ul class="list-inline">
                 @*<li><span class="h4">Расчет</span></li>*@
-                <li>
-                    <a name="addPosition" class="btn btn-sm btn-warning"><i class="fa fa-plus"></i> добавить оборудование</a>
-                </li>
-                <li>
-                    <a name="addWork" class="btn btn-sm btn-warning"><i class="fa fa-plus"></i> добавить работу</a>
-                </li>
+                @if (ViewBag.UserCanChange)
+                {
+                    <li>
+                        <a name="addPosition" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> добавить оборудование</a>
+                    </li>
+                    <li>
+                        <a name="addWork" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> добавить работу</a>
+                    </li>
+                }
                 <li>
                     <a href="@Url.Action("GetCalculationExcel")?id=@Model.Id" target="_blank" class="btn btn-sm btn-primary"><i class="fa fa-file-excel-o"></i> скачать расчет</a>
                 </li>
+@if (ViewBag.UserCanChange)
+{ 
+                <li>
+                    <a id="sendNotice2Calculators" class="btn btn-sm btn-info"><i class="fa fa-mail"></i> уведомить продактов</a>
+                </li>
+}
                 <li class=" pull-right">
                     <a id="displayCalcs" class="btn btn-sm btn-info">показать расчеты</a>
                 </li>
@@ -102,9 +132,12 @@
                     <input name="positionCalcFilter" type="radio" value="1"/> расчитанные
                     <input name="positionCalcFilter" type="radio" value="0"/> нерасчитанные
                 </li>
-                <li class="pull-right">
-                    <button id="deleteCheckedPositions" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> удалить отмеченные</button>
-                </li>
+                @if (ViewBag.UserCanChange)
+                {
+                    <li class="pull-right">
+                        <button id="deleteCheckedPositions" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> удалить отмеченные</button>
+                    </li>
+                }
             </ul>
         <div id="positionTableContainer" class="collapse in" style="overflow-x: scroll;">
             <table id="positionTable" class="table small table-bordered">
@@ -113,7 +146,10 @@
                 </thead>
                 <tbody id="positionsContainer"></tbody>
             </table>
-            <a name="addPosition" class="btn btn-sm btn-warning"><i class="fa fa-plus"></i> добавить оборудование</a>
+            @if (ViewBag.UserCanChange)
+            {
+                <a name="addPosition" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> добавить оборудование</a>
+            }
         </div>
         
         <hr />
@@ -129,9 +165,12 @@
                 <input name="workCalcFilter" type="radio" value="1"/> расчитанные
                 <input name="workCalcFilter" type="radio" value="0"/> нерасчитанные
             </li>
-            <li class="pull-right">
-                <button id="deleteCheckedWorks" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> удалить отмеченные</button>
-            </li>
+@if (ViewBag.UserCanChange)
+{
+    <li class="pull-right">
+        <button id="deleteCheckedWorks" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> удалить отмеченные</button>
+    </li>
+}
         </ul>
         <div id="workTableContainer" class="collapse in" style="overflow-x: scroll">
             <table id="workTable" class="table small table-bordered">
@@ -140,7 +179,10 @@
                 </thead>
                 <tbody id="worksContainer"></tbody>
             </table>
-            <a name="addWork" class="btn btn-sm btn-warning"><i class="fa fa-plus"></i> добавить работу</a>
+@if (ViewBag.UserCanChange)
+{
+    <a name="addWork" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> добавить работу</a>
+}
         </div>
     </div>
 </div>
@@ -162,137 +204,139 @@
     </div>
 </div>
 
-<div id="filesHistoryModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">История файлов проекта №@Model.Id</h4>
-            </div>
-            <div class="modal-body">
-                <div id="filesHistoryContainer"></div>
-            </div>
-            @*<div class="modal-footer">
+@if (ViewBag.UserCanView || ViewBag.UserCanChange)
+{
+    <div id="filesHistoryModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">История файлов проекта №@Model.Id</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="filesHistoryContainer"></div>
+                </div>
+                @*<div class="modal-footer">
                 </div>*@
+            </div>
         </div>
     </div>
-</div>
 
-<div id="messagesHistoryModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">История переписки проекта №@Model.Id</h4>
-            </div>
-            <div class="modal-body">
-                <div id="messagesHistoryContainer"></div>
-            </div>
-            @*<div class="modal-footer">
+    <div id="messagesHistoryModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">История переписки проекта №@Model.Id</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="messagesHistoryContainer"></div>
+                </div>
+                @*<div class="modal-footer">
                 </div>*@
+            </div>
         </div>
     </div>
-</div>
 
-<div id="historyModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">История изменений статусов проекта №@Model.Id</h4>
-            </div>
-            <div class="modal-body">
-                <div id="historyAllontainer"></div>
-            </div>
-            @*<div class="modal-footer">
+    <div id="historyModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">История изменений статусов проекта №@Model.Id</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="historyAllontainer"></div>
+                </div>
+                @*<div class="modal-footer">
                 </div>*@
-        </div>
-    </div>
-</div>
-
-<div id="stateModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title" id="stateModelTitle"></h4>
-            </div>
-            <div class="modal-body">
-                <textarea id="stateModelComment" placeholder="Введите комментарий" class="form-control" rows="3"></textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
-                <button id="stateModalConfirm" class="btn btn-success">Подтвердить</button>
             </div>
         </div>
     </div>
-</div>
 
-<div id="conditionChangeModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Комментарий для изменения состояния проекта №@Model.Id</h4>
-            </div>
-            <div class="modal-body">
-                <textarea id="conditionChangeComment" placeholder="Введите комментарий" class="form-control" rows="3"></textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
-                <button id="conditionChangeConfirm" class="btn btn-success">Подтвердить</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="changeRolesModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Роли проекта №@Model.Id</h4>
-            </div>
-            <div class="modal-body">
-                <div id="changeRolesContainer">
-
+    <div id="stateModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="stateModelTitle"></h4>
+                </div>
+                <div class="modal-body">
+                    <textarea id="stateModelComment" placeholder="Введите комментарий" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
+                    <button id="stateModalConfirm" class="btn btn-success">Подтвердить</button>
                 </div>
             </div>
-            @*<div class="modal-footer">
+        </div>
+    </div>
+
+    <div id="conditionChangeModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Комментарий для изменения состояния проекта №@Model.Id</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea id="conditionChangeComment" placeholder="Введите комментарий" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
+                    <button id="conditionChangeConfirm" class="btn btn-success">Подтвердить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="changeRolesModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Роли проекта №@Model.Id</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="changeRolesContainer">
+
+                    </div>
+                </div>
+                @*<div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
                 <button id="changeRolesConfirm" class="btn btn-success">Принять</button>
             </div>*@
+            </div>
         </div>
     </div>
-</div>
 
-<div id="historyProjectModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">История проекта №@Model.Id</h4>
-            </div>
-            <div class="modal-body">
-                <div id="historyProjectContainer">
-
+    <div id="historyProjectModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">История проекта №@Model.Id</h4>
                 </div>
-            </div>
-            @*<div class="modal-footer">
+                <div class="modal-body">
+                    <div id="historyProjectContainer">
+
+                    </div>
+                </div>
+                @*<div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
                     <button id="changeRolesConfirm" class="btn btn-success">Принять</button>
                 </div>*@
+            </div>
         </div>
     </div>
-</div>
-
+}
 <script>
     var showCalcs = false;
     $(function() {
@@ -328,7 +372,27 @@
         $('[name="workCalcFilter"]').click(loadWorks);
         $('#changeRoles').click(changeRoles);
         $('#showHistory').click(showHistory);
+        $('#sendNotice2Calculators').click(sendNotice2Calculators);
     });
+
+    function sendNotice2Calculators() {
+        var $this = $(this);
+        showSpinnerAppendAndDisable($this);
+        $.ajax({
+            url: '@Url.Action("SendNotice2Calculators")',
+            method: 'POST',
+            data: {id:@Model.Id},
+            success: function() {
+                alert('Уведомления успешно отправлены!');
+                hideSpinnerAndEnabled($this);
+            },
+            error: function(data) {
+                alert('Ошибка при отправке уведомлений!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
 
     function showHistory() {
         $('#historyProjectModal').modal('show');
@@ -433,7 +497,7 @@
         $.ajax({
             url: '@Url.Action("DeleteFromRoleTeam")',
             method: 'POST',
-            data: { mid: mid },
+            data: { mid: mid, pid: @Model.Id },
             success: function() {
                 loadRoleTeam(rid);
                 hideSpinnerAndEnabled($this);
@@ -463,7 +527,7 @@
             url: '@Url.Action("DeleteWorks")',
             method: 'POST',
             contentType:'application/json',
-            data: JSON.stringify({ ids: ids }),
+            data: JSON.stringify({ ids: ids, pid:@Model.Id }),
             success: function() {
                 for(var j=0;j<ids.length;j++) {
                     $('tr[wid=' + ids[j] + ']').remove();
@@ -495,7 +559,7 @@
             url: '@Url.Action("DeletePositions")',
             method: 'POST',
             contentType:'application/json',
-            data: JSON.stringify({ ids: ids }),
+            data: JSON.stringify({ ids: ids, pid:@Model.Id }),
             success: function() {
                 for(var j=0;j<ids.length;j++) {
                     $('tr[pid=' + ids[j] + ']').remove();
@@ -1010,7 +1074,7 @@
                 $.ajax({
                     url: '@Url.Action("GetWork")',
                     method: 'GET',
-                    data: { id: data.id },
+                    data: { id: data.id, pid:@Model.Id },
                     success: function(html) {
                         $row.replaceWith(html);
                         displayCalcs();
@@ -1257,7 +1321,7 @@
             $.ajax({
                 url: '@Url.Action("DeleteWork")',
                 method: 'POST',
-                data: { id: id },
+                data: { id: id, pid:@Model.Id },
                 success: function(html) {
                     var $rows = $('tr[wid=' + id + ']');
                     $rows.remove();
@@ -1277,10 +1341,10 @@
             var id = $row.attr('wid');
             var model = getPositionValues($row);
             model.Id = id;
-            $.ajax({
-                url: '@Url.Action("GetWork")',
-                method: 'GET',
-                data: { id: id },
+                $.ajax({
+                    url: '@Url.Action("GetWork")',
+                    method: 'GET',
+                    data: {id: id, pid:@Model.Id},
                 success: function(html) {
                     var $rows = $('tr[wid=' + id + ']');
                     $rows.last().after(html);
@@ -1314,7 +1378,7 @@
                     $.ajax({
                         url: '@Url.Action("GetWork")',
                         method: 'GET',
-                        data: { id: id },
+                        data: { id: id, pid:@Model.Id },
                         success: function(html) {
                             var $rows = $('tr[wid=' + id + ']');
                             $rows.last().after(html);
@@ -1451,7 +1515,7 @@
                 $.ajax({
                     url: '@Url.Action("GetPosition")',
                     method: 'GET',
-                    data: { id: data.id },
+                    data: { id: data.id, pid: @Model.Id },
                     success: function(html) {
                         $row.replaceWith(html);
                         displayCalcs();
@@ -1707,7 +1771,7 @@
             $.ajax({
                 url: '@Url.Action("DeletePosition")',
                 method: 'POST',
-                data: { id: id },
+                data: { id: id, pid:@Model.Id },
                 success: function(html) {
                     var $rows = $('tr[pid=' + id + ']');
                     $rows.remove();
@@ -1730,7 +1794,7 @@
             $.ajax({
                 url: '@Url.Action("GetPosition")',
                 method: 'GET',
-                data: { id: id },
+                data: { id: id, pid:@Model.Id },
                 success: function(html) {
                     var $rows = $('tr[pid=' + id + ']');
                     $rows.last().after(html);
@@ -1764,7 +1828,7 @@
                 $.ajax({
                     url: '@Url.Action("GetPosition")',
                     method: 'GET',
-                    data: { id: id },
+                    data: { id: id, pid:@Model.Id },
                     success: function(html) {
                         var $rows = $('tr[pid=' + id + ']');
                         $rows.last().after(html);

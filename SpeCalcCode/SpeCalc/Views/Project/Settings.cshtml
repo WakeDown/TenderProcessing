@@ -1,9 +1,12 @@
-﻿@{
+﻿@using SpeCalcDataAccessLayer.Objects
+@{
     ViewBag.Title = "Ответственные за направления";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<h4>Проекты</h4>
-<div>
-    <a href="@Url.Action("SaleDirectionResponsibles")">Ответственные за направления</a>
-</div>
+@if (ViewBag.CurUser.HasAccess(AdGroup.SpeCalcProjectControler))
+{
+    <h4>Проекты</h4>
+    <div>
+        <a href="@Url.Action("SaleDirectionResponsibles")">Ответственные за направления</a>
+    </div>
+}

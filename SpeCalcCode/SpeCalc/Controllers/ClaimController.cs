@@ -4014,6 +4014,7 @@ namespace SpeCalc.Controllers
 
         public ActionResult Dashboard()
         {
+            return RedirectToAction("List");
             return View();
         }
     }

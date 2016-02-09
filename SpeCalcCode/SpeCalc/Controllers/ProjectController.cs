@@ -12,12 +12,60 @@ using SpeCalc.Helpers;
 using SpeCalc.Objects;
 using SpeCalcDataAccessLayer;
 using SpeCalcDataAccessLayer.Models;
+using SpeCalcDataAccessLayer.Objects;
 using SpeCalcDataAccessLayer.ProjectModels;
 
 namespace SpeCalc.Controllers
 {
     public class ProjectController : BaseController
     {
+        public void SetUserCanChange(int projectId)
+        {
+            string key = "p" + projectId + "UCC";
+            bool result = CurUser.HasAccess(AdGroup.SpeCalcProjectControler) ||
+                          ProjectModel.UserCanChangeProject(projectId, CurUser.Sid);
+            Session[key] = result;
+        }
+        public bool GetUserCanChange(int projectId)
+        {
+            string key = "p" + projectId + "UCC";
+            if (Session[key] != null) return (bool)Session[key];
+            bool result = CurUser.HasAccess(AdGroup.SpeCalcProjectControler) ||
+                          ProjectModel.UserCanChangeProject(projectId, CurUser.Sid);
+            Session[key] = result;
+            return result;
+        }
+        public void SetUserCanView(int projectId)
+        {
+            string key = "p" + projectId + "UCV";
+            bool result = (CurUser.HasAccess(AdGroup.SpeCalcProjectControler) ||
+                          ProjectModel.UserCanViewProject(projectId, CurUser.Sid)) && !GetIsProductOnly(projectId);
+            Session[key] = result;
+        }
+        public bool GetUserCanView(int projectId)
+        {
+            string key = "p" + projectId + "UCV";
+            if (Session[key] != null) return (bool)Session[key];
+            bool result = (CurUser.HasAccess(AdGroup.SpeCalcProjectControler) ||
+                          ProjectModel.UserCanViewProject(projectId, CurUser.Sid)) && !GetIsProductOnly(projectId);
+            Session[key] = result;
+            return result;
+        }
+        public void SetIsProductOnly(int projectId)
+        {
+            string key = "p" + projectId + "UIPO";
+            bool result = ProjectModel.UserIsProjectProductonly(projectId, CurUser.Sid);
+            Session[key] = result;
+        }
+        public bool GetIsProductOnly(int projectId)
+        {
+            string key = "p" + projectId + "UIPO";
+            if (Session[key] != null) return (bool)Session[key];
+            bool result =  ProjectModel.UserIsProjectProductonly(projectId, CurUser.Sid);
+            Session[key] = result;
+            return result;
+        }
+
         // GET: Project
         public ActionResult Index(int? page, int? topRows,string id, string aucnum, string client, string budget, string direct, string subject, string team, string deadline, string probab, string state, string condition, string createst, string creatend)
         {
@@ -49,42 +97,42 @@ namespace SpeCalc.Controllers
                 return RedirectToAction("Index", new { topRows, page, state });
             }
 
-            DateTime createStart;
-            if (!String.IsNullOrEmpty(createst))
-            {
-                DateTime.TryParse(createst, out createStart);
-                if (createStart.Year < 2015)
-                {
-                    createst = DateTime.Now.AddMonths(-3).ToString("dd.MM.yyyy");
-                    return RedirectToAction("Index", new { topRows, page, state, createst });
-                }
-            }
-            else
-            {
-                createst = DateTime.Now.AddMonths(-3).ToString("dd.MM.yyyy");
-                return RedirectToAction("Index", new { topRows, page, state, createst });
-            }
+            DateTime? createStart = null;
+            //if (!String.IsNullOrEmpty(createst))
+            //{
+            //    DateTime.TryParse(createst, out createStart);
+            //    if (createStart.Year < 2015)
+            //    {
+            //        createst = DateTime.Now.AddMonths(-3).ToString("dd.MM.yyyy");
+            //        return RedirectToAction("Index", new { topRows, page, state, createst });
+            //    }
+            //}
+            //else
+            //{
+            //    createst = DateTime.Now.AddMonths(-3).ToString("dd.MM.yyyy");
+            //    return RedirectToAction("Index", new { topRows, page, state, createst });
+            //}
 
-            DateTime createEnd;
-            if (!String.IsNullOrEmpty(creatend))
-            {
-                DateTime.TryParse(creatend, out createEnd);
-                if (createEnd < createStart)
-                {
-                    creatend = createStart.ToString("dd.MM.yyyy");
-                    return RedirectToAction("Index", new { topRows, page, state, createst, creatend });
-                }
-                if (createEnd.Year < 2015)
-                {
-                    creatend = DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy");
-                    return RedirectToAction("Index", new { topRows, page, state, createst, creatend });
-                }
-            }
-            else
-            {
-                creatend = DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy");
-                return RedirectToAction("Index", new { topRows, page, state, createst, creatend });
-            }
+            DateTime? createEnd = null;
+            //if (!String.IsNullOrEmpty(creatend))
+            //{
+            //    DateTime.TryParse(creatend, out createEnd);
+            //    if (createEnd < createStart)
+            //    {
+            //        creatend = createStart.ToString("dd.MM.yyyy");
+            //        return RedirectToAction("Index", new { topRows, page, state, createst, creatend });
+            //    }
+            //    if (createEnd.Year < 2015)
+            //    {
+            //        creatend = DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy");
+            //        return RedirectToAction("Index", new { topRows, page, state, createst, creatend });
+            //    }
+            //}
+            //else
+            //{
+            //    creatend = DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy");
+            //    return RedirectToAction("Index", new { topRows, page, state, createst, creatend });
+            //}
 
             int totalCount;
             int intId;
@@ -122,9 +170,9 @@ namespace SpeCalc.Controllers
                 conditionId = 0;
             }
 
+            string curUserSid = CurUser.HasAccess(AdGroup.SpeCalcProjectControler, AdGroup.SpeCalcProjectViewer) ? null : CurUser.Sid;
 
-
-            var list = ProjectModel.GetList(out totalCount, topRows, page.Value, intId,  aucnum,  client,  budget, directId, subjectId,  team,  deadline,  probab, stateArr,  conditionId, createStart, createEnd);
+            var list = ProjectModel.GetList(out totalCount, topRows, page.Value, intId,  aucnum,  client,  budget, directId, subjectId,  team,  deadline,  probab, stateArr,  conditionId, createStart, createEnd, curUserSid);
             ViewBag.TotalCount = totalCount;
                 var result = new ListResult<Projects>() {List = list };
                 return View(result);
@@ -161,6 +209,8 @@ namespace SpeCalc.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(Projects project)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(project.Id, CurUser.Sid)) return HttpNotFound();
             //if (ModelState.IsValid)
             //{
                 var manager = AdHelper.GetUserBySid(project.ManagerSid);
@@ -173,12 +223,20 @@ namespace SpeCalc.Controllers
 
             return RedirectToAction("Card",new {id= project.Id});
         }
-
+        
         [HttpGet]
         public ActionResult Card(int? id)
         {
             if (!id.HasValue) return RedirectToAction("New");
-           var model = ProjectModel.GetFat(id.Value);
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler, AdGroup.SpeCalcProjectViewer) &&
+                !ProjectModel.UserCanViewProject(id.Value, CurUser.Sid))
+                return HttpNotFound();
+
+            ViewBag.IsProductOnly = GetIsProductOnly(id.Value);
+            ViewBag.UserCanView = GetUserCanView(id.Value);
+            ViewBag.UserCanChange = GetUserCanChange(id.Value);
+            
+            var model = ProjectModel.GetFat(id.Value);
             return View(model);
         }
 
@@ -190,10 +248,18 @@ namespace SpeCalc.Controllers
             return PartialView("PositionCalculationEdit", model);
         }
 
-        public PartialViewResult GetPositions(int? id, bool? calced)
+        public ActionResult GetPositions(int? id, bool? calced)
         {
             if (!id.HasValue) return null;
-            var model = ProjectPositionModel.GetListWithCalc(id.Value, calced);
+            
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler, AdGroup.SpeCalcProjectViewer) &&
+                          !ProjectModel.UserCanViewProject(id.Value, CurUser.Sid)) return HttpNotFound();
+
+            ViewBag.IsProductOnly = GetIsProductOnly(id.Value);
+            ViewBag.UserCanView = GetUserCanView(id.Value);
+            ViewBag.UserCanChange = GetUserCanChange(id.Value);
+            string productSid = ProjectModel.UserIsProjectProductonly(id.Value, CurUser.Sid) ? CurUser.Sid : null;
+            var model = ProjectPositionModel.GetListWithCalc(id.Value, calced, productSid);
             return PartialView("Positions", model);
         }
 
@@ -207,9 +273,12 @@ namespace SpeCalc.Controllers
             return PartialView("PositionEdit", model);
         }
 
-        public PartialViewResult GetPosition(int? id)
+        public PartialViewResult GetPosition(int? id, int? pid)
         {
-            if (!id.HasValue) return null;
+            if (!id.HasValue || !pid.HasValue) return null;
+            ViewBag.IsProductOnly = GetIsProductOnly(pid.Value);
+            ViewBag.UserCanView = GetUserCanView(pid.Value);
+            ViewBag.UserCanChange = GetUserCanChange(pid.Value);
             var model = ProjectPositionModel.GetWithCalc(id.Value);
             return PartialView("Position", model);
         }
@@ -222,6 +291,9 @@ namespace SpeCalc.Controllers
         [HttpPost]
         public JsonResult CreatePosition(ProjectPositions model)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(model.ProjectId, CurUser.Sid))
+                return null;
             if (!String.IsNullOrEmpty(model.CalculatorSid)) model.CalculatorName = AdHelper.GetUserBySid(model.CalculatorSid).DisplayName;
 
             int id = ProjectPositionModel.Create(model, CurUser);
@@ -231,6 +303,9 @@ namespace SpeCalc.Controllers
         [HttpPost]
         public JsonResult SavePosition(ProjectPositions model)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(model.ProjectId, CurUser.Sid))
+                return null;
             if (!String.IsNullOrEmpty(model.CalculatorSid)) model.CalculatorName = AdHelper.GetUserBySid(model.CalculatorSid).DisplayName;
 
             ProjectPositionModel.Save(model, CurUser);
@@ -245,15 +320,21 @@ namespace SpeCalc.Controllers
         }
 
         [HttpPost]
-        public JsonResult DeletePosition(int id)
+        public JsonResult DeletePosition(int id, int pid)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(pid, CurUser.Sid))
+                return null;
             ProjectPositionModel.Delete(id, CurUser);
             return Json(new { });
         }
 
         [HttpPost]
-        public JsonResult DeletePositions(int[] ids)
+        public JsonResult DeletePositions(int[] ids, int pid)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(pid, CurUser.Sid))
+                return null;
             ProjectPositionModel.Delete(ids, CurUser);
             return Json(new { });
         }
@@ -268,6 +349,7 @@ namespace SpeCalc.Controllers
         [HttpPost]
         public JsonResult SaveCalculation(ProjectPositionCalculations model)
         {
+
             int id = 0;
             if (model.Id > 0)
             {
@@ -283,15 +365,23 @@ namespace SpeCalc.Controllers
         [HttpPost]
         public JsonResult DeleteCalculation(int id)
         {
+
             ProjectPositionCalculationModel.Delete(id, CurUser);
             return Json(new { });
         }
 
         //Работы
-        public PartialViewResult GetWorks(int? id, bool? calced)
+        public ActionResult GetWorks(int? id, bool? calced)
         {
             if (!id.HasValue) return null;
-            var model = ProjectWorkModel.GetListWithCalc(id.Value, calced);
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler, AdGroup.SpeCalcProjectViewer) &&
+                          !ProjectModel.UserCanViewProject(id.Value, CurUser.Sid))
+                return HttpNotFound();
+            ViewBag.IsProductOnly = GetIsProductOnly(id.Value);
+            ViewBag.UserCanView = GetUserCanView(id.Value);
+            ViewBag.UserCanChange = GetUserCanChange(id.Value);
+            string productSid = ProjectModel.UserIsProjectProductonly(id.Value, CurUser.Sid) ? CurUser.Sid : null;
+            var model = ProjectWorkModel.GetListWithCalc(id.Value, calced, productSid);
             return PartialView("Works", model);
         }
 
@@ -311,10 +401,13 @@ namespace SpeCalc.Controllers
             return PartialView("WorkEdit", model);
         }
 
-        public PartialViewResult GetWork(int? id)
+        public PartialViewResult GetWork(int? id, int? pid)
         {
-            if (!id.HasValue) return null;
-            var model = ProjectWorkModel.GetWithCalc(id.Value);
+            if (!id.HasValue || !pid.HasValue) return null;
+            ViewBag.IsProductOnly = GetIsProductOnly(pid.Value);
+            ViewBag.UserCanView = GetUserCanView(id.Value);
+            ViewBag.UserCanChange = GetUserCanChange(pid.Value);
+            var model = ProjectWorkModel.GetWithCalc(pid.Value);
             return PartialView("Work", model);
         }
 
@@ -326,6 +419,9 @@ namespace SpeCalc.Controllers
         [HttpPost]
         public JsonResult CreateWork(ProjectWorks model)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(model.ProjectId, CurUser.Sid))
+                return null;
             if (!String.IsNullOrEmpty(model.CalculatorSid)) model.CalculatorName = AdHelper.GetUserBySid(model.CalculatorSid).DisplayName;
 
             int id = ProjectWorkModel.Create(model, CurUser);
@@ -335,6 +431,9 @@ namespace SpeCalc.Controllers
         [HttpPost]
         public JsonResult SaveWork(ProjectWorks model)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(model.ProjectId, CurUser.Sid))
+                return null;
             if (!String.IsNullOrEmpty(model.CalculatorSid)) model.CalculatorName = AdHelper.GetUserBySid(model.CalculatorSid).DisplayName;
 
             ProjectWorkModel.Save(model, CurUser);
@@ -349,15 +448,21 @@ namespace SpeCalc.Controllers
         }
 
         [HttpPost]
-        public JsonResult DeleteWork(int id)
+        public JsonResult DeleteWork(int id, int pid)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(pid, CurUser.Sid))
+                return null;
             ProjectWorkModel.Delete(id, CurUser);
             return Json(new { });
         }
 
         [HttpPost]
-        public JsonResult DeleteWorks(int[] ids)
+        public JsonResult DeleteWorks(int[] ids, int pid)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(pid, CurUser.Sid))
+                return null;
             ProjectWorkModel.Delete(ids, CurUser);
             return Json(new { });
         }
@@ -393,9 +498,12 @@ namespace SpeCalc.Controllers
 
         //
 
-        public PartialViewResult GetEdit(int? id)
+        public ActionResult GetEdit(int? id)
         {
             if (!id.HasValue) return null;
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(id.Value, CurUser.Sid))
+                return null;
             var model = ProjectModel.Get(id.Value);
             return PartialView("Edit", model);
         }
@@ -404,6 +512,7 @@ namespace SpeCalc.Controllers
         {
             if (!id.HasValue) return null;
             var model = ProjectModel.GetFat(id.Value);
+            ViewBag.UserCanChange = GetUserCanChange(id.Value);
             return PartialView("Info", model);
         }
         [HttpPost]
@@ -413,8 +522,11 @@ namespace SpeCalc.Controllers
             return Json(list);
         }
 
-        public PartialViewResult GetFolders(int? id)
+        public ActionResult GetFolders(int? id)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler, AdGroup.SpeCalcProjectViewer) &&
+                !ProjectModel.UserCanChangeProject(id.Value, CurUser.Sid))
+                return null;
             if (!id.HasValue) return null;
             var model = ProjectFolderModel.GetListWithFiles(id.Value);
             return PartialView("Folders", model);
@@ -423,6 +535,9 @@ namespace SpeCalc.Controllers
         [HttpPost]
         public JsonResult UploadFile(int pid, int fid)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(pid, CurUser.Sid))
+                return null;
             var files = Request.Files;
             if (files != null & files.Count > 0)
             {
@@ -444,13 +559,19 @@ namespace SpeCalc.Controllers
         public PartialViewResult GetFolderFiles(int? fid, int? pid)
         {
             if (!fid.HasValue || !pid.HasValue) return null;
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler, AdGroup.SpeCalcProjectViewer) &&
+                !ProjectModel.UserCanChangeProject(pid.Value, CurUser.Sid))
+                return null;
 
             var model = ProjectFolderModel.GetFileList(pid.Value, fid.Value);
             return PartialView("FolderFiles", model);
         }
 
-        public ActionResult GetFileData(string guid)
+        public ActionResult GetFileData(string guid, int pid)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler, AdGroup.SpeCalcProjectViewer) &&
+                !ProjectModel.UserCanViewProject(pid, CurUser.Sid))
+                return HttpNotFound();
             var file = ProjectFileModel.Get(guid);
             string ext = file.FileName.Substring(file.FileName.LastIndexOf(".", StringComparison.Ordinal));
             string name = file.FileName.Substring(0, file.FileName.LastIndexOf(".", StringComparison.Ordinal));
@@ -461,6 +582,9 @@ namespace SpeCalc.Controllers
         public PartialViewResult GetFolderFilesHistory(int? id)
         {
             if (!id.HasValue) return null;
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler, AdGroup.SpeCalcProjectViewer) &&
+                !ProjectModel.UserCanChangeProject(id.Value, CurUser.Sid))
+                return null;
             var model = ProjectFolderModel.GetListWithFilesHistory(id.Value);
             return PartialView("FolderFilesHistory", model);
         }
@@ -468,6 +592,9 @@ namespace SpeCalc.Controllers
         public PartialViewResult GetFilesHistory(int? fid, int? pid)
         {
             if (!fid.HasValue || !pid.HasValue) return null;
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler,AdGroup.SpeCalcProjectViewer) &&
+                !ProjectModel.UserCanChangeProject(pid.Value, CurUser.Sid))
+                return null;
             var model = ProjectFolderModel.GetFileListHistory(pid.Value, fid.Value);
             return PartialView("FilesHistory", model);
         }
@@ -475,6 +602,9 @@ namespace SpeCalc.Controllers
         public PartialViewResult GetMessages(int? id)
         {
             if (!id.HasValue) return null;
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(id.Value, CurUser.Sid))
+                return null;
             int totalCount;
             var model = ProjectMessageModel.GetList(out totalCount, id.Value, false);
             ViewBag.TotalCount = totalCount;
@@ -485,6 +615,9 @@ namespace SpeCalc.Controllers
         public PartialViewResult GetMessagesHistory(int? id)
         {
             if (!id.HasValue) return null;
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(id.Value, CurUser.Sid))
+                return null;
             int totalCount;
             var model = ProjectMessageModel.GetList(out totalCount, id.Value, true);
             ViewBag.TotalCount = totalCount;
@@ -495,6 +628,9 @@ namespace SpeCalc.Controllers
         [HttpPost]
         public JsonResult SendMessage(int id, string message)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(id, CurUser.Sid))
+                return null;
             ProjectMessageModel.Send(id, message, CurUser);
 
             return Json(new {});
@@ -523,6 +659,9 @@ namespace SpeCalc.Controllers
         [HttpPost]
         public JsonResult Play(int id, string comment)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserProjectGeneral(id, CurUser.Sid))
+                return null;
             ProjectModel.SetPlayState(id, comment, CurUser);
             return Json(new {});
         }
@@ -530,6 +669,9 @@ namespace SpeCalc.Controllers
         [HttpPost]
         public JsonResult Done(int id, string comment)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserProjectGeneral(id, CurUser.Sid))
+                return null;
             ProjectModel.SetDoneState(id, comment, CurUser);
             return Json(new { });
         }
@@ -537,6 +679,9 @@ namespace SpeCalc.Controllers
         [HttpPost]
         public JsonResult Pause(int id, string comment)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserProjectGeneral(id, CurUser.Sid))
+                return null;
             ProjectModel.SetPauseState(id, comment, CurUser);
             return Json(new { });
         }
@@ -544,6 +689,9 @@ namespace SpeCalc.Controllers
         [HttpPost]
         public JsonResult Stop(int id, string comment)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserProjectGeneral(id, CurUser.Sid))
+                return null;
             ProjectModel.SetStopState(id, comment, CurUser);
             return Json(new { });
         }
@@ -551,6 +699,9 @@ namespace SpeCalc.Controllers
         public PartialViewResult GetIndicatorBig(int? id)
         {
             if (!id.HasValue) return null;
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler, AdGroup.SpeCalcProjectViewer) &&
+               !ProjectModel.UserCanViewProject(id.Value, CurUser.Sid))
+                return null;
             var model = ProjectConditionModel.GetList(id.Value);
             return PartialView("IndicatorBig", model);
         }
@@ -565,12 +716,18 @@ namespace SpeCalc.Controllers
         [HttpPost]
         public JsonResult ChangeCondition(int pid, int cid, string comment)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+               !ProjectModel.UserProjectGeneral(pid, CurUser.Sid))
+                return null;
             ProjectModel.SetCondition(pid, cid, comment, CurUser);
             return Json(new {});
         }
         [HttpPost]
-        public JsonResult DeleteFile(string guid)
+        public JsonResult DeleteFile(string guid, int pid)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(pid, CurUser.Sid))
+                return null;
             ProjectFileModel.Delete(guid, CurUser);
             return Json(new { });
         }
@@ -602,7 +759,9 @@ namespace SpeCalc.Controllers
         public ActionResult GetCalculationExcel(int? id)
         {
             if (!id.HasValue) return null;
-
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler, AdGroup.SpeCalcProjectViewer) &&
+                !ProjectModel.UserCanViewProject(id.Value, CurUser.Sid))
+                return HttpNotFound();
             var project = ProjectModel.GetFat(id.Value);
 
             var ms = new MemoryStream();
@@ -725,12 +884,18 @@ namespace SpeCalc.Controllers
         public PartialViewResult GetTeam(int? id)
         {
             if (!id.HasValue) return null;
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(id.Value, CurUser.Sid))
+                return null;
             var model = ProjectTeamModel.GetList(id.Value);
             return PartialView("Team", model);
         }
         [HttpPost]
         public JsonResult Add2Team(int pid, int rid, string userSid)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserProjectGeneral(pid, CurUser.Sid))
+                return null;
             string userName = AdHelper.GetUserBySid(userSid).DisplayName;
             ProjectTeamModel.Create(pid, rid, userSid, userName, CurUser);
             return Json(new {});
@@ -739,13 +904,19 @@ namespace SpeCalc.Controllers
         public PartialViewResult GetRoleTeam(int? id, int? rid)
         {
             if (!id.HasValue || !rid.HasValue) return null;
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(id.Value, CurUser.Sid))
+                return null;
             var model = ProjectTeamModel.GetRoleList(id.Value, rid.Value);
             return PartialView("RoleTeamList", model);
         }
 
         [HttpPost]
-        public JsonResult DeleteFromRoleTeam(int mid)
+        public JsonResult DeleteFromRoleTeam(int mid, int pid)
         {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserProjectGeneral(pid, CurUser.Sid))
+                return null;
             ProjectTeamModel.Delete(mid, CurUser);
             return Json(new { });
         }
@@ -753,6 +924,9 @@ namespace SpeCalc.Controllers
         public PartialViewResult GetProjectHistory(int? id)
         {
             if (!id.HasValue) return null;
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(id.Value, CurUser.Sid))
+                return null;
             var model = ProjectHistoryModel.GetList(id.Value);
             return PartialView("ProjectHistory", model);
         }
@@ -766,17 +940,20 @@ namespace SpeCalc.Controllers
 
         public ActionResult SaleDirectionResponsibles()
         {
+            if (!ViewBag.CurUser.HasAccess(AdGroup.SpeCalcProjectControler)) return HttpNotFound();
             return View();
         }
 
         public ActionResult Settings()
         {
+            if (!ViewBag.CurUser.HasAccess(AdGroup.SpeCalcProjectControler)) return HttpNotFound();
             return View();
         }
 
         [HttpPost]
         public JsonResult Add2Responsibles(int did, string userSid)
         {
+            if (!ViewBag.CurUser.HasAccess(AdGroup.SpeCalcProjectControler)) return null;
             string userName = AdHelper.GetUserBySid(userSid).DisplayName;
             SaleDirectionResponsibleModel.Create(did, userSid, userName, CurUser);
             return Json(new { });
@@ -784,6 +961,7 @@ namespace SpeCalc.Controllers
 
         public PartialViewResult GetDirectionResponsibles(int? id)
         {
+            if (!ViewBag.CurUser.HasAccess(AdGroup.SpeCalcProjectControler)) return null;
             if (!id.HasValue) return null;
             var model = SaleDirectionResponsibleModel.GetResponsiblesList(id.Value);
             return PartialView("DirectionRespinsibleList", model);
@@ -791,8 +969,20 @@ namespace SpeCalc.Controllers
         [HttpPost]
         public JsonResult DeleteFromDirectionResponsibles(int mid)
         {
+            if (!ViewBag.CurUser.HasAccess(AdGroup.SpeCalcProjectControler)) return null;
             SaleDirectionResponsibleModel.Delete(mid, CurUser);
             return Json(new { });
         }
+
+        [HttpPost]
+        public JsonResult SendNotice2Calculators(int id)
+        {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(id, CurUser.Sid))
+                return null;
+            ProjectModel.SendNotice2Calculators(id, CurUser);
+            return Json(new { });
+        }
+
     }
 }

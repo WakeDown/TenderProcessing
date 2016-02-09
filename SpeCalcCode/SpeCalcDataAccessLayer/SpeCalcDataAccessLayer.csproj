@@ -110,6 +110,7 @@
     <Compile Include="Models\PositionState.cs" />
     <Compile Include="Models\PositionUnit.cs" />
     <Compile Include="Models\ProductManager.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="Objects\AttachmentFile.cs" />
     <Compile Include="ProjectBusinessTargets.cs">
       <DependentUpon>SpeCalcModel.tt</DependentUpon>
@@ -245,6 +246,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.Config" />
+    <Compile Include="Helpers\Db\Db.Stuff.cs" />
     <None Include="packages.config" />
     <EntityDeploy Include="SpeCalcModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>

@@ -142,13 +142,14 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             //}
         }
 
-        public static IEnumerable<ProjectWorkModel> GetListWithCalc(int projectId, bool? calced=null)
+        public static IEnumerable<ProjectWorkModel> GetListWithCalc(int projectId, bool? calced=null, string productSid = null)
         {
             var db = new SpeCalcEntities();
             //using (var db = new SpeCalcEntities())
             //{
                 var list = new List<ProjectWorkModel>();
                 var works = db.ProjectWorks.Where(x => x.Enabled && x.ProjectId == projectId)
+                .Where(x => String.IsNullOrEmpty(productSid) || (!String.IsNullOrEmpty(productSid) && x.CalculatorSid == productSid))
                 //calced
                 .Where(x => calced == null || (calced.HasValue && ((calced.Value && x.ProjectWorkCalculations.Any()) || (!calced.Value && !x.ProjectWorkCalculations.Any()))))
                 .ToList();

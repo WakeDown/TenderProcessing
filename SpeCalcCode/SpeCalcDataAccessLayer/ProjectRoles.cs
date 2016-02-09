@@ -25,6 +25,7 @@ namespace SpeCalcDataAccessLayer
         public string SysName { get; set; }
         public string Descr { get; set; }
         public int OrderNum { get; set; }
+        public bool ProjectGeneral { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProjectTeams> ProjectTeams { get; set; }

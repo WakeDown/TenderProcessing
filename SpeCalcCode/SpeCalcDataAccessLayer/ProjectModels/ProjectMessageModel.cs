@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ServiceClaim.Helpers;
+using SpeCalcDataAccessLayer.Models;
 using SpeCalcDataAccessLayer.Objects;
 
 namespace SpeCalcDataAccessLayer.ProjectModels
@@ -23,6 +25,10 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 db.ProjectMessages.Add(msg);
                 db.SaveChanges();
                 ProjectHistoryModel.CreateHistoryItem(projectId, "Добавление комментария", $"{msg.Message}", new[] { msg }, user);
+
+                string mesg = $"В проекте №{projectId} новый комментарий.<br /><strong>{user.DisplayName} пишет:</strong><br />{msg.Message}<br /><br />Краткая информация о проекте:<br />{ProjectHelper.GetProjectShortInfo(projectId)}<br /><br />Ссылка: {ProjectHelper.GetProjectLink(projectId)}";
+                var emails = ProjectTeamModel.GetEmailList(projectId);
+                MessageHelper.SendMailSmtpAsync($"[Проект №{projectId}] Новый комментарий", mesg, true, null, emails.ToArray());
             }
         }
 

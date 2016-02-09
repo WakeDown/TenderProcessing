@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Principal;
 using System.Text;
 using System.Web;
+using SpeCalcDataAccessLayer.ProjectModels;
 
 namespace SpeCalcDataAccessLayer.Objects
 {

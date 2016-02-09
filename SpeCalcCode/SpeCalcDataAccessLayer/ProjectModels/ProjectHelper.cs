@@ -11,10 +11,27 @@ namespace SpeCalcDataAccessLayer.Models
 {
     public class ProjectHelper
     {
+        public static string GetFileLink(string guid, int projectId)
+        {
+            string speCalcUrl = ConfigurationManager.AppSettings["AppHost"];
+            string link = $"{speCalcUrl}/Project/GetFileData?guid={guid}&pid={projectId}";
+            return link;
+        }
+
+        public static string GetProjectShortInfo(int id)
+        {
+            using (var db = new SpeCalcEntities())
+            {
+                var project = db.Projects.Single(x => x.Id == id);
+                string result = $"Заказчик: {project.ClientName}<br />Бюджет: {(project.HasBudget ? project.Budget + " " + project.ProjectCurrencies.Name : "неизвестно")}<br />Срок сдачи: {project.DeadlineDate}<br />Бизнес задача: {(project.BusinessTargetId.HasValue ? project.ProjectBusinessTargets.Name : null)} {project.BusinessTargetName}<br />Направление: {project.ProjectSaleDirections.Name}<br />Предмет сделки: {(project.SaleSubjectId.HasValue ? project.ProjectSaleSubjects.Name : null)}<br />Менеджер: {project.ManagerName}<br />Подразделение менеджера: {project.ManagerDepartmentName}";
+                return result;
+            }
+        }
+
         public static string GetProjectLink(int id)
         {
             string speCalcUrl = ConfigurationManager.AppSettings["AppHost"];
-            string link = $"{speCalcUrl}/Project/Index?id={id}";
+            string link = $"{speCalcUrl}/Project/Card?id={id}";
             return link;
         }
 

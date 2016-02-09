@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using SpeCalc.Helpers;
 using SpeCalcDataAccessLayer.Objects;
+using SpeCalcDataAccessLayer.ProjectModels;
 
 namespace SpeCalc.Objects
 {
@@ -119,6 +120,9 @@ namespace SpeCalc.Objects
                 throw;
             }
 
+            //Доступы в проектах
+            //user.ProjectAccess = GetProjectAccess(user);
+
             Session["CurUser"] = user;
 
             return user;
@@ -131,5 +135,29 @@ namespace SpeCalc.Objects
             ViewBag.CurUser = CurUser;
             return CurUser;
         }
+
+        //private ProjectAccessModel GetProjectAccess(AdUser user)
+        //{
+
+        //    var acc = new ProjectAccessModel(user);
+        //    acc.CanViewAllProjects = user.HasAccess(AdGroup.SpeCalcProjectControler);
+        //    acc.CanViewHistory = false;
+        //    acc.CanChangeTeam = false;
+        //    acc.CanViewTeam = false;
+        //    acc.CanChangeInfo = false;
+        //    acc.CanChangeCondition = false;
+        //    acc.CanViewCondition = false;
+        //    acc.CanAddFiles = false;
+        //    acc.CanViewHistory = false;
+        //    acc.CanViewHistory = false;
+        //    acc.CanViewHistory = false;
+        //    acc.CanViewHistory = false;
+        //    acc.CanViewHistory = false;
+        //    acc.CanViewHistory = false;
+        //    acc.CanViewHistory = false;
+        //    acc.CanViewHistory = false;
+        //    acc.CanViewHistory = false;
+        //    acc.CanViewHistory = false;
+        //}
     }
 }

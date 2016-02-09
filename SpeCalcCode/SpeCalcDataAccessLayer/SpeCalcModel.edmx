@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="SpeCalcModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="SpeCalcModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="ProjectBusinessTargets">
           <Key>
             <PropertyRef Name="Id" />
@@ -240,6 +240,7 @@
           <Property Name="SysName" Type="nvarchar" MaxLength="50" />
           <Property Name="Descr" Type="nvarchar(max)" />
           <Property Name="OrderNum" Type="int" Nullable="false" />
+          <Property Name="ProjectGeneral" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="Projects">
           <Key>
@@ -1100,7 +1101,8 @@
             <End Role="ProjectWorkStateHistory" EntitySet="ProjectWorkStateHistory" />
           </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="SpeCalcModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -1372,6 +1374,7 @@
           <Property Name="SysName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Descr" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="OrderNum" Type="Int32" Nullable="false" />
+          <Property Name="ProjectGeneral" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="ProjectTeams" Relationship="Self.FK_ProjectTeams_ProjectRoles" FromRole="ProjectRoles" ToRole="ProjectTeams" />
         </EntityType>
         <EntityType Name="Projects">
@@ -1448,13 +1451,13 @@
           <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="UserEmail" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="ProjectSaleDirections" Relationship="Self.FK_ProjectSaleDirectionResponsibles_ProjectSaleDirections" FromRole="ProjectSaleDirectionResponsibles" ToRole="ProjectSaleDirections" />
           <Property Name="Enabled" Type="Boolean" Nullable="false" />
           <Property Name="DeleteDate" Type="DateTime" Precision="3" />
           <Property Name="DeleterSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
           <Property Name="DeleterName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
           <Property Name="UserName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
           <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ProjectSaleDirections" Relationship="Self.FK_ProjectSaleDirectionResponsibles_ProjectSaleDirections" FromRole="ProjectSaleDirectionResponsibles" ToRole="ProjectSaleDirections" />
         </EntityType>
         <EntityType Name="ProjectSaleDirections">
           <Key>
@@ -1513,9 +1516,9 @@
           <Property Name="CanStop" Type="Boolean" Nullable="false" />
           <Property Name="CanChangeCondition" Type="Boolean" Nullable="false" />
           <Property Name="CanDone" Type="Boolean" Nullable="false" />
+          <Property Name="OrderNum" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Projects" Relationship="Self.FK_Projects_ProjectStates" FromRole="ProjectStates" ToRole="Projects" />
           <NavigationProperty Name="ProjectStateHistory" Relationship="Self.FK_ProjectStateHistory_ProjectStates" FromRole="ProjectStates" ToRole="ProjectStateHistory" />
-          <Property Name="OrderNum" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityType Name="ProjectTeams">
           <Key>
@@ -2529,6 +2532,7 @@
                 <ScalarProperty Name="SysName" ColumnName="SysName" />
                 <ScalarProperty Name="Descr" ColumnName="Descr" />
                 <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
+                <ScalarProperty Name="ProjectGeneral" ColumnName="ProjectGeneral" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2586,18 +2590,18 @@
           <EntitySetMapping Name="ProjectSaleDirectionResponsibles">
             <EntityTypeMapping TypeName="SpeCalcModel.ProjectSaleDirectionResponsibles">
               <MappingFragment StoreEntitySet="ProjectSaleDirectionResponsibles">
-                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
-                <ScalarProperty Name="UserName" ColumnName="UserName" />
-                <ScalarProperty Name="DeleterName" ColumnName="DeleterName" />
-                <ScalarProperty Name="DeleterSid" ColumnName="DeleterSid" />
-                <ScalarProperty Name="DeleteDate" ColumnName="DeleteDate" />
-                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="UserSid" ColumnName="UserSid" />
                 <ScalarProperty Name="SaleDirectionId" ColumnName="SaleDirectionId" />
                 <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
                 <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
                 <ScalarProperty Name="UserEmail" ColumnName="UserEmail" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="DeleteDate" ColumnName="DeleteDate" />
+                <ScalarProperty Name="DeleterSid" ColumnName="DeleterSid" />
+                <ScalarProperty Name="DeleterName" ColumnName="DeleterName" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2641,7 +2645,6 @@
           <EntitySetMapping Name="ProjectStates">
             <EntityTypeMapping TypeName="SpeCalcModel.ProjectStates">
               <MappingFragment StoreEntitySet="ProjectStates">
-                <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="SysName" ColumnName="SysName" />
@@ -2654,6 +2657,7 @@
                 <ScalarProperty Name="CanStop" ColumnName="CanStop" />
                 <ScalarProperty Name="CanChangeCondition" ColumnName="CanChangeCondition" />
                 <ScalarProperty Name="CanDone" ColumnName="CanDone" />
+                <ScalarProperty Name="OrderNum" ColumnName="OrderNum" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
