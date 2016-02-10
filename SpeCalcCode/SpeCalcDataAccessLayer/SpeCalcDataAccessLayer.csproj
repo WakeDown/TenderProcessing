@@ -112,6 +112,9 @@
     <Compile Include="Models\ProductManager.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Objects\AttachmentFile.cs" />
+    <Compile Include="ProjectActions.cs">
+      <DependentUpon>SpeCalcModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="ProjectBusinessTargets.cs">
       <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
@@ -139,6 +142,7 @@
     <Compile Include="ProjectMessages.cs">
       <DependentUpon>SpeCalcModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="ProjectModels\ProjectActionModel.cs" />
     <Compile Include="ProjectModels\ProjectConditionModel.cs" />
     <Compile Include="ProjectModels\ProjectFileModel.cs" />
     <Compile Include="ProjectModels\ProjectFolderModel.cs" />

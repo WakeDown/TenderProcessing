@@ -17,6 +17,7 @@ namespace SpeCalcDataAccessLayer
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Projects()
         {
+            this.ProjectActions = new HashSet<ProjectActions>();
             this.ProjectConditionHistory = new HashSet<ProjectConditionHistory>();
             this.ProjectFiles = new HashSet<ProjectFiles>();
             this.ProjectMessages = new HashSet<ProjectMessages>();
@@ -72,6 +73,8 @@ namespace SpeCalcDataAccessLayer
         public string LastInfoChangerSid { get; set; }
         public string LastInfoChangerName { get; set; }
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ProjectActions> ProjectActions { get; set; }
         public virtual ProjectBusinessTargets ProjectBusinessTargets { get; set; }
         public virtual ProjectClientRelationships ProjectClientRelationships { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

@@ -87,9 +87,19 @@
                 }
             </div>
             <div class="col-lg-3">
-                <h4 class="no-pad">Статус
-                </h4>
-                <div id="historyContainer"></div>
+                <div>
+                    <h4 class="no-pad">
+                        Статус 
+                        @*<a id="showAllHistory" class="btn btn-xs btn-info">история</a>*@
+                    </h4>
+                    <div id="historyContainer"></div>
+                </div>
+                <div class="pad-t-sm">
+                    <h4 class="no-pad">
+                        Действия <a id="addAction" class="btn btn-xs btn-default"><i class="fa fa-plus"></i> добавить</a>
+                    </h4>
+                    <div id="actionsContainer"></div>
+                </div>
             </div>
         </div>
         <hr/>
@@ -336,10 +346,65 @@
             </div>
         </div>
     </div>
+
+    <div id="actionsModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Действия проекта №@Model.Id</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="allActionsContainer">
+
+                    </div>
+                </div>
+                @*<div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
+                        <button id="changeRolesConfirm" class="btn btn-success">Принять</button>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+
+    <div id="actionCreateModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Действие проекта №@Model.Id</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <div class="col-lg-12">
+                                <textarea id="actionCreateDescr" placeholder="Описание действия" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-4">
+                                <input id="actionCreateNoticeDate" class="form-control datepicker" placeholder="Дата действия" />
+                            </div>
+                            <div class="col-lg-4">
+                                <select id="respUserList" class="form-control"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
+                        <button id="actionCreateConfirm" class="btn btn-success">Сохранить</button>
+                    </div>
+            </div>
+        </div>
+    </div>
 }
 <script>
     var showCalcs = false;
     $(function() {
+        loadActions();
         loadCondition();
         $('#projectPlay').click(projectPlay);
         $('#projectPause').click(projectPause);
@@ -373,7 +438,168 @@
         $('#changeRoles').click(changeRoles);
         $('#showHistory').click(showHistory);
         $('#sendNotice2Calculators').click(sendNotice2Calculators);
+        $('#addAction').click(addAction);
     });
+
+    function loadrespUserList() {
+        var $select = $('#respUserList');
+        showSpinnerAppendAndDisable($select);
+        var curUserSid = '@ViewBag.CurUser.Sid';
+        $.ajax({
+            url: '@Url.Action("GetAllUsersSelectionList")',
+            method: 'POST',
+            success: function(data) {
+                if (data.length > 0) {
+                    for (var i = 0; i < data.length; i++) {
+                        var item = data[i];
+                        var opt = '<option value="' + item.Key + '" ' + (curUserSid == item.Key ? 'selected="selected"' : null) + '>' + item.Value + '</option>';
+                        $select.append(opt);
+                    }
+
+                }
+                hideSpinnerAndEnabled($select);
+            },
+            error: function() {
+                alert('Ошибка при загрузке списка ответственных!');
+                console.log(data);
+                hideSpinnerAndEnabled($select);
+            }
+        });
+    }
+
+    function addAction() {
+        $('#actionCreateModal').modal('show');
+        $('.datepicker').datepicker({
+            language: "ru",
+            todayHighlight: true,
+            autoclose: true
+        });
+        loadrespUserList();
+        $('#actionCreateConfirm').click(function() {
+
+            var descr = $('#actionCreateDescr').val();
+            var noticeDate = $('#actionCreateNoticeDate').val();
+            var respSid = $('#respUserList').val();
+            var $this = $(this);
+            showSpinnerAppendAndDisable($this);
+            $.ajax({
+                url: '@Url.Action("CreateAction")',
+                method: 'POST',
+                data: { id: @Model.Id, descr:descr, respSid:respSid, noticeDate:noticeDate },
+                success: function() {
+                    //alert('Уведомления успешно отправлены!');
+                    loadActions();
+                    $('#actionCreateModal').modal('hide');
+                    hideSpinnerAndEnabled($this);
+
+                    $('#actionCreateDescr').val('');
+                    $('#actionCreateNoticeDate').val('');
+                    $('#respUserList').val('');
+                },
+                error: function(data) {
+                    alert('Ошибка при добавлении действия!');
+                    console.log(data);
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        });
+    }
+
+    function setActionDone() {
+        if (!confirm('Вы уверены что хотите пометить действие как выполненное?'))return;
+        var $this = $(this);
+        showSpinnerAppendAndDisable($this);
+        var aid = $this.attr('aid');
+        $.ajax({
+            url: '@Url.Action("SetActionDone")',
+            method: 'POST',
+            data: { id: @Model.Id, aid:aid },
+            success: function() {
+                //alert('Уведомления успешно отправлены!');
+                loadActions();
+                loadAllAction();
+                hideSpinnerAndEnabled($this);
+            },
+            error: function(data) {
+                alert('Ошибка при добавлении действия!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
+
+    function deleteAction() {
+        if (!confirm('Вы уверены что хотите удалить действие?'))return;
+        var $this = $(this);
+        showSpinnerAppendAndDisable($this);
+        var aid = $this.attr('aid');
+        $.ajax({
+            url: '@Url.Action("DeleteAction")',
+            method: 'POST',
+            data: { id: @Model.Id, aid:aid },
+            success: function() {
+                loadActions();
+                loadAllAction();
+                hideSpinnerAndEnabled($this);
+            },
+            error: function(data) {
+                alert('Ошибка при удалении действия!');
+                console.log(data);
+                hideSpinnerAndEnabled($this);
+            }
+        });
+    }
+
+    function loadActions() {
+        var $cont = $('#actionsContainer');
+        $cont.html('');
+        showSpinner($cont);
+        $.ajax({
+            url: '@Url.Action("GetActions")',
+            method: 'GET',
+            data: {id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                $('[name="setActionDone"]').click(setActionDone);
+                $('[name="deleteAction"]').click(deleteAction);
+                $('#showAllActions').click(showAllActions);
+                hideSpinner($cont);
+            },
+            error:function(data) {
+                alert('Ошибка при загрузке действий проекта!');
+                console.log(data);
+                hideSpinner($cont);
+            }
+        });
+    }
+
+    function showAllActions() {
+        $('#actionsModal').modal('show');
+        loadAllAction();
+    }
+
+    function loadAllAction()
+    {
+        var $cont = $('#allActionsContainer');
+        $cont.html('');
+        showSpinner($cont);
+        $.ajax({
+            url: '@Url.Action("GetAllActions")',
+            method: 'GET',
+            data: {id:@Model.Id},
+            success: function(html) {
+                $cont.html(html);
+                $('[name="setActionDone"]').click(setActionDone);
+                $('[name="deleteAction"]').click(deleteAction);
+                hideSpinner($cont);
+            },
+            error:function(data) {
+                alert('Ошибка при загрузке действий проекта!');
+                console.log(data);
+                hideSpinner($cont);
+            }
+        });
+    }
 
     function sendNotice2Calculators() {
         var $this = $(this);

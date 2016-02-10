@@ -984,5 +984,82 @@ namespace SpeCalc.Controllers
             return Json(new { });
         }
 
+        public PartialViewResult GetTeamShort(int? id)
+        {
+            if (!id.HasValue) return null;
+            var project = ProjectModel.GetFat(id.Value);
+            return PartialView("TeamShort", project);
+        }
+
+        public PartialViewResult GetActions(int? id)
+        {
+            if (!id.HasValue) return null;
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanViewProject(id.Value, CurUser.Sid))
+                return null;
+            int totalCount;
+            var model = ProjectActionModel.GetList(out totalCount, id.Value, false);
+            ViewBag.TotalCount = totalCount;
+            ViewBag.Full = false;
+            return PartialView("Actions", model);
+        }
+
+        public PartialViewResult GetAllActions(int? id)
+        {
+            if (!id.HasValue) return null;
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanViewProject(id.Value, CurUser.Sid))
+                return null;
+            int totalCount;
+            var model = ProjectActionModel.GetList(out totalCount, id.Value, true);
+            ViewBag.TotalCount = totalCount;
+            ViewBag.Full = false;
+            return PartialView("Actions", model);
+        }
+
+        [HttpPost]
+        public JsonResult CreateAction(int id, string descr, string respSid, DateTime noticeDate)
+        {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(id, CurUser.Sid))
+                return null;
+            string respName = null;
+            if (!String.IsNullOrEmpty(respSid)) respName = AdHelper.GetUserBySid(respSid).DisplayName;
+            ProjectActionModel.Create(id, descr, respSid, respName, noticeDate, CurUser);
+            return Json(new { });
+        }
+
+        [HttpPost]
+        public JsonResult GetEngeneersSelectionList()
+        {
+            var list = UserHelper.GetEngeneersList();
+            return Json(list);
+        }
+        [HttpPost]
+        public JsonResult GetAllUsersSelectionList()
+        {
+            var list = UserHelper.GetAllUserSelectionList();
+            return Json(list);
+        }
+
+        [HttpPost]
+        public JsonResult SetActionDone(int id, int aid)
+        {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(id, CurUser.Sid))
+                return null;
+            ProjectActionModel.SetDone(aid, CurUser);
+            return Json(new { });
+        }
+
+        [HttpPost]
+        public JsonResult DeleteAction(int id, int aid)
+        {
+            if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
+                !ProjectModel.UserCanChangeProject(id, CurUser.Sid))
+                return null;
+            ProjectActionModel.Delete(aid, CurUser);
+            return Json(new { });
+        }
     }
 }

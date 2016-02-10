@@ -1,0 +1,33 @@
+﻿@model IEnumerable<SpeCalcDataAccessLayer.ProjectActions>
+    @{
+        int count = ViewBag.TotalCount - Model.Count();
+        bool displayBtn = count > 0;
+    }
+@foreach (var act in Model)
+{
+    <div class="project-message-item @(act.Done ? "bg-success" : null)">
+        <div>
+            <small>@(act.NoticeDate.HasValue ? act.NoticeDate.Value.ToString("dd.MM.yyyy") : null) - @act.ResponsibleName</small>
+            @if (!act.Done)
+            {
+                <button name="deleteAction" class="btn btn-danger btn-xs pull-right marg-l-sm" aid="@act.Id"><i class="fa fa-trash"></i></button>
+                <button name="setActionDone" class="btn btn-success btn-xs pull-right marg-l-sm" aid="@act.Id"><i class="fa fa-check"></i></button>
+                
+            }
+            else
+            {
+                <small class="pull-right text-danger"><strong>Выполнено</strong><br />@act.DoneDate.Value.ToString("dd.MM.yyyy HH:mm") - @act.DoneSetterName</small>
+            }
+        </div>
+        <div class="pad-l-sm">
+            @Html.Raw(act.Descr)
+        </div>
+    </div>
+    <hr class="no-margin" />
+}
+@if (displayBtn)
+{
+    <div>
+        <a id="showAllActions" class="btn btn-xs btn-info">еще <span id="actionsTotalCount">@count</span></a>
+    </div>
+}

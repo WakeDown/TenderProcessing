@@ -71,7 +71,7 @@
             @Html.Partial("StateFilterList")
         </div>
         @*<input name="activeOnly" type="radio" @(!String.IsNullOrEmpty(Request.QueryString["aon"]) && Request.QueryString["aon"].Equals("-1") ? "checked" : String.Empty) value="-1" />&nbsp;все&nbsp;<input name="activeOnly" type="radio" @(!String.IsNullOrEmpty(Request.QueryString["aon"]) && Request.QueryString["aon"].Equals("1") ? "checked" : String.Empty ) value="1" />&nbsp;только активные&nbsp;<input name="activeOnly" type="radio" @(!String.IsNullOrEmpty(Request.QueryString["aon"]) && Request.QueryString["aon"].Equals("0") ? "checked" : String.Empty ) value="0" />&nbsp;только неактивные*@
-        
+            <a href="@Url.Action("Index")" class="btn btn-default marg-l-sm" title="очистить фильтр"><i class="fa fa-filter"></i><i class="fa fa-remove"></i></a>
     </div>
     <div class="col-lg-2 col-sm-6 col-xs-6">
         <div>
@@ -95,9 +95,9 @@
                     <th class="min-width">
                         <input id="fId" class="form-control input-xs" value="@Request.QueryString["id"]" placeholder="ID" style="width: 50px" />
                     </th>
-                    <th>
+                    @*<th>
                         <input id="fAucNum" class="form-control input-xs" value="@Request.QueryString["aucnum"]" placeholder="№ конкурса" />
-                    </th>
+                    </th>*@
                     <th style="min-width: 150px">
                         <input id="fClient" class="form-control input-xs" value="@Request.QueryString["client"]" placeholder="Заказчик" />
                     </th>
@@ -139,16 +139,16 @@
                     <th>
                         <div class="input-group input-daterange">
                             <div>
-                                <input id="fCreateStart" type="text" class="form-control input-xs datepicker" value="@(Request.QueryString["createst"])">
+                                <input id="fCreateStart" type="text" class="form-control input-xs datepicker" value="@(Request.QueryString["createst"])" placeholder="Дата начала" />
                             </div>
                             <div>
-                                <input id="fCreateEnd" type="text" class="form-control input-xs datepicker" value="@(Request.QueryString["creatend"])">
+                                <input id="fCreateEnd" type="text" class="form-control input-xs datepicker" value="@(Request.QueryString["creatend"])" placeholder="Дата окончания"/>
                             </div>
                         </div>
                     </th>
-                    <th class="min-width">
-                        <a href="@Url.Action("Index")" class="btn btn-default btn-xs" title="очистить фильтр"><i class="fa fa-refresh"></i></a>
-                    </th>
+                    @*<th class="min-width">
+                        <a href="@Url.Action("Index")" class="btn btn-default btn-xs" title="очистить фильтр"><i class="fa fa-filter"></i><i class="fa fa-remove"></i></a>
+                    </th>*@
                 </tr>
             </thead>
             <tbody id="claimTable">
@@ -160,7 +160,7 @@
 
                         <tr class="row-item" name="project-item" pid="@project.Id">
                             <th>@project.Id</th>
-                            <td>@project.AuctionNumber</td>
+                            @*<td>@project.AuctionNumber</td>*@
                             <td>@project.ClientName</td>
                             <td class='text-nowrap'>@(project.Budget.HasValue ? project.Budget.Value.ToString("F2") : null) @(project.CurrencyId.HasValue ? project.ProjectCurrencies.Name : null)</td>
                             <td>@(project.SaleDirectionId.HasValue ? project.ProjectSaleDirections.Name : null)</td>
@@ -170,21 +170,7 @@
                                     @project.ManagerName
                                 </td>*@
                             <td>
-
-                                <table>
-                                    <tr>
-                                        <td class="text-right"><strong>[Менеджер]</strong></td>
-                                        <td class="text-nowrap">&nbsp;@project.ManagerName</td>
-                                    </tr>
-                                    @foreach (var member in project.ProjectTeams)
-                                    {
-                                        <tr>
-                                            <td class="text-right"><strong>[@member.ProjectRoles.Name]</strong></td>
-                                            <td class="text-nowrap">&nbsp;@member.UserName</td>
-                                        </tr>
-                                    }
-                                </table>
-
+                                <div name="projectTeam" pid="@project.Id"></div>
                             </td>
                             <td>
                                 @*<table class='table table-bordered prod-manager-table'>
@@ -275,7 +261,7 @@
                                 </div>
                             </td>
                             
-                            <td></td>
+                            @*<td></td>*@
                         </tr>
                                         }
                                     }
@@ -361,7 +347,33 @@
                     todayHighlight: true,
                     autoclose: true
                 });
+            loadProjectTeams();
         });
+
+        function loadProjectTeams() {
+            var $conts = $('[name=projectTeam]');
+            for (var i = 0; i < $conts.length; i++) {
+                (function (i) {
+                    var $cont = $($conts[i]);
+                    var pid = $cont.attr('pid');
+                    $cont.html('');
+                    showSpinner($cont);
+                    $.ajax({
+                        url: '@Url.Action("GetTeamShort")',
+                        method: 'GET',
+                        data: { id: pid },
+                        success: function (html) {
+                            $cont.html(html);
+                            hideSpinner($cont);
+                        },
+                        error: function (data) {
+                            console.log(data);
+                            hideSpinner($cont);
+                        }
+                    });
+                })(i);
+            }
+        }
 
         function loadStateFilterList() {
             var $cont = $('#stateFilterList');
@@ -401,8 +413,8 @@
             var url = curUrl;
             var id = $('#fId').val();
             url = updateQueryStringParameter(url, 'id', id);
-            var aucnum = $('#fAucNum').val();
-            url = updateQueryStringParameter(url, 'aucnum', aucnum);
+            //var aucnum = $('#fAucNum').val();
+            //url = updateQueryStringParameter(url, 'aucnum', aucnum);
             var client = $('#fClient').val();
             url = updateQueryStringParameter(url, 'client', client);
             var budget = $('#fBudget').val();

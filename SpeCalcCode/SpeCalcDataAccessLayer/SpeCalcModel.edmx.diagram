@@ -4,37 +4,39 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="cbdae385771f4b4bb6f8365e17bd28d0" Name="Diagram1">
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectBusinessTargets" Width="1.5" PointX="3.75" PointY="15.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectClientRelationships" Width="1.5" PointX="3.75" PointY="18.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectConditionHistory" Width="1.5" PointX="8.25" PointY="24.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectConditions" Width="1.5" PointX="3.75" PointY="30.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectCurrencies" Width="1.5" PointX="0.75" PointY="24.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectFiles" Width="1.5" PointX="11.25" PointY="23.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectFolders" Width="1.5" PointX="9" PointY="36.625" IsExpanded="true" />
+      <Diagram DiagramId="398e3623e6714837a06358d1cc77f6a5" Name="Diagram1">
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectActions" Width="1.5" PointX="8.25" PointY="24.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectBusinessTargets" Width="1.5" PointX="3.75" PointY="18.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectClientRelationships" Width="1.5" PointX="3.75" PointY="21" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectConditionHistory" Width="1.5" PointX="8.25" PointY="30" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectConditions" Width="1.5" PointX="3.75" PointY="33.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectCurrencies" Width="1.5" PointX="0.75" PointY="27.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectFiles" Width="1.5" PointX="11.25" PointY="26.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectFolders" Width="1.5" PointX="9" PointY="34.25" IsExpanded="true" />
         <EntityTypeShape EntityType="SpeCalcModel.ProjectHistory" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectMessages" Width="1.5" PointX="8.25" PointY="33.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectPositionCalculations" Width="1.5" PointX="3" PointY="22.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectPositionDeliveryTimes" Width="1.5" PointX="0.75" PointY="9.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectPositionQuantityUnits" Width="1.5" PointX="6" PointY="6.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectPositions" Width="1.5" PointX="8.25" PointY="16.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectPositionStateHistory" Width="1.5" PointX="13.5" PointY="18.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectPositionStates" Width="1.5" PointX="6" PointY="9.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectProtectionFacts" Width="1.5" PointX="0.75" PointY="12.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectRoles" Width="1.5" PointX="9" PointY="12.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.Projects" Width="1.5" PointX="6" PointY="19.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectSaleDirectionResponsibles" Width="1.5" PointX="6" PointY="33.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectSaleDirections" Width="1.5" PointX="3.75" PointY="34.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectSaleSubjects" Width="1.5" PointX="3.75" PointY="37.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectStateHistory" Width="1.5" PointX="8.25" PointY="28.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectStates" Width="1.5" PointX="3.75" PointY="41" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectTeams" Width="1.5" PointX="11.25" PointY="18.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectWorkCalculations" Width="1.5" PointX="16.5" PointY="22.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectWorkExecutinsTimes" Width="1.5" PointX="14.25" PointY="29.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectWorkQuantityUnits" Width="1.5" PointX="12" PointY="28.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectWorks" Width="1.5" PointX="14.25" PointY="22.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectWorkStateHistory" Width="1.5" PointX="19.5" PointY="24.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="SpeCalcModel.ProjectWorkStates" Width="1.5" PointX="12" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectMessages" Width="1.5" PointX="8.25" PointY="38" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectPositionCalculations" Width="1.5" PointX="3" PointY="24.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectPositionDeliveryTimes" Width="1.5" PointX="0.75" PointY="12.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectPositionQuantityUnits" Width="1.5" PointX="12" PointY="13.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectPositions" Width="1.5" PointX="14.25" PointY="25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectPositionStateHistory" Width="1.5" PointX="16.5" PointY="26.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectPositionStates" Width="1.5" PointX="12" PointY="9.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectProtectionFacts" Width="1.5" PointX="0.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectRoles" Width="1.5" PointX="9" PointY="42.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.Projects" Width="1.5" PointX="6" PointY="22" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectSaleDirectionResponsibles" Width="1.5" PointX="6" PointY="36.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectSaleDirections" Width="1.5" PointX="3.75" PointY="37" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectSaleSubjects" Width="1.5" PointX="3.75" PointY="40.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectStateHistory" Width="1.5" PointX="11.25" PointY="21.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectStates" Width="1.5" PointX="3.75" PointY="43.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectTeams" Width="1.5" PointX="11.25" PointY="31.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectWorkCalculations" Width="1.5" PointX="13.5" PointY="17.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectWorkExecutinsTimes" Width="1.5" PointX="11.25" PointY="6.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectWorkQuantityUnits" Width="1.5" PointX="6" PointY="17.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectWorks" Width="1.5" PointX="8.25" PointY="17.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectWorkStateHistory" Width="1.5" PointX="10.5" PointY="18" IsExpanded="true" />
+        <EntityTypeShape EntityType="SpeCalcModel.ProjectWorkStates" Width="1.5" PointX="6" PointY="13.375" IsExpanded="true" />
+        <AssociationConnector Association="SpeCalcModel.FK_ProjectActions_Projects" ManuallyRouted="false" />
         <AssociationConnector Association="SpeCalcModel.FK_Projects_ProjectBusinessTargets" ManuallyRouted="false" />
         <AssociationConnector Association="SpeCalcModel.FK_Projects_ProjectClientRelationships" ManuallyRouted="false" />
         <AssociationConnector Association="SpeCalcModel.FK_ProjectConditionHistory_ProjectConditions" ManuallyRouted="false" />

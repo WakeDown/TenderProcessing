@@ -58,10 +58,10 @@
       <publishTime>02/05/2016 17:06:17</publishTime>
     </File>
     <File Include="bin/App_global.asax.compiled">
-      <publishTime>02/09/2016 22:47:01</publishTime>
+      <publishTime>02/10/2016 19:04:17</publishTime>
     </File>
     <File Include="bin/App_global.asax.dll">
-      <publishTime>02/09/2016 22:47:01</publishTime>
+      <publishTime>02/10/2016 19:04:17</publishTime>
     </File>
     <File Include="bin/App_global.asax.pdb">
       <publishTime>07/08/2015 13:48:13</publishTime>
@@ -118,19 +118,19 @@
       <publishTime>03/01/2015 17:16:03</publishTime>
     </File>
     <File Include="bin/SpeCalc.dll">
-      <publishTime>02/09/2016 22:46:57</publishTime>
+      <publishTime>02/10/2016 18:57:03</publishTime>
     </File>
     <File Include="bin/SpeCalc.pdb">
-      <publishTime>02/09/2016 22:46:57</publishTime>
+      <publishTime>02/10/2016 18:57:03</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.dll">
-      <publishTime>02/09/2016 21:16:03</publishTime>
+      <publishTime>02/10/2016 18:53:20</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.dll.config">
-      <publishTime>02/09/2016 20:18:07</publishTime>
+      <publishTime>02/10/2016 18:12:13</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.pdb">
-      <publishTime>02/09/2016 21:16:03</publishTime>
+      <publishTime>02/10/2016 18:53:20</publishTime>
     </File>
     <File Include="bin/System.Net.Http.Formatting.dll">
       <publishTime>03/01/2015 18:04:07</publishTime>
@@ -289,7 +289,7 @@
       <publishTime>03/01/2015 17:16:01</publishTime>
     </File>
     <File Include="Content/Site.css">
-      <publishTime>02/09/2016 22:19:29</publishTime>
+      <publishTime>02/09/2016 22:47:55</publishTime>
     </File>
     <File Include="favicon.ico">
       <publishTime>06/25/2015 17:46:11</publishTime>
@@ -331,7 +331,7 @@
       <publishTime>02/05/2016 17:06:18</publishTime>
     </File>
     <File Include="PrecompiledApp.config">
-      <publishTime>02/09/2016 22:46:58</publishTime>
+      <publishTime>02/10/2016 19:04:14</publishTime>
     </File>
     <File Include="Properties/SlowCheetah/SlowCheetah.Transforms.targets">
       <publishTime>07/06/2015 14:37:40</publishTime>
@@ -507,8 +507,11 @@
     <File Include="Views/Error/ChromeOnly.cshtml">
       <publishTime>06/26/2015 14:49:34</publishTime>
     </File>
+    <File Include="Views/Project/Actions.cshtml">
+      <publishTime>02/10/2016 19:01:17</publishTime>
+    </File>
     <File Include="Views/Project/Card.cshtml">
-      <publishTime>02/09/2016 22:28:09</publishTime>
+      <publishTime>02/10/2016 19:04:02</publishTime>
     </File>
     <File Include="Views/Project/CardInfo.cshtml">
       <publishTime>02/08/2016 01:37:33</publishTime>
@@ -535,7 +538,7 @@
       <publishTime>02/09/2016 19:44:05</publishTime>
     </File>
     <File Include="Views/Project/Index.cshtml">
-      <publishTime>02/09/2016 22:46:01</publishTime>
+      <publishTime>02/10/2016 16:48:22</publishTime>
     </File>
     <File Include="Views/Project/IndicatorBig.cshtml">
       <publishTime>02/07/2016 19:51:53</publishTime>
@@ -596,6 +599,9 @@
     </File>
     <File Include="Views/Project/Team.cshtml">
       <publishTime>02/07/2016 23:45:49</publishTime>
+    </File>
+    <File Include="Views/Project/TeamShort.cshtml">
+      <publishTime>02/10/2016 16:35:17</publishTime>
     </File>
     <File Include="Views/Project/Work.cshtml">
       <publishTime>02/09/2016 21:19:28</publishTime>
@@ -661,7 +667,7 @@
       <publishTime>07/08/2015 14:15:32</publishTime>
     </File>
     <File Include="Views/Shared/_Layout.cshtml">
-      <publishTime>02/09/2016 22:13:44</publishTime>
+      <publishTime>02/09/2016 22:48:00</publishTime>
     </File>
     <File Include="Views/Web.config">
       <publishTime>07/18/2015 11:10:10</publishTime>

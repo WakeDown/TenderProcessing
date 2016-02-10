@@ -18,7 +18,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             //{
             var db = new SpeCalcEntities();
             var query = db.ProjectStateHistory.Where(x => x.ProjectId == projectId);
-            var page = query.OrderByDescending(p => p.Id).Take(4);
+            var page = query.OrderByDescending(p => p.Id).Take(1);
             if (full)
             {
                 page = query.OrderByDescending(p => p.Id);

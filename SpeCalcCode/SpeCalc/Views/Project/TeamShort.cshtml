@@ -1,0 +1,15 @@
+﻿@model SpeCalcDataAccessLayer.Projects
+
+<table>
+    <tr>
+        <td class="text-right"><strong>[Менеджер]</strong></td>
+        <td class="text-nowrap">&nbsp;@Model.ManagerName</td>
+    </tr>
+    @foreach (var member in Model.ProjectTeams.OrderBy(x => x.ProjectRoles.OrderNum))
+    {
+        <tr>
+            <td class="text-right"><strong>[@member.ProjectRoles.Name]</strong></td>
+            <td class="text-nowrap">&nbsp;@member.UserName</td>
+        </tr>
+    }
+</table>

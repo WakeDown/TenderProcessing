@@ -4,7 +4,29 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="SpeCalcModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="SpeCalcModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ProjectActions">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Descr" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="CreatorSid" Type="nvarchar" MaxLength="46" Nullable="false" />
+          <Property Name="CreatorName" Type="nvarchar" MaxLength="150" />
+          <Property Name="NoticeDate" Type="datetime" />
+          <Property Name="ResponsibleName" Type="nvarchar" MaxLength="150" />
+          <Property Name="ResponsibleSid" Type="nvarchar" MaxLength="46" />
+          <Property Name="Done" Type="bit" Nullable="false" />
+          <Property Name="ProjectId" Type="int" Nullable="false" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="DeleteDate" Type="datetime" />
+          <Property Name="DeleterSid" Type="nvarchar" MaxLength="46" />
+          <Property Name="DeleterName" Type="nvarchar" MaxLength="150" />
+          <Property Name="DoneDate" Type="datetime" />
+          <Property Name="DoneSetterSid" Type="nvarchar" MaxLength="46" />
+          <Property Name="DoneSetterName" Type="nvarchar" MaxLength="150" />
+        </EntityType>
         <EntityType Name="ProjectBusinessTargets">
           <Key>
             <PropertyRef Name="Id" />
@@ -477,6 +499,18 @@
           <Property Name="Icon" Type="nvarchar" MaxLength="50" />
           <Property Name="IconColor" Type="nvarchar" MaxLength="50" />
         </EntityType>
+        <Association Name="FK_ProjectActions_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectActions" Type="Self.ProjectActions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectActions">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_ProjectConditionHistory_ProjectConditions">
           <End Role="ProjectConditions" Type="Self.ProjectConditions" Multiplicity="1" />
           <End Role="ProjectConditionHistory" Type="Self.ProjectConditionHistory" Multiplicity="*" />
@@ -922,6 +956,7 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="SpeCalcModelStoreContainer">
+          <EntitySet Name="ProjectActions" EntityType="Self.ProjectActions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProjectBusinessTargets" EntityType="Self.ProjectBusinessTargets" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProjectClientRelationships" EntityType="Self.ProjectClientRelationships" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProjectConditionHistory" EntityType="Self.ProjectConditionHistory" Schema="dbo" store:Type="Tables" />
@@ -952,6 +987,10 @@
           <EntitySet Name="ProjectWorks" EntityType="Self.ProjectWorks" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProjectWorkStateHistory" EntityType="Self.ProjectWorkStateHistory" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProjectWorkStates" EntityType="Self.ProjectWorkStates" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_ProjectActions_Projects" Association="Self.FK_ProjectActions_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectActions" EntitySet="ProjectActions" />
+          </AssociationSet>
           <AssociationSet Name="FK_ProjectConditionHistory_ProjectConditions" Association="Self.FK_ProjectConditionHistory_ProjectConditions">
             <End Role="ProjectConditions" EntitySet="ProjectConditions" />
             <End Role="ProjectConditionHistory" EntitySet="ProjectConditionHistory" />
@@ -1101,11 +1140,33 @@
             <End Role="ProjectWorkStateHistory" EntitySet="ProjectWorkStateHistory" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="SpeCalcModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="ProjectActions">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Descr" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatorSid" Type="String" MaxLength="46" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreatorName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="NoticeDate" Type="DateTime" Precision="3" />
+          <Property Name="ResponsibleName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="ResponsibleSid" Type="String" MaxLength="46" FixedLength="false" Unicode="true" />
+          <Property Name="Done" Type="Boolean" Nullable="false" />
+          <Property Name="ProjectId" Type="Int32" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="DeleteDate" Type="DateTime" Precision="3" />
+          <Property Name="DeleterSid" Type="String" MaxLength="46" FixedLength="false" Unicode="true" />
+          <Property Name="DeleterName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK_ProjectActions_Projects" FromRole="ProjectActions" ToRole="Projects" />
+          <Property Name="DoneDate" Type="DateTime" Precision="3" />
+          <Property Name="DoneSetterSid" Type="String" MaxLength="46" FixedLength="false" Unicode="true" />
+          <Property Name="DoneSetterName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+        </EntityType>
         <EntityType Name="ProjectBusinessTargets">
           <Key>
             <PropertyRef Name="Id" />
@@ -1426,6 +1487,7 @@
           <Property Name="LastInfoChangeDate" Type="DateTime" Precision="3" />
           <Property Name="LastInfoChangerSid" Type="String" MaxLength="46" FixedLength="false" Unicode="false" />
           <Property Name="LastInfoChangerName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ProjectActions" Relationship="Self.FK_ProjectActions_Projects" FromRole="Projects" ToRole="ProjectActions" />
           <NavigationProperty Name="ProjectBusinessTargets" Relationship="Self.FK_Projects_ProjectBusinessTargets" FromRole="Projects" ToRole="ProjectBusinessTargets" />
           <NavigationProperty Name="ProjectClientRelationships" Relationship="Self.FK_Projects_ProjectClientRelationships" FromRole="Projects" ToRole="ProjectClientRelationships" />
           <NavigationProperty Name="ProjectConditionHistory" Relationship="Self.FK_ProjectConditionHistory_Projects" FromRole="Projects" ToRole="ProjectConditionHistory" />
@@ -1652,6 +1714,18 @@
           <NavigationProperty Name="ProjectWorks" Relationship="Self.FK_ProjectWorks_ProjectWorkStates1" FromRole="ProjectWorkStates" ToRole="ProjectWorks" />
           <NavigationProperty Name="ProjectWorkStateHistory" Relationship="Self.FK_ProjectWorkStateHistory_ProjectWorkStates" FromRole="ProjectWorkStates" ToRole="ProjectWorkStateHistory" />
         </EntityType>
+        <Association Name="FK_ProjectActions_Projects">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1" />
+          <End Role="ProjectActions" Type="Self.ProjectActions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ProjectActions">
+              <PropertyRef Name="ProjectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Projects_ProjectBusinessTargets">
           <End Role="ProjectBusinessTargets" Type="Self.ProjectBusinessTargets" Multiplicity="0..1" />
           <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
@@ -2097,6 +2171,7 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="SpeCalcEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ProjectActions" EntityType="Self.ProjectActions" />
           <EntitySet Name="ProjectBusinessTargets" EntityType="Self.ProjectBusinessTargets" />
           <EntitySet Name="ProjectClientRelationships" EntityType="Self.ProjectClientRelationships" />
           <EntitySet Name="ProjectConditionHistory" EntityType="Self.ProjectConditionHistory" />
@@ -2127,6 +2202,10 @@
           <EntitySet Name="ProjectWorks" EntityType="Self.ProjectWorks" />
           <EntitySet Name="ProjectWorkStateHistory" EntityType="Self.ProjectWorkStateHistory" />
           <EntitySet Name="ProjectWorkStates" EntityType="Self.ProjectWorkStates" />
+          <AssociationSet Name="FK_ProjectActions_Projects" Association="Self.FK_ProjectActions_Projects">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectActions" EntitySet="ProjectActions" />
+          </AssociationSet>
           <AssociationSet Name="FK_Projects_ProjectBusinessTargets" Association="Self.FK_Projects_ProjectBusinessTargets">
             <End Role="ProjectBusinessTargets" EntitySet="ProjectBusinessTargets" />
             <End Role="Projects" EntitySet="Projects" />
@@ -2282,6 +2361,29 @@
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="SpeCalcModelStoreContainer" CdmEntityContainer="SpeCalcEntities">
+          <EntitySetMapping Name="ProjectActions">
+            <EntityTypeMapping TypeName="SpeCalcModel.ProjectActions">
+              <MappingFragment StoreEntitySet="ProjectActions">
+                <ScalarProperty Name="DoneSetterName" ColumnName="DoneSetterName" />
+                <ScalarProperty Name="DoneSetterSid" ColumnName="DoneSetterSid" />
+                <ScalarProperty Name="DoneDate" ColumnName="DoneDate" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Descr" ColumnName="Descr" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="CreatorSid" ColumnName="CreatorSid" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="NoticeDate" ColumnName="NoticeDate" />
+                <ScalarProperty Name="ResponsibleName" ColumnName="ResponsibleName" />
+                <ScalarProperty Name="ResponsibleSid" ColumnName="ResponsibleSid" />
+                <ScalarProperty Name="Done" ColumnName="Done" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="DeleteDate" ColumnName="DeleteDate" />
+                <ScalarProperty Name="DeleterSid" ColumnName="DeleterSid" />
+                <ScalarProperty Name="DeleterName" ColumnName="DeleterName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="ProjectBusinessTargets">
             <EntityTypeMapping TypeName="SpeCalcModel.ProjectBusinessTargets">
               <MappingFragment StoreEntitySet="ProjectBusinessTargets">

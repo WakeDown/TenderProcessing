@@ -459,3 +459,7 @@ a.text-danger-important:hover {
     color: #d9534f !important;
     
 }
+
+.pad-t-sm {
+    padding-top: 5px !important;
+}

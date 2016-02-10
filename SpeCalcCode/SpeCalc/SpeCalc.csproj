@@ -387,6 +387,8 @@
     <Content Include="Views\Project\SaleDirectionResponsibles.cshtml" />
     <Content Include="Views\Project\DirectionRespinsibleList.cshtml" />
     <Content Include="Views\Project\Settings.cshtml" />
+    <Content Include="Views\Project\TeamShort.cshtml" />
+    <Content Include="Views\Project\Actions.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeCalcDataAccessLayer\SpeCalcDataAccessLayer.csproj">

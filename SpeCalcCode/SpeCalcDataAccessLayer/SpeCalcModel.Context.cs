@@ -25,6 +25,7 @@ namespace SpeCalcDataAccessLayer
             throw new UnintentionalCodeFirstException();
         }
     
+        public virtual DbSet<ProjectActions> ProjectActions { get; set; }
         public virtual DbSet<ProjectBusinessTargets> ProjectBusinessTargets { get; set; }
         public virtual DbSet<ProjectClientRelationships> ProjectClientRelationships { get; set; }
         public virtual DbSet<ProjectConditionHistory> ProjectConditionHistory { get; set; }

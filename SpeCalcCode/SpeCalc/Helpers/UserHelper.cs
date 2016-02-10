@@ -264,8 +264,32 @@ namespace SpeCalc.Helpers
             }
             return list;
         }
-
         [OutputCache(Duration = 3600, Location = OutputCacheLocation.Server)]
+        public static IEnumerable<KeyValuePair<string, string>> GetAllUserSelectionList()
+        {
+            var list = new Dictionary<string, string>();
+            var man = AdHelper.GetUserListByAdGroup(AdGroup.SpeCalcManager);
+
+            foreach (var m in man)
+            {
+                if (!list.ContainsKey(m.Key))
+                    list.Add(m.Key, m.Value);
+            }
+
+            var prod = AdHelper.GetUserListByAdGroup(AdGroup.SpeCalcProduct);
+            foreach (var p in prod)
+            {
+                if (!list.ContainsKey(p.Key)) list.Add(p.Key, p.Value);
+            }
+
+            var eng = AdHelper.GetUserListByAdGroup(AdGroup.SpeCalcEngeneer);
+            foreach (var e in eng)
+            {
+                if (!list.ContainsKey(e.Key)) list.Add(e.Key, e.Value);
+            }
+            return list.OrderBy(x=>x.Value).ToList();
+        }
+
         public static IEnumerable<KeyValuePair<string, string>> GetUserSelectionList(AdGroup group)
         {
             Uri uri = new Uri($"{OdataServiceUri}/Ad/GetUserListByAdGroup?group={group}");
