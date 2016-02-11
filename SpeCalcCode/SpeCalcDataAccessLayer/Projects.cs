@@ -72,6 +72,7 @@ namespace SpeCalcDataAccessLayer
         public Nullable<System.DateTime> LastInfoChangeDate { get; set; }
         public string LastInfoChangerSid { get; set; }
         public string LastInfoChangerName { get; set; }
+        public Nullable<System.DateTime> AuctionSendDate { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProjectActions> ProjectActions { get; set; }

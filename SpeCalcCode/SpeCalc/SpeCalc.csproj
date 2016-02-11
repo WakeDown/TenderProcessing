@@ -389,6 +389,7 @@
     <Content Include="Views\Project\Settings.cshtml" />
     <Content Include="Views\Project\TeamShort.cshtml" />
     <Content Include="Views\Project\Actions.cshtml" />
+    <Content Include="Views\Project\ActionsShort.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeCalcDataAccessLayer\SpeCalcDataAccessLayer.csproj">

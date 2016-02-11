@@ -56,7 +56,6 @@ C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\ru\System.Web.WebPages.resources.dll
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\ru\System.Web.WebPages.Deployment.resources.dll
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\ru\System.Web.WebPages.Razor.resources.dll
-C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.csprojResolveAssemblyReference.cache
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.dll
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.pdb
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\SpeCalcDataAccessLayer.dll.config
@@ -64,3 +63,4 @@ C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\EntityFramework.SqlServer.dll
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\EntityFramework.xml
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Debug\EntityFramework.SqlServer.xml
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Debug\SpeCalcDataAccessLayer.csprojResolveAssemblyReference.cache

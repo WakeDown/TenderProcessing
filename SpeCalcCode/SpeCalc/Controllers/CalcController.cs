@@ -2101,7 +2101,7 @@ namespace SpeCalc.Controllers
             if (!claimId.HasValue) return null;
             if (!cv.HasValue) cv = 1;
             string productSid = null;
-            if (CurUser.Is(AdGroup.SpeCalcProduct))
+            if (CurUser.Is(AdGroup.SpeCalcProduct) && !CurUser.Is(AdGroup.SpeCalcKontroler))
                 productSid = CurUser.Sid;
             ViewBag.ClaimType = ClaimType;
             var list = SpecificationPosition.GetListWithCalc(claimId.Value, cv.Value, productSid);// db.LoadSpecificationPositionsForTenderClaim(); ;

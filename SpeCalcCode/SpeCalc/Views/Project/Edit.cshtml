@@ -19,13 +19,13 @@
             <div class="row">
                 <label class="col-lg-4 control-label">Ссылка на закупки</label>
                 <div class="col-lg-8">
-                    @Html.TextBoxFor(cl => cl.AuctionLink, new {@class = "form-control input-sm"})
+                    @Html.TextBoxFor(cl => cl.AuctionLink, new { @class = "form-control input-sm" })
                 </div>
             </div>
             <div class="row">
                 <label class="col-lg-4 control-label">№ конкурса из Эталон</label>
                 <div class="col-lg-5">
-                    @Html.TextBoxFor(cl => cl.AuctionNumber, new {@class = "form-control input-sm"})
+                    @Html.TextBoxFor(cl => cl.AuctionNumber, new { @class = "form-control input-sm" })
                 </div>
             </div>
             <div class="row">
@@ -35,11 +35,19 @@
                 </div>
             </div>
             <div class="row">
+                <label class="col-lg-3 control-label">Дата подачи на аукцион</label>
+                <div class="col-lg-2">
+                    @Html.TextBoxFor(cl => cl.AuctionSendDate, "{0:dd.MM.yyyy}", new { style = "cursor: pointer;", @class = "form-control input-sm datepicker" })
+                </div>
+            </div>
+        </div>
+            <div class="row">
                 <label class="col-lg-4 control-label">Срок подачи ТКП</label>
                 <div class="col-lg-5">
                     @Html.TextBoxFor(m => m.TkpDeadlineDate, "{0:dd.MM.yyyy}", new {style = "cursor: pointer;", @class = "form-control input-sm datepicker"})
                 </div>
             </div>
+            
             <div class="row">
                 <label class="col-lg-4 control-label required-mark">Отношения с заказчиком</label>
                 <div class="col-lg-8">
@@ -55,7 +63,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        
         <div class="row">
             <label class="col-lg-4 control-label required-mark">Срок сдачи проекта</label>
             <div class="col-lg-5">

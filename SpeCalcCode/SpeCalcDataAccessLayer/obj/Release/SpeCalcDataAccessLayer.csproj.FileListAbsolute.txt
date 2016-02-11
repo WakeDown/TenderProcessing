@@ -46,3 +46,8 @@ C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Release\SpeCalcDataAccessLayer.csprojResolveAssemblyReference.cache
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Release\SpeCalcDataAccessLayer.dll
 C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\obj\Release\SpeCalcDataAccessLayer.pdb
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Release\SpeCalcDataAccessLayer.dll.config
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Release\EntityFramework.dll
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Release\EntityFramework.SqlServer.dll
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Release\EntityFramework.xml
+C:\GoogleDrive\Dev\GitHub\SpeCalc\SpeCalc\SpeCalcCode\SpeCalcDataAccessLayer\bin\Release\EntityFramework.SqlServer.xml

@@ -1,0 +1,9 @@
+﻿@model IEnumerable<SpeCalcDataAccessLayer.ProjectActions>
+    
+@foreach (var act in Model)
+{
+    <div class="pad-sm @(act.NoticeDate.HasValue && act.NoticeDate.Value.AddDays(-7) >= DateTime.Now ? "bg-info" : act.NoticeDate.HasValue && act.NoticeDate.Value.AddDays(-7) < DateTime.Now && act.NoticeDate.Value.AddDays(-1) > DateTime.Now ? "bg-success" : act.NoticeDate.HasValue && act.NoticeDate.Value.AddDays(-1) < DateTime.Now && act.NoticeDate.Value > DateTime.Now ? "bg-warning" : "bg-danger")">
+            <small><strong>@(act.NoticeDate.HasValue ? act.NoticeDate.Value.ToString("dd.MM.yyyy") : null) - @act.ResponsibleName</strong></small><br/>
+            <small>@Html.Raw(act.Descr)</small>
+    </div>
+}

@@ -14,6 +14,16 @@ namespace SpeCalcDataAccessLayer.ProjectModels
 {
     public class ProjectActionModel
     {
+        public static IEnumerable<ProjectActions> GetActive(int projectId)
+        {
+            using (var db = new SpeCalcEntities())
+            {
+                //var db = new SpeCalcEntities();
+                var list = db.ProjectActions.Where(x => x.ProjectId == projectId && !x.Done).OrderByDescending(x=>x.Id).ToList();
+                return list;
+            }
+        }
+
         public static IEnumerable<ProjectActions> GetList(out int totalCount, int projectId, bool full = true)
         {
             using (var db = new SpeCalcEntities())
@@ -24,6 +34,10 @@ namespace SpeCalcDataAccessLayer.ProjectModels
                 if (full)
                 {
                     page = query.OrderByDescending(p => p.Id);
+                }
+                else
+                {
+                    page = query.OrderBy(p => p.Done).ThenByDescending(p=>p.Id).Take(1);
                 }
                 totalCount = query.Count();
                 var list = page.Select(p => p).ToList();

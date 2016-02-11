@@ -99,50 +99,46 @@
                         <input id="fAucNum" class="form-control input-xs" value="@Request.QueryString["aucnum"]" placeholder="№ конкурса" />
                     </th>*@
                     <th style="min-width: 150px">
-                        <input id="fClient" class="form-control input-xs" value="@Request.QueryString["client"]" placeholder="Заказчик" />
-                    </th>
-                    <th>
+                        <input id="fClient" class="form-control input-xs" value="@Request.QueryString["client"]" placeholder="Заказчик"/>
                         <input id="fBudget" class="form-control input-xs" value="@Request.QueryString["budget"]" placeholder="Бюджет" />
                     </th>
                     <th>
                         @Html.DropDownList("fDirect", new SelectList(ProjectHelper.GetSaleDirectionList(), "Id", "Name", Request.QueryString["direct"]), "Направление", new { @class = "form-control input-xs", style = "min-width: 60px" })
-                    </th>
-                    <th>
                         @Html.DropDownList("fSubject", new SelectList(ProjectHelper.GetSaleSubjectList(), "Id", "Name", Request.QueryString["subject"]), "Предмет", new { @class = "form-control input-xs", style = "min-width: 60px" })
                     </th>
-
-                    <th>
-                        <input id="fTeam" class="form-control input-xs" value="@Request.QueryString["team"]" placeholder="Команда" />
+                    <th>Действие</th>
+                    <th class="min-width">
+                        <input id="fTeam" class="form-control input-xs" value="@Request.QueryString["team"]" placeholder="Команда" style="min-width: 50px" />
                     </th>
-                    <th class="text-nowrap">
+                    <th class="min-width text-nowrap">
                         @*<table class="table table-bordered prod-manager-table"><tr class="text-primary">
                                 <td>Снабженец</td>
                                 <td class="bg-default ligth num">запрос</td><td class="bg-success ligth num">расчет</td><td class="bg-info ligth num">позиций</td>
                             </tr></table>*@
                         Расчет
                     </th>
-                    <th>
-                        <input id="fDeadline" class="form-control input-xs" value="@Request.QueryString["deadline"]" placeholder="Срок сдачи" />
+                    <th class="min-width">
+                        <input id="fDeadline" class="form-control input-xs" value="@Request.QueryString["deadline"]" placeholder="Срок сдачи" style="min-width: 50px" />
 
                     </th>
-                    <th>
-                        <input id="fProbab" class="form-control input-xs" value="@Request.QueryString["probab"]" placeholder="Вероятность" />
+                    <th class="min-width">
+                        <input id="fProbab" class="form-control input-xs" value="@Request.QueryString["probab"]" placeholder="Вероятность" style="min-width: 50px" />
                     </th>
-                    <th>
+                    <th class="min-width">
                         @*@Html.DropDownList("fState", new SelectList(ProjectHelper.GetProjectStatesList(), "Id", "Name", Request.QueryString["state"]), "Статус", new { @class = "form-control input-xs", style = "min-width: 60px" })*@
                         Статус
                     </th>
-                    <th>
+                    <th class="min-width">
                         @Html.DropDownList("fCondition", new SelectList(ProjectHelper.GetProjectConditionsList(), "Id", "Name", Request.QueryString["condition"]), "Состояние", new { @class = "form-control input-xs", style = "min-width: 60px" })
                     </th>
 
-                    <th>
+                    <th class="min-width">
                         <div class="input-group input-daterange">
                             <div>
-                                <input id="fCreateStart" type="text" class="form-control input-xs datepicker" value="@(Request.QueryString["createst"])" placeholder="Дата начала" />
+                                <input id="fCreateStart" type="text" class="form-control input-xs datepicker" value="@(Request.QueryString["createst"])" placeholder="Начало" style="min-width: 50px" />
                             </div>
                             <div>
-                                <input id="fCreateEnd" type="text" class="form-control input-xs datepicker" value="@(Request.QueryString["creatend"])" placeholder="Дата окончания"/>
+                                <input id="fCreateEnd" type="text" class="form-control input-xs datepicker" value="@(Request.QueryString["creatend"])" placeholder="Конец" style="min-width: 50px" />
                             </div>
                         </div>
                     </th>
@@ -161,11 +157,15 @@
                         <tr class="row-item" name="project-item" pid="@project.Id">
                             <th>@project.Id</th>
                             @*<td>@project.AuctionNumber</td>*@
-                            <td>@project.ClientName</td>
-                            <td class='text-nowrap'>@(project.Budget.HasValue ? project.Budget.Value.ToString("F2") : null) @(project.CurrencyId.HasValue ? project.ProjectCurrencies.Name : null)</td>
-                            <td>@(project.SaleDirectionId.HasValue ? project.ProjectSaleDirections.Name : null)</td>
-                            <td>@(project.SaleSubjectId.HasValue ? project.ProjectSaleSubjects.Name : null)</td>
-
+                            <td>@project.ClientName<br/>
+                                <span class="text-nowrap">@(project.Budget.HasValue ? project.Budget.Value.ToString("F2") : null) @(project.CurrencyId.HasValue ? project.ProjectCurrencies.Name : null)</span>
+                            </td>
+                            <td>
+                                @(project.SaleDirectionId.HasValue ? project.ProjectSaleDirections.Name : null)<br/>
+                                @(project.SaleSubjectId.HasValue ? project.ProjectSaleSubjects.Name : null)
+                            </td>
+                            <td>
+                                <div name="projectAction" pid="@project.Id"></div></td>
                             @*<td class='text-nowrap'>
                                     @project.ManagerName
                                 </td>*@
@@ -226,7 +226,7 @@
                                 </table>
                             </td>
                             <td>@project.DeadlineDate</td>
-                            <td class="@(project.Probability < 0 ? "bg-info" : project.Probability >= 0 && project.Probability <= 30 ? "bg-success" : project.Probability > 30 && project.Probability <= 60 ? "bg-warning" : project.Probability > 60 ? "bg-danger" : null )">
+                            <td class="@(project.Probability < 0 ? "bg-info" : project.Probability >= 0 && project.Probability <= 30 ? "bg-success" : project.Probability > 30 && project.Probability <= 60 ? "bg-warning" : project.Probability > 60 ? "bg-danger" : null ) text-nowrap">
                                 @project.Probability%
                             </td>
                             <td style="background-color: #@(project.ProjectStates.BackgroundColor)">
@@ -348,7 +348,33 @@
                     autoclose: true
                 });
             loadProjectTeams();
+            loadProjectActions();
         });
+
+        function loadProjectActions() {
+            var $conts = $('[name=projectAction]');
+            for (var i = 0; i < $conts.length; i++) {
+                (function (i) {
+                    var $cont = $($conts[i]);
+                    var pid = $cont.attr('pid');
+                    $cont.html('');
+                    showSpinner($cont);
+                    $.ajax({
+                        url: '@Url.Action("GetActionsShort")',
+                        method: 'GET',
+                        data: { id: pid },
+                        success: function (html) {
+                            $cont.html(html);
+                            hideSpinner($cont);
+                        },
+                        error: function (data) {
+                            console.log(data);
+                            hideSpinner($cont);
+                        }
+                    });
+                })(i);
+            }
+        }
 
         function loadProjectTeams() {
             var $conts = $('[name=projectTeam]');

@@ -617,7 +617,7 @@ namespace SpeCalc.Controllers
                             :  isOperator
                             ? Role.Operator
                             : Role.Enter;
-            if (mainRole == Role.Enter)
+            if (mainRole == Role.Enter || !user.HasAccess(AdGroup.SpeCalcKontroler))
             {
                 var dict = new RouteValueDictionary();
                 dict.Add("message", "У Вас нет доступа к приложению");

@@ -313,6 +313,7 @@
           <Property Name="LastInfoChangeDate" Type="datetime" />
           <Property Name="LastInfoChangerSid" Type="varchar" MaxLength="46" />
           <Property Name="LastInfoChangerName" Type="nvarchar" MaxLength="150" />
+          <Property Name="AuctionSendDate" Type="datetime" />
         </EntityType>
         <EntityType Name="ProjectSaleDirectionResponsibles">
           <Key>
@@ -1502,6 +1503,7 @@
           <NavigationProperty Name="ProjectStateHistory" Relationship="Self.FK_ProjectStateHistory_Projects" FromRole="Projects" ToRole="ProjectStateHistory" />
           <NavigationProperty Name="ProjectTeams" Relationship="Self.FK_ProjectTeams_Projects" FromRole="Projects" ToRole="ProjectTeams" />
           <NavigationProperty Name="ProjectWorks" Relationship="Self.FK_ProjectWorks_Projects" FromRole="Projects" ToRole="ProjectWorks" />
+          <Property Name="AuctionSendDate" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="ProjectSaleDirectionResponsibles">
           <Key>
@@ -2641,6 +2643,7 @@
           <EntitySetMapping Name="Projects">
             <EntityTypeMapping TypeName="SpeCalcModel.Projects">
               <MappingFragment StoreEntitySet="Projects">
+                <ScalarProperty Name="AuctionSendDate" ColumnName="AuctionSendDate" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="ClientId" ColumnName="ClientId" />
                 <ScalarProperty Name="ClientInn" ColumnName="ClientInn" />

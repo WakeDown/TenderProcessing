@@ -407,7 +407,7 @@ namespace SpeCalc.Controllers
             ViewBag.IsProductOnly = GetIsProductOnly(pid.Value);
             ViewBag.UserCanView = GetUserCanView(id.Value);
             ViewBag.UserCanChange = GetUserCanChange(pid.Value);
-            var model = ProjectWorkModel.GetWithCalc(pid.Value);
+            var model = ProjectWorkModel.GetWithCalc(id.Value);
             return PartialView("Work", model);
         }
 
@@ -1060,6 +1060,13 @@ namespace SpeCalc.Controllers
                 return null;
             ProjectActionModel.Delete(aid, CurUser);
             return Json(new { });
+        }
+
+        public PartialViewResult GetActionsShort(int? id)
+        {
+            if (!id.HasValue) return null;
+            var model = ProjectActionModel.GetActive(id.Value);
+            return PartialView("ActionsShort", model);
         }
     }
 }
