@@ -10,6 +10,7 @@ namespace SpeCalcDataAccessLayer.Objects
         SuperAdmin,
         SystemUser,
         //SpeCalc
+        SpeCalcEnter,
         SpeCalcKontroler,
         SpeCalcManager,
         SpeCalcProduct,

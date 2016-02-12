@@ -25,6 +25,7 @@ namespace SpeCalc.Objects
             list.Add(new AdUserGroup(AdGroup.SuperAdmin, "S-1-5-21-1970802976-3466419101-4042325969-4031", "SuperAdmin"));//Суперадмин
             list.Add(new AdUserGroup(AdGroup.SystemUser, "S-1-5-21-1970802976-3466419101-4042325969-4031", "SystemUser"));//Системынй пользователь
 
+            list.Add(new AdUserGroup(AdGroup.SpeCalcEnter, "S-1-5-21-1970802976-3466419101-4042325969-4282", "SpeCalcEnter"));
             list.Add(new AdUserGroup(AdGroup.SpeCalcKontroler, "S-1-5-21-1970802976-3466419101-4042325969-4286", "SpeCalcKontroler"));
             list.Add(new AdUserGroup(AdGroup.SpeCalcManager, "S-1-5-21-1970802976-3466419101-4042325969-4283", "SpeCalcManager"));
             list.Add(new AdUserGroup(AdGroup.SpeCalcProduct, "S-1-5-21-1970802976-3466419101-4042325969-4284", "SpeCalcProduct"));

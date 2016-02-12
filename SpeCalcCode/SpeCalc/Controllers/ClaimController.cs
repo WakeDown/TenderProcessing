@@ -420,7 +420,7 @@ namespace SpeCalc.Controllers
             if (CurUser.Is(AdGroup.SpeCalcProduct))
                 return RedirectToAction("Index", "Calc", new { claimId = claimId, cv = cv });
 
-            if (user == null || !CurUser.HasAccess(AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator,AdGroup.SpeCalcProduct))
+            if (user == null || !CurUser.HasAccess(AdGroup.SpeCalcEnter))
             {
                 var dict = new RouteValueDictionary();
                 dict.Add("message", "У Вас нет доступа к приложению");
@@ -617,7 +617,7 @@ namespace SpeCalc.Controllers
                             :  isOperator
                             ? Role.Operator
                             : Role.Enter;
-            if (mainRole == Role.Enter || !user.HasAccess(AdGroup.SpeCalcKontroler))
+            if (!user.HasAccess(AdGroup.SpeCalcEnter))
             {
                 var dict = new RouteValueDictionary();
                 dict.Add("message", "У Вас нет доступа к приложению");
