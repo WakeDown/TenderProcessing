@@ -109,10 +109,10 @@
       <publishTime>01/03/2015 17:16:03</publishTime>
     </File>
     <File Include="bin/SpeCalc.dll">
-      <publishTime>02/11/2016 17:20:47</publishTime>
+      <publishTime>02/12/2016 14:22:37</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.dll">
-      <publishTime>02/11/2016 17:19:53</publishTime>
+      <publishTime>02/12/2016 14:22:36</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.dll.config">
       <publishTime>02/11/2016 09:39:33</publishTime>
@@ -388,7 +388,7 @@
       <publishTime>01/29/2016 21:22:57</publishTime>
     </File>
     <File Include="Scripts/_references.js">
-      <publishTime>02/05/2016 17:06:18</publishTime>
+      <publishTime>02/11/2016 17:53:59</publishTime>
     </File>
     <File Include="Views/Auth/ErrorPage.cshtml">
       <publishTime>07/18/2015 11:10:10</publishTime>
@@ -412,7 +412,7 @@
       <publishTime>10/15/2015 10:19:57</publishTime>
     </File>
     <File Include="Views/Calc/IndexProduct.cshtml">
-      <publishTime>02/11/2016 16:00:01</publishTime>
+      <publishTime>02/12/2016 13:55:51</publishTime>
     </File>
     <File Include="Views/Calc/Position.cshtml">
       <publishTime>02/03/2016 15:33:49</publishTime>
@@ -496,7 +496,7 @@
       <publishTime>02/10/2016 21:50:03</publishTime>
     </File>
     <File Include="Views/Project/Card.cshtml">
-      <publishTime>02/10/2016 21:16:27</publishTime>
+      <publishTime>02/11/2016 18:05:41</publishTime>
     </File>
     <File Include="Views/Project/CardInfo.cshtml">
       <publishTime>02/08/2016 01:37:33</publishTime>
@@ -535,7 +535,7 @@
       <publishTime>02/11/2016 08:27:56</publishTime>
     </File>
     <File Include="Views/Project/Messages.cshtml">
-      <publishTime>02/08/2016 12:40:22</publishTime>
+      <publishTime>02/12/2016 09:41:54</publishTime>
     </File>
     <File Include="Views/Project/New.cshtml">
       <publishTime>02/11/2016 09:42:17</publishTime>
@@ -667,7 +667,7 @@
       <publishTime>06/23/2015 16:51:12</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>02/11/2016 16:24:54</publishTime>
+      <publishTime>02/12/2016 13:30:29</publishTime>
     </File>
   </ItemGroup>
 </Project>

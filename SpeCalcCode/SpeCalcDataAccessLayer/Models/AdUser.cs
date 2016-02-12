@@ -11,7 +11,16 @@ namespace SpeCalcDataAccessLayer.Objects
     public class AdUser
     {
         public IPrincipal User { get; set; }
-        public string Sid { get; set; }
+        private string _sid;
+        public string Sid
+        {
+            get
+            {
+                return _sid;
+                //return "S-1-5-21-1970802976-3466419101-4042325969-6655";
+            }
+            set { _sid = value; }
+        }
         public string Login { get; set; }
         private string _fullName;
         public string FullName
@@ -50,11 +59,19 @@ namespace SpeCalcDataAccessLayer.Objects
         }
         public bool Is(params AdGroup[] groups)
         {
+//#if DEBUG
+//            if (groups.Contains(AdGroup.SpeCalcProduct) || groups.Contains(AdGroup.SpeCalcEnter)) return true;
+//            else return false;
+//#endif
             return groups.Select(grp => AdGroups.Contains(grp)).Any(res => res);
         }
 
         public bool HasAccess(params AdGroup[] groups)
         {
+//#if DEBUG
+//            if (groups.Contains(AdGroup.SpeCalcProduct) || groups.Contains(AdGroup.SpeCalcEnter)) return true;
+//            else return false;
+//#endif
             if (AdGroups == null || !AdGroups.Any()) return false;
             if (AdGroups.Contains(AdGroup.SuperAdmin) || AdGroups.Contains(AdGroup.SpeCalcKontroler)) return true;
             return groups.Select(grp => AdGroups.Contains(grp)).Any(res => res);

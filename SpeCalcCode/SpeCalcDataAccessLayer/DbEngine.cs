@@ -893,6 +893,8 @@ namespace SpeCalcDataAccessLayer
 
         public List<SpecificationPosition> LoadSpecificationPositionsForTenderClaimForProduct(int claimId, string product, int version)
         {
+            return SpecificationPosition.GetList(idClaim: claimId, version: version, productSid: product).ToList();
+
             var list = new List<SpecificationPosition>();
             using (var conn = new SqlConnection(_connectionString))
             {
