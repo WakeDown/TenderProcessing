@@ -1411,8 +1411,8 @@ namespace SpeCalc.Controllers
                                 workSheet.Cell(row, ++col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                                 if (calculation.DeliveryTime != null)
                                 {
-                                    var delivTime = deliveryTimes.First(x => x.Id == calculation.DeliveryTime.Id);
-                                    workSheet.Cell(row, col).Value = delivTime == null ? String.Empty : delivTime.Value;
+                                    var delivTime = calculation.DeliveryTime != null && calculation.DeliveryTime.Id > 0 ? deliveryTimes.First(x => x.Id == calculation.DeliveryTime.Id).Value : null;
+                                    workSheet.Cell(row, col).Value = delivTime;
                                 }
                                 double hCalcDeliv = GetCellHeight(workSheet.Cell(row, col).Value.ToString().Length, 16);
                                 workSheet.Cell(row, col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
