@@ -163,6 +163,13 @@
                             <td>
                                 @(project.SaleDirectionId.HasValue ? project.ProjectSaleDirections.Name : null)<br/>
                                 @(project.SaleSubjectId.HasValue ? project.ProjectSaleSubjects.Name : null)
+                                <div>
+                                    <strong>Бизнес задача</strong><br/>
+                                    @(project.BusinessTargetId.HasValue && project.ProjectBusinessTargets.Id > 0 ? project.ProjectBusinessTargets.Name : null)
+                                    <div>
+                                        @(!String.IsNullOrEmpty(project.BusinessTargetName) ? project.BusinessTargetName : null)
+                                    </div>
+                                </div>
                             </td>
                             <td>
                                 <div name="projectAction" pid="@project.Id"></div></td>
