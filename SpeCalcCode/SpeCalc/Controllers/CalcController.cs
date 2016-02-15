@@ -735,7 +735,7 @@ namespace SpeCalc.Controllers
                                 workSheet.Cell(row, 13).Value = calculation.Provider;
                                 workSheet.Cell(row, 13).Style.Alignment.SetWrapText();
 
-                                if (calculation.DeliveryTime != null) workSheet.Cell(row, 14).Value = deliveryTimes.First(x => x.Id == calculation.DeliveryTime.Id).Value;
+                                if (calculation.DeliveryTime != null) workSheet.Cell(row, 14).Value = calculation.DeliveryTime != null && calculation.DeliveryTime.Id > 0 ? deliveryTimes.First(x => x.Id == calculation.DeliveryTime.Id).Value : null;
                                 workSheet.Cell(row, 14).Style.Alignment.SetWrapText();
 
                                 if (calculation.ProtectFact != null)
