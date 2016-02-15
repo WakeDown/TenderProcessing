@@ -164,7 +164,11 @@
                                 @(project.SaleDirectionId.HasValue ? project.ProjectSaleDirections.Name : null)<br/>
                                 @(project.SaleSubjectId.HasValue ? project.ProjectSaleSubjects.Name : null)
                                 <div>
-                                    <strong>Бизнес задача</strong><br/>
+                                    @if (project.BusinessTargetId.HasValue || !String.IsNullOrEmpty(project.BusinessTargetName))
+                                    {
+                                        <strong>Бизнес задача</strong>
+                                        <br/>
+                                    }
                                     @(project.BusinessTargetId.HasValue && project.ProjectBusinessTargets.Id > 0 ? project.ProjectBusinessTargets.Name : null)
                                     <div>
                                         @(!String.IsNullOrEmpty(project.BusinessTargetName) ? project.BusinessTargetName : null)
