@@ -353,6 +353,7 @@
             var $cont = $('#' + containerId);
             var min = 0;
             var max = -($table.width() - $cont.width());
+            $table.css('left', '0');
             //alert($table.width());
             $table.draggable({
                 axis: 'x',
@@ -361,6 +362,12 @@
                     if (ui.position.left < max) ui.position.left = max;
                 }
             });
+
+            if ($table.width() > $cont.width()) {
+                $table.css('cursor', 'move');
+            } else {
+                $table.css('cursor', 'default');
+            }
         }
 
         $(function() {
