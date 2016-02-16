@@ -1,0 +1,37 @@
+﻿
+@model SpeCalcDataAccessLayer.Models.CalculateSpecificationPosition
+@{
+    bool IsTransneft = ViewBag.ClaimType != null && ViewBag.ClaimType == "TRANS";
+}
+@if (IsTransneft)
+{
+    <td name="calc" cpid="@Model.Id" secol="secol">@Model.Brand</td>
+}
+<td name="calc" cpid="@Model.Id">@Model.CatalogNumber</td>
+@if (IsTransneft)
+{
+    <td name="calc" cpid="@Model.Id">@Model.Name</td>
+    <td name="calc" cpid="@Model.Id">@Model.Replace</td>
+}
+else
+{
+    <td name="calc" cpid="@Model.Id">@Model.Name<div class="text-info">@Model.Replace</div></td>
+}
+
+<td name="calc" cpid="@Model.Id"><span class="small" name="priceOnlineInfo" catnum="@Model.CatalogNumber"></span></td>
+<td name="calc" cpid="@Model.Id">@Model.PriceUsd</td>
+<td name="calc" cpid="@Model.Id">@Model.PriceEur</td>
+<td name="calc" cpid="@Model.Id">@Model.PriceEurRicoh</td>
+<td name="calc" cpid="@Model.Id">@Model.PriceRubl</td>
+<td name="calc" cpid="@Model.Id" secol="secol">@Model.Provider</td>
+<td name="calc" cpid="@Model.Id">@Model.DeliveryTime.Value</td>
+<td name="calc" cpid="@Model.Id" secol="secol">@Model.ProtectFact.Value</td>
+<td name="calc" cpid="@Model.Id" secol="secol">@Model.ProtectCondition</td>
+<td name="calc" cpid="@Model.Id" secol="secol">@Model.Comment</td>
+<td name="calc" cpid="@Model.Id">
+    @if (Model.StateCanEditProduct)
+    {
+        <button type='button' name='btnEditCalc' class='btn btn-warning btn-sm' data-toggle='tooltip' title='изменить' cpid="@Model.Id"><i class='fa fa-edit'></i></button>
+        <button type='button' name='btnDeleteCalc' class='btn btn-danger btn-sm' data-toggle='tooltip' title='удалить' cpid="@Model.Id"><i class='fa fa-trash'></i></button>
+    }
+</td>

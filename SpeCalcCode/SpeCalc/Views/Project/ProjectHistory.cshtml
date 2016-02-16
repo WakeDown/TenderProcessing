@@ -1,0 +1,24 @@
+﻿@model IEnumerable<SpeCalcDataAccessLayer.ProjectModels.ProjectHistoryModel>
+@{
+//int count = ViewBag.TotalCount - Model.Count();
+//bool displayBtn = count > 0;
+}
+@foreach (var hist in Model)
+{
+    <div class="project-message-item">
+        <small>@hist.Item.CreateDate.ToString("dd.MM.yyyy HH:mm") - @hist.Item.CreatorName</small>
+        <div>
+            <strong>@hist.Item.Title</strong>
+        </div>
+        <div class="pad-l-sm">
+            @Html.Raw(hist.Item.Comment)
+        </div>
+    </div>
+    <hr class="no-margin" />
+}
+@*@if (displayBtn)
+{
+    <div>
+        <a id="showAllHistory" class="btn btn-xs btn-info">еще <span id="historyTotalCount">@count</span></a>
+    </div>
+}*@

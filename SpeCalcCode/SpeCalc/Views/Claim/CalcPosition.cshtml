@@ -1,0 +1,138 @@
+﻿@model SpeCalcDataAccessLayer.Models.SpecificationPosition
+@{
+    bool IsTransneft = ViewBag.ClaimType != null && ViewBag.ClaimType == "TRANS";
+}
+<tr id="calcpos-@Model.Id" name="calcpos" style="background-color: #@Model.StateBackgroundColor">
+    <td name="pos" class="min-width  text-center" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">
+        @*@if (Model.StateCanEditManager || Model.StateIsEnd)
+        {*@
+            <input type="checkbox" name="calcCheckbox" value="@Model.Id"/>
+        @*}*@
+    </td>
+    <td name="pos" class="min-width  text-center" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">
+        @Model.RowNumber
+        <div class="@Model.StateImageColorClass">
+            <i class="fa @Model.StateImageClass" title="@Model.PositionStateName"></i>
+        </div>
+        @if (Model.StateShowStateName)
+        {
+            <h4 style="color: #@Model.StateForegroundColor">
+                @Model.PositionStateName
+            </h4>
+        }
+    </td>
+    @if (IsTransneft)
+    {
+        <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.ContractDeliveryTime</td>
+        <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.Brand</td>
+        <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.RecipientDetails</td>
+        <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.QuestionnaireNum</td>
+        <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.MaxPrice</td>
+    }
+    <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.CatalogNumber</td>
+    <td name="pos" style="width: 250px;" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 0)">
+        @Model.Name
+        <div class="text-danger text-sm">@Model.Comment</div>
+    </td>
+    <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)">@Model.Value @Model.UnitName</td>
+    <td name="pos" rowspan="@(Model.Calculations != null && Model.Calculations.Any() ? Model.Calculations.Count : 1)" class="text-nowrap">@Model.ProductManagerName</td>
+    @if (Model.Calculations != null && Model.Calculations.Any())
+    {
+        {
+            var calc = Model.Calculations[0];
+
+            if (IsTransneft)
+            {
+                <td name="calc">@calc.Brand</td>
+            }
+            <td name="calc">@calc.CatalogNumber</td>
+            if (IsTransneft)
+            {
+                <td name="calc">@calc.Name</td>
+                <td name="calc">@calc.Replace</td>
+            }
+            else
+            {
+                <td name="calc">@calc.Name<div class="text-info">@calc.Replace</div>
+                    <div class="text-danger">@calc.Comment</div>
+                </td>
+            }
+                <td name="calc"><span class="small" name="priceOnlineInfo" catnum="@Model.CatalogNumber"></span></td>
+                <td name="calc">@calc.PriceUsd</td>
+                <td name="calc">@calc.PriceEur</td>
+                <td name="calc">@calc.PriceEurRicoh</td>
+                <td name="calc">@calc.PriceRubl</td>
+                <td name="calc">@calc.Provider</td>
+                <td name="calc">@calc.DeliveryTime.Value</td>
+                <td name="calc">@calc.ProtectFact.Value</td>
+                <td name="calc">@calc.ProtectCondition</td>
+                <td name="calc">@calc.Comment</td>
+
+        }
+    }
+    else
+    {
+        if (IsTransneft)
+        {
+            <td name="calc"></td>
+        }
+        <td name="calc"></td>
+        if (IsTransneft)
+        {
+            <td name="calc"></td>
+        }
+        else
+        {
+            <td name="calc"></td>
+            <td name="calc"></td>
+        }
+        <td name="calc"></td>
+        <td name="calc"></td>
+        <td name="calc"></td>
+        <td name="calc"></td>
+        <td name="calc"></td>
+        <td name="calc"></td>
+        <td name="calc"></td>
+        <td name="calc"></td>
+        <td name="calc"></td>
+        <td name="calc"></td>
+        <td name="calc"></td>
+    }
+
+</tr>
+
+@if (Model.Calculations != null && Model.Calculations.Any() && Model.Calculations.Count > 1)
+{
+    foreach (var calc in Model.Calculations.Skip(1))
+    {
+        <tr style="background-color: #@Model.StateBackgroundColor">
+            if (IsTransneft)
+            {
+            <td name="calc">@calc.Brand</td>
+            }
+            <td name="calc">@calc.CatalogNumber</td>
+            @if (IsTransneft)
+            {
+            <td name="calc">@calc.Name</td>
+            <td name="calc">@calc.Replace</td>
+            }
+            else
+            {
+            <td name="calc">
+                @calc.Name<div class="text-info">@calc.Replace</div>
+                <div class="text-danger">@calc.Comment</div>
+            </td>
+            }
+            <td name="calc"><span class="small" name="priceOnlineInfo" catnum="@Model.CatalogNumber"></span></td>
+            <td name="calc">@calc.PriceUsd</td>
+            <td name="calc">@calc.PriceEur</td>
+            <td name="calc">@calc.PriceEurRicoh</td>
+            <td name="calc">@calc.PriceRubl</td>
+            <td name="calc">@calc.Provider</td>
+            <td name="calc">@calc.DeliveryTime.Value</td>
+            <td name="calc">@calc.ProtectFact.Value</td>
+            <td name="calc">@calc.ProtectCondition</td>
+            <td name="calc">@calc.Comment</td>
+        </tr>
+            }
+            }

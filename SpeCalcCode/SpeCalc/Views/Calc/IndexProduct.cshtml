@@ -1,0 +1,915 @@
+﻿@using System.Configuration
+@using SpeCalc.Helpers
+@using SpeCalcDataAccessLayer
+@using SpeCalcDataAccessLayer.Models
+@model SpeCalcDataAccessLayer.Models.TenderClaim
+@{
+    ViewBag.Title = "Карточка заявки";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.ClaimType = Model.ClaimTypeSysName;
+    bool IsTransneft = ViewBag.ClaimType != null && ViewBag.ClaimType == "TRANS";
+}
+
+<div>
+<div class="panel panel-default">
+    <div class="panel-heading" style="min-height: 70px;">
+        <div class="h4 marg-sm">
+            <div id="headWithCalc" class="pull-left">
+                Заявка №@Model.Id @Model.Customer<br/>
+                <span>
+                        Бюджет @Model.StrSum
+                    </span><br/>
+                <small>@Model.ClaimStatusName</small>
+            </div>
+
+            <div class="pull-left" style="padding-left: 10px">
+                @*@if (Model.StateCanAddPositions)
+                    {
+                        <button type="button" id="butSetClaimOnWork" style="" class="btn btn-success btn-sm" href=""><i class="fa fa-mail-forward"></i> в работу</button>
+                    }
+                    else
+                    {
+                        if (Model.StateCanStart)
+                        {
+                            <button id="btnSetClaimContinue" type="button" class="btn btn-success btn-sm"><i class="fa fa-play"></i> возобновить</button>
+                        }
+                        if (Model.StateCanPause)
+                        {
+                            <button id="btnSetClaimPause" type="button" class="btn btn-warning btn-sm"><i class="fa fa-pause"></i> приостановить</button>
+                        }
+                        if (Model.StateCanStop)
+                        {
+                            <button id="btnSetClaimStop" type="button" class="btn btn-danger btn-sm"><i class="fa fa-stop"></i> отменить</button>
+                        }
+                    }*@
+            </div>
+            <div class=" pull-right">
+                <blockquote class="alert-info">
+                    @Model.ClaimTypeName
+                </blockquote>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        @*info col 1*@
+        <div type="pnlClaimFormWithCalc" class="col-sm-4">
+            <table class="table table-condensed pad-xs">
+                <tr>
+                    <td class="text-right">Тип сделки</td>
+                    <td><strong id="claimDealType">@Model.DealTypeName</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-right">Дата начала</td>
+                    <td><strong id="claimTenderStart">@Model.TenderStartString</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-right">Срок сдачи</td>
+                    <td><strong id="claimDeadline">@Model.ClaimDeadlineString</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-right">Срок подачи КП</td>
+                    <td><strong id="kPDeadline">@Model.KPDeadlineString</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-right">Менеджер</td>
+                    <td><strong id="claimManager">@Model.Manager.ShortName</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-right"><span>Подразделение</span></td>
+                    <td><span id="managerSubDivision">@Model.Manager.SubDivision</span></td>
+                </tr>
+                <tr>
+                    <td class="text-right"><span>Руководитель</span></td>
+                    <td><span id="managerChief">@Model.Manager.ChiefShortName</span></td>
+                </tr>
+                <tr>
+                    <td class="text-right">Файлы заявки</td>
+                    <td>
+                        <div id="claimFileList">
+                            @foreach (var file in Model.Files)
+                            {
+                                <div>
+                                    <a href="@Url.Action("GetTenderClaimFile", "Calc")?guid=@file.FileGuid" target="_blank">@file.FileName</a>
+                                </div>
+                            }
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right">Сертификаты</td>
+                    <td>
+                        <div id="certList">
+                            @foreach (var file in Model.Certs)
+                            {
+                                <div>
+                                    <a href="@Url.Action("GetCertFile", "Calc")?guid=@file.FileGuid" target="_blank">@file.FileName</a>
+                                </div>
+                            }
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right"></td>
+                    <td>
+                        @using (Html.BeginForm("SaveFile", "Calc", new {claimId = Request.QueryString["claimId"], cv = Request.QueryString["cv"]}, FormMethod.Post, new {enctype = "multipart/form-data"}))
+                        {
+                            <div class="pull-left">
+                                <input type="file" name="file" multiple="multiple" accept="@ConfigurationManager.AppSettings["FileFormat4TenderClaimFile"]"/>
+                                <input type="text" class="hidden" name="formClaimId" id="formClaimId"/>
+                            </div><div class="pull-left">
+                                      <button class="btn btn-success btn-xs" type="submit">сохранить файл</button>
+                                  </div>
+
+                        }
+                    </td>
+                </tr>
+            </table>
+        </div>
+        @*info col 2*@
+        <div type="pnlClaimFormWithCalc" class="col-lg-4">
+            <table class="table table-condensed pad-xs">
+                <tr>
+                    <td class="text-right">№ конкурса</td>
+                    <td><strong id="claimTenderNumber">@Model.TenderNumber</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-right">Статус конкурса</td>
+                    <td><strong id="claimTenderStatus">@Model.TenderStatusName</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-right">Срок поставки</td>
+                    <td><strong id="claimDeliveryDate">@Model.DeliveryDateString</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-right">Место поставки</td>
+                    <td><strong id="claimDeliveryPlace">@Model.DeliveryPlace</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-right">Дата аукциона</td>
+                    <td><strong id="claimAuctionDate">@Model.AuctionDateString</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-right text-nowrap">Ссылка на закупки</td>
+                    <td><small id="claimTenderUrl">@Model.TenderUrl</small></td>
+                </tr>
+            </table>
+        </div>
+        @*История*@
+        <div class="col-lg-4">
+            <h4 class="marg-sm">История заявки</h4>
+            <div>
+                <ul class="list-group small" id="claimStatusHistoryContainer"></ul>
+            </div>
+            <div id="commentPanel">
+
+                @if (!Model.StateCanAddPositions)
+                {
+                    <textarea id="comment" rows="2" placeholder="Введите текст комментария" class="form-control input-sm"></textarea>
+                    <div>
+                        <button type="button" id="butSendComment" class="btn btn-warning btn-xs pull-right"><i class="fa fa-comment"></i> сохранить комментарий</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="positionPanel" style="margin-left: 4px; margin-right: 4px;">
+<div>
+    <div class="pad-sm">
+        <ul class="list-inline">
+            <li>
+                <span>
+                            Список позиций
+                            <span class="label label-default">всего&nbsp;<span class="big" id="positionCountLabel">@Model.PositionsCount</span></span>
+                            <span class="label label-info">из них рассчитано&nbsp;<span class="big" id="positionCalculateCountLabel">@Model.CalculatePositionsCount</span></span>
+                        </span>
+            </li>
+            <li>
+                @if (IsTransneft)
+                {
+                    <a id="butGetExcelFile" href="@Url.Action("GetSpecificationFileTrans")?claimId=@Model.Id&forManager=false&cv=@Request.QueryString["cv"]" target="_blank" class='btn btn-default btn-sm'><i class="fa fa-download"></i> скачать спецификацию</a>
+                }
+                else
+                {
+                    <a id="butGetExcelFile" href="@Url.Action("GetSpecificationFile")?claimId=@Model.Id&forManager=false&cv=@Request.QueryString["cv"]" target="_blank" class='btn btn-default btn-sm'><i class="fa fa-download"></i> скачать спецификацию</a>
+                }
+            </li>
+            @*<li>
+                @if (IsTransneft)
+                {
+                    <button id="butUploadExcelFile" type='button' class='btn btn-default btn-sm' style='margin: 4px;'><i class="fa fa-upload"></i> загрузить расчет</button>
+                }
+                else
+                {
+                    <button id="butUploadExcelFile" type='button' class='btn btn-default btn-sm' style='margin: 4px;'><i class="fa fa-upload"></i> загрузить расчет</button>
+                }
+            </li>*@
+            @if (Model.StateIsActive)
+            {
+                if (Model.StateCanChangeProduct)
+                 {
+                     <li>
+                         <span class="btn-line">
+                        <span class="form-inline">
+                            <span class="input-group">
+@Html.DropDownList("productsList", new SelectList(UserHelper.GetProductManagersSelectionList(), "Id", "ShortName"), "--выберите--", new {id = "productsList", @class = "form-control input-sm", size = "1"})
+                                <span class="input-group-addon"><button type="button" id="butChangeProduct" class="btn btn-primary btn-sm" data-toggle='tooltip'><i class="fa fa-forward"></i> передать</button></span>
+                            </span>
+                        </span>
+                    </span>
+                     </li>
+                 }
+                
+                <li>
+                    <button type='button' id="butRejectPositions" class='btn btn-danger btn-sm'><i class="fa fa-remove"></i> отклонить отмеченные</button>
+                </li>
+
+                <li>
+                    <button type='button' id="butSendOnConfirm" class='btn btn-success btn-sm'><i class="fa fa-bullhorn"></i> на подтверждение отмеченные</button>
+                </li>
+
+            }
+            <li>
+                <button id="btnSecondStateColumns" type='button' class='btn btn-success btn-sm'><i class="fa fa-columns"></i> второстепенные столбцы</button>
+            </li>
+            @if (Model != null && Model.Id > 0)
+            {
+                int[] versions = DbEngine.GetCalcVersionList(Model.Id);
+
+                <li class="pull-right">
+                    <ul class="list-inline" style="background-color: #F7ECB5">
+                        <li class="bold"><h4>Версия</h4></li>
+                        @if (versions != null)
+                        {
+                            foreach (int ver in versions)
+                            {
+                                <li><a class="btn-sm btn @(Request.QueryString["cv"] != null && Request.QueryString["cv"].Equals(ver.ToString()) ? "btn-danger selected" : "btn-primary")" href="@Url.Action("Index", new {claimId = Model.Id, cv = ver})">@ver</a></li>
+                            }
+                        }
+                    </ul>
+                </li>
+            }
+        </ul>
+    </div>
+    @*Позиции*@
+    <div id="tblPositionsContainer" style="overflow: hidden">
+        <table id="tblPositionsWithCalc" class="table small table-bordered">
+            <thead>
+                @Html.Partial("PositionHeader")
+            </thead>
+            <tbody id="positionsContainer"></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="stateChangeCommentModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Укажите комментарий</h4>
+            </div>
+            <div class="modal-body">
+                <textarea id="stateChangeComment" class="form-control" rows="7" placeholder="Комментарий"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                <button id="stateChangeConfirm" type="button" class="btn btn-success">Подтвердить</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="rejectPositionCommentBox" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Комментарий к отклонению</h4>
+            </div>
+            <div class="modal-body">
+                <textarea id="rejectPositionComment" class="form-control" rows="7" placeholder="Комментарий"></textarea>
+                <ul class="list-unstyled list-inline">
+                    <li><input type="radio" name="shortComment" value="по запросу Менеджера" /> по запросу Менеджера</li>
+                    <li><input type="radio" name="shortComment" value="некорректно составлено" /> некорректно составлено</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                <button id="butRejectPositionOk" type="button" class="btn btn-success">Подтвердить</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="allHistoryModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">История заявки</h4>
+            </div>
+            <div class="modal-body">
+                <div id="allHistoryContainer"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+@section scripts{
+    <script>
+        var displaySecColValue = @(String.IsNullOrEmpty(Request.QueryString["showSecCol"]) ? "false" : "true");
+
+        function displaySecCol() {
+            if (displaySecColValue) {
+                $('[secol="secol"]').removeClass('hidden');
+                @if (IsTransneft)
+                {
+                    <text>
+                $('#tblPositionsWithCalc').width(3500);
+                 </text>
+                }
+                else
+                {
+                    <text>
+                $('#tblPositionsWithCalc').width(3000);
+                </text>
+                }
+
+            } else {
+                $('[secol="secol"]').addClass('hidden');
+                $('#tblPositionsWithCalc').width('');
+            }
+            tableDraggable('tblPositionsWithCalc', 'tblPositionsContainer');
+        }
+
+
+        function tableDraggable(id, containerId) {
+            var $table = $('#' + id);
+            var $cont = $('#' + containerId);
+            var min = 0;
+            var max = -($table.width() - $cont.width());
+            //alert($table.width());
+            $table.draggable({
+                axis: 'x',
+                drag: function(event, ui) {
+                    if (ui.position.left > min) ui.position.left = min;
+                    if (ui.position.left < max) ui.position.left = max;
+                }
+            });
+        }
+
+        $(function() {
+            
+
+            $("#butSendComment").click(sendComment);
+            $('#calcPositionsCheckAll').click(function() {
+                $('[name="calcCheckbox"]').prop('checked', $(this).is(':checked'));
+            });
+            $('#butChangeProduct').click(changePositionsProduct);
+            $('#butRejectPositions').click(rejectPositions);
+            $('#btnSecondStateColumns').click(function() {
+                displaySecColValue = !displaySecColValue;
+                displaySecCol();
+            });
+            $('#btnEditAllCancel').click(function() {
+                loadPositions();
+                displayCalcEditMode(false);
+            });
+            $('#btnEditAll').click(function() {
+
+                var $posRows = $('[name="calcpos"]');
+                for (var i = 0; i < $posRows.length; i++) {
+                    var $pos = $($posRows[i]);
+                    var hasCalcs = !$pos.find('[name="calc"][cpid="null"]').length > 0;
+                    if (hasCalcs) {
+                    } else {
+                        $('[name="addCalc"]', $pos).click();
+                    }
+                }
+                $('[name="btnEditCalc"]').click();
+                displayCalcEditMode(true);
+            });
+            $('#butSendOnConfirm').click(sendOnConfirm);
+            $('#btnSaveAllCalc').click(function() {
+                $('[name="btnSaveCalc"]').click();
+                displayCalcEditMode(false);
+            });
+            loadHistory();
+            loadPositions();
+            
+        });
+
+        function displayCalcEditMode(display) {
+            if (display == true) {
+                $('#btnEditAllCancel').show();
+                $('#btnSaveAllCalc').show();
+                $('#btnEditAll').hide();
+            } else {
+                $('#btnEditAllCancel').hide();
+                $('#btnSaveAllCalc').hide();
+                $('#btnEditAll').show();
+            }
+        }
+
+        function sendOnConfirm() {
+            var ids = getCheckedIds();
+            if (ids.length <= 0) {
+                alert("Ни одной позиции не выбрано!");
+                return;
+            }
+            var $this = $(this);
+            showSpinnerAppendAndDisable($this);
+            $.ajax({
+                url: "@Url.Action("SetPositionToConfirm")",
+                method: 'POST',
+                datatype: 'json',
+                data: JSON.stringify({ posIds: ids, idClaim: @Model.Id, comment: null, cv: @Request.QueryString["cv"] }),
+                processData: false,
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    loadHistory();
+                    loadPositions();
+                    hideSpinnerAndEnabled($this);
+                },
+                error: function() {
+                    alert('Ошибка при передаче позиций!');
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        }
+
+        function rejectPositions() {
+            var ids = getCheckedIds();
+            if (ids.length <= 0) {
+                alert("Ни одной позиции не выбрано!");
+                return;
+            }
+
+            //if (!confirm('Вы уверены что хотите отклонить отмеченные позиции?'))return;
+            $('[name="shortComment"]').click(function() {
+                var $el = $(this);
+                if ($el.is(':checked')) {
+                    $('#rejectPositionComment').val($el.val());
+                }
+            });
+            $('#rejectPositionCommentBox').modal('show');
+            $('#butRejectPositionOk').click(function() {
+                var comment = $("#rejectPositionComment").val().trim();
+                if (!comment) {
+                    alert("Введите комментарий!");
+                    $("#rejectPositionComment").focus();
+                    return;
+                }
+                var $this = $(this);
+                showSpinnerAppendAndDisable($this);
+                var model = { idClaim: @Model.Id, cv: '@Request.QueryString["cv"]', posIds: ids, comment: comment };
+                $.ajax({
+                    url: "@Url.Action("SetPositionRejected")",
+                    type: 'POST',
+                    data: JSON.stringify(model),
+                    processData: false,
+                    contentType: 'application/json',
+                    success: function(data) {
+                        if (data.IsComplete) {
+                            loadHistory();
+                            loadPositions();
+                            hideSpinnerAndEnabled($this);
+                            $('#rejectPositionCommentBox').modal('hide');
+                        } else {
+                            alert(data.Message);
+                        }
+                    },
+                    error:
+                        function(xhr, status, p3, p4) {
+                            var err = "Error " + " " + status + " " + p3 + " " + p4;
+                            if (xhr.responseText && xhr.responseText[0] == "{")
+                                err = JSON.parse(xhr.responseText).Message;
+                            alert(err);
+                            console.log(err);
+                            hideSpinnerAndEnabled($this);
+                        }
+                    //    function() {
+                    //    alert('Ошибка при отклонении позиций!');
+                    //    hideSpinnerAndEnabled($this);
+                    //}
+                });
+            });
+        }
+
+        function setB2bPrice($container) {
+            if (!$container) $container = $('#positionsContainer');
+
+            var $elems = $('[name="priceOnlineInfo"]', $container);
+
+            for (var i = 0; i < $elems.length; i++) {
+                var $elem = $($elems[i]);
+                var partNum = $elem.attr('catnum');
+                if (!partNum)continue;
+
+                (function(i) {
+                    var $elem = $($elems[i]);
+                    var partNum = $elem.attr('catnum');
+                    var minPriceOnline = '';
+                    $.ajax({
+                        url: '@Url.Action("GetMinPrice", "Claim")',
+                        method: 'POST',
+                        data: { partNum: partNum },
+                        success: function(data) {
+                            minPriceOnline = data.priceStr;
+                            $elem.text = minPriceOnline;
+                        },
+                        error: function() {
+                            var error = 'Не удалось получить цену!';
+                        }
+                    });
+                })(i);
+            }
+        }
+
+        function getCheckedIds() {
+            var ids = [];
+            var checks = $('[name="calcCheckbox"]:checked');
+            for (var i = 0; i < checks.length; i++) {
+                ids.push($(checks[i]).val());
+            }
+            return ids;
+        }
+
+        function changePositionsProduct(e) {
+            var product = $("#productsList :selected").val();
+            if (!product) {
+                alert("Выберите снабженца");
+                return;
+            }
+
+            var ids = getCheckedIds();
+            if (ids.length <= 0) {
+                alert("Ни одной позиции не выбрано!");
+                return;
+            }
+
+            var $this = $(this);
+            showSpinnerAppendAndDisable($this);
+            $.ajax({
+                url: "@Url.Action("ChangePositionsProduct")", //"/Calc/ChangePositionsProduct?productId=" + product + "&idClaim=" + claim.Id,
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify({ ids: ids, productId: product, idClaim: @Model.Id }),
+                processData: false,
+                contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    loadPositions();
+                    loadHistory();
+                    if (data.IsComplete) {
+                        //for (var i = 0; i < ids.length; i++) {
+                        //    $('#calcpos-' + ids[i]).remove();
+                        //}
+                    } else {
+                        alert("Ошибка при переназначении позиций");
+                    }
+                    hideSpinnerAndEnabled($this);
+                },
+                error: function() {
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        }
+
+        function loadPositions() {
+            var $cont = $('#positionsContainer');
+            $cont.html();
+            showSpinner($cont);
+            $.ajax({
+                url: '@Url.Action("GetPositions")',
+                method: 'GET',
+                data: { claimId: @Model.Id, cv: @Request.QueryString["cv"], ClaimType: '@ViewBag.ClaimType' },
+                success: function(html) {
+                    $cont.html(html);
+                    //fillCount();
+                    initPositionBtns();
+                    initCalcBns();
+                    hideSpinner($cont);
+                    displaySecCol();
+                    setB2bPrice($cont);
+                },
+                error: function() {
+                    alert('Ошибка загрузки позиций!');
+                    hideSpinner($cont);
+                }
+            });
+        }
+
+        function initPositionBtns($container) {
+            if (!$container) $container = $('#positionsContainer');
+
+            $('[name="addCalc"]', $container).click(function() {
+                var $this = $(this);
+                showSpinnerAppendAndDisable($this);
+                var $row = $this.closest('[name="calcpos"]');
+                var id = $row.attr('pid');
+                $.ajax({
+                    url: '@Url.Action("GetCalculationEdit")',
+                    method: 'POST',
+                    data: { id: null, ClaimType: '@ViewBag.ClaimType' },
+                    success: function(html) {
+                        var $nullCalcs = $('[cpid="null"]', $row);
+
+                        if ($nullCalcs.length > 0) {
+                            $nullCalcs.remove();
+                            $row.append(html);
+                            initCalcBns($row);
+                        } else {
+                            var poss = $('[name="pos"]', $row);
+                            var curRowSpan = poss.attr('rowspan');
+                            var newRowSpan = parseInt(curRowSpan) + 1;
+                            poss.attr('rowspan', newRowSpan);
+                            var $newRow = $('<tr pid="' + id + '">' + html + '</tr>');
+                            $('[pid=' + id + ']').last().after($newRow);
+
+                            initCalcBns($newRow);
+                        }
+                        displaySecCol();
+                        hideSpinnerAndEnabled($this);
+                    },
+                    error: function() {
+                        alert('Ошибка при загрузке формы редактирования расчета!');
+                        hideSpinnerAndEnabled($this);
+                    }
+                });
+            });
+
+
+        }
+
+        //функция удаляет лишние знаки из вставленного
+        function deletePriceAdditions() {
+            var element = this;
+            setTimeout(function() {
+                var val = $(element).val();
+                val = val.toString().replace(/[^0-9$.,]/g, '');
+                $(element).val(val);
+            }, 100);
+        }
+
+        function initCalcBns($container) {
+            if (!$container) $container = $('#positionsContainer');
+
+            $("[name='PriceUsd']", $container).on('paste', deletePriceAdditions);
+            $("[name='PriceEur']", $container).on('paste', deletePriceAdditions);
+            $("[name='PriceEurRicoh']", $container).on('paste', deletePriceAdditions);
+            $("[name='PriceRubl']", $container).on('paste', deletePriceAdditions);
+
+            $('[name="btnDeleteCalc"]', $container).click(function() {
+                if (!confirm('Вы уверены что хотите удалить расчет?'))return;
+                var $this = $(this);
+                showSpinnerAppendAndDisable($this);
+                var cpid = $this.attr('cpid');
+                var $row = $this.closest('[name="calcpos"]');
+                var id = $row.attr('pid');
+
+                $.ajax({
+                    url: '@Url.Action("Delete")',
+                    method: 'POST',
+                    data: { id: cpid },
+                    success: function() {
+                        var calcs = $('td[name="calc"][cpid="' + cpid + '"]');
+                        calcs.addClass('calcDeleted');
+                        calcs.find('.btn').remove();
+                        @*if ($row.attr('name') == 'calcpos') {
+                            $.ajax({
+                                url: '@Url.Action("GetCalculation")',
+                                method: 'POST',
+                                data: { id: null },
+                                success: function(html) {
+                                    $row.find('[name="calc"]').remove();
+                                    $row.append(html);
+                                    displaySecCol();
+                                    hideSpinnerAndEnabled($this);
+                                },
+                                error:function() {
+                                    hideSpinnerAndEnabled($this);
+                                }
+                            });
+                        } else {
+                            var id = $row.attr('pid');
+                            var poss = $('#calcpos-' + id).find('[name="pos"]');
+                            var curRowSpan = poss.attr('rowspan');
+                            var newRowSpan = parseInt(curRowSpan) - 1;
+                            poss.attr('rowspan', newRowSpan);
+                            $row.remove();
+                        }*@
+                        hideSpinnerAndEnabled($this);
+                    },
+                    error: function() {
+                        hideSpinnerAndEnabled($this);
+                    }
+                });
+            });
+
+            $('[name="btnEditCalc"]', $container).click(function() {
+
+                var $this = $(this);
+                showSpinnerAppendAndDisable($this);
+                var cpid = $this.attr('cpid');
+                var $row = $this.closest('tr');
+                var id = $row.attr('pid');
+
+                $.ajax({
+                    url: '@Url.Action("GetCalculationEdit")',
+                    method: 'POST',
+                    data: { id: cpid, ClaimType: '@ViewBag.ClaimType' },
+                    success: function(html) {
+                        var $calcs = $('td[name="calc"][cpid="' + cpid + '"]');
+                        var parentRow = $calcs.parent('tr');
+                        $calcs.remove();
+                        parentRow.append(html);
+                        initCalcBns($row);
+                        displaySecCol();
+                        hideSpinnerAndEnabled($this);
+                        setB2bPrice($row);
+                    },
+                    error: function() {
+                        alert('Ошибка при загрузке формы редактирования расчета!');
+                        hideSpinnerAndEnabled($this);
+                    }
+                });
+            });
+
+            $('[name="btnSaveCalc"]', $container).click(function() {
+                var $this = $(this);
+                var $row = $this.closest('tr');
+                var pid = $row.attr('pid');
+                var cpid = $this.attr('cpid');
+
+                var CatalogNumber = $('[name=CatalogNumber]', $row).val();
+                var Name = $('[name=Name]', $row).val().trim();
+                var PriceUsd = $('[name=PriceUsd]', $row).val().trim().replace(".", ",");
+                var PriceEur = $('[name=PriceEur]', $row).val().trim().replace(".", ",");
+                var PriceEurRicoh = $('[name=PriceEurRicoh]', $row).val().replace(".", ",");
+                var PriceRubl = $('[name=PriceRubl]', $row).val().replace(".", ",");
+                var Provider = $('[name=Provider]', $row).val();
+                var DeliveryTime = $('[name=DeliveryTime]', $row).val();
+                var ProtectFact = $('[name=ProtectFact]', $row).val();
+                var ProtectCondition = $('[name=ProtectCondition]', $row).val();
+                var Comment = $('[name=Comment]', $row).val();
+                var Brand = $('[name=Brand]', $row).val();
+                var Replace = $('[name=Replace]', $row).val();
+
+                if (!Name && !Replace) {
+                    alert('Укажите наименование либо замена!');
+                    return;
+                }
+                if (!PriceUsd && !PriceEur && !PriceEurRicoh && !PriceRubl) {
+                    alert('Укажите цену!');
+                    return;
+                }
+                if (!DeliveryTime) {
+                    alert('Укажите срок поставки!');
+                    return;
+                }
+                showSpinnerAppendAndDisable($this);
+                $.ajax({
+                    url: '@Url.Action("Save")',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ Id: cpid, IdSpecificationPosition: pid, CatalogNumber: CatalogNumber, Name: Name, PriceUsd: PriceUsd, PriceEur: PriceEur, PriceEurRicoh: PriceEurRicoh, PriceRubl: PriceRubl, Provider: Provider, DeliveryTimeId: DeliveryTime, ProtectFactId: ProtectFact, ProtectCondition: ProtectCondition, Comment: Comment, Brand: Brand, Replace: Replace }),
+                    success: function(data) {
+                        $.ajax({
+                            url: '@Url.Action("GetCalculation")',
+                            method: 'POST',
+                            data: { id: data.Id, ClaimType: '@ViewBag.ClaimType' },
+                            success: function(html) {
+                                $row.find('[name="calc"]').remove();
+                                $row.append(html);
+                                displaySecCol();
+                                initCalcBns($row);
+                                hideSpinnerAndEnabled($this);
+                                setB2bPrice($row);
+                            },
+                            error: function() {
+                                hideSpinnerAndEnabled($this);
+                            }
+                        });
+                    },
+                    error: function() {
+                        alert('Ошибка при сохранении расчета!');
+                        hideSpinnerAndEnabled($this);
+                    }
+                });
+
+            });
+
+            $('[name="btnEditCalcCancel"]', $container).click(function() {
+                var $this = $(this);
+                var $row = $this.closest('tr');
+                var cpid = $this.attr('cpid');
+                showSpinnerAppendAndDisable($this);
+                if ($row.attr('name') == 'calcpos' || cpid > 0) {
+                    $.ajax({
+                        url: '@Url.Action("GetCalculation")',
+                        method: 'POST',
+                        data: { id: cpid, ClaimType: '@ViewBag.ClaimType' },
+                        success: function(html) {
+                            $row.find('[name="calc"]').remove();
+                            $row.append(html);
+                            displaySecCol();
+                            initCalcBns($row);
+                            hideSpinnerAndEnabled($this);
+                        },
+                        error: function() {
+                            hideSpinnerAndEnabled($this);
+                        }
+                    });
+                } else {
+                    var id = $row.attr('pid');
+                    var poss = $('#calcpos-' + id).find('[name="pos"]');
+                    var curRowSpan = poss.attr('rowspan');
+                    var newRowSpan = parseInt(curRowSpan) - 1;
+                    poss.attr('rowspan', newRowSpan);
+                    $row.remove();
+                }
+            });
+        }
+
+        //function fillCount() {
+        //    var count = $('[name="cpos"]').length;
+        //    $('#positionCountLabel').text(count);
+        //}
+
+        function sendComment(e) {
+            var comment = $("#comment").val().trim();
+            if (!comment) return;
+            var $this = $(this);
+            showSpinnerAppendAndDisable($this);
+            //comment = encodeURI(comment);
+            $.ajax({
+                url: '@Url.Action("AddComment")',
+                method: 'POST',
+                dataType: 'json',
+                data: { idClaim: @Model.Id, comment: comment, cv: '@Request.QueryString["cv"]' },
+                //contentType: 'application/json; charset = utf-8 ',
+                success: function(data) {
+                    messageUi.progressHide();
+                    if (data.IsComplete) {
+                        if (data.Model != null) {
+                            loadHistory();
+                        }
+                        $("#comment").val("");
+                        hideSpinnerAndEnabled($this);
+                    } else {
+                        alert("Ошибка при добавлении комментария");
+                        hideSpinnerAndEnabled($this);
+                    }
+                },
+                error: function(data) {
+                    alert("Ошибка с добавления комментария");
+                    hideSpinnerAndEnabled($this);
+                }
+            });
+        }
+
+        function loadHistory() {
+            var $cont = $('#claimStatusHistoryContainer');
+            $cont.html('');
+            showSpinner($cont);
+            $.ajax({
+                url: '@Url.Action("GetClaimHistory", "Claim")',
+                method: 'POST',
+                data: { id: @Model.Id, full: false },
+                success: function(html) {
+                    $cont.html(html);
+                    $('#historyMore').click(showHistoryAll);
+                    hideSpinner($cont);
+                },
+                error: function() {
+                    alert('Ошибка загрузки истории!');
+                    hideSpinner($cont);
+                }
+            });
+        }
+
+        function showHistoryAll() {
+            var $cont = $('#allHistoryContainer');
+            $('#allHistoryModal').modal('show');
+            showSpinner($cont);
+            $.ajax({
+                url: '@Url.Action("GetClaimHistory", "Claim")',
+                method: 'POST',
+                data: { id: @Model.Id, full: true },
+                success: function(html) {
+                    $cont.html(html);
+                    hideSpinner($cont);
+                },
+                error: function() {
+                    alert('Ошибка загрузки истории!');
+                    hideSpinner($cont);
+                }
+            });
+        }
+    </script>
+    }

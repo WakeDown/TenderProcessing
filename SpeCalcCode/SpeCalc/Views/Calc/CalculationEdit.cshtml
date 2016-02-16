@@ -1,0 +1,78 @@
+﻿
+
+@using SpeCalcDataAccessLayer.Models
+@model SpeCalcDataAccessLayer.Models.CalculateSpecificationPosition
+@{
+    bool IsTransneft = ViewBag.ClaimType != null && ViewBag.ClaimType == "TRANS";
+}
+@if (IsTransneft)
+{
+    <td name="calc" cpid="@Model.Id" secol="secol">
+        <input type="text" class="form-control input-xs" value="@Model.Brand" name="Brand" placeholder="Бренд" />
+    </td>
+}
+<td name="calc" cpid="@Model.Id">
+    <input type="text" class="form-control input-xs" value="@Model.CatalogNumber" name="CatalogNumber" placeholder="Каталожный номер"/>
+</td>
+@if (IsTransneft)
+            {
+                <td name="calc" cpid="@Model.Id">
+                    <textarea class="form-control input-xs" rows="3" placeholder="Наименование" name="Name">@Model.Name</textarea>
+                </td>
+                <td name="calc" cpid="@Model.Id">
+                    <textarea class="form-control input-xs" rows="3" placeholder="Замена" name="Replace">@Model.Replace</textarea>
+                </td>
+}
+else
+{
+    <td name="calc" cpid="@Model.Id">
+        <textarea class="form-control input-xs" rows="3" placeholder="Наименование, Замена" name="Name">@Model.Name</textarea>
+    </td>
+}
+
+<td name="calc" cpid="@Model.Id"></td>
+<td name="calc" cpid="@Model.Id">
+    <input type="text" class="form-control input-xs" value="@Model.PriceUsd" name="PriceUsd" placeholder="Цена USD" />
+</td>
+<td name="calc" cpid="@Model.Id">
+    <input type="text" class="form-control input-xs" value="@Model.PriceEur" name="PriceEur" placeholder="Цена EUR" />
+</td>
+<td name="calc" cpid="@Model.Id">
+    <input type="text" class="form-control input-xs" value="@Model.PriceEurRicoh" name="PriceEurRicoh" placeholder="Цена EUR Ricoh" />
+</td>
+<td name="calc" cpid="@Model.Id">
+    <input type="text" class="form-control input-xs" value="@Model.PriceRubl" name="PriceRubl" placeholder="Цена руб." />
+</td>
+<td name="calc" cpid="@Model.Id" secol="secol">
+    <input type="text" class="form-control input-xs" value="@Model.Provider" name="Provider" placeholder="Поставщик" />
+</td>
+<td name="calc" cpid="@Model.Id">
+    <select name="DeliveryTime" class="form-control input-xs">
+        <option>--выберите--</option>
+        @foreach (var del in DeliveryTime.GetList())
+        {
+            <option value="@del.Id" @(del.Id == Model.DeliveryTime.Id ? "selected" : String.Empty)>@del.Value</option>
+        }
+    </select>
+    @*@Html.DropDownList("DeliveryTime", new SelectList(DeliveryTime.GetList(), "Id", "Value", Model.DeliveryTime.Id), "--выберите--", new {@class = "form-control input-xs"})*@
+</td>
+<td name="calc" cpid="@Model.Id" secol="secol">
+    <select name="ProtectFact" class="form-control input-xs">
+        <option>--выберите--</option>
+        @foreach (var pf in ProtectFact.GetList())
+        {
+            <option value="@pf.Id" @(pf.Id == Model.ProtectFact.Id ? "selected" : String.Empty)>@pf.Value</option>
+        }
+    </select>
+    @*@Html.DropDownList("ProtectFact", new SelectList(ProtectFact.GetList(), "Id", "Value", Model.ProtectFact.Id), "--выберите--", new { @class = "form-control input-xs" })*@
+</td>
+<td name="calc" cpid="@Model.Id" secol="secol">
+    <textarea class="form-control input-xs" rows="3" placeholder="Условия защиты" name="ProtectCondition">@Model.ProtectCondition</textarea>
+</td>
+<td name="calc" cpid="@Model.Id" secol="secol">
+    <textarea class="form-control input-xs" rows="3" placeholder="Комментарий" name="Comment">@Model.Comment</textarea>
+</td>
+<td name="calc">
+    <button type='button' name='btnSaveCalc' class='btn btn-success btn-sm' data-toggle='tooltip' title='сохранить' cpid="@Model.Id"><i class='fa fa-save'></i></button><br />
+    <button type='button' name='btnEditCalcCancel' class='btn btn-default btn-sm' data-toggle='tooltip' title='отмена' cpid="@Model.Id"><i class='fa fa-undo'></i></button>
+</td>

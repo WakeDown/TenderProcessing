@@ -1,0 +1,115 @@
+﻿@using SpeCalc.Helpers
+@using SpeCalcDataAccessLayer.Models
+@model SpeCalcDataAccessLayer.Projects
+
+<div class="form-horizontal val-form small project-form" role="form">
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">Аукцион</label>
+        <div class="col-sm-7">
+            @(Model.IsAuction.HasValue ? Model.IsAuction.Value ? "да" : "нет" : null)
+        </div>
+    </div>
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">Ссылка на закупки</label>
+        <div class="col-sm-7">
+            @Model.AuctionLink
+        </div>
+    </div>
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">№ конкурса из Эталон</label>
+        <div class="col-sm-7">
+            @Model.AuctionNumber
+        </div>
+    </div>
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">Дата аукциона</label>
+        <div class="col-sm-7">
+            @(Model.AuctionDeadlineDate.HasValue ? Model.AuctionDeadlineDate.Value.ToString("dd.MM.yyyy") : null)
+        </div>
+    </div>
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">Срок подачи ТКП</label>
+        <div class="col-sm-7">
+            @(Model.TkpDeadlineDate.HasValue ? Model.TkpDeadlineDate.Value.ToString("dd.MM.yyyy") : null)
+        </div>
+    </div>
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">Дата подачи на аукцион</label>
+        <div class="col-sm-7">
+            @(Model.AuctionSendDate.HasValue ? Model.AuctionSendDate.Value.ToString("dd.MM.yyyy") : null)
+        </div>
+    </div>
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">Отношения с заказчиком</label>
+        <div class="col-sm-7">
+            @(Model.ClientRelationshipId.HasValue ? Model.ProjectClientRelationships.Name: null)
+        </div>
+    </div>
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">Срок сдачи проекта</label>
+        <div class="col-sm-7">
+            @Model.DeadlineDate
+        </div>
+    </div>
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">ИНН заказчика</label>
+        <div class="col-sm-7">
+            @Model.ClientInn
+        </div>
+    </div>
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">Заказчик</label>
+        <div class="col-sm-7">
+            @Model.ClientName
+        </div>
+    </div>
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">Бизнес задача</label>
+        <div class="col-sm-7">
+            @(Model.BusinessTargetId.HasValue ? Model.ProjectBusinessTargets.Name : null)
+            <div>
+                @Model.BusinessTargetName
+            </div>
+        </div>
+    </div>
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">Направление</label>
+        <div class="col-sm-7">
+            @(Model.SaleDirectionId.HasValue ? Model.ProjectSaleDirections.Name : null)
+        </div>
+    </div>
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">Предмет сделки</label>
+        <div class="col-sm-7">
+            @(Model.SaleSubjectId.HasValue ? Model.ProjectSaleSubjects.Name : null);
+        </div>
+    </div>
+    <div class="form-group info-row">
+    <label for="" class="col-sm-5 control-label no-pad-top text-right">Бюджет</label>
+    <div class="col-sm-7">
+        @Model.Budget @(Model.CurrencyId.HasValue ? Model.ProjectCurrencies.Name: null)
+    </div>
+    </div>
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">Менеджер</label>
+        <div class="col-sm-7">
+            @Model.ManagerName
+        </div>
+    </div>
+    <div class="form-group info-row">
+        <label for="" class="col-sm-5 control-label no-pad-top text-right">Комментарий</label>
+        <div class="col-sm-7">
+            @Model.Comment
+        </div>
+    </div>
+    @if(ViewBag.UserCanChange)
+    {
+    <p>
+        <div class="row">
+            <div class="col-sm-offset-9 col-lg-3">
+                <button id="infoEdit" class="btn btn-warning"><i class="fa fa-edit"></i> изменить</button>
+            </div>
+        </div>
+    </p>
+}
+</div>
