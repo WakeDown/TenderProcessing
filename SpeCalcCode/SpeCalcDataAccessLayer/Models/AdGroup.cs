@@ -14,6 +14,7 @@ namespace SpeCalcDataAccessLayer.Objects
         SpeCalcKontroler,
         SpeCalcManager,
         SpeCalcProduct,
+        SpeCalcProductChief,
         SpeCalcOperator,
         SpeCalcKonkurs,
         SpeCalcEngeneer,

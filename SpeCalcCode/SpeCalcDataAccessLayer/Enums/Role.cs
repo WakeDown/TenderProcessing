@@ -11,6 +11,7 @@ namespace SpeCalcDataAccessLayer.Enums
         Operator = 1,
         Manager = 2,
         ProductManager = 3,
+        ProductChief = 8,
         Controller = 4,
         TenderStatus = 5,
         Enter = 6,

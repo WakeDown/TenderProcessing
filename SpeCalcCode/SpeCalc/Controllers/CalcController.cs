@@ -80,7 +80,8 @@ namespace SpeCalc.Controllers
             ViewBag.UserName = user.FullName;
             var isController = user.Is(AdGroup.SpeCalcKontroler);//UserHelper.IsController(user);
             var isProduct = user.Is(AdGroup.SpeCalcProduct);//UserHelper.IsProductManager(user);
-            if (!isController && !isProduct)
+            var isProductChief = user.Is(AdGroup.SpeCalcProductChief);//UserHelper.IsProductManager(user);
+            if (!isController && !isProduct && !isProductChief)
             {
                 var dict = new RouteValueDictionary();
                 dict.Add("message", "У Вас нет доступа к этой странице");
@@ -91,7 +92,7 @@ namespace SpeCalc.Controllers
             //ViewBag.Status = string.Empty;
             //ViewBag.StatusHistory = new List<ClaimStatusHistory>();
             var newClaim = true;
-            if (!isController) newClaim = false;
+            if (!isController && !isProductChief) newClaim = false;
             ViewBag.NewClaim = newClaim.ToString().ToLower();
             TenderClaim claim = null;
             try
@@ -119,7 +120,7 @@ namespace SpeCalc.Controllers
                         //    return RedirectToAction("ErrorPage", "Auth", dict);
                         //}
                         //позиции заявки, в зависимости от роли юзера
-                        if (!isController)
+                        if (!isController && !isProductChief)
                         {
                             claim.Positions = db.LoadSpecificationPositionsForTenderClaimForProduct(claimId.Value,
                                 user.Sid, cv.Value);
@@ -164,7 +165,7 @@ namespace SpeCalc.Controllers
 
                             var productManagers = claim.Positions.Select(x => x.ProductManager).ToList();
                             var prodManSelList = UserHelper.GetProductManagersSelectionList();
-                            bool hasAccess = isController || claim.Positions.Any(x => x.ProductManager.Id == user.Sid);
+                            bool hasAccess = isController || isProductChief || claim.Positions.Any(x => x.ProductManager.Id == user.Sid);
 
                             foreach (var productManager in productManagers)
                             {
@@ -203,7 +204,7 @@ namespace SpeCalc.Controllers
                         }
                         else
                         {
-                            if (isController)
+                            if (isController || isProductChief)
                             {
                                 var dict = new RouteValueDictionary();
                                 dict.Add("message", "У заявки нет позиций");
@@ -449,7 +450,7 @@ namespace SpeCalc.Controllers
             var positions = new List<SpecificationPosition>();
             //получение позиций исходя из роли юзера
             //if (UserHelper.IsController(user) || UserHelper.IsManager(user))
-            if (CurUser.HasAccess(AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator))
+            if (CurUser.HasAccess(AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator, AdGroup.SpeCalcProductChief, AdGroup.SpeCalcKontroler))
             {
                 positions = db.LoadSpecificationPositionsForTenderClaim(claimId, cv);
             }
@@ -892,7 +893,7 @@ namespace SpeCalc.Controllers
             var positions = new List<SpecificationPosition>();
             //получение позиций исходя из роли юзера
             //if (UserHelper.IsController(user) || UserHelper.IsManager(user))
-            if (CurUser.HasAccess(AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator))
+            if (CurUser.HasAccess(AdGroup.SpeCalcManager, AdGroup.SpeCalcOperator, AdGroup.SpeCalcKontroler, AdGroup.SpeCalcProductChief))
             {
                 positions = db.LoadSpecificationPositionsForTenderClaim(claimId, cv);
             }
@@ -1677,7 +1678,7 @@ namespace SpeCalc.Controllers
             //получение позиций для текущего юзера
             var positions = new List<SpecificationPosition>();
             //if (UserHelper.IsController(user))
-            if (CurUser.HasAccess(AdGroup.SpeCalcKontroler))
+            if (CurUser.HasAccess(AdGroup.SpeCalcKontroler, AdGroup.SpeCalcProductChief))
             {
                 positions = db.LoadSpecificationPositionsForTenderClaim(idClaim, cv);
             }
@@ -1858,7 +1859,7 @@ namespace SpeCalc.Controllers
                 //получение позиций для текущего юзера
                 var positions = new List<SpecificationPosition>();
                 //if (UserHelper.IsController(user))
-                if (CurUser.HasAccess(AdGroup.SpeCalcKontroler))
+                if (CurUser.HasAccess(AdGroup.SpeCalcKontroler, AdGroup.SpeCalcProductChief))
                 {
                     positions = db.LoadSpecificationPositionsForTenderClaim(idClaim, cv);
                 }

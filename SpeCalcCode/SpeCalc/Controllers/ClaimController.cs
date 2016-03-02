@@ -595,6 +595,7 @@ namespace SpeCalc.Controllers
             var user = GetUser();
             var isManager = user.Is(AdGroup.SpeCalcManager);//UserHelper.IsManager(user);
             var isProduct = user.Is(AdGroup.SpeCalcProduct);//UserHelper.IsProductManager(user);
+            var isProductChief = user.Is(AdGroup.SpeCalcProductChief);//UserHelper.IsProductManager(user);
             var isController = user.Is(AdGroup.SpeCalcKontroler);//UserHelper.IsController(user);
             var isOperator = user.Is(AdGroup.SpeCalcOperator);//UserHelper.IsOperator(user);
             var subordinates = Employee.GetSubordinates(user.Sid).ToList();
@@ -605,14 +606,15 @@ namespace SpeCalc.Controllers
             {
                 if (isManager && (string.IsNullOrEmpty(filter.IdManager) || !subSids.Contains(filter.IdManager)))
                 filter.IdManager = subSids;
-                if (isProduct && (string.IsNullOrEmpty(filter.IdProductManager) || !subSids.Contains(filter.IdProductManager)))
+                if (isProduct && !isProductChief && (string.IsNullOrEmpty(filter.IdProductManager) || !subSids.Contains(filter.IdProductManager)))
                 filter.IdProductManager = subSids;
             }
             var mainRole = isController
                     ? Role.Controller
                     : isManager 
                         ? Role.Manager 
-                        : isProduct 
+                        : isProductChief ? Role.ProductChief
+                            : isProduct 
                             ? Role.ProductManager 
                             :  isOperator
                             ? Role.Operator
@@ -626,7 +628,7 @@ namespace SpeCalc.Controllers
             var listViewModel = new ListViewModels(filter, subordinates, mainRole);
             ViewBag.UserName = user.FullName;
             ViewBag.CanEdit = isManager || isOperator || isController;
-            ViewBag.CanCalc = isProduct || isController;
+            ViewBag.CanCalc = isProduct || isProductChief || isController;
             return View(listViewModel);
         }
         [HttpGet]
@@ -1729,7 +1731,8 @@ namespace SpeCalc.Controllers
 
                     var eurRicohCell = workSheet.Cell(++rowHead, 4);
                     var profitCell = workSheet.Cell(++rowHead, 4);//Рентабельность
-                    workSheet.Cell(++rowHead, 4).Value = dealTypes.First(x => x.Id == claim.DealType).Value;
+                    var dealType = dealTypes.FirstOrDefault(x => x.Id == claim.DealType);
+                    workSheet.Cell(++rowHead, 4).Value = dealType != null ? dealType.Value : null;
                     workSheet.Cell(++rowHead, 4).Value = manager != null ? manager.ShortName : string.Empty;
                     workSheet.Cell(++rowHead, 4).Value = claim.Customer;
                     //срок готовности цен от снабжения???
@@ -1818,7 +1821,7 @@ namespace SpeCalc.Controllers
                                 workSheet.Cell(row, ++col).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                                 if (calculation.DeliveryTime != null)
                                 {
-                                    var delivTime = deliveryTimes.First(x => x.Id == calculation.DeliveryTime.Id);
+                                    var delivTime = deliveryTimes.FirstOrDefault(x => x.Id == calculation.DeliveryTime.Id);
                                     workSheet.Cell(row, col).Value = delivTime == null ? String.Empty : delivTime.Value;
                                 }
                                 double hCalcDeliv = GetCellHeight(workSheet.Cell(row, col).Value.ToString().Length, 16);

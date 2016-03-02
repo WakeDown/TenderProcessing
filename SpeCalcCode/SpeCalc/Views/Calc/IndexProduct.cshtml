@@ -253,7 +253,7 @@
         </ul>
     </div>
     @*Позиции*@
-    <div id="tblPositionsContainer" style="overflow: hidden">
+    <div id="tblPositionsContainer" style="overflow: scroll">
         <table id="tblPositionsWithCalc" class="table small table-bordered">
             <thead>
                 @Html.Partial("PositionHeader")
@@ -344,7 +344,7 @@
                 $('[secol="secol"]').addClass('hidden');
                 $('#tblPositionsWithCalc').width('');
             }
-            tableDraggable('tblPositionsWithCalc', 'tblPositionsContainer');
+            //tableDraggable('tblPositionsWithCalc', 'tblPositionsContainer');
         }
 
 
