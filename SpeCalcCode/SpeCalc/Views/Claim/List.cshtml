@@ -184,10 +184,10 @@
             @if (canCalc && canEdit)
             {
                 <td>
-                    <a href=@Url.Action("Index", "Claim", new {claimId = claim.Id}) class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить' target="_blank"><i class='fa fa-edit'></i></a>
+                    <a href=@Url.Action("Index", "Claim", new {claimId = claim.Id}) class='btn btn-link btn-lg no-pad' data-toggle='tooltip' title='изменить' target="_blank"><i class='fa fa-edit'></i></a>
                     @if (claim.ProductManagers.Count > 0)
                     {
-                        <a href=@Url.Action("Index", "Calc", new {claimId = claim.Id}) class='btn btn-link btn-lg' data-toggle='tooltip' title='изменить' target="_blank"><i class='fa fa-calculator'></i></a>
+                        <a href=@Url.Action("Index", "Calc", new {claimId = claim.Id}) class='btn btn-link btn-lg no-pad' data-toggle='tooltip' title='изменить' target="_blank"><i class='fa fa-calculator'></i></a>
                     }
                 </td>
             }
@@ -225,7 +225,7 @@
             <td>
                 @if (canEdit && claim.ClaimStatus == 1)
                 {
-                    <button id=delbtn claimId="@claim.Id" type='button' class='btn btn-link btn-lg' data-toggle='tooltip' title='удалить'>
+                    <button id=delbtn claimId="@claim.Id" type='button' class='btn btn-link btn-lg no-pad' data-toggle='tooltip' title='удалить'>
                         <i class='fa fa-trash'></i>
                     </button>
                 }

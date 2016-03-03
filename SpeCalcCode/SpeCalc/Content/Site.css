@@ -202,9 +202,13 @@ a.danger, a.danger:hover, a.danger:active {
     margin: 0;
 }
 
+.prod-manager-table td, .prod-manager-table th  {
+    padding: 3px !important;
+}
+
 
 .prod-manager-table td.num {
-    width: 65px;   
+    width: 53px;   
 }
 
 blockquote.bg-warning {

@@ -1090,7 +1090,8 @@ namespace SpeCalc.Controllers
                                 workSheet.Cell(row, ++col).Value = calculation.Provider;
                                 workSheet.Cell(row, col).Style.Alignment.SetWrapText();
 
-                                if (calculation.DeliveryTime != null) workSheet.Cell(row, ++col).Value = deliveryTimes.First(x => x.Id == calculation.DeliveryTime.Id).Value;
+                                var delTime = deliveryTimes.FirstOrDefault<DeliveryTime>(x => x.Id == calculation.DeliveryTime.Id);
+                                if (calculation.DeliveryTime != null) workSheet.Cell(row, ++col).Value = delTime != null ? delTime.Value : null;
                                 workSheet.Cell(row, col).Style.Alignment.SetWrapText();
 
                                 if (calculation.ProtectFact != null)
@@ -1177,8 +1178,9 @@ namespace SpeCalc.Controllers
 
         public void ExcelDataFormatCalcRowTrans(ref IXLWorksheet workSheet, int row, IXLRange deliveryTimeRange, IXLRange protectFactRange)
         {
-            int col = 14;
+            int col = 15;
 
+            workSheet.Cell(row, col).Value = workSheet.Cell(row, col).Value.ToString().Trim();
             workSheet.Cell(row, col).DataType = XLCellValues.Number;
             workSheet.Cell(row, col).DataValidation.Decimal.GreaterThan(0);
             workSheet.Cell(row, col).DataValidation.ErrorTitle = "Введите число";
@@ -2122,7 +2124,7 @@ namespace SpeCalc.Controllers
             if (!claimId.HasValue) return null;
             if (!cv.HasValue) cv = 1;
             string productSid = null;
-            if (CurUser.Is(AdGroup.SpeCalcProduct) && !CurUser.Is(AdGroup.SpeCalcKontroler))
+            if (CurUser.Is(AdGroup.SpeCalcProduct) && !CurUser.Is(AdGroup.SpeCalcKontroler) && !CurUser.Is(AdGroup.SpeCalcProductChief))
                 productSid = CurUser.Sid;
             ViewBag.ClaimType = ClaimType;
             var list = SpecificationPosition.GetListWithCalc(claimId.Value, cv.Value, productSid);// db.LoadSpecificationPositionsForTenderClaim(); ;
