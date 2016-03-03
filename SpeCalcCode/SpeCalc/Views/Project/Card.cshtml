@@ -1722,14 +1722,14 @@
 
     function getPositionValues($row) {
         if (!$row) return;
-
+        
         var PositionCatalogNumber = $row.find('[name=PositionCatalogNumber]').val();
         var PositionName = $row.find('[name=PositionName]').val();
         var PositionVendor = $row.find('[name=PositionVendor]').val();
         var PositionQuantity = $row.find('[name=PositionQuantity]').val();
         var PositionQuantityUnit = $row.find('[name=PositionQuantityUnit]:checked').val();
         var Calculator = $row.find('[name=Calculator]').val();
-
+        
         var model = {
             ProjectId: @Model.Id,
             CatalogNumber: PositionCatalogNumber,
@@ -1739,13 +1739,14 @@
             QuantityUnitId: PositionQuantityUnit,
             CalculatorSid: Calculator
         };
+        
         return model;
     }
 
     function saveNewPosition() {
         var $this = $(this);
         var $row = $this.closest('tr');
-
+        
         showSpinnerAppendAndDisable($this);
         $.ajax({
             url: '@Url.Action("CreatePosition")',

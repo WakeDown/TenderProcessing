@@ -334,7 +334,7 @@ namespace SpeCalc.Controllers
         {
             if (!CurUser.HasAccess(AdGroup.SpeCalcProjectControler) &&
                 !ProjectModel.UserCanChangeProject(pid, CurUser.Sid))
-                return null;
+                return Json(new { });
             ProjectPositionModel.Delete(ids, CurUser);
             return Json(new { });
         }

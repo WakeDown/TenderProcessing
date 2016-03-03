@@ -87,7 +87,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             if (!hasContext)
             {
                 db.SaveChanges();
-                db.Dispose();
+                //db.Dispose();
             }
             ProjectHistoryModel.CreateHistoryItem(position.ProjectId, "Удаление оборудования", $"{position.Name}", new[] { position }, user);
         }

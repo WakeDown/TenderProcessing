@@ -109,10 +109,10 @@
       <publishTime>03/01/2015 17:16:03</publishTime>
     </File>
     <File Include="bin/SpeCalc.dll">
-      <publishTime>02/03/2016 14:50:57</publishTime>
+      <publishTime>03/03/2016 16:09:34</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.dll">
-      <publishTime>03/02/2016 14:15:12</publishTime>
+      <publishTime>03/03/2016 16:09:33</publishTime>
     </File>
     <File Include="bin/SpeCalcDataAccessLayer.dll.config">
       <publishTime>02/11/2016 09:39:33</publishTime>
@@ -496,7 +496,7 @@
       <publishTime>02/10/2016 21:50:03</publishTime>
     </File>
     <File Include="Views/Project/Card.cshtml">
-      <publishTime>02/11/2016 18:05:41</publishTime>
+      <publishTime>03/03/2016 15:58:55</publishTime>
     </File>
     <File Include="Views/Project/CardInfo.cshtml">
       <publishTime>02/08/2016 01:37:33</publishTime>
@@ -667,7 +667,7 @@
       <publishTime>06/23/2015 16:51:12</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>03/02/2016 14:15:16</publishTime>
+      <publishTime>03/03/2016 16:09:34</publishTime>
     </File>
   </ItemGroup>
 </Project>

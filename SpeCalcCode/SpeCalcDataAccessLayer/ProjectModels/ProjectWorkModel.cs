@@ -84,7 +84,7 @@ namespace SpeCalcDataAccessLayer.ProjectModels
             if (!hasContext)
             {
                 db.SaveChanges();
-                db.Dispose();
+                //db.Dispose();
             }
             ProjectHistoryModel.CreateHistoryItem(work.ProjectId, "Удаление работы", $"{work.Name}", new[] { work }, user);
         }
